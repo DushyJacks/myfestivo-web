@@ -1,0 +1,215 @@
+"use client"
+
+import { useAuth } from "@/lib/auth-context"
+import { useEvents } from "@/lib/events-context"
+import { GlassCard } from "@/components/ui/GlassCard"
+import { MicroLabel } from "@/components/ui/MicroLabel"
+import { PageTransition, pageItem } from "@/components/animation/PageTransition"
+import { motion } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { useParams, useRouter } from "next/navigation"
+import Link from "next/link"
+import { ArrowLeft, Download, DollarSign, TrendingUp, PieChart, Receipt, Check, Clock, X } from "lucide-react"
+import { AppSidebar } from "@/components/layout/AppSidebar"
+
+export default function FinancePage() {
+  const params = useParams()
+  const router = useRouter()
+  const { user } = useAuth()
+  const { events } = useEvents()
+
+  const event = events.find(e => e.id === params.id)
+  
+  if (!event) { 
+    router.push("/events")
+    return null 
+  }
+
+  // Security check: Only the student host (Category 1) can see the finance dashboard
+  const isHost = user?.email === event.organizerEmail
+  if (!user || !isHost) { 
+    router.push(`/events/${params.id}`)
+    return null 
+  }
+
+  const paidRegs = event.registrations.filter(r => r.status === "PAID")
+  const pendingRegs = event.registrations.filter(r => r.status === "PENDING")
+  const refundedRegs = event.registrations.filter(r => r.status === "REFUNDED")
+  const totalCollected = paidRegs.length * event.price
+  const totalPending = pendingRegs.length * event.price
+  const totalRefunded = refundedRegs.length * event.price
+
+  // Per-sub-event breakdown
+  const subEventBreakdown = event.subEvents.map(se => {
+    const seRegs = event.registrations.filter(r => r.subEventId === se.id)
+    const sePaid = seRegs.filter(r => r.status === "PAID")
+    const sePending = seRegs.filter(r => r.status === "PENDING")
+    return {
+      name: se.name, type: se.type,
+      total: seRegs.length, paid: sePaid.length, pending: sePending.length,
+      revenue: sePaid.length * event.price,
+      checkedIn: seRegs.filter(r => r.checkedIn).length,
+    }
+  })
+
+  const exportCSV = () => {
+    const headers = "Name,Email,Sub-Event,Team,Status,Transaction ID,Method,Checked In,Time\n"
+    const rows = event.registrations.map(r => {
+      const se = event.subEvents.find(s => s.id === r.subEventId)
+      return `"${r.userName}","${r.userEmail}","${se?.name || ''}","${r.teamName || ''}","${r.status}","${r.transactionId || ''}","${r.paymentMethod || ''}","${r.checkedIn ? 'Yes' : 'No'}","${r.timestamp}"`
+    }).join("\n")
+    const blob = new Blob([headers + rows], { type: "text/csv" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a"); a.href = url; a.download = `${event.title.replace(/\s+/g, '_')}_finance.csv`; a.click()
+  }
+
+  return (
+    <>
+      <header className="fixed top-0 left-[72px] lg:left-[260px] right-0 h-16 flex items-center justify-between px-8 z-50 bg-black/60 backdrop-blur-md border-b border-white/[0.06]">
+        <div className="flex items-center gap-4">
+          <Link href={`/events/${event.id}`} className="text-white/40 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
+          <span className="font-medium text-white">{event.title} — Finance</span>
+        </div>
+        <button onClick={exportCSV} className="text-white/50 hover:text-white text-xs border border-white/10 px-4 py-2 rounded-md transition-colors flex items-center gap-2"><Download className="w-4 h-4" />Export CSV</button>
+      </header>
+
+      <div className="pt-24 pb-16 px-4 md:px-8 max-w-6xl mx-auto">
+          <motion.div variants={pageItem} className="mb-10">
+            <MicroLabel>Financial Overview</MicroLabel>
+            <h1 className="text-3xl font-light tracking-tight text-white">Settlement Dashboard</h1>
+          </motion.div>
+
+          {/* KPI Cards */}
+          <motion.div variants={pageItem} className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            <GlassCard className="p-6">
+              <DollarSign className="w-5 h-5 text-green-400 mb-2" />
+              <div className="text-3xl font-light text-green-400 mb-1">₹{totalCollected.toLocaleString()}</div>
+              <div className="text-[10px] font-mono text-white/40 tracking-widest uppercase">Collected</div>
+            </GlassCard>
+            <GlassCard className="p-6">
+              <TrendingUp className="w-5 h-5 text-yellow-400 mb-2" />
+              <div className="text-3xl font-light text-yellow-400 mb-1">₹{totalPending.toLocaleString()}</div>
+              <div className="text-[10px] font-mono text-white/40 tracking-widest uppercase">Pending</div>
+            </GlassCard>
+            <GlassCard className="p-6">
+              <Receipt className="w-5 h-5 text-white/30 mb-2" />
+              <div className="text-3xl font-light mb-1 text-white">₹{totalRefunded.toLocaleString()}</div>
+              <div className="text-[10px] font-mono text-white/40 tracking-widest uppercase">Refunded</div>
+            </GlassCard>
+            <GlassCard className="p-6">
+              <PieChart className="w-5 h-5 text-white/30 mb-2" />
+              <div className="text-3xl font-light mb-1 text-white">{event.registrations.length}</div>
+              <div className="text-[10px] font-mono text-white/40 tracking-widest uppercase">Total Regs</div>
+            </GlassCard>
+          </motion.div>
+
+          {/* Sub-Event Breakdown */}
+          <motion.div variants={pageItem} className="mb-10">
+            <MicroLabel>Per Sub-Event Breakdown</MicroLabel>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="bg-white/[0.03] text-white/50">
+                  <th className="text-left p-3 text-[10px] font-mono tracking-widest">Sub-Event</th>
+                  <th className="text-left p-3 text-[10px] font-mono tracking-widest">Type</th>
+                  <th className="text-right p-3 text-[10px] font-mono tracking-widest">Total</th>
+                  <th className="text-right p-3 text-[10px] font-mono tracking-widest">Paid</th>
+                  <th className="text-right p-3 text-[10px] font-mono tracking-widest">Pending</th>
+                  <th className="text-right p-3 text-[10px] font-mono tracking-widest">Revenue</th>
+                  <th className="text-right p-3 text-[10px] font-mono tracking-widest">Checked In</th>
+                </tr></thead>
+                <tbody>
+                  {subEventBreakdown.map((se, i) => (
+                    <tr key={i} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
+                      <td className="p-3 text-white/80">{se.name}</td>
+                      <td className="p-3"><span className="text-[10px] font-mono border border-white/20 text-white/40 px-2 py-0.5 rounded uppercase">{se.type}</span></td>
+                      <td className="p-3 text-right font-mono text-white/60">{se.total}</td>
+                      <td className="p-3 text-right font-mono text-green-400">{se.paid}</td>
+                      <td className="p-3 text-right font-mono text-yellow-400">{se.pending}</td>
+                      <td className="p-3 text-right font-mono text-white/60">₹{se.revenue.toLocaleString()}</td>
+                      <td className="p-3 text-right font-mono text-white/40">{se.checkedIn}</td>
+                    </tr>
+                  ))}
+                  <tr className="bg-white/[0.03] font-medium">
+                    <td className="p-3 text-white/60" colSpan={2}>TOTAL</td>
+                    <td className="p-3 text-right font-mono text-white">{event.registrations.length}</td>
+                    <td className="p-3 text-right font-mono text-green-400">{paidRegs.length}</td>
+                    <td className="p-3 text-right font-mono text-yellow-400">{pendingRegs.length}</td>
+                    <td className="p-3 text-right font-mono text-white">₹{totalCollected.toLocaleString()}</td>
+                    <td className="p-3 text-right font-mono text-white/40">{event.registrations.filter(r => r.checkedIn).length}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+
+          {/* Payment Timeline */}
+          <motion.div variants={pageItem} className="mb-10">
+            <MicroLabel>Settlement Status</MicroLabel>
+            <GlassCard className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <div className="flex justify-between text-xs text-white/50 mb-2">
+                    <span>Collection Progress</span>
+                    <span>{event.registrations.length > 0 ? Math.round(paidRegs.length / event.registrations.length * 100) : 0}%</span>
+                  </div>
+                  <div className="h-3 bg-white/[0.06] rounded-full overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all" style={{ width: `${event.registrations.length > 0 ? (paidRegs.length / event.registrations.length * 100) : 0}%` }} />
+                  </div>
+                  <div className="flex justify-between text-[10px] font-mono text-white/30 mt-2">
+                    <span>₹0</span>
+                    <span>₹{(event.registrations.length * event.price).toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-white/[0.06]">
+                <div className="text-center">
+                  <p className="text-[10px] font-mono text-white/40 tracking-widest mb-1 uppercase">Event Price</p>
+                  <p className="text-lg font-light text-white">{event.price > 0 ? `₹${event.price}` : "Free"}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] font-mono text-white/40 tracking-widest mb-1 uppercase">Prize Pool</p>
+                  <p className="text-lg font-light text-white">{event.prizePool || "—"}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] font-mono text-white/40 tracking-widest mb-1 uppercase">Net after Prizes</p>
+                  <p className="text-lg font-light text-white">{event.prizePool ? `₹${(totalCollected - parseInt(event.prizePool.replace(/[^0-9]/g, '') || '0')).toLocaleString()}` : `₹${totalCollected.toLocaleString()}`}</p>
+                </div>
+              </div>
+            </GlassCard>
+          </motion.div>
+
+          {/* Recent Transactions */}
+          <motion.div variants={pageItem}>
+            <MicroLabel>Transaction Log</MicroLabel>
+            {event.registrations.filter(r => r.transactionId).length === 0 ? (
+              <p className="text-white/30 text-sm font-mono p-12 text-center bg-white/[0.01] border border-white/[0.04] rounded-lg">No transactions recorded yet.</p>
+            ) : (
+              <div className="space-y-2">
+                {event.registrations.filter(r => r.transactionId).map(r => {
+                  const se = event.subEvents.find(s => s.id === r.subEventId)
+                  return (
+                    <div key={r.id} className="flex items-center justify-between p-4 rounded-lg bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs ${r.status === "PAID" ? 'bg-green-500/10 text-green-400' : r.status === "PENDING" ? 'bg-yellow-500/10 text-yellow-400' : 'bg-red-500/10 text-red-300'}`}>
+                          {r.status === "PAID" ? <Check className="w-5 h-5" /> : r.status === "PENDING" ? <Clock className="w-5 h-5" /> : <X className="w-5 h-5" />}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-white">{r.userName}</p>
+                          <p className="text-[10px] font-mono text-white/40 uppercase tracking-tight">{se?.name} • {r.paymentMethod} • ID: {r.transactionId}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-mono font-medium text-white">₹{event.price}</p>
+                        <p className="text-[10px] font-mono text-white/30 mt-1">{r.timestamp}</p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </motion.div>
+      </div>
+    </>
+  )
+}
