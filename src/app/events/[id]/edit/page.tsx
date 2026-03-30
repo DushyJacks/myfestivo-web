@@ -67,7 +67,7 @@ export default function EditEventPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
   const [importantLinks, setImportantLinks] = useState<{ id: string; label: string; url: string }[]>([])
 
-  const addLink = () => setImportantLinks(prev => [...prev, { id: `link-${Date.now()}-${Math.random().toString(36).slice(2,6)}`, label: "", url: "" }])
+  const addLink = () => setImportantLinks(prev => [...prev, { id: `link-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, label: "", url: "" }])
   const updateLink = (idx: number, key: "label" | "url", val: string) =>
     setImportantLinks(prev => prev.map((l, i) => i === idx ? { ...l, [key]: val } : l))
   const removeLink = (idx: number) => setImportantLinks(prev => prev.filter((_, i) => i !== idx))
