@@ -16,17 +16,22 @@ import { QRCodeSVG } from "qrcode.react"
 import {
   ChevronRight, Ticket, BarChart3,
   ListTodo, QrCode, CheckSquare, Clock, DollarSign, Megaphone,
-  Users, Mail, X, UserPlus, PlusCircle, MessageSquare, CalendarDays,
-  Pencil
+  Pencil, Search, Check, Trash2, Mail, PlusCircle, Users, CalendarDays, X, UserPlus
 } from "lucide-react"
+import { db } from "@/lib/firebase"
+import { collection, query, where, getDocs, limit } from "firebase/firestore"
 
 export default function DashboardPage() {
-  const { user, logout, addFriend, removeFriend } = useAuth()
+  const { user, logout, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend } = useAuth()
   const { events } = useEvents()
   const router = useRouter()
-  const [friendEmail, setFriendEmail] = useState("")
   const [activeTab, setActiveTab] = useState<"overview" | "friends" | "hosted" | "registered" | "tasks">("overview")
   const [showQR, setShowQR] = useState<string | null>(null)
+
+  // ─── Friends State ───
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [isSearching, setIsSearching] = useState(false)
 
   useEffect(() => {
     if (!user) router.push("/login")
@@ -48,9 +53,35 @@ export default function DashboardPage() {
     e.announcements.slice(0, 3).map(a => ({ ...a, eventTitle: e.title, eventId: e.id }))
   ).slice(0, 5)
 
-  const handleAddFriend = (e: React.FormEvent) => {
+  const handleSearchUsers = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (friendEmail && friendEmail.includes("@")) { addFriend(friendEmail); setFriendEmail("") }
+    if (!searchQuery.trim() || !user) return
+    setIsSearching(true)
+    try {
+      const q = query(
+        collection(db, "users"),
+        where("email", "!=", user.email),
+        limit(10)
+      )
+      const snap = await getDocs(q)
+      const results = snap.docs
+        .map(d => ({ ...d.data(), id: d.id }))
+        .filter((u: any) => 
+          u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+          u.email.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      setSearchResults(results)
+    } catch (err) {
+      console.error("Search failed:", err)
+    }
+    setIsSearching(false)
+  }
+
+  const handleSendRequest = async (email: string) => {
+    const ok = await sendFriendRequest(email)
+    if (ok) {
+      setSearchResults(prev => prev.filter(u => u.email !== email))
+    }
   }
 
   const tabs = [
@@ -339,32 +370,133 @@ export default function DashboardPage() {
           {/* FRIENDS */}
           {activeTab === "friends" && (
             <motion.div variants={pageItem}>
-              <MicroLabel>Your Friends</MicroLabel>
-              <GlassCard className="p-6 mb-6">
-                <form onSubmit={handleAddFriend} className="flex gap-3">
-                  <div className="relative flex-1">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                    <Input type="email" value={friendEmail} onChange={e => setFriendEmail(e.target.value)}
-                      placeholder="friend@gmail.com" className="pl-9 bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" />
-                  </div>
-                  <Button type="submit" className="bg-white text-black hover:bg-white/90 h-11 px-6"><UserPlus className="w-4 h-4 mr-2" />Add</Button>
-                </form>
-              </GlassCard>
-              {user.friends.length === 0 ? (
-                <p className="text-white/30 text-sm">No friends added yet. Add friends using their email address.</p>
-              ) : (
-                <div className="space-y-2">
-                  {user.friends.map(email => (
-                    <div key={email} className="flex items-center justify-between p-4 rounded-md bg-white/[0.02] border border-white/[0.06]">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">{email.charAt(0).toUpperCase()}</div>
-                        <span className="text-sm font-mono">{email}</span>
-                      </div>
-                      <button onClick={() => removeFriend(email)} className="p-2 hover:bg-red-500/10 rounded-md transition-colors text-white/30 hover:text-red-400"><X className="w-4 h-4" /></button>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Left Column: Search & Pending */}
+                <div className="lg:col-span-1 space-y-8">
+                  <div>
+                    <MicroLabel>Find Peers</MicroLabel>
+                    <GlassCard className="p-4 mb-4">
+                      <form onSubmit={handleSearchUsers} className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                        <Input 
+                          value={searchQuery} 
+                          onChange={e => setSearchQuery(e.target.value)}
+                          placeholder="Search by name or email..." 
+                          className="pl-9 bg-white/[0.03] border-white/10 text-sm h-10" 
+                        />
+                      </form>
+                    </GlassCard>
+
+                    <div className="space-y-2">
+                      {isSearching && <p className="text-[10px] font-mono text-white/20 text-center py-2 animate-pulse">SEARCHING...</p>}
+                      {!isSearching && searchQuery && searchResults.length === 0 && (
+                        <p className="text-[10px] font-mono text-white/20 text-center py-2 uppercase">No results found</p>
+                      )}
+                      {searchResults.map(u => {
+                        const isFriend = user.friends.includes(u.email)
+                        const isSent = user.friendRequestsOut.includes(u.email)
+                        const isIncoming = user.friendRequestsIn.some(r => r.from === u.email)
+                        
+                        return (
+                          <GlassCard key={u.id} className="p-3 border-white/[0.03]">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-bold overflow-hidden">
+                                  {u.avatarUrl ? <img src={u.avatarUrl} alt="" className="w-full h-full object-cover" /> : u.name.charAt(0)}
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-xs font-medium truncate">{u.name}</p>
+                                  <p className="text-[9px] font-mono text-white/30 truncate">{u.email}</p>
+                                </div>
+                              </div>
+                              {isFriend ? (
+                                <span className="text-[9px] font-mono text-green-400/50 uppercase">Friend</span>
+                              ) : isSent ? (
+                                <span className="text-[9px] font-mono text-white/20 uppercase">Sent</span>
+                              ) : isIncoming ? (
+                                <span className="text-[9px] font-mono text-yellow-400/50 uppercase">Pending</span>
+                              ) : (
+                                <button 
+                                  onClick={() => handleSendRequest(u.email)}
+                                  className="p-1.5 rounded hover:bg-white/10 text-white/40 hover:text-white transition-colors"
+                                >
+                                  <UserPlus className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          </GlassCard>
+                        )
+                      })}
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Incoming Requests */}
+                  {user.friendRequestsIn.length > 0 && (
+                    <div>
+                      <MicroLabel>Friend Requests ({user.friendRequestsIn.length})</MicroLabel>
+                      <div className="space-y-2">
+                        {user.friendRequestsIn.map(req => (
+                          <GlassCard key={req.from} className="p-4 border-yellow-500/20 bg-yellow-500/[0.02]">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center text-xs text-yellow-500 font-bold">
+                                  {req.fromName.charAt(0)}
+                                </div>
+                                <div>
+                                  <p className="text-xs font-medium">{req.fromName}</p>
+                                  <p className="text-[9px] font-mono text-white/40">{req.from}</p>
+                                </div>
+                              </div>
+                              <div className="flex gap-1">
+                                <button onClick={() => acceptFriendRequest(req.from)} className="p-1.5 rounded hover:bg-green-500/20 text-green-400" title="Accept"><Check className="w-4 h-4" /></button>
+                                <button onClick={() => declineFriendRequest(req.from)} className="p-1.5 rounded hover:bg-red-500/20 text-red-400" title="Decline"><X className="w-4 h-4" /></button>
+                              </div>
+                            </div>
+                          </GlassCard>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+
+                {/* Right Column: Friends List */}
+                <div className="lg:col-span-2">
+                  <div className="flex items-center justify-between mb-4">
+                    <MicroLabel className="mb-0">My Friends ({user.friends.length})</MicroLabel>
+                  </div>
+                  
+                  {user.friends.length === 0 ? (
+                    <div className="h-[200px] flex items-center justify-center border border-dashed border-white/10 rounded-xl">
+                      <p className="text-sm text-white/20 font-mono italic">YOUR SOCIAL CIRCLE IS EMPTY</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {user.friends.map(email => (
+                        <GlassCard key={email} className="p-4 hover:border-white/10 transition-colors group">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-sm font-bold border border-white/10">
+                                {email.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium">{email.split('@')[0]}</p>
+                                <p className="text-[10px] font-mono text-white/30 italic">{email}</p>
+                              </div>
+                            </div>
+                            <button 
+                              onClick={() => removeFriend(email)}
+                              className="p-2 rounded hover:bg-red-500/10 text-white/20 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                              title="Remove Friend"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </GlassCard>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             </motion.div>
           )}
         </PageTransition>

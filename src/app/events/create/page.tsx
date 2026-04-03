@@ -49,6 +49,7 @@ export default function CreateEventPage() {
     organizerPhone: "",
     prizePool: "",
     registrationDeadline: "",
+    posterBase64: "",
     rules: [""],
   })
 
@@ -111,6 +112,20 @@ export default function CreateEventPage() {
   const addSubEvent = () => setSubEvents((prev) => [...prev, emptySubEvent()])
   const removeSubEvent = (idx: number) => {
     if (subEvents.length > 1) setSubEvents((prev) => prev.filter((_, i) => i !== idx))
+  }
+
+  const handlePosterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image is too large (max 5MB)")
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = () => {
+      setForm(prev => ({ ...prev, posterBase64: reader.result as string }))
+    }
+    reader.readAsDataURL(file)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -176,6 +191,8 @@ export default function CreateEventPage() {
         label: l.label,
         url: l.url,
       })),
+      restricted_registrations: [],
+      ...(form.posterBase64 ? { poster_base64: form.posterBase64 } : {})
     }
 
     try {
@@ -251,6 +268,26 @@ export default function CreateEventPage() {
                 <p className="text-[10px] text-white/30 mt-1">Only users with verified @{form.collegeDomain || "domain"} email can register</p>
               </div>
             )}
+            
+            {/* Poster Upload */}
+            <div>
+              <label className={labelCls}>Event Poster (Optional)</label>
+              <div className="flex items-center gap-4">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePosterChange}
+                  className="block w-full text-sm text-white/50 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-mono file:bg-white/[0.05] file:text-white hover:file:bg-white/[0.1] file:transition-colors bg-white/[0.02] border border-white/[0.08] rounded-md h-11 file:h-11 file:cursor-pointer"
+                />
+                {form.posterBase64 && (
+                  <div className="w-11 h-11 rounded-md overflow-hidden shrink-0 border border-white/[0.08]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={form.posterBase64} alt="Poster preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+              <p className="text-[10px] text-white/30 mt-1">Max 5MB. Will be displayed on the event page.</p>
+            </div>
           </GlassCard>
 
           {/* Rules */}

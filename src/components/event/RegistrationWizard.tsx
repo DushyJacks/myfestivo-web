@@ -30,6 +30,8 @@ export function RegistrationWizard({ event, onClose }: Props) {
 
   const alreadyRegistered = (seId: string) =>
     event.registrations.some(r => r.subEventId === seId && r.userEmail === user.email)
+    
+  const isStaffRestricted = event.restricted_registrations?.includes(user?.email || "")
 
   const addMember = () => {
     const email = memberEmail.trim().toLowerCase()
@@ -118,6 +120,11 @@ export function RegistrationWizard({ event, onClose }: Props) {
           {step === "select" && (
             <div className="space-y-3">
               <p className="text-xs text-white/40 mb-4">Choose the competition you&apos;d like to participate in:</p>
+              {isStaffRestricted && (
+                 <div className="p-3 mb-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-xs font-mono text-center">
+                   Restricted: Event Staff/Coordinators cannot register.
+                 </div>
+              )}
               {event.subEvents.map(se => {
                 const regCount = event.registrations.filter(r => r.subEventId === se.id).length
                 const isFull = regCount >= se.maxParticipants
@@ -125,9 +132,9 @@ export function RegistrationWizard({ event, onClose }: Props) {
                 return (
                   <button
                     key={se.id}
-                    disabled={isFull || already}
+                    disabled={isFull || already || isStaffRestricted}
                     onClick={() => { setSelectedSe(se); setStep(se.type === "team" ? "team" : "confirm") }}
-                    className={`w-full text-left p-4 rounded-lg border transition-all ${isFull || already ? "border-white/[0.04] bg-white/[0.01] opacity-50 cursor-not-allowed"
+                    className={`w-full text-left p-4 rounded-lg border transition-all ${isFull || already || isStaffRestricted ? "border-white/[0.04] bg-white/[0.01] opacity-50 cursor-not-allowed"
                       : "border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 cursor-pointer"
                       }`}
                   >
@@ -144,6 +151,7 @@ export function RegistrationWizard({ event, onClose }: Props) {
                       {se.prize.first !== "TBD" && <span className="text-yellow-400/60 flex items-center gap-1"><Trophy className="w-3 h-3" />{se.prize.first}</span>}
                       {already && <span className="text-green-400">Already registered</span>}
                       {isFull && !already && <span className="text-red-400">Full</span>}
+                      {isStaffRestricted && !already && !isFull && <span className="text-red-400">Staff Restricted</span>}
                     </div>
                   </button>
                 )

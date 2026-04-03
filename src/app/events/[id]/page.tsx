@@ -5,7 +5,7 @@ import { useEvents, TaskStatus } from "@/lib/events-context"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { MicroLabel } from "@/components/ui/MicroLabel"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useParams, useRouter } from "next/navigation"
@@ -16,13 +16,14 @@ import { AppSidebar } from "@/components/layout/AppSidebar"
 import { ChatPanel } from "@/components/event/ChatPanel"
 import { RegistrationWizard } from "@/components/event/RegistrationWizard"
 import { ParticipantsList } from "@/components/event/ParticipantsList"
+import { QRScanner } from "@/components/event/QRScanner"
 import {
   MapPin, Clock, UserCheck, Users, MessageSquare, ArrowLeft,
   Lock, Check, PlusCircle, Send, Trophy, Phone, FileText,
   ChevronDown, ChevronUp, BadgeCheck, UserPlus, CreditCard,
   Megaphone, CheckSquare, QrCode, Zap, DollarSign,
   Pin, Eye, ListTodo, ClipboardCheck, ArrowRight, Download, CalendarDays,
-  Pencil, LinkIcon, ExternalLink
+  Pencil, LinkIcon, ExternalLink, Camera, X
 } from "lucide-react"
 
 type TabId = "overview" | "chat" | "announcements" | "tasks" | "payments" | "checkin" | "automation" | "participant_qr" | "participants"
@@ -31,16 +32,22 @@ export default function EventDetailPage() {
   const params = useParams()
   const router = useRouter()
   const { user } = useAuth()
-  const { events, updateEvent, registerForSubEvent, addAnnouncement, addTask, updateTaskStatus, approvePayment, rejectPayment, checkInParticipant, toggleAutomation } = useEvents()
+  const { events, updateEvent, registerForSubEvent, addAnnouncement, addTask, updateTaskStatus, approvePayment, rejectPayment, checkInParticipant, toggleAutomation, addAutomationLog } = useEvents()
 
   const [activeTab, setActiveTab] = useState<TabId>("overview")
   const [selectedSubEvent, setSelectedSubEvent] = useState<string | null>(null)
   const [showRegWizard, setShowRegWizard] = useState(false)
+  const [showQRScanner, setShowQRScanner] = useState(false)
   const [chatChannel, setChatChannel] = useState("general")
+  const [scanStatus, setScanStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null)
 
   // Announcement state
   const [annTitle, setAnnTitle] = useState("")
   const [annMsg, setAnnMsg] = useState("")
+
+  // Push notification state
+  const [pushRecipient, setPushRecipient] = useState("")
+  const [pushMessage, setPushMessage] = useState("")
   const [annTarget, setAnnTarget] = useState("")
   const [annPinned, setAnnPinned] = useState(false)
 
@@ -110,6 +117,60 @@ export default function EventDetailPage() {
     setTaskTitle(""); setTaskDesc(""); setTaskAssignee(""); setTaskDeadline(""); setTaskSubEvent("")
   }
 
+  const handleSendPush = () => {
+    if (!pushMessage || !event) return
+    const logId = `log-${Date.now()}`
+    addAutomationLog(event.id, {
+      id: logId,
+      ruleName: "Manual Push Notification",
+      recipientEmail: pushRecipient || "All Participants",
+      message: pushMessage,
+      timestamp: new Date().toLocaleString()
+    })
+    setPushMessage("")
+    setPushRecipient("")
+  }
+  const handleQRScan = (data: string) => {
+    if (!event) return
+    
+    // Format: MYFESTIVO:eventId:subEventId:regId
+    const parts = data.split(':')
+    if (parts.length !== 4 || parts[0] !== 'MYFESTIVO') {
+      setScanStatus({ type: 'error', msg: 'Invalid QR Code Format' })
+      return
+    }
+
+    const [_, scanEventId, scanSubEventId, scanRegId] = parts
+
+    if (scanEventId !== event.id) {
+      setScanStatus({ type: 'error', msg: 'QR Code is for a different event' })
+      return
+    }
+
+    const registration = event.registrations.find(r => r.id === scanRegId)
+    if (!registration) {
+      setScanStatus({ type: 'error', msg: 'Registration not found' })
+      return
+    }
+
+    if (registration.checkedIn) {
+      setScanStatus({ type: 'error', msg: `${registration.userName} already checked in` })
+      return
+    }
+
+    if (registration.status !== 'PAID') {
+      setScanStatus({ type: 'error', msg: `Payment ${registration.status} for ${registration.userName}` })
+      return
+    }
+
+    // Success
+    checkInParticipant(event.id, scanRegId)
+    setScanStatus({ type: 'success', msg: `Checked in ${registration.userName}!` })
+    
+    // Clear status after 3 seconds
+    setTimeout(() => setScanStatus(null), 3000)
+  }
+
   const inputCls = "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 text-sm"
   const labelCls = "text-[10px] font-mono text-white/40 mb-1 block tracking-widest uppercase"
 
@@ -167,12 +228,24 @@ export default function EventDetailPage() {
               </Link>
             </>
           )}
+          {user?.role === "admin" && (
+            <Link href="/admin">
+              <Button variant="outline" className="border-white/20 text-white text-[10px] h-8 px-3 font-mono tracking-widest hover:bg-white/10 uppercase">Admin Hub</Button>
+            </Link>
+          )}
         </div>
       </header>
 
       <div className="pt-24 pb-16 px-4 md:px-8 max-w-6xl mx-auto">
         {/* Hero Section */}
         <motion.div variants={pageItem} className="mb-12">
+          {event.poster_base64 && (
+            <div className="w-full h-64 md:h-96 rounded-2xl overflow-hidden mb-8 border border-white/[0.06] relative">
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={event.poster_base64} alt={event.title} className="w-full h-full object-cover opacity-80" />
+            </div>
+          )}
           <div className="flex flex-wrap gap-2 mb-4">
             {!event.collegeDomain ? <span className="font-mono text-[10px] px-2 py-0.5 border border-white/20 text-white/50">OPEN EVENT</span>
               : <span className="font-mono text-[10px] px-2 py-0.5 border border-yellow-500/50 text-yellow-400">INTRA — @{event.collegeDomain}</span>}
@@ -238,9 +311,9 @@ export default function EventDetailPage() {
                           ) : (
                             <Button
                               onClick={() => setShowRegWizard(true)}
-                              disabled={isRestricted}
+                              disabled={isRestricted || event.restricted_registrations?.includes(user?.email || "")}
                               variant="outline" className="h-8 px-4 text-[10px] font-mono border-white/20 hover:bg-white text-white bg-white/5 transition-all">
-                              Register
+                              {event.restricted_registrations?.includes(user?.email || "") ? "Staff Restricted" : "Register"}
                             </Button>
                           )}
                         </div>
@@ -569,14 +642,34 @@ export default function EventDetailPage() {
                 <p className="text-2xl font-light text-green-400">{event.registrations.filter(r => r.status === "PAID").length}</p>
               </GlassCard>
               <GlassCard className="p-4 text-center col-span-2 flex items-center justify-center border-white/20">
-                <div className="flex items-center gap-2">
-                  <div className="animate-pulse w-2 h-2 rounded-full bg-green-500" />
-                  <span className="text-[10px] font-mono text-white/40 tracking-widest uppercase">Live Scan Active</span>
-                </div>
+                <Button onClick={() => setShowQRScanner(true)} className="bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80 h-10 px-8 rounded-full max-w-sm w-full">
+                  <Camera className="w-4 h-4 mr-2" /> Live QR Scan
+                </Button>
               </GlassCard>
             </div>
 
-            <div className="space-y-2">
+            {/* Scan Status Feedback */}
+            <AnimatePresence>
+              {scanStatus && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className={`mb-6 p-4 rounded-xl border flex items-center gap-3 ${
+                    scanStatus.type === 'success' 
+                      ? 'bg-green-500/10 border-green-500/20 text-green-400' 
+                      : 'bg-red-500/10 border-red-500/20 text-red-400'
+                  }`}
+                >
+                  <div className={`p-1.5 rounded-full ${scanStatus.type === 'success' ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+                    {scanStatus.type === 'success' ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                  </div>
+                  <span className="text-sm font-medium">{scanStatus.msg}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="overflow-x-auto">
               {event.registrations.filter(r => r.status === "PAID").map(reg => {
                 const se = event.subEvents.find(s => s.id === reg.subEventId)
                 return (
@@ -650,6 +743,14 @@ export default function EventDetailPage() {
                 ))}
               </div>
             )}
+            <div className="mt-8">
+              <MicroLabel>Manual Push Notification</MicroLabel>
+              <GlassCard className="p-4 flex flex-col gap-3">
+                <Input placeholder="Recipient Email (Leave empty for all)" value={pushRecipient} onChange={e => setPushRecipient(e.target.value)} className="bg-white/[0.03] border-white/[0.08]" />
+                <textarea placeholder="Message content..." value={pushMessage} onChange={e => setPushMessage(e.target.value)} className="bg-white/[0.03] border-white/[0.08] text-sm text-white placeholder:text-white/30 rounded-md p-3 min-h-[80px] outline-none focus:border-white/20 transition-colors" />
+                <Button onClick={handleSendPush} className="bg-white text-black self-end text-xs h-9 px-4">Send Push Notification</Button>
+              </GlassCard>
+            </div>
           </motion.div>
         )}
         {/* ═══ PARTICIPANT QR TAB ═══ */}
@@ -717,6 +818,14 @@ export default function EventDetailPage() {
 
       {/* Registration Wizard Modal */}
       {showRegWizard && <RegistrationWizard event={event} onClose={() => setShowRegWizard(false)} />}
+      
+      {/* QR Scanner Modal */}
+      {showQRScanner && (
+        <QRScanner 
+          onScan={(data) => handleQRScan(data)} 
+          onClose={() => setShowQRScanner(false)} 
+        />
+      )}
     </>
   )
 }

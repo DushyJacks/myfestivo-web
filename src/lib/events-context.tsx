@@ -134,6 +134,8 @@ export interface MainEvent {
   automations: AutomationRule[]
   automationLogs: AutomationLog[]
   importantLinks: ImportantLink[]
+  restricted_registrations: string[]
+  poster_base64?: string
 }
 
 // ─── Important Links ───
@@ -194,6 +196,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
           automations: data.automations || [],
           automationLogs: data.automationLogs || [],
           importantLinks: data.importantLinks || [],
+          restricted_registrations: data.restricted_registrations || [],
           rules: data.rules || [],
           registrationOpen: data.registrationOpen !== false,
           registrationDeadline: data.registrationDeadline || "",
@@ -237,7 +240,10 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     const updatedSubEvents = evt.subEvents.map(se =>
       se.id === subEventId ? { ...se, coordinators: [...se.coordinators, coordinator] } : se
     )
-    await updateDoc(getEventRef(eventId), { subEvents: updatedSubEvents })
+    await updateDoc(getEventRef(eventId), { 
+      subEvents: updatedSubEvents,
+      restricted_registrations: arrayUnion(coordinator.email)
+    })
   }
 
   // Module 1 — Payment
@@ -277,7 +283,15 @@ export function EventsProvider({ children }: { children: ReactNode }) {
 
   // Module 3 — Tasks
   const addTask = async (eventId: string, task: Task) => {
-    await updateDoc(getEventRef(eventId), { tasks: arrayUnion(task) })
+    try {
+      const docRef = doc(db, "events", eventId)
+      await updateDoc(docRef, {
+        tasks: arrayUnion(task),
+        restricted_registrations: arrayUnion(task.assignedTo)
+      })
+    } catch (error) {
+      console.error("Error adding task: ", error)
+    }
   }
 
   const updateTaskStatus = async (eventId: string, taskId: string, status: TaskStatus) => {

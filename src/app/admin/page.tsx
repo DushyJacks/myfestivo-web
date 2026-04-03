@@ -15,7 +15,7 @@ import {
   Ticket, DollarSign, Activity, ChevronRight,
   Trash2, Pencil, Search, Shield, ShieldOff, AlertTriangle,
   X, Check, ExternalLink, ToggleLeft, ToggleRight,
-  UserX, Eye, Filter, RefreshCw
+  UserX, Eye, Filter, RefreshCw, Download, UserCheck
 } from "lucide-react"
 import { db } from "@/lib/firebase"
 import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore"
@@ -163,6 +163,43 @@ export default function AdminPage() {
   const deleteUser = async (uid: string) => {
     await deleteDoc(doc(db, "users", uid))
     setAllUsers(prev => prev.filter(u => u.id !== uid))
+  }
+
+  const handleManualVerify = async (uid: string) => {
+    await updateDoc(doc(db, "users", uid), { collegeEmailVerified: true })
+    setAllUsers(prev => prev.map(u => u.id === uid ? { ...u, collegeEmailVerified: true } : u))
+  }
+
+  const exportToCSV = (data: any[], filename: string) => {
+    if (data.length === 0) return
+    
+    // Flatten and clean data for CSV
+    const csvData = data.map(item => {
+      const cleanItem: any = {}
+      Object.entries(item).forEach(([key, value]) => {
+        if (typeof value === 'object' && value !== null) {
+          cleanItem[key] = JSON.stringify(value).replace(/"/g, '""')
+        } else {
+          cleanItem[key] = String(value).replace(/"/g, '""')
+        }
+      })
+      return cleanItem
+    })
+
+    const headers = Object.keys(csvData[0])
+    const csvRows = [
+      headers.join(","),
+      ...csvData.map(row => headers.map(header => `"${row[header] || ""}"`).join(","))
+    ]
+    
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.setAttribute("download", `${filename}_${new Date().toISOString().split('T')[0]}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   // ─── Event inline edit ───
@@ -507,6 +544,14 @@ export default function AdminPage() {
                   <RefreshCw className={`w-4 h-4 mr-2 ${usersLoading ? "animate-spin" : ""}`} />
                   {usersLoading ? "Loading…" : "Refresh"}
                 </Button>
+                <Button 
+                  variant="outline" 
+                  className="border-white/10 text-white/60 text-sm hover:bg-white/5 hover:text-white ml-2" 
+                  onClick={() => exportToCSV(filteredUsers, "myfestivo_users")}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Export CSV
+                </Button>
               </div>
 
               {/* Search & Filter */}
@@ -614,6 +659,20 @@ export default function AdminPage() {
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
+                              {/* Manual Verify */}
+                              {!u.collegeEmailVerified && (
+                                <button
+                                  onClick={() => setConfirmAction({
+                                    title: "Verify User",
+                                    message: `Manually verify ${u.name}'s college email? Use this if you have alternate proof of their student status.`,
+                                    variant: "warning",
+                                    action: () => { handleManualVerify(u.id); setConfirmAction(null) }
+                                  })}
+                                  className="p-1.5 rounded hover:bg-green-500/10 text-white/30 hover:text-green-400 ml-1" title="Verify User"
+                                >
+                                  <UserCheck className="w-4 h-4" />
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -636,7 +695,17 @@ export default function AdminPage() {
           {activeTab === "registrations" && (
             <motion.div variants={pageItem}>
               <MicroLabel>Registration Management</MicroLabel>
-              <h2 className="text-2xl font-light mb-6">All Registrations ({allRegistrations.length})</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-light">All Registrations ({allRegistrations.length})</h2>
+                <Button 
+                  variant="outline" 
+                  className="border-white/10 text-white/60 text-sm hover:bg-white/5 hover:text-white" 
+                  onClick={() => exportToCSV(allRegistrations, "myfestivo_registrations")}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Export CSV
+                </Button>
+              </div>
 
               {/* Search & Filter */}
               <div className="flex flex-wrap gap-3 mb-6">

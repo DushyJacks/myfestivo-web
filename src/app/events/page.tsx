@@ -148,23 +148,31 @@ export default function EventsFeed() {
           filtered.map(evt => (
             <motion.div key={evt.id} variants={pageItem}>
               <Link href={`/events/${evt.id}`}>
-                <GlassCard className={`p-6 hover:scale-[1.01] transition-transform duration-150 ease-out cursor-pointer relative overflow-hidden group h-full flex flex-col ${evt.isInter ? '' : 'border-l-yellow-500/50 border-l-[3px]'}`}>
-
-                  <div className="flex justify-between items-start mb-4">
-                    <Badge variant="outline" className="border-white/20 text-white/50 font-normal uppercase tracking-widest text-[10px]">
-                      {evt.category}
-                    </Badge>
-                    <div className="flex gap-2">
-                      {evt.collegeDomain && (
-                        <span className="flex items-center gap-1 font-mono text-[10px] px-2 py-0.5 border border-yellow-500/30 text-yellow-400/80">
-                          <Lock className="w-3 h-3" />@{evt.collegeDomain}
-                        </span>
-                      )}
-                      {evt.isInter && (
-                        <span className="font-mono text-[10px] px-2 py-0.5 border border-white text-white">INTER</span>
-                      )}
+                <GlassCard className={`p-0 hover:scale-[1.01] transition-transform duration-150 ease-out cursor-pointer relative overflow-hidden group h-full flex flex-col ${evt.isInter ? '' : 'border-l-yellow-500/50 border-l-[3px]'}`}>
+                  
+                  {evt.poster_base64 && (
+                    <div className="w-full h-32 overflow-hidden border-b border-white/[0.06]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={evt.poster_base64} alt={evt.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
-                  </div>
+                  )}
+
+                  <div className="p-6 flex-1 flex flex-col">
+                    <div className="flex justify-between items-start mb-4">
+                      <Badge variant="outline" className="border-white/20 text-white/50 font-normal uppercase tracking-widest text-[10px]">
+                        {evt.category}
+                      </Badge>
+                      <div className="flex gap-2">
+                        {evt.collegeDomain && (
+                          <span className="flex items-center gap-1 font-mono text-[10px] px-2 py-0.5 border border-yellow-500/30 text-yellow-400/80">
+                            <Lock className="w-3 h-3" />@{evt.collegeDomain}
+                          </span>
+                        )}
+                        {evt.isInter && (
+                          <span className="font-mono text-[10px] px-2 py-0.5 border border-white text-white">INTER</span>
+                        )}
+                      </div>
+                    </div>
 
                   <h3 className="font-semibold text-xl mb-1 flex-1 group-hover:text-white/90">{evt.title}</h3>
                   <p className="font-light text-white/40 text-sm mb-2">{evt.organizer}</p>
@@ -199,6 +207,7 @@ export default function EventsFeed() {
                       ))}
                     </div>
                   )}
+                  </div>
                 </GlassCard>
               </Link>
             </motion.div>
