@@ -1,11 +1,12 @@
 "use client"
 
-import { MainEvent } from "@/lib/events-context"
+import { MainEvent, Registration } from "@/lib/events-context"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { MicroLabel } from "@/components/ui/MicroLabel"
 import { Button } from "@/components/ui/button"
-import { Download, Users, BadgeCheck, Clock } from "lucide-react"
+import { Download, Users, BadgeCheck, Clock, ExternalLink } from "lucide-react"
 import { useState } from "react"
+import { ParticipantDetailModal } from "./ParticipantDetailModal"
 
 interface Props {
   event: MainEvent
@@ -13,6 +14,8 @@ interface Props {
 
 export function ParticipantsList({ event }: Props) {
   const [filterSe, setFilterSe] = useState("")
+  const [selectedReg, setSelectedReg] = useState<Registration | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
 
   const regs = filterSe
     ? event.registrations.filter(r => r.subEventId === filterSe)
@@ -104,7 +107,14 @@ export function ParticipantsList({ event }: Props) {
             ) : regs.map((reg, i) => {
               const se = event.subEvents.find(s => s.id === reg.subEventId)
               return (
-                <tr key={reg.id} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+                <tr
+                  key={reg.id}
+                  onClick={() => {
+                    setSelectedReg(reg)
+                    setModalOpen(true)
+                  }}
+                  className="border-b border-white/[0.04] hover:bg-white/[0.04] transition-colors cursor-pointer"
+                >
                   <td className="p-3 text-white/30 font-mono text-xs">{i + 1}</td>
                   <td className="p-3">
                     <div className="flex items-center gap-2">
@@ -141,6 +151,14 @@ export function ParticipantsList({ event }: Props) {
           </tbody>
         </table>
       </div>
+
+      {/* Participant Detail Modal */}
+      <ParticipantDetailModal 
+        reg={selectedReg} 
+        event={event} 
+        isOpen={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+      />
     </div>
   )
 }
