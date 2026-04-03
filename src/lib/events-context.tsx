@@ -127,6 +127,7 @@ export interface MainEvent {
   registrationOpen: boolean
   registrationDeadline: string  // ISO date string, "" means no deadline
   subEvents: SubEvent[]
+  eventCoordinators: SubEventCoordinator[]  // Event-level coordinators (overall, event leads, etc.)
   registrations: Registration[]
   chatMessages: ChatMessage[]
   announcements: Announcement[]

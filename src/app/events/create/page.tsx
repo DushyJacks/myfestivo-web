@@ -64,6 +64,13 @@ export default function CreateEventPage() {
 
   const [subEvents, setSubEvents] = useState<SubEventForm[]>([emptySubEvent()])
   const [importantLinks, setImportantLinks] = useState<{ label: string; url: string }[]>([])
+  
+  // Event-level coordinators
+  const [eventCoordName, setEventCoordName] = useState("")
+  const [eventCoordEmail, setEventCoordEmail] = useState("")
+  const [eventCoordPhone, setEventCoordPhone] = useState("")
+  const [eventCoordRole, setEventCoordRole] = useState("Overall Coordinator")
+  const [eventCoordinators, setEventCoordinators] = useState<{ name: string; email: string; phone: string; role: string }[]>([])
 
   const addLink = () => setImportantLinks(prev => [...prev, { label: "", url: "" }])
   const updateLink = (idx: number, key: "label" | "url", val: string) =>
@@ -108,6 +115,20 @@ export default function CreateEventPage() {
   }
   const removeSubCoordinator = (seIdx: number, cIdx: number) => {
     setSubEvents((prev) => prev.map((se, i) => i === seIdx ? { ...se, coordinators: se.coordinators.filter((_, j) => j !== cIdx) } : se))
+  }
+
+  const addEventCoordinator = () => {
+    if (eventCoordName && eventCoordEmail) {
+      setEventCoordinators(prev => [...prev, { name: eventCoordName, email: eventCoordEmail, phone: eventCoordPhone, role: eventCoordRole }])
+      setEventCoordName("")
+      setEventCoordEmail("")
+      setEventCoordPhone("")
+      setEventCoordRole("Overall Coordinator")
+    }
+  }
+
+  const removeEventCoordinator = (idx: number) => {
+    setEventCoordinators(prev => prev.filter((_, i) => i !== idx))
   }
 
   const addSubEvent = () => setSubEvents((prev) => [...prev, emptySubEvent()])
@@ -177,6 +198,7 @@ export default function CreateEventPage() {
       collegeDomain: form.isInter ? "" : form.collegeDomain,
       registrationOpen: true,
       registrationDeadline: form.registrationDeadline || "",
+      eventCoordinators: eventCoordinators,
       subEvents: subEvents.filter((se) => se.name).map((se, i) => {
         const sub: SubEvent = {
           id: `sub-${Date.now()}-${i}`,
@@ -323,6 +345,83 @@ export default function CreateEventPage() {
                 )}
               </div>
             ))}
+          </GlassCard>
+
+          {/* Event-Level Coordinators */}
+          <GlassCard className="p-6 space-y-4">
+            <div className="flex justify-between items-center">
+              <MicroLabel className="mb-0">02a — Event Coordinators</MicroLabel>
+            </div>
+            <p className="text-[10px] text-white/30">Assign students to coordinate and manage the event at various levels.</p>
+            
+            {/* List of existing coordinators */}
+            <div className="space-y-2">
+              {eventCoordinators.length > 0 && (
+                <>
+                  <span className={labelCls}>Assigned Coordinators</span>
+                  {eventCoordinators.map((c, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 rounded bg-white/[0.03] border border-white/[0.05]">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-white/70 font-medium">{c.name}</span>
+                          <span className="text-[9px] font-mono text-white/40 bg-white/[0.05] px-2 py-0.5 rounded">{c.role}</span>
+                        </div>
+                        <div className="text-[10px] text-white/40 mt-1">{c.email} • {c.phone}</div>
+                      </div>
+                      <button type="button" onClick={() => removeEventCoordinator(idx)} className="text-white/20 hover:text-red-400 transition-colors ml-2">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+
+            {/* Add coordinator form */}
+            <div className="space-y-2">
+              <span className={labelCls}>Add New Coordinator</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Input 
+                  value={eventCoordName} 
+                  onChange={(e) => setEventCoordName(e.target.value)} 
+                  placeholder="Full Name" 
+                  className={`${inputCls} h-10`} 
+                />
+                <Input 
+                  value={eventCoordEmail} 
+                  onChange={(e) => setEventCoordEmail(e.target.value)} 
+                  placeholder="Email" 
+                  type="email"
+                  className={`${inputCls} h-10`} 
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <Input 
+                  value={eventCoordPhone} 
+                  onChange={(e) => setEventCoordPhone(e.target.value)} 
+                  placeholder="Phone" 
+                  className={`${inputCls} h-10`} 
+                />
+                <select 
+                  value={eventCoordRole} 
+                  onChange={(e) => setEventCoordRole(e.target.value)}
+                  className="h-10 bg-white/[0.03] border border-white/[0.08] text-white rounded-md px-3 text-sm"
+                >
+                  <option value="Overall Coordinator">Overall Coordinator</option>
+                  <option value="Event Lead">Event Lead</option>
+                  <option value="Co-Organizer">Co-Organizer</option>
+                  <option value="Technical Lead">Technical Lead</option>
+                  <option value="Logistics Lead">Logistics Lead</option>
+                </select>
+                <Button 
+                  type="button" 
+                  onClick={addEventCoordinator}
+                  className="bg-white text-black hover:bg-white/90 h-10 text-sm"
+                >
+                  Add Coordinator
+                </Button>
+              </div>
+            </div>
           </GlassCard>
 
           {/* Sub Events */}

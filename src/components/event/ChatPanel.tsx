@@ -29,7 +29,10 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
 
   // Determine user roles
   const isEventOrganizer = user && event.organizerEmail === user.email
-  const coordinatorRoles = user ? event.subEvents
+  const eventCoordinatorRoles = user 
+    ? (event.eventCoordinators || []).filter(c => c.email === user.email).map(c => c.role)
+    : []
+  const subEventCoordinatorRoles = user ? event.subEvents
     .filter(se => se.coordinators.some(c => c.email === user.email))
     .map(se => ({
       subEventName: se.name,
@@ -38,12 +41,20 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
 
   const getUserRole = (messageUserId: string, messageUserEmail: string) => {
     const isOrganizer = event.organizerEmail === messageUserEmail
-    const roles = event.subEvents
+    
+    // Check for event-level coordinators
+    const eventCoordinatorRoles = event.eventCoordinators
+      ?.filter(c => c.email === messageUserEmail)
+      .map(c => c.role)
+      .filter(Boolean) || []
+    
+    // Check for sub-event coordinators
+    const subEventRoles = event.subEvents
       .filter(se => se.coordinators.some(c => c.email === messageUserEmail))
       .map(se => se.coordinators.find(c => c.email === messageUserEmail)?.role)
       .filter(Boolean)
     
-    return { isOrganizer, roles: roles as string[] }
+    return { isOrganizer, eventCoordinatorRoles: eventCoordinatorRoles as string[], subEventRoles: subEventRoles as string[] }
   }
 
   const send = async () => {
@@ -76,16 +87,16 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
           </div>
         )}
         {filtered.map(m => {
-          const { isOrganizer, roles } = getUserRole(m.userId, m.userId)
+          const { isOrganizer, eventCoordinatorRoles, subEventRoles } = getUserRole(m.userId, m.userId)
           
           return (
             <div key={m.id} className={`flex flex-col ${m.userId === user?.id ? "items-end" : "items-start"}`}>
               {/* User info with roles */}
               <div className="flex items-center gap-2 mb-1.5">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-medium text-white">{m.userName}</span>
                   
-                  {/* Overall Event Coordinator Badge */}
+                  {/* Overall Event Organizer Badge */}
                   {isOrganizer && (
                     <span className="flex items-center gap-1 px-2 py-0.5 bg-purple-500/20 border border-purple-500/40 rounded-full text-[10px] font-mono text-purple-300 tracking-tight">
                       <Shield className="w-3 h-3" />
@@ -93,9 +104,17 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
                     </span>
                   )}
                   
+                  {/* Event-Level Coordinator Badges */}
+                  {eventCoordinatorRoles.length > 0 && eventCoordinatorRoles.map((role, i) => (
+                    <span key={`event-${i}`} className="flex items-center gap-1 px-2 py-0.5 bg-amber-500/20 border border-amber-500/40 rounded-full text-[10px] font-mono text-amber-300 tracking-tight">
+                      <Shield className="w-3 h-3" />
+                      {role.toUpperCase()}
+                    </span>
+                  ))}
+                  
                   {/* Sub-Event Coordinator Badges */}
-                  {roles.length > 0 && roles.map((role, i) => (
-                    <span key={i} className="flex items-center gap-1 px-2 py-0.5 bg-blue-500/20 border border-blue-500/40 rounded-full text-[10px] font-mono text-blue-300 tracking-tight">
+                  {subEventRoles.length > 0 && subEventRoles.map((role, i) => (
+                    <span key={`sub-${i}`} className="flex items-center gap-1 px-2 py-0.5 bg-blue-500/20 border border-blue-500/40 rounded-full text-[10px] font-mono text-blue-300 tracking-tight">
                       <Zap className="w-3 h-3" />
                       {role.toUpperCase()}
                     </span>
