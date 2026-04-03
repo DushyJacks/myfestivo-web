@@ -3,13 +3,13 @@ import { getAuth } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCFG1SNWfez77o-KoWOkYnn6D1D86d_BPI",
-  authDomain: "myfestivo.firebaseapp.com",
-  projectId: "myfestivo",
-  storageBucket: "myfestivo.firebasestorage.app",
-  messagingSenderId: "56147733860",
-  appId: "1:56147733860:web:d1ded45a63df30de691e71",
-  measurementId: "G-CLLF8QR316",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 }
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]

@@ -78,53 +78,6 @@ export async function sendBrowserNotification(
 }
 
 /**
- * Save notification preference for user
- */
-export async function saveNotificationPreference(
-  userEmail: string,
-  preferences: {
-    enableBrowser: boolean
-    enableReminders: boolean
-    enableChat: boolean
-    enableAnnouncements: boolean
-  }
-): Promise<void> {
-  try {
-    const userRef = doc(db, "users", userEmail)
-    await updateDoc(userRef, {
-      notificationPreferences: preferences,
-      notificationSettingsUpdated: new Date().toISOString(),
-    })
-  } catch (error) {
-    console.error("Error saving notification preference:", error)
-  }
-}
-
-/**
- * Get user's notification preferences
- */
-export async function getNotificationPreference(userEmail: string) {
-  try {
-    const userRef = doc(db, "users", userEmail)
-    const snap = await getDoc(userRef)
-    return snap.data()?.notificationPreferences || {
-      enableBrowser: true,
-      enableReminders: true,
-      enableChat: true,
-      enableAnnouncements: true,
-    }
-  } catch (error) {
-    console.error("Error getting notification preference:", error)
-    return {
-      enableBrowser: true,
-      enableReminders: true,
-      enableChat: true,
-      enableAnnouncements: true,
-    }
-  }
-}
-
-/**
  * Send event reminder notifications
  */
 export async function sendEventReminder(
@@ -172,11 +125,7 @@ export async function sendEventReminder(
 
     // Send to all registered participants
     for (const email of registrationEmails) {
-      const prefs = await getNotificationPreference(email)
-      if (prefs.enableReminders && prefs.enableBrowser) {
-        await sendBrowserNotification(payload)
-      }
-
+      await sendBrowserNotification(payload)
       // Log notification in database
       await logNotification(eventId, email, payload.title, payload.body)
     }
@@ -195,10 +144,6 @@ export async function sendRegistrationConfirmation(
   subEventName: string
 ): Promise<void> {
   try {
-    const prefs = await getNotificationPreference(participantEmail)
-
-    if (!prefs.enableBrowser || !prefs.enableReminders) return
-
     const payload: NotificationPayload = {
       title: "✅ Registration Confirmed!",
       body: `You've successfully registered for ${subEventName} in ${eventTitle}`,
@@ -227,10 +172,6 @@ export async function sendPaymentConfirmation(
   amount: number
 ): Promise<void> {
   try {
-    const prefs = await getNotificationPreference(participantEmail)
-
-    if (!prefs.enableBrowser || !prefs.enableReminders) return
-
     const payload: NotificationPayload = {
       title: "💳 Payment Confirmed",
       body: `Payment of ₹${amount} confirmed for ${eventTitle}`,
@@ -260,10 +201,6 @@ export async function sendTaskAssignment(
   deadline: string
 ): Promise<void> {
   try {
-    const prefs = await getNotificationPreference(assigneeEmail)
-
-    if (!prefs.enableBrowser || !prefs.enableReminders) return
-
     const payload: NotificationPayload = {
       title: "📋 New Task Assigned",
       body: `"${taskTitle}" - ${eventTitle} (Due: ${deadline})`,
@@ -294,10 +231,6 @@ export async function sendAnnouncementNotification(
 ): Promise<void> {
   try {
     for (const email of registeredEmails) {
-      const prefs = await getNotificationPreference(email)
-
-      if (!prefs.enableBrowser || !prefs.enableAnnouncements) continue
-
       const payload: NotificationPayload = {
         title: `📢 ${eventTitle}: ${announcementTitle}`,
         body: announcementMsg.substring(0, 100),
@@ -329,10 +262,6 @@ export async function sendChatNotification(
 ): Promise<void> {
   try {
     for (const email of recipientEmails) {
-      const prefs = await getNotificationPreference(email)
-
-      if (!prefs.enableBrowser || !prefs.enableChat) continue
-
       const payload: NotificationPayload = {
         title: `💬 ${senderName} in ${eventTitle}`,
         body: message.substring(0, 100),
