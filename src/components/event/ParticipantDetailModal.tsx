@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { doc, getDoc } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import { db as getDb } from "@/lib/firebase"
 import { Registration, MainEvent } from "@/lib/events-context"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { MicroLabel } from "@/components/ui/MicroLabel"
@@ -43,7 +43,7 @@ export function ParticipantDetailModal({ reg, event, isOpen, onClose }: Props) {
       setLoading(true)
       try {
         // Try to fetch user details from Firestore
-        const userRef = doc(db, "users", reg.userEmail)
+        const userRef = doc(getDb(), "users", reg.userEmail)
         const userSnap = await getDoc(userRef)
         if (userSnap.exists()) {
           setUserDetails(userSnap.data() as ParticipantUser)

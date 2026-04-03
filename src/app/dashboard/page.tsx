@@ -19,7 +19,7 @@ import {
   ListTodo, QrCode, CheckSquare, Clock, DollarSign, Megaphone,
   Pencil, Search, Check, Trash2, Mail, PlusCircle, Users, CalendarDays, X, UserPlus
 } from "lucide-react"
-import { db } from "@/lib/firebase"
+import { db as getDb } from "@/lib/firebase"
 import { collection, query, where, getDocs, limit } from "firebase/firestore"
 
 export default function DashboardPage() {
@@ -60,7 +60,7 @@ export default function DashboardPage() {
     setIsSearching(true)
     try {
       const q = query(
-        collection(db, "users"),
+        collection(getDb(), "users"),
         where("email", "!=", user.email),
         limit(10)
       )

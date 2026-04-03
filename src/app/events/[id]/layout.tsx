@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { db } from "@/lib/firebase"
+import { db as getDb } from "@/lib/firebase"
 import { doc, getDoc } from "firebase/firestore"
 import { ReactNode } from "react"
 
@@ -17,7 +17,7 @@ interface EventLayoutProps {
  */
 async function getEventData(eventId: string) {
   try {
-    const eventDoc = await getDoc(doc(db, "events", eventId))
+    const eventDoc = await getDoc(doc(getDb(), "events", eventId))
     if (eventDoc.exists()) {
       return eventDoc.data()
     }

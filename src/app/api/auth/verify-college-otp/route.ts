@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/firebase'
+import { db as getDb } from '@/lib/firebase'
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore'
 
 /**
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Retrieve stored OTP
-    const otpDoc = await getDoc(doc(db, 'collegeOtps', uid))
+    const otpDoc = await getDoc(doc(getDb(), 'collegeOtps', uid))
     if (!otpDoc.exists()) {
       return NextResponse.json(
         { success: false, message: 'No OTP found. Please request a new one.' },
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     // Check if OTP is expired
     if (currentTime > expiresAt) {
-      await deleteDoc(doc(db, 'collegeOtps', uid))
+      await deleteDoc(doc(getDb(), 'collegeOtps', uid))
       return NextResponse.json(
         { success: false, message: 'OTP expired. Please request a new one.' },
         { status: 400 }
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get user document
-    const userDoc = await getDoc(doc(db, 'users', uid))
+    const userDoc = await getDoc(doc(getDb(), 'users', uid))
     if (!userDoc.exists()) {
       return NextResponse.json(
         { success: false, message: 'User not found' },
@@ -68,13 +68,13 @@ export async function POST(request: NextRequest) {
 
     // Update user with verified college email
     const collegeEmail = otpData.collegeEmail
-    await updateDoc(doc(db, 'users', uid), {
+    await updateDoc(doc(getDb(), 'users', uid), {
       collegeEmail,
       collegeEmailVerified: true,
     })
 
     // Delete OTP document
-    await deleteDoc(doc(db, 'collegeOtps', uid))
+    await deleteDoc(doc(getDb(), 'collegeOtps', uid))
 
     return NextResponse.json({
       success: true,

@@ -17,7 +17,7 @@ import {
   X, Check, ExternalLink, ToggleLeft, ToggleRight,
   UserX, Eye, Filter, RefreshCw, Download, UserCheck
 } from "lucide-react"
-import { db } from "@/lib/firebase"
+import { db as getDb } from "@/lib/firebase"
 import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore"
 
 type AdminTab = "overview" | "events" | "users" | "registrations"
@@ -94,7 +94,7 @@ export default function AdminPage() {
   const fetchUsers = async () => {
     setUsersLoading(true)
     try {
-      const snap = await getDocs(collection(db, "users"))
+      const snap = await getDocs(collection(getDb(), "users"))
       const users = snap.docs.map(d => ({ ...d.data(), id: d.id } as AppUser))
       setAllUsers(users)
     } catch (err) {
@@ -156,17 +156,17 @@ export default function AdminPage() {
 
   // ─── User CRUD ───
   const changeUserRole = async (uid: string, newRole: UserRole) => {
-    await updateDoc(doc(db, "users", uid), { role: newRole })
+    await updateDoc(doc(getDb(), "users", uid), { role: newRole })
     setAllUsers(prev => prev.map(u => u.id === uid ? { ...u, role: newRole } : u))
   }
 
   const deleteUser = async (uid: string) => {
-    await deleteDoc(doc(db, "users", uid))
+    await deleteDoc(doc(getDb(), "users", uid))
     setAllUsers(prev => prev.filter(u => u.id !== uid))
   }
 
   const handleManualVerify = async (uid: string) => {
-    await updateDoc(doc(db, "users", uid), { collegeEmailVerified: true })
+    await updateDoc(doc(getDb(), "users", uid), { collegeEmailVerified: true })
     setAllUsers(prev => prev.map(u => u.id === uid ? { ...u, collegeEmailVerified: true } : u))
   }
 

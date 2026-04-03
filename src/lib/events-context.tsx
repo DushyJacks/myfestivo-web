@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
-import { db } from "./firebase"
+import { db as getDb } from "./firebase"
 import {
   collection, doc, onSnapshot, addDoc, updateDoc, arrayUnion, increment, setDoc, deleteDoc,
 } from "firebase/firestore"
@@ -177,11 +177,14 @@ interface EventsContextType {
 
 const EventsContext = createContext<EventsContextType | null>(null)
 
-const eventsCol = collection(db, "events")
+// Helper: get events collection (lazy)
+function getEventsCol() {
+  return collection(getDb(), "events")
+}
 
 // Helper: get current event from local state and update Firestore
 function getEventRef(eventId: string) {
-  return doc(db, "events", eventId)
+  return doc(getDb(), "events", eventId)
 }
 
 // ─── Provider ───
@@ -190,7 +193,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
 
   // Real-time listener for all events
   useEffect(() => {
-    const unsub = onSnapshot(eventsCol, (snapshot) => {
+    const unsub = onSnapshot(getEventsCol(), (snapshot) => {
       const fetched: MainEvent[] = snapshot.docs.map((d) => {
         const data = d.data()
         return {
@@ -218,7 +221,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
 
   const addEvent = async (event: MainEvent) => {
     const { id, ...data } = event
-    await setDoc(doc(db, "events", id), data)
+    await setDoc(doc(getDb(), "events", id), data)
   }
 
   const updateEvent = async (id: string, updates: Partial<MainEvent>) => {
@@ -374,7 +377,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       const evt = events.find(e => e.id === eventId)
       if (!evt) return
 
-      const docRef = doc(db, "events", eventId)
+      const docRef = doc(getDb(), "events", eventId)
       await updateDoc(docRef, {
         tasks: arrayUnion(task),
         restricted_registrations: arrayUnion(task.assignedTo)

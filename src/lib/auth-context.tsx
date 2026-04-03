@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
-import { auth, db } from "./firebase"
+import { auth as getAuthInstance, db as getDb } from "./firebase"
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -84,7 +84,7 @@ function pickColor(name: string) {
 const googleProvider = new GoogleAuthProvider()
 
 async function fetchUserProfile(uid: string): Promise<User | null> {
-  const snap = await getDoc(doc(db, "users", uid))
+  const snap = await getDoc(doc(getDb(), "users", uid))
   if (snap.exists()) {
     const data = snap.data()
     return {
@@ -104,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Listen for Firebase Auth state changes
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsub = onAuthStateChanged(getAuthInstance(), async (firebaseUser) => {
       if (firebaseUser) {
         const profile = await fetchUserProfile(firebaseUser.uid)
         setUser(profile)
@@ -118,12 +118,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const persistProfile = async (u: User) => {
     setUser(u)
-    await setDoc(doc(db, "users", u.id), u, { merge: true })
+    await setDoc(doc(getDb(), "users", u.id), u, { merge: true })
   }
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const cred = await signInWithEmailAndPassword(auth, email, password)
+      const cred = await signInWithEmailAndPassword(getAuthInstance(), email, password)
       const profile = await fetchUserProfile(cred.user.uid)
       if (profile) {
         setUser(profile)
@@ -137,7 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = async (data: SignupData): Promise<boolean> => {
     try {
-      const cred = await createUserWithEmailAndPassword(auth, data.email, data.password)
+      const cred = await createUserWithEmailAndPassword(getAuthInstance(), data.email, data.password)
 
       const newUser: User = {
         id: cred.user.uid,
@@ -162,7 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         coordinatingEvents: [],
       }
 
-      await setDoc(doc(db, "users", cred.user.uid), newUser)
+      await setDoc(doc(getDb(), "users", cred.user.uid), newUser)
       setUser(newUser)
       return true
     } catch {
@@ -171,13 +171,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = async () => {
-    await signOut(auth)
+    await signOut(getAuthInstance())
     setUser(null)
   }
 
   const signInWithGoogle = async (): Promise<boolean> => {
     try {
-      const cred = await signInWithPopup(auth, googleProvider)
+      const cred = await signInWithPopup(getAuthInstance(), googleProvider)
       const existing = await fetchUserProfile(cred.user.uid)
       if (existing) {
         setUser(existing)
@@ -206,7 +206,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         hostedEvents: [],
         coordinatingEvents: [],
       }
-      await setDoc(doc(db, "users", cred.user.uid), newUser)
+      await setDoc(doc(getDb(), "users", cred.user.uid), newUser)
       setUser(newUser)
       return true
     } catch {
@@ -247,7 +247,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user.friends.includes(email)) return false
     if (user.friendRequestsOut.includes(email)) return false
     // Find the target user by email
-    const q = query(collection(db, "users"), where("email", "==", email))
+    const q = query(collection(getDb(), "users"), where("email", "==", email))
     const snap = await getDocs(q)
     if (snap.empty) return false
     const targetDoc = snap.docs[0]
@@ -257,7 +257,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ...targetUser,
       friendRequestsIn: [...(targetUser.friendRequestsIn || []), { from: user.email, fromName: user.name, timestamp: new Date().toISOString().slice(0, 16).replace("T", " ") }],
     }
-    await setDoc(doc(db, "users", targetDoc.id), updatedTarget, { merge: true })
+    await setDoc(doc(getDb(), "users", targetDoc.id), updatedTarget, { merge: true })
     // Add to our outgoing
     await persistProfile({ ...user, friendRequestsOut: [...user.friendRequestsOut, email] })
     return true
@@ -273,12 +273,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     await persistProfile(updated)
     // Add us to their friends, remove from their outgoing
-    const q = query(collection(db, "users"), where("email", "==", email))
+    const q = query(collection(getDb(), "users"), where("email", "==", email))
     const snap = await getDocs(q)
     if (!snap.empty) {
       const td = snap.docs[0]
       const tu = td.data() as User
-      await setDoc(doc(db, "users", td.id), {
+      await setDoc(doc(getDb(), "users", td.id), {
         ...tu,
         friends: [...(tu.friends || []), user.email],
         friendRequestsOut: (tu.friendRequestsOut || []).filter((e: string) => e !== user.email),
@@ -294,12 +294,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     await persistProfile(updated)
     // Remove from their outgoing
-    const q = query(collection(db, "users"), where("email", "==", email))
+    const q = query(collection(getDb(), "users"), where("email", "==", email))
     const snap = await getDocs(q)
     if (!snap.empty) {
       const td = snap.docs[0]
       const tu = td.data() as User
-      await setDoc(doc(db, "users", td.id), {
+      await setDoc(doc(getDb(), "users", td.id), {
         ...tu,
         friendRequestsOut: (tu.friendRequestsOut || []).filter((e: string) => e !== user.email),
       }, { merge: true })

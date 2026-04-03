@@ -1,14 +1,18 @@
 import { initializeApp, getApps } from "firebase/app"
-import { getAuth } from "firebase/auth"
+import { getAuth as firebaseGetAuth } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
 
 let firebaseApp: any = null
 let firebaseAuth: any = null
 let firebaseDb: any = null
 
-function initializeFirebase() {
-  // Only initialize if not already done
-  if (firebaseApp) return { firebaseApp, firebaseAuth, firebaseDb }
+function ensureFirebaseInitialized() {
+  if (firebaseApp) return
+
+  // Skip if env vars not available (e.g., during Netlify build)
+  if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+    throw new Error("Firebase API key not configured")
+  }
 
   const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -21,15 +25,19 @@ function initializeFirebase() {
   }
 
   firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
-  firebaseAuth = getAuth(firebaseApp)
+  firebaseAuth = firebaseGetAuth(firebaseApp)
   firebaseDb = getFirestore(firebaseApp)
-
-  return { firebaseApp, firebaseAuth, firebaseDb }
 }
 
-// Initialize Firebase lazily (on first use, not on import)
-initializeFirebase()
+// Lazy getters - initialize only when accessed
+export function auth() {
+  ensureFirebaseInitialized()
+  return firebaseAuth
+}
 
-export const auth = firebaseAuth
-export const db = firebaseDb
+export function db() {
+  ensureFirebaseInitialized()
+  return firebaseDb
+}
+
 export default firebaseApp

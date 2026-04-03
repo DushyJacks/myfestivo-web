@@ -9,7 +9,7 @@
  */
 
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore'
-import { db } from './firebase'
+import { db as getDb } from './firebase'
 
 /**
  * Check if user is admin by looking up their Firestore document
@@ -17,7 +17,7 @@ import { db } from './firebase'
  */
 export async function isUserAdmin(uid: string): Promise<boolean> {
   try {
-    const usersRef = collection(db, 'users')
+    const usersRef = collection(getDb(), 'users')
     const q = query(usersRef, where('__name__', '==', uid))
     const querySnapshot = await getDocs(q)
     

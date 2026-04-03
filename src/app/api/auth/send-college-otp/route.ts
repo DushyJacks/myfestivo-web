@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/firebase'
+import { db as getDb } from '@/lib/firebase'
 import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { sendCollegeOTP } from '@/lib/email'
 
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify user exists
-    const userDoc = await getDoc(doc(db, 'users', uid))
+    const userDoc = await getDoc(doc(getDb(), 'users', uid))
     if (!userDoc.exists()) {
       return NextResponse.json(
         { success: false, message: 'User not found' },
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     // Store OTP in a temporary collection with expiration (10 minutes)
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString()
-    await setDoc(doc(db, 'collegeOtps', uid), {
+    await setDoc(doc(getDb(), 'collegeOtps', uid), {
       otp,
       collegeEmail,
       collegeDomain,

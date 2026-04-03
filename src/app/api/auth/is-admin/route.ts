@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { collection, query, where, getDocs } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
+import { db as getDb } from '@/lib/firebase'
 
 /**
  * Check if user is admin by looking up their Firestore document
  */
 async function isUserAdmin(uid: string): Promise<boolean> {
   try {
-    const usersRef = collection(db, 'users')
+    const usersRef = collection(getDb(), 'users')
     const q = query(usersRef, where('__name__', '==', uid))
     const querySnapshot = await getDocs(q)
     

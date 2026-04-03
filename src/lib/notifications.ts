@@ -1,4 +1,4 @@
-import { db } from "./firebase"
+import { db as getDb } from "./firebase"
 import { doc, updateDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore"
 
 /**
@@ -290,7 +290,7 @@ async function logNotification(
   message: string
 ): Promise<void> {
   try {
-    const eventRef = doc(db, "events", eventId)
+    const eventRef = doc(getDb(), "events", eventId)
     const eventSnap = await getDoc(eventRef)
 
     if (!eventSnap.exists()) return
