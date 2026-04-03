@@ -806,6 +806,7 @@ export default function EventDetailPage() {
             </div>
             <GlassCard className="p-0 overflow-hidden">
               <ChatPanel
+                event={event}
                 eventId={event.id}
                 channelId={chatChannel}
                 channelLabel={chatChannel === "general" ? "General" : event.subEvents.find(s => s.id === chatChannel)?.name || "Chat"}

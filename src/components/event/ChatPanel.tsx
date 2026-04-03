@@ -2,19 +2,20 @@
 
 import { useState, useRef, useEffect } from "react"
 import { useAuth } from "@/lib/auth-context"
-import { useEvents, ChatMessage } from "@/lib/events-context"
+import { useEvents, ChatMessage, MainEvent } from "@/lib/events-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Send } from "lucide-react"
+import { Send, Shield, Zap } from "lucide-react"
 
 interface ChatPanelProps {
+  event: MainEvent
   eventId: string
   channelId: string // "general" or sub-event ID
   channelLabel: string
   messages: ChatMessage[]
 }
 
-export function ChatPanel({ eventId, channelId, channelLabel, messages }: ChatPanelProps) {
+export function ChatPanel({ event, eventId, channelId, channelLabel, messages }: ChatPanelProps) {
   const { user } = useAuth()
   const { addChatMessage } = useEvents()
   const [msg, setMsg] = useState("")
@@ -25,6 +26,25 @@ export function ChatPanel({ eventId, channelId, channelLabel, messages }: ChatPa
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [filtered.length])
+
+  // Determine user roles
+  const isEventOrganizer = user && event.organizerEmail === user.email
+  const coordinatorRoles = user ? event.subEvents
+    .filter(se => se.coordinators.some(c => c.email === user.email))
+    .map(se => ({
+      subEventName: se.name,
+      role: se.coordinators.find(c => c.email === user.email)?.role || ""
+    })) : []
+
+  const getUserRole = (messageUserId: string, messageUserEmail: string) => {
+    const isOrganizer = event.organizerEmail === messageUserEmail
+    const roles = event.subEvents
+      .filter(se => se.coordinators.some(c => c.email === messageUserEmail))
+      .map(se => se.coordinators.find(c => c.email === messageUserEmail)?.role)
+      .filter(Boolean)
+    
+    return { isOrganizer, roles: roles as string[] }
+  }
 
   const send = async () => {
     if (!user || !msg.trim()) return
@@ -41,42 +61,80 @@ export function ChatPanel({ eventId, channelId, channelLabel, messages }: ChatPa
   }
 
   return (
-    <div className="flex flex-col h-[500px]">
-      <div className="text-[10px] font-mono text-white/30 tracking-widest uppercase px-4 py-3 border-b border-white/[0.06]">
-        # {channelLabel}
+    <div className="flex flex-col h-[600px] bg-white/[0.01] border border-white/[0.06] rounded-lg">
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-white/[0.06]">
+        <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Channel</p>
+        <p className="font-medium text-white"># {channelLabel}</p>
       </div>
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {filtered.length === 0 && (
-          <p className="text-white/20 text-sm font-mono text-center py-12">No messages yet. Start the conversation!</p>
-        )}
-        {filtered.map(m => (
-          <div key={m.id} className={`flex flex-col ${m.userId === user?.id ? "items-end" : "items-start"}`}>
-            <div className="flex items-center gap-2 mb-0.5">
-              <span className="text-[10px] font-mono text-white/40">{m.userName}</span>
-              <span className="text-[9px] font-mono text-white/20">{m.timestamp.slice(11)}</span>
-            </div>
-            <div className={`max-w-[80%] px-3 py-2 rounded-lg text-sm ${
-              m.userId === user?.id
-                ? "bg-white/[0.1] text-white/90"
-                : "bg-white/[0.04] border border-white/[0.08] text-white/70"
-            }`}>
-              {m.message}
-            </div>
+          <div className="flex items-center justify-center h-full">
+            <p className="text-white/20 text-sm font-mono text-center">No messages yet. Start the conversation!</p>
           </div>
-        ))}
+        )}
+        {filtered.map(m => {
+          const { isOrganizer, roles } = getUserRole(m.userId, m.userId)
+          
+          return (
+            <div key={m.id} className={`flex flex-col ${m.userId === user?.id ? "items-end" : "items-start"}`}>
+              {/* User info with roles */}
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-white">{m.userName}</span>
+                  
+                  {/* Overall Event Coordinator Badge */}
+                  {isOrganizer && (
+                    <span className="flex items-center gap-1 px-2 py-0.5 bg-purple-500/20 border border-purple-500/40 rounded-full text-[10px] font-mono text-purple-300 tracking-tight">
+                      <Shield className="w-3 h-3" />
+                      EVENT ORG
+                    </span>
+                  )}
+                  
+                  {/* Sub-Event Coordinator Badges */}
+                  {roles.length > 0 && roles.map((role, i) => (
+                    <span key={i} className="flex items-center gap-1 px-2 py-0.5 bg-blue-500/20 border border-blue-500/40 rounded-full text-[10px] font-mono text-blue-300 tracking-tight">
+                      <Zap className="w-3 h-3" />
+                      {role.toUpperCase()}
+                    </span>
+                  ))}
+                </div>
+                
+                <span className="text-[9px] font-mono text-white/20">{m.timestamp.slice(11)}</span>
+              </div>
+              
+              {/* Message bubble */}
+              <div className={`max-w-[70%] px-4 py-2.5 rounded-lg text-sm leading-relaxed ${
+                m.userId === user?.id
+                  ? "bg-white/[0.1] border border-white/[0.15] text-white/90"
+                  : "bg-white/[0.04] border border-white/[0.08] text-white/70"
+              }`}>
+                {m.message}
+              </div>
+            </div>
+          )
+        })}
         <div ref={bottomRef} />
       </div>
+
+      {/* Input */}
       {user && (
-        <div className="px-4 py-3 border-t border-white/[0.06] flex gap-2">
+        <div className="px-4 py-4 border-t border-white/[0.06] bg-white/[0.01] flex gap-2">
           <Input
             value={msg}
             onChange={e => setMsg(e.target.value)}
             onKeyDown={e => e.key === "Enter" && send()}
             placeholder="Type a message..."
-            className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 text-sm h-9 flex-1"
+            className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 text-sm h-10 flex-1 rounded-lg"
           />
-          <Button onClick={send} disabled={!msg.trim()} className="h-9 px-3 bg-white text-black hover:bg-white/90">
-            <Send className="w-3.5 h-3.5" />
+          <Button 
+            onClick={send} 
+            disabled={!msg.trim()} 
+            className="h-10 px-4 bg-white text-black hover:bg-white/90 rounded-lg font-medium"
+          >
+            <Send className="w-4 h-4" />
           </Button>
         </div>
       )}
