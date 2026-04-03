@@ -132,7 +132,7 @@ export default function EventDetailPage() {
   }
   const handleQRScan = (data: string) => {
     if (!event) return
-    
+
     // Format: MYFESTIVO:eventId:subEventId:regId
     const parts = data.split(':')
     if (parts.length !== 4 || parts[0] !== 'MYFESTIVO') {
@@ -166,7 +166,7 @@ export default function EventDetailPage() {
     // Success
     checkInParticipant(event.id, scanRegId)
     setScanStatus({ type: 'success', msg: `Checked in ${registration.userName}!` })
-    
+
     // Clear status after 3 seconds
     setTimeout(() => setScanStatus(null), 3000)
   }
@@ -239,13 +239,21 @@ export default function EventDetailPage() {
       <div className="pt-24 pb-16 px-4 md:px-8 max-w-6xl mx-auto">
         {/* Hero Section */}
         <motion.div variants={pageItem} className="mb-12">
-          {event.poster_base64 && (
-            <div className="w-full h-64 md:h-96 rounded-2xl overflow-hidden mb-8 border border-white/[0.06] relative">
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={event.poster_base64} alt={event.title} className="w-full h-full object-cover opacity-80" />
-            </div>
-          )}
+          {/* Poster - always render with fixed height for consistent layout */}
+          <div className="w-full h-64 md:h-96 rounded-2xl overflow-hidden mb-8 border border-white/[0.06] relative bg-gradient-to-br from-white/[0.05] to-white/[0.02] flex items-center justify-center">
+            {event.poster_base64 ? (
+              <>
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={event.poster_base64} alt={event.title} className="w-full h-full object-cover opacity-80" />
+              </>
+            ) : (
+              <div className="text-center">
+                <div className="text-4xl mb-2">📷</div>
+                <span className="text-sm text-white/30">Event poster unavailable</span>
+              </div>
+            )}
+          </div>
           <div className="flex flex-wrap gap-2 mb-4">
             {!event.collegeDomain ? <span className="font-mono text-[10px] px-2 py-0.5 border border-white/20 text-white/50">OPEN EVENT</span>
               : <span className="font-mono text-[10px] px-2 py-0.5 border border-yellow-500/50 text-yellow-400">INTRA — @{event.collegeDomain}</span>}
@@ -265,12 +273,12 @@ export default function EventDetailPage() {
         </motion.div>
 
         {/* Navigation Tabs */}
-        <motion.div variants={pageItem} className="flex gap-1 border-b border-white/[0.06] mb-8 overflow-x-auto pb-px">
+        <motion.div variants={pageItem} className="flex w-full gap-1 border-b border-white/[0.06] mb-8 overflow-x-auto pb-px no-scrollbar">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-6 py-4 text-xs font-medium transition-all relative whitespace-nowrap ${activeTab === tab.id ? "text-white" : "text-white/40 hover:text-white/60"}`}
+              className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 text-xs font-medium transition-all relative whitespace-nowrap ${activeTab === tab.id ? "text-white" : "text-white/40 hover:text-white/60"}`}
             >
               <tab.icon className="w-4 h-4" />
               {tab.label}
@@ -655,11 +663,10 @@ export default function EventDetailPage() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className={`mb-6 p-4 rounded-xl border flex items-center gap-3 ${
-                    scanStatus.type === 'success' 
-                      ? 'bg-green-500/10 border-green-500/20 text-green-400' 
+                  className={`mb-6 p-4 rounded-xl border flex items-center gap-3 ${scanStatus.type === 'success'
+                      ? 'bg-green-500/10 border-green-500/20 text-green-400'
                       : 'bg-red-500/10 border-red-500/20 text-red-400'
-                  }`}
+                    }`}
                 >
                   <div className={`p-1.5 rounded-full ${scanStatus.type === 'success' ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
                     {scanStatus.type === 'success' ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
@@ -818,12 +825,12 @@ export default function EventDetailPage() {
 
       {/* Registration Wizard Modal */}
       {showRegWizard && <RegistrationWizard event={event} onClose={() => setShowRegWizard(false)} />}
-      
+
       {/* QR Scanner Modal */}
       {showQRScanner && (
-        <QRScanner 
-          onScan={(data) => handleQRScan(data)} 
-          onClose={() => setShowQRScanner(false)} 
+        <QRScanner
+          onScan={(data) => handleQRScan(data)}
+          onClose={() => setShowQRScanner(false)}
         />
       )}
     </>

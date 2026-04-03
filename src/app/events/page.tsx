@@ -150,12 +150,18 @@ export default function EventsFeed() {
               <Link href={`/events/${evt.id}`}>
                 <GlassCard className={`p-0 hover:scale-[1.01] transition-transform duration-150 ease-out cursor-pointer relative overflow-hidden group h-full flex flex-col ${evt.isInter ? '' : 'border-l-yellow-500/50 border-l-[3px]'}`}>
                   
-                  {evt.poster_base64 && (
-                    <div className="w-full h-32 overflow-hidden border-b border-white/[0.06]">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {/* Poster section - always render with fixed height for consistent card sizing */}
+                  <div className="w-full h-32 overflow-hidden border-b border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] flex items-center justify-center">
+                    {evt.poster_base64 ? (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img src={evt.poster_base64} alt={evt.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    </div>
-                  )}
+                    ) : (
+                      <div className="flex flex-col items-center justify-center gap-1">
+                        <div className="w-6 h-6 rounded border border-white/20 flex items-center justify-center text-white/30 text-xs">📷</div>
+                        <span className="text-[10px] text-white/20">No poster</span>
+                      </div>
+                    )}
+                  </div>
 
                   <div className="p-6 flex-1 flex flex-col">
                     <div className="flex justify-between items-start mb-4">

@@ -233,19 +233,19 @@ export default function LandingPage() {
             </motion.h2>
             <motion.div variants={fadeUp} className="max-w-3xl">
               <p className="text-base text-white/40 leading-relaxed mb-6">
-                MyFestivo was born out of frustration. Every college fest meant scattered WhatsApp groups, 
-                messy Google Forms, lost registrations, and zero coordination between sub-events. 
+                MyFestivo was born out of frustration. Every college fest meant scattered WhatsApp groups,
+                messy Google Forms, lost registrations, and zero coordination between sub-events.
                 We built the platform we wished existed.
               </p>
               <p className="text-base text-white/40 leading-relaxed mb-6">
-                Our mission is simple: make college event management effortless. From a hackathon with 500 
-                participants to an intimate departmental workshop with 20 — MyFestivo scales with you. 
-                Real-time chat, automated reminders, QR check-ins, and secure college-domain locking 
+                Our mission is simple: make college event management effortless. From a hackathon with 500
+                participants to an intimate departmental workshop with 20 — MyFestivo scales with you.
+                Real-time chat, automated reminders, QR check-ins, and secure college-domain locking
                 are just the beginning.
               </p>
               <p className="text-base text-white/40 leading-relaxed">
-                We&apos;re a team of engineers and designers from SRM Institute of Science and Technology, 
-                united by the belief that college life deserves better tools. MyFestivo is open to every 
+                We&apos;re a team of engineers and designers from SRM Institute of Science and Technology,
+                united by the belief that college life deserves better tools. MyFestivo is open to every
                 institution — invite your college today.
               </p>
             </motion.div>

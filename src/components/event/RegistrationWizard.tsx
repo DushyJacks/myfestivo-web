@@ -30,7 +30,7 @@ export function RegistrationWizard({ event, onClose }: Props) {
 
   const alreadyRegistered = (seId: string) =>
     event.registrations.some(r => r.subEventId === seId && r.userEmail === user.email)
-    
+
   const isStaffRestricted = event.restricted_registrations?.includes(user?.email || "")
 
   const addMember = () => {
@@ -121,9 +121,9 @@ export function RegistrationWizard({ event, onClose }: Props) {
             <div className="space-y-3">
               <p className="text-xs text-white/40 mb-4">Choose the competition you&apos;d like to participate in:</p>
               {isStaffRestricted && (
-                 <div className="p-3 mb-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-xs font-mono text-center">
-                   Restricted: Event Staff/Coordinators cannot register.
-                 </div>
+                <div className="p-3 mb-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-xs font-mono text-center">
+                  Restricted: Event Staff/Coordinators cannot register.
+                </div>
               )}
               {event.subEvents.map(se => {
                 const regCount = event.registrations.filter(r => r.subEventId === se.id).length

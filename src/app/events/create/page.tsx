@@ -12,6 +12,7 @@ import { PageTransition, pageItem } from "@/components/animation/PageTransition"
 import { motion } from "framer-motion"
 import { PlusCircle, X, ArrowLeft, Trophy, Phone, LinkIcon } from "lucide-react"
 import Link from "next/link"
+import { compressImage } from "@/lib/utils"
 
 interface SubEventForm {
   name: string
@@ -114,23 +115,40 @@ export default function CreateEventPage() {
     if (subEvents.length > 1) setSubEvents((prev) => prev.filter((_, i) => i !== idx))
   }
 
-  const handlePosterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePosterChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     if (file.size > 5 * 1024 * 1024) {
       alert("Image is too large (max 5MB)")
       return
     }
-    const reader = new FileReader()
-    reader.onload = () => {
-      setForm(prev => ({ ...prev, posterBase64: reader.result as string }))
+    
+    try {
+      // Compress image to reduce base64 size
+      const compressedBase64 = await compressImage(file, 800, 600, 0.7)
+      
+      // Check if compressed size is still within firebase limit
+      if (compressedBase64.length > 1048487) {
+        alert("Compressed image is still too large. Please use a smaller image.")
+        return
+      }
+      
+      setForm(prev => ({ ...prev, posterBase64: compressedBase64 }))
+    } catch (error) {
+      console.error("Error compressing image:", error)
+      alert("Failed to process image. Please try a different image.")
     }
-    reader.readAsDataURL(file)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user) return
+
+    // Validate poster is provided
+    if (!form.posterBase64) {
+      alert("Event poster is required. Please upload an image.")
+      return
+    }
 
     const slug = form.title
       .toLowerCase()
@@ -271,7 +289,7 @@ export default function CreateEventPage() {
             
             {/* Poster Upload */}
             <div>
-              <label className={labelCls}>Event Poster (Optional)</label>
+              <label className={labelCls}>Event Poster <span className="text-red-400">*</span></label>
               <div className="flex items-center gap-4">
                 <input
                   type="file"
@@ -286,7 +304,7 @@ export default function CreateEventPage() {
                   </div>
                 )}
               </div>
-              <p className="text-[10px] text-white/30 mt-1">Max 5MB. Will be displayed on the event page.</p>
+              <p className="text-[10px] text-white/30 mt-1">Max 5MB. Supports both vertical and horizontal images. Will be displayed on event cards.</p>
             </div>
           </GlassCard>
 
