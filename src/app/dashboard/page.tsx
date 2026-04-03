@@ -248,8 +248,8 @@ export default function DashboardPage() {
                                 <div className="flex items-center gap-2">
                                   <span className={`font-mono text-[10px] px-2 py-0.5 border rounded ${reg.status === "PAID" ? "border-green-500/30 text-green-400" : reg.status === "PENDING" ? "border-yellow-500/30 text-yellow-400" : "border-white/20 text-white/40"}`}>{reg.status}</span>
                                   {reg.checkedIn && <span className="text-[10px] font-mono text-green-400 flex items-center gap-1"><CheckSquare className="w-3 h-3" />Checked In</span>}
-                                  <button onClick={() => setShowQR(isOpen ? null : reg.id)} className="flex items-center gap-1 text-xs text-white/50 hover:text-white border border-white/20 rounded px-2 py-1">
-                                    <QrCode className="w-3 h-3" />{isOpen ? "Hide" : "QR Pass"}
+                                  <button onClick={() => setShowQR(isOpen ? null : reg.id)} aria-label={isOpen ? "Hide QR pass" : "Show QR pass"} className="flex items-center gap-1 text-xs text-white/50 hover:text-white border border-white/20 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40">
+                                    <QrCode className="w-3 h-3" aria-hidden="true" />{isOpen ? "Hide" : "QR Pass"}
                                   </button>
                                 </div>
                               </div>
@@ -402,7 +402,7 @@ export default function DashboardPage() {
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-bold overflow-hidden">
-                                  {u.avatarUrl ? <img src={u.avatarUrl} alt="" className="w-full h-full object-cover" /> : u.name.charAt(0)}
+                                  {u.avatarUrl ? <img src={u.avatarUrl} alt={u.name} width={32} height={32} className="w-full h-full object-cover" /> : u.name.charAt(0)}
                                 </div>
                                 <div className="min-w-0">
                                   <p className="text-xs font-medium truncate">{u.name}</p>
@@ -448,8 +448,8 @@ export default function DashboardPage() {
                                 </div>
                               </div>
                               <div className="flex gap-1">
-                                <button onClick={() => acceptFriendRequest(req.from)} className="p-1.5 rounded hover:bg-green-500/20 text-green-400" title="Accept"><Check className="w-4 h-4" /></button>
-                                <button onClick={() => declineFriendRequest(req.from)} className="p-1.5 rounded hover:bg-red-500/20 text-red-400" title="Decline"><X className="w-4 h-4" /></button>
+                                <button onClick={() => acceptFriendRequest(req.from)} aria-label="Accept friend request" className="p-1.5 rounded hover:bg-green-500/20 text-green-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/40"><Check className="w-4 h-4" aria-hidden="true" /></button>
+                                <button onClick={() => declineFriendRequest(req.from)} aria-label="Decline friend request" className="p-1.5 rounded hover:bg-red-500/20 text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/40"><X className="w-4 h-4" aria-hidden="true" /></button>
                               </div>
                             </div>
                           </GlassCard>

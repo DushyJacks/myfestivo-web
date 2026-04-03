@@ -322,7 +322,7 @@ export default function CreateEventPage() {
                 {form.posterBase64 && (
                   <div className="w-11 h-11 rounded-md overflow-hidden shrink-0 border border-white/[0.08]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={form.posterBase64} alt="Poster preview" className="w-full h-full object-cover" />
+                    <img src={form.posterBase64} alt="Poster preview" width={44} height={44} className="w-full h-full object-cover" />
                   </div>
                 )}
               </div>

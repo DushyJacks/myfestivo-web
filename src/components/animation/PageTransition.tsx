@@ -1,6 +1,7 @@
 "use client"
 
 import { motion, Variants } from "framer-motion"
+import { useEffect, useState } from "react"
 
 const container: Variants = {
   hidden: {},
@@ -16,8 +17,24 @@ const item: Variants = {
 }
 
 export function PageTransition({ children, className }: { children: React.ReactNode; className?: string }) {
+  const [prefersReduced, setPrefersReduced] = useState(false)
+
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)")
+    setPrefersReduced(query.matches)
+    const handler = (e: MediaQueryListEvent) => setPrefersReduced(e.matches)
+    query.addEventListener("change", handler)
+    return () => query.removeEventListener("change", handler)
+  }, [])
+
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className={className}>
+    <motion.div 
+      variants={container} 
+      initial={prefersReduced ? "show" : "hidden"}
+      animate="show" 
+      className={className}
+      transition={prefersReduced ? { duration: 0 } : undefined}
+    >
       {children}
     </motion.div>
   )

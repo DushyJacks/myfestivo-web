@@ -105,18 +105,18 @@ export default function SignupPage() {
 
             <div>
               <label className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Email Address</label>
-              <Input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="you@gmail.com" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
+              <Input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="you@gmail.com" autoComplete="email" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
               <p className="text-[10px] text-white/30 mt-1">You can link your college email from your Profile later for intra-college events.</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Password</label>
-                <Input type="password" value={form.password} onChange={(e) => update("password", e.target.value)} placeholder="••••••••" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
+                <Input type="password" value={form.password} onChange={(e) => update("password", e.target.value)} placeholder="••••••••" autoComplete="new-password" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
               </div>
               <div>
                 <label className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Confirm Password</label>
-                <Input type="password" value={form.confirmPassword} onChange={(e) => update("confirmPassword", e.target.value)} placeholder="••••••••" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
+                <Input type="password" value={form.confirmPassword} onChange={(e) => update("confirmPassword", e.target.value)} placeholder="••••••••" autoComplete="new-password" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
               </div>
             </div>
 

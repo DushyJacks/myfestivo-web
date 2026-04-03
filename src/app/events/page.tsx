@@ -154,7 +154,7 @@ export default function EventsFeed() {
                   <div className="w-full h-32 overflow-hidden border-b border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] flex items-center justify-center">
                     {evt.poster_base64 ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={evt.poster_base64} alt={evt.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={evt.poster_base64} alt={evt.title} width={256} height={128} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
                       <div className="flex flex-col items-center justify-center gap-1">
                         <div className="w-6 h-6 rounded border border-white/20 flex items-center justify-center text-white/30 text-xs">📷</div>

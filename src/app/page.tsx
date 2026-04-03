@@ -53,7 +53,7 @@ export default function LandingPage() {
           {user ? (
             <Link href="/dashboard" className="flex items-center gap-3">
               {user.avatarUrl ? (
-                <img src={user.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover border border-white/20" />
+                <img src={user.avatarUrl} alt={user.name} width={32} height={32} className="w-8 h-8 rounded-full object-cover border border-white/20" />
               ) : (
                 <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
                   style={{ backgroundColor: user.avatarColor || "#3B82F6" }}>

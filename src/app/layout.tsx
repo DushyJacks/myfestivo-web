@@ -6,6 +6,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "MyFestivo — College Event Platform",
   description: "Your events. One place. Built for college events that actually happen.",
+  themeColor: "#000000",
 };
 
 export default function RootLayout({

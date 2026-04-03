@@ -26,6 +26,15 @@ export function RegistrationWizard({ event, onClose }: Props) {
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
 
+  // Handle Escape key
+  React.useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose()
+    }
+    window.addEventListener("keydown", handleEsc)
+    return () => window.removeEventListener("keydown", handleEsc)
+  }, [onClose])
+
   if (!user) return null
 
   const alreadyRegistered = (seId: string) =>
@@ -95,15 +104,15 @@ export function RegistrationWizard({ event, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={onClose}>
-      <GlassCard className="p-0 max-w-lg w-full max-h-[85vh] overflow-hidden flex flex-col" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={onClose} role="presentation">
+      <GlassCard className="p-0 max-w-lg w-full max-h-[85vh] overflow-hidden flex flex-col" onClick={(e: React.MouseEvent) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="registration-title">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
           <div>
             <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase">Register for</p>
-            <p className="font-medium">{event.title}</p>
+            <p className="font-medium" id="registration-title">{event.title}</p>
           </div>
-          <button onClick={onClose} className="text-white/30 hover:text-white"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} aria-label="Close registration wizard" className="text-white/30 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded"><X className="w-5 h-5" aria-hidden="true" /></button>
         </div>
 
         {/* Progress */}

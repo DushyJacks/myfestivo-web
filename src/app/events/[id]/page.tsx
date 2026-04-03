@@ -245,7 +245,8 @@ export default function EventDetailPage() {
               <>
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={event.poster_base64} alt={event.title} className="w-full h-full object-cover opacity-80" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={event.poster_base64} alt={event.title} width={400} height={600} className="w-full h-full object-cover opacity-80" />
               </>
             ) : (
               <div className="text-center">
