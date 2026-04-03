@@ -41,7 +41,9 @@ export default function RootLayout({
     <html lang="en" className="dark h-full antialiased" style={{ colorScheme: 'dark' }}>
       <head>
         <link rel="icon" href="/favicon.jpg" type="image/jpeg" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="shortcut icon" href="/favicon.jpg" type="image/jpeg" />
+        <meta name="theme-color" content="#000000" />
+        <preconnect rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
       </head>
