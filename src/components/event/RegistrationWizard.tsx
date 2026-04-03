@@ -103,10 +103,9 @@ export function RegistrationWizard({ event, onClose }: Props) {
         <div className="px-6 py-3 border-b border-white/[0.06] flex items-center gap-2">
           {steps.map((s, i) => (
             <div key={s} className="flex items-center gap-2">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-mono ${
-                i < stepIndex ? "bg-green-500/20 text-green-400" :
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-mono ${i < stepIndex ? "bg-green-500/20 text-green-400" :
                 i === stepIndex ? "bg-white text-black" : "bg-white/[0.06] text-white/30"
-              }`}>{i < stepIndex ? <Check className="w-3 h-3" /> : i + 1}</div>
+                }`}>{i < stepIndex ? <Check className="w-3 h-3" /> : i + 1}</div>
               <span className={`text-[10px] font-mono tracking-widest uppercase ${i === stepIndex ? "text-white" : "text-white/30"}`}>{s}</span>
               {i < steps.length - 1 && <ChevronRight className="w-3 h-3 text-white/20 mx-1" />}
             </div>
@@ -128,10 +127,9 @@ export function RegistrationWizard({ event, onClose }: Props) {
                     key={se.id}
                     disabled={isFull || already}
                     onClick={() => { setSelectedSe(se); setStep(se.type === "team" ? "team" : "confirm") }}
-                    className={`w-full text-left p-4 rounded-lg border transition-all ${
-                      isFull || already ? "border-white/[0.04] bg-white/[0.01] opacity-50 cursor-not-allowed"
+                    className={`w-full text-left p-4 rounded-lg border transition-all ${isFull || already ? "border-white/[0.04] bg-white/[0.01] opacity-50 cursor-not-allowed"
                       : "border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 cursor-pointer"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-medium">{se.name}</span>

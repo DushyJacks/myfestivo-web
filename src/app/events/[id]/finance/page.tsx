@@ -9,7 +9,7 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { AppSidebar } from "@/components/layout/AppSidebar"
+
 import {
   ArrowLeft, DollarSign, TrendingUp, Users, CheckCircle2,
   Clock, XCircle, CreditCard, BarChart3, PieChart
@@ -79,24 +79,22 @@ export default function FinancePage() {
   })
 
   return (
-    <div className="flex min-h-screen">
-      <AppSidebar activeItem="browse" />
-
-      <main className="flex-1 ml-[72px] lg:ml-[260px]">
-        {/* Header */}
-        <header className="sticky top-0 h-16 flex items-center justify-between px-8 z-50 bg-black/60 backdrop-blur-md border-b border-white/[0.06]">
-          <div className="flex items-center gap-4">
-            <Link href={`/events/${event.id}`} className="text-white/40 hover:text-white transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <div>
-              <span className="font-medium text-white">{event.title}</span>
-              <span className="text-white/30 text-xs ml-2 font-mono">/ Finance</span>
-            </div>
+    <>
+      {/* Header */}
+      <header className="fixed top-0 left-[72px] lg:left-[260px] right-0 h-16 flex items-center justify-between px-8 z-50 bg-black/60 backdrop-blur-md border-b border-white/[0.06]">
+        <div className="flex items-center gap-4">
+          <Link href={`/events/${event.id}`} className="text-white/40 hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <div>
+            <span className="font-medium text-white">{event.title}</span>
+            <span className="text-white/30 text-xs ml-2 font-mono">/ Finance</span>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <PageTransition className="p-6 lg:p-10 max-w-6xl mx-auto">
+      <div className="pt-24 pb-16 px-4 md:px-8 max-w-6xl mx-auto">
+        <PageTransition>
           <motion.div variants={pageItem} className="mb-10">
             <MicroLabel>Finance Dashboard</MicroLabel>
             <h1 className="text-3xl lg:text-4xl font-light tracking-tight">Revenue Overview</h1>
@@ -303,7 +301,7 @@ export default function FinancePage() {
             </motion.div>
           )}
         </PageTransition>
-      </main>
-    </div>
+      </div>
+    </>
   )
 }

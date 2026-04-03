@@ -129,11 +129,10 @@ export function ParticipantsList({ event }: Props) {
                     ) : <span className="text-[10px] font-mono text-white/20">Solo</span>}
                   </td>
                   <td className="p-3">
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
-                      reg.status === "PAID" ? "border-green-500/30 text-green-400" :
-                      reg.status === "PENDING" ? "border-yellow-500/30 text-yellow-400" :
-                      "border-white/20 text-white/40"
-                    }`}>{reg.status}</span>
+                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${reg.status === "PAID" ? "border-green-500/30 text-green-400" :
+                        reg.status === "PENDING" ? "border-yellow-500/30 text-yellow-400" :
+                          "border-white/20 text-white/40"
+                      }`}>{reg.status}</span>
                   </td>
                   <td className="p-3 text-[10px] font-mono text-white/30">{reg.timestamp}</td>
                 </tr>

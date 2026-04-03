@@ -153,8 +153,8 @@ export default function EventDetailPage() {
               <button
                 onClick={() => updateEvent(event.id, { registrationOpen: !event.registrationOpen })}
                 className={`text-[10px] font-mono tracking-widest uppercase px-3 py-1.5 rounded border transition-colors ${event.registrationOpen
-                    ? "border-green-500/30 text-green-400 hover:bg-green-500/10"
-                    : "border-red-500/30 text-red-400 hover:bg-red-500/10"
+                  ? "border-green-500/30 text-green-400 hover:bg-green-500/10"
+                  : "border-red-500/30 text-red-400 hover:bg-red-500/10"
                   }`}
               >
                 Registration {event.registrationOpen ? "Open" : "Closed"}
