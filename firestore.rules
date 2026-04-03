@@ -1,9 +1,19 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Users collection - allow reads by authenticated users
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Read: any authenticated user can read any user document
       allow read: if request.auth != null;
+      
+      // Create: only authenticated users can create their own document
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Update: any authenticated user can update any user document (for friend requests, etc.)
+      allow update: if request.auth != null;
+      
+      // Delete: only users can delete their own document
+      allow delete: if request.auth != null && request.auth.uid == userId;
     }
     match /events/{eventId} {
       allow read: if true;
