@@ -161,6 +161,7 @@ interface EventsContextType {
   addAnnouncement: (eventId: string, a: Announcement) => void
   addTask: (eventId: string, task: Task) => void
   updateTaskStatus: (eventId: string, taskId: string, status: TaskStatus) => void
+  updateTaskOrder: (eventId: string, tasks: Task[]) => void
   checkInParticipant: (eventId: string, regId: string) => void
   addAutomation: (eventId: string, rule: AutomationRule) => void
   toggleAutomation: (eventId: string, ruleId: string) => void
@@ -311,6 +312,10 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     await updateDoc(getEventRef(eventId), { tasks: updatedTasks })
   }
 
+  const updateTaskOrder = async (eventId: string, tasks: Task[]) => {
+    await updateDoc(getEventRef(eventId), { tasks })
+  }
+
   // Module 4 — Check-In
   const checkInParticipant = async (eventId: string, regId: string) => {
     const evt = events.find(e => e.id === eventId)
@@ -343,7 +348,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     <EventsContext.Provider value={{
       events, addEvent, deleteEvent, updateEvent, registerForSubEvent, addChatMessage, addCoordinator,
       submitTransaction, approvePayment, rejectPayment,
-      addAnnouncement, addTask, updateTaskStatus, checkInParticipant,
+      addAnnouncement, addTask, updateTaskStatus, updateTaskOrder, checkInParticipant,
       addAutomation, toggleAutomation, addAutomationLog
     }}>
       {children}

@@ -13,6 +13,7 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { QRCodeSVG } from "qrcode.react"
+import { TaskBoard } from "@/components/event/TaskBoard"
 import {
   ChevronRight, Ticket, BarChart3,
   ListTodo, QrCode, CheckSquare, Clock, DollarSign, Megaphone,
@@ -23,7 +24,7 @@ import { collection, query, where, getDocs, limit } from "firebase/firestore"
 
 export default function DashboardPage() {
   const { user, logout, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend } = useAuth()
-  const { events } = useEvents()
+  const { events, updateTaskStatus } = useEvents()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<"overview" | "friends" | "hosted" | "registered" | "tasks">("overview")
   const [showQR, setShowQR] = useState<string | null>(null)
@@ -330,39 +331,31 @@ export default function DashboardPage() {
                   <p className="text-sm text-white/30">Tasks assigned to you by event organizers will appear here.</p>
                 </GlassCard>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {(["TODO", "IN_PROGRESS", "DONE"] as const).map(status => {
-                    const label = status === "TODO" ? "To Do" : status === "IN_PROGRESS" ? "In Progress" : "Done"
-                    const color = status === "TODO" ? "border-white/10" : status === "IN_PROGRESS" ? "border-yellow-500/20" : "border-green-500/20"
-                    const tasks = myTasks.filter(t => t.status === status)
-                    return (
-                      <div key={status} className={`rounded-lg border ${color} bg-white/[0.01] p-4`}>
-                        <div className="flex items-center justify-between mb-4">
-                          <span className="text-xs font-mono tracking-widest uppercase text-white/50">{label}</span>
-                          <span className="text-[10px] font-mono text-white/30 bg-white/[0.05] px-2 py-0.5 rounded">{tasks.length}</span>
-                        </div>
-                        <div className="space-y-3">
-                          {tasks.map(t => {
-                            const isOverdue = t.deadline && new Date(t.deadline) < new Date() && status !== "DONE"
-                            return (
-                              <Link key={t.id} href={`/events/${t.eventId}`}>
-                                <div className={`p-3 rounded-md bg-white/[0.03] border ${isOverdue ? 'border-red-500/30' : 'border-white/[0.06]'} hover:bg-white/[0.05] transition-colors cursor-pointer`}>
-                                  <p className="text-sm font-medium mb-1">{t.title}</p>
-                                  {t.description && <p className="text-[10px] text-white/40 mb-2">{t.description}</p>}
-                                  <div className="flex flex-wrap gap-1">
-                                    <span className="text-[9px] font-mono bg-white/[0.05] px-1.5 py-0.5 rounded text-white/30">{t.eventTitle}</span>
-                                    {t.deadline && <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded flex items-center gap-0.5 ${isOverdue ? 'bg-red-500/10 text-red-400' : 'bg-white/[0.05] text-white/30'}`}><CalendarDays className="w-2.5 h-2.5" /> {t.deadline}</span>}
-                                  </div>
-                                </div>
-                              </Link>
-                            )
-                          })}
-                          {tasks.length === 0 && <p className="text-[10px] text-white/20 font-mono text-center py-4">Empty</p>}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
+                <TaskBoard
+                  tasks={myTasks}
+                  onTasksReorder={(reorderedTasks, status) => {
+                    // Find the event and update task status/order
+                    const tasksWithoutEventMeta = reorderedTasks.map(({ eventTitle, eventId, ...task }) => task)
+                    // Group by event and update each event's tasks
+                    const eventTaskMap = new Map<string, typeof tasksWithoutEventMeta>()
+                    reorderedTasks.forEach(task => {
+                      if (!eventTaskMap.has(task.eventId)) {
+                        eventTaskMap.set(task.eventId, [])
+                      }
+                      const { eventTitle, eventId, ...taskData } = task
+                      eventTaskMap.get(task.eventId)?.push(taskData)
+                    })
+                    // Update each event with its reordered tasks
+                    eventTaskMap.forEach((tasks, eventId) => {
+                      // Since we're just reordering visually, we'd update the status if changed
+                      tasks.forEach(task => {
+                        if (task.status !== myTasks.find(mt => mt.id === task.id)?.status) {
+                          updateTaskStatus(eventId, task.id, task.status)
+                        }
+                      })
+                    })
+                  }}
+                />
               )}
             </motion.div>
           )}

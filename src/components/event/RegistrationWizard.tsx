@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { useEvents, SubEvent, MainEvent } from "@/lib/events-context"
 import { GlassCard } from "@/components/ui/GlassCard"
@@ -27,7 +27,7 @@ export function RegistrationWizard({ event, onClose }: Props) {
   const [done, setDone] = useState(false)
 
   // Handle Escape key
-  React.useEffect(() => {
+  useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose()
     }

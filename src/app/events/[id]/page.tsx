@@ -122,6 +122,7 @@ export default function EventDetailPage() {
     const logId = `log-${Date.now()}`
     addAutomationLog(event.id, {
       id: logId,
+      ruleId: "manual-push",
       ruleName: "Manual Push Notification",
       recipientEmail: pushRecipient || "All Participants",
       message: pushMessage,
