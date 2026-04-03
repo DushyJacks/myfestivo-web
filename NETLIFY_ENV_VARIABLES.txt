@@ -1,0 +1,45 @@
+NETLIFY ENVIRONMENT VARIABLES - Copy and paste into Netlify dashboard
+
+Site: https://myfestivo.live
+Date: April 4, 2026
+
+========================================
+FIREBASE CONFIGURATION
+========================================
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyCFG1SNWfez77o-KoWOkYnn6D1D86d_BPI
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=myfestivo.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=myfestivo
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=myfestivo.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=56147733860
+NEXT_PUBLIC_FIREBASE_APP_ID=1:56147733860:web:d1ded45a63df30de691e71
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-CLLF8QR316
+
+========================================
+RAZORPAY PAYMENT GATEWAY
+========================================
+NEXT_PUBLIC_RAZORPAY_KEY=rzp_test_SZ86zoY6QsoVsf
+RAZORPAY_KEY_SECRET=lLsDwkPcbL3JllGH4aTZVRUh
+
+========================================
+APPLICATION SETTINGS
+========================================
+NEXT_PUBLIC_APP_URL=https://myfestivo.live
+NODE_ENV=production
+
+========================================
+HOW TO ADD TO NETLIFY:
+========================================
+1. Go to netlify.com
+2. Click on your site
+3. Site settings (top menu)
+4. Build & deploy (left sidebar)
+5. Environment (section)
+6. Click "Edit variables" button
+7. Copy and paste each line above into the input fields
+8. One variable per line (KEY=VALUE format)
+9. Click "Save"
+10. Go to Deploys tab
+11. Find the latest deploy
+12. Click "Redeploy"
+13. Wait for build to complete
+14. Your site will work!

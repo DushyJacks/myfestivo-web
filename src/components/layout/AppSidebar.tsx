@@ -31,16 +31,16 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
   ]
 
   return (
-    <aside className="w-[72px] lg:w-[260px] border-r border-white/[0.06] bg-black/60 backdrop-blur-md flex flex-col justify-between py-6 fixed h-screen z-40">
+    <aside className="w-[72px] lg:w-[260px] border-r border-white/[0.06] bg-black/60 backdrop-blur-md flex flex-col justify-between py-6 fixed h-screen z-40 overflow-y-auto" aria-label="Main navigation">
       <div>
         <Link href="/" className="hidden lg:block px-5 mb-8">
           <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto" />
         </Link>
-        <Link href="/" className="block lg:hidden px-5 mb-8 text-center">
+        <Link href="/" className="block lg:hidden px-5 mb-8 text-center touch-target flex items-center justify-center">
           <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto mx-auto" />
         </Link>
 
-        <nav className="flex flex-col gap-1 px-3">
+        <nav className="flex flex-col gap-1 px-3" role="navigation">
           {navItems.map(item => {
             // Only show dashboard/host/profile if logged in
             if (item.id !== "browse" && !user) return null
@@ -52,13 +52,15 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
               <Link
                 key={item.id}
                 href={item.href}
-                className={`flex items-center gap-3 p-3 rounded-md transition-colors ${
+                aria-label={item.label}
+                aria-current={isActive ? "page" : undefined}
+                className={`flex items-center justify-center lg:justify-start gap-3 p-3 rounded-md transition-colors touch-target focus-ring ${
                   isActive
                     ? "bg-white/[0.05] text-white"
                     : "text-white/50 hover:bg-white/[0.05] hover:text-white"
                 }`}
               >
-                <item.icon className="w-5 h-5 shrink-0" strokeWidth={1.5} />
+                <item.icon className="w-5 h-5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
                 <span className="hidden lg:inline text-sm">{item.label}</span>
               </Link>
             )
@@ -69,8 +71,8 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
       <div className="px-3 space-y-2">
         {user ? (
           <>
-            <div className="flex items-center gap-3 p-3 rounded-md bg-white/[0.03] border border-white/[0.06]">
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-medium">
+            <div className="flex items-center justify-center lg:justify-start gap-3 p-3 rounded-md bg-white/[0.03] border border-white/[0.06]">
+              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs font-medium flex-shrink-0">
                 {user.name.charAt(0)}
               </div>
               <div className="hidden lg:block flex-1 min-w-0">
@@ -80,18 +82,20 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
             </div>
             <button
               onClick={logout}
-              className="flex items-center gap-3 p-3 w-full rounded-md hover:bg-red-500/10 transition-colors text-white/40 hover:text-red-400"
+              aria-label="Sign out"
+              className="flex items-center justify-center lg:justify-start gap-3 p-3 w-full rounded-md hover:bg-red-500/10 transition-colors text-white/40 hover:text-red-400 touch-target focus-ring"
             >
-              <LogOut className="w-4 h-4 shrink-0" strokeWidth={1.5} />
+              <LogOut className="w-4 h-4 shrink-0" strokeWidth={1.5} aria-hidden="true" />
               <span className="hidden lg:inline text-sm">Sign Out</span>
             </button>
           </>
         ) : (
           <Link
             href="/login"
-            className="flex items-center gap-3 p-3 rounded-md hover:bg-white/[0.05] text-white/50 hover:text-white transition-colors"
+            aria-label="Sign in to MyFestivo"
+            className="flex items-center justify-center lg:justify-start gap-3 p-3 rounded-md hover:bg-white/[0.05] text-white/50 hover:text-white transition-colors touch-target focus-ring"
           >
-            <User className="w-5 h-5 shrink-0" strokeWidth={1.5} />
+            <User className="w-5 h-5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
             <span className="hidden lg:inline text-sm">Sign In</span>
           </Link>
         )}
