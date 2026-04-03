@@ -250,8 +250,15 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const submitTransaction = async (eventId: string, regId: string, transactionId: string, method: string) => {
     const evt = events.find(e => e.id === eventId)
     if (!evt) return
+    // Auto-approve Razorpay payments (they're verified), keep others as PENDING
+    const isPaid = method === "razorpay"
     const updatedRegs = evt.registrations.map(r =>
-      r.id === regId ? { ...r, transactionId, paymentMethod: method } : r
+      r.id === regId ? { 
+        ...r, 
+        transactionId, 
+        paymentMethod: method,
+        status: isPaid ? "PAID" : "PENDING"
+      } : r
     )
     await updateDoc(getEventRef(eventId), { registrations: updatedRegs })
   }

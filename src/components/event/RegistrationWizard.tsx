@@ -44,16 +44,19 @@ export function RegistrationWizard({ event, onClose }: Props) {
   const handleConfirm = async () => {
     if (!selectedSe) return
     setSubmitting(true)
+    const regId = `reg-${Date.now()}`
     const reg: any = {
-      id: `reg-${Date.now()}`,
+      id: regId,
       userId: user.id,
       userName: user.name,
       userEmail: user.email,
       eventId: event.id,
       subEventId: selectedSe.id,
-      status: "PENDING",
+      status: "PAID", // Auto-approve all registrations for now (Razorpay bypass)
       timestamp: new Date().toISOString().slice(0, 16).replace("T", " "),
       checkedIn: false,
+      transactionId: `BYPASS-${regId}`, // Track bypass registrations
+      paymentMethod: "manual",
     }
     if (selectedSe.type === "team") {
       reg.teamName = teamName || `${user.name}'s Team`
@@ -82,7 +85,9 @@ export function RegistrationWizard({ event, onClose }: Props) {
             <Check className="w-7 h-7 text-green-400" />
           </div>
           <h2 className="text-xl font-medium mb-2">Registered!</h2>
-          <p className="text-sm text-white/50 mb-6">You&apos;re in for <span className="text-white">{selectedSe?.name}</span>. Check your dashboard for your QR pass.</p>
+          <p className="text-sm text-white/50 mb-6">
+            You&apos;re in for <span className="text-white">{selectedSe?.name}</span>. Check your dashboard for your QR pass.
+          </p>
           <Button onClick={onClose} className="bg-white text-black hover:bg-white/90 h-10 px-6">Done</Button>
         </GlassCard>
       </div>
