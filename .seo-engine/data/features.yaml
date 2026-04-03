@@ -1,0 +1,752 @@
+# ============================================================
+# FEATURES REGISTRY
+# Generated: 2026-04-03
+# Source: Codebase scan + MyFestivo PRD
+# ============================================================
+
+project: "MyFestivo"
+last_updated: "2026-04-03"
+generated_from: "src/app/, src/components/, src/lib/, CLAUDE.md, MyFestivo_Startup_Pitch.txt"
+
+categories:
+  - id: "cat_event_management"
+    name: "Event Management"
+    description: "Core event creation, configuration, and discovery features"
+    subcategories:
+      - id: "sub_event_creation"
+        name: "Event Creation & Configuration"
+        features:
+          - id: "feat_event_creation"
+            name: "Event Creation"
+            description: "Create events with title, date, venue, capacity, category, price, and detailed description. Support for both intra-college and inter-college events with college domain restrictions."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/create/page.tsx"
+                section: "Event Creation Page"
+            blog_refs: []
+            tags: ["event-hosting", "event-creation", "event-management"]
+            
+          - id: "feat_sub_events"
+            name: "Sub-Events"
+            description: "Organize complex events with multiple parallel competitions or activities. Each main event can contain multiple sub-events with separate coordinators and prize pools."
+            status: "available"
+            doc_refs:
+              - path: "src/lib/events-context.tsx"
+                section: "Event Structure"
+            blog_refs: []
+            tags: ["event-management", "event-organization"]
+            
+          - id: "feat_prize_management"
+            name: "Prize Pool Management"
+            description: "Configure prize distribution (1st, 2nd, 3rd) at sub-event level. Track and manage prize details and announcements."
+            status: "available"
+            doc_refs:
+              - path: "src/lib/events-context.tsx"
+                section: "Sub-Event Setup"
+            blog_refs: []
+            tags: ["prizes", "event-incentives"]
+            
+          - id: "feat_coordinator_assignment"
+            name: "Coordinator Assignment"
+            description: "Assign multiple coordinators at event and sub-event levels with specific roles. Define coordinator contact info and hierarchical structure."
+            status: "available"
+            doc_refs:
+              - path: "src/lib/events-context.tsx"
+                section: "Coordinator Management"
+            blog_refs: []
+            tags: ["team-management", "event-coordination"]
+            
+          - id: "feat_important_links"
+            name: "Important Links Management"
+            description: "Add external resource links, schedules, rules documents, and reference materials to events for participant access."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/create/page.tsx"
+                section: "Event Details"
+            blog_refs: []
+            tags: ["event-information"]
+
+      - id: "sub_event_discovery"
+        name: "Event Discovery & Browsing"
+        features:
+          - id: "feat_event_discovery"
+            name: "Event Discovery"
+            description: "Browse published events with advanced search, filtering, and sorting capabilities across the entire platform."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/page.tsx"
+                section: "Event Listing"
+            blog_refs: []
+            tags: ["event-discovery", "event-browsing"]
+            
+          - id: "feat_event_filtering"
+            name: "Advanced Filtering"
+            description: "Filter events by category (Technical, Cultural, Sports, Workshop), price (free/paid), event type (intra/inter-college), and availability status."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/page.tsx"
+                section: "Filtering Logic"
+            blog_refs: []
+            tags: ["search", "filtering"]
+            
+          - id: "feat_event_search"
+            name: "Event Search"
+            description: "Search events by title, organizer name, venue, description, or sub-event names using full-text search capabilities."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/page.tsx"
+                section: "Search Implementation"
+            blog_refs: []
+            tags: ["search", "discoverability"]
+
+      - id: "sub_event_details"
+        name: "Event Details & Dashboard"
+        features:
+          - id: "feat_event_details_page"
+            name: "Event Details Page"
+            description: "Comprehensive event view with overview tab, rules, prize pool info, coordinator contacts, and tabbed interface for different functionalities."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/[id]/page.tsx"
+                section: "Event Detail View"
+            blog_refs: []
+            tags: ["event-information", "event-dashboard"]
+            
+          - id: "feat_multi_role_view"
+            name: "Multi-Role Views"
+            description: "Different interface views based on user role — participants see registration/chat, coordinators see task board, organizers see finance/analytics."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/[id]/page.tsx"
+                section: "Role Management"
+            blog_refs: []
+            tags: ["permissions", "role-based-access"]
+
+  - id: "cat_registration"
+    name: "Registration & Ticketing"
+    description: "User registration, ticket management, and participation tracking"
+    subcategories:
+      - id: "sub_registration"
+        name: "Registration System"
+        features:
+          - id: "feat_solo_registration"
+            name: "Solo Registration"
+            description: "Single participant registration for individual participation in events without team requirements."
+            status: "available"
+            doc_refs:
+              - path: "src/components/event/RegistrationWizard.tsx"
+                section: "Solo Registration Mode"
+            blog_refs: []
+            tags: ["registration", "participation"]
+            
+          - id: "feat_team_registration"
+            name: "Team Registration"
+            description: "Group/team-based registration with team name, member management, and team size validation. Support for minimum and maximum team member limits."
+            status: "available"
+            doc_refs:
+              - path: "src/components/event/RegistrationWizard.tsx"
+                section: "Team Registration"
+            blog_refs: []
+            tags: ["registration", "team-events"]
+            
+          - id: "feat_registration_confirmation"
+            name: "Registration Confirmation"
+            description: "Automatic email confirmation sent to participants upon successful registration with event details and next steps."
+            status: "available"
+            doc_refs:
+              - path: "src/app/api/auth/send-college-otp/"
+                section: "Email Service"
+            blog_refs: []
+            tags: ["communication", "confirmation"]
+            
+          - id: "feat_duplicate_prevention"
+            name: "Duplicate Prevention"
+            description: "Prevent users from registering multiple times for the same event. System checks existing registrations before allowing new ones."
+            status: "available"
+            doc_refs:
+              - path: "src/lib/events-context.tsx"
+                section: "Registration Validation"
+            blog_refs: []
+            tags: ["validation", "data-integrity"]
+
+      - id: "sub_participant_management"
+        name: "Participant Management"
+        features:
+          - id: "feat_participant_list"
+            name: "Participant List"
+            description: "View all registered participants with filtering options by sub-event, registration status, and payment status."
+            status: "available"
+            doc_refs:
+              - path: "src/components/event/ParticipantsList.tsx"
+                section: "Participant Management"
+            blog_refs: []
+            tags: ["participant-management", "registration-tracking"]
+            
+          - id: "feat_participant_detail_modal"
+            name: "Participant Details"
+            description: "View detailed information for individual participants including contact info, team members (if applicable), and registration details."
+            status: "available"
+            doc_refs:
+              - path: "src/components/event/ParticipantDetailModal.tsx"
+                section: "Detail View"
+            blog_refs: []
+            tags: ["participant-management"]
+            
+          - id: "feat_csv_export"
+            name: "CSV Export"
+            description: "Export participant lists and registration data in CSV format for external reporting and analysis."
+            status: "available"
+            doc_refs:
+              - path: "src/components/event/ParticipantsList.tsx"
+                section: "Export Functionality"
+            blog_refs: []
+            tags: ["reporting", "data-export"]
+            
+          - id: "feat_participation_stats"
+            name: "Participation Statistics"
+            description: "Real-time statistics on registered participants including total count, paid/pending/refunded breakdown, and registration trends."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/[id]/finance/page.tsx"
+                section: "Statistics"
+            blog_refs: []
+            tags: ["analytics", "statistics"]
+
+  - id: "cat_payment"
+    name: "Payment & Finance"
+    description: "Payment processing, finance tracking, and revenue management"
+    subcategories:
+      - id: "sub_payment_processing"
+        name: "Payment Processing"
+        features:
+          - id: "feat_razorpay_integration"
+            name: "Razorpay Integration"
+            description: "Integrate Razorpay for secure payment processing. Support multiple payment methods including credit/debit cards, UPI, and digital wallets."
+            status: "available"
+            doc_refs:
+              - path: "src/lib/razorpay.ts"
+                section: "Payment Handler"
+              - path: "src/components/event/PaymentModal.tsx"
+                section: "Checkout UI"
+            blog_refs: []
+            tags: ["payment", "razorpay", "monetization"]
+            
+          - id: "feat_dynamic_amount_calculation"
+            name: "Dynamic Amount Calculation"
+            description: "Automatically calculate total payment amount based on event price, number of participants (team size), and any applicable discounts."
+            status: "available"
+            doc_refs:
+              - path: "src/lib/razorpay.ts"
+                section: "Amount Calculation"
+            blog_refs: []
+            tags: ["payment-processing"]
+            
+          - id: "feat_transaction_tracking"
+            name: "Transaction Tracking"
+            description: "Track all transactions with unique transaction IDs, payment method recording, and status management (PAID, PENDING, REFUNDED)."
+            status: "available"
+            doc_refs:
+              - path: "src/components/event/PaymentModal.tsx"
+                section: "Transaction Management"
+            blog_refs: []
+            tags: ["payment", "record-keeping"]
+
+      - id: "sub_finance_management"
+        name: "Finance Dashboard"
+        features:
+          - id: "feat_finance_dashboard"
+            name: "Finance Dashboard"
+            description: "Comprehensive financial overview with revenue tracking, payment status breakdown, collection rates, and sub-event wise financial breakdown."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/[id]/finance/page.tsx"
+                section: "Finance Analytics"
+            blog_refs: []
+            tags: ["financial-reporting", "analytics"]
+            
+          - id: "feat_revenue_tracking"
+            name: "Revenue Tracking"
+            description: "Track collected revenue, pending payments, and refunded amounts. View payment status distribution across registrations."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/[id]/finance/page.tsx"
+                section: "Revenue Metrics"
+            blog_refs: []
+            tags: ["financial-reporting"]
+            
+          - id: "feat_payment_method_analytics"
+            name: "Payment Method Analytics"
+            description: "Breakdown of payments by method (UPI, Credit Card, Debit Card, etc.) with visual charts and statistics."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/[id]/finance/page.tsx"
+                section: "Payment Analytics"
+            blog_refs: []
+            tags: ["analytics"]
+            
+          - id: "feat_financial_export"
+            name: "Financial Export"
+            description: "Export financial records in CSV format for accounting, audit, and tax compliance purposes."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/[id]/finance/page.tsx"
+                section: "Export Features"
+            blog_refs: []
+            tags: ["reporting", "data-export"]
+
+      - id: "sub_payment_approval"
+        name: "Payment Approval"
+        features:
+          - id: "feat_payment_approval_workflow"
+            name: "Payment Approval Workflow"
+            description: "Admin and organizer-level payment approval/rejection with notification system. Review pending payments before marking as confirmed."
+            status: "available"
+            doc_refs:
+              - path: "src/lib/events-context.tsx"
+                section: "Payment Approval"
+            blog_refs: []
+            tags: ["workflow", "approval-process"]
+
+  - id: "cat_checkin"
+    name: "Check-In & Attendance"
+    description: "Real-time check-in, QR scanning, and attendance tracking"
+    subcategories:
+      - id: "sub_qr_checkin"
+        name: "QR-Based Check-In"
+        features:
+          - id: "feat_qr_scanning"
+            name: "QR Code Scanning"
+            description: "Real-time QR code scanning using device camera. Generate unique QR codes for each participant with jsQR library integration."
+            status: "available"
+            doc_refs:
+              - path: "src/components/event/QRScanner.tsx"
+                section: "QR Scanning"
+            blog_refs: []
+            tags: ["check-in", "qr-codes"]
+            
+          - id: "feat_camera_permissions"
+            name: "Camera Permissions"
+            description: "Handle camera permission requests with fallback options if camera access is denied."
+            status: "available"
+            doc_refs:
+              - path: "src/components/event/QRScanner.tsx"
+                section: "Permission Handling"
+            blog_refs: []
+            tags: ["check-in"]
+
+      - id: "sub_attendance_tracking"
+        name: "Attendance Tracking"
+        features:
+          - id: "feat_manual_checkin"
+            name: "Manual Check-In"
+            description: "Manually check-in participants without QR scanning. Useful for backup scenarios or post-event confirmation."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/[id]/page.tsx"
+                section: "Check-In Management"
+            blog_refs: []
+            tags: ["check-in", "attendance"]
+            
+          - id: "feat_attendance_stats"
+            name: "Attendance Statistics"
+            description: "View real-time attendance count per sub-event, visual indicators of check-in status, and attendance vs registration ratio."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/[id]/page.tsx"
+                section: "Attendance Tracking"
+            blog_refs: []
+            tags: ["analytics", "attendance"]
+
+  - id: "cat_coordination"
+    name: "Task Management & Coordination"
+    description: "Coordinator tools, task boards, and team management"
+    subcategories:
+      - id: "sub_task_management"
+        name: "Task Board"
+        features:
+          - id: "feat_task_board"
+            name: "Kanban Task Board"
+            description: "Drag-and-drop Kanban board with TODO, IN_PROGRESS, and DONE columns for event coordination workflow management."
+            status: "available"
+            doc_refs:
+              - path: "src/components/event/TaskBoard.tsx"
+                section: "Task Board Interface"
+            blog_refs: []
+            tags: ["task-management", "coordination"]
+            
+          - id: "feat_task_assignment"
+            name: "Task Assignment"
+            description: "Create and assign tasks to specific coordinators by email. Track task ownership and progress through status updates."
+            status: "available"
+            doc_refs:
+              - path: "src/components/event/TaskBoard.tsx"
+                section: "Task Creation and Assignment"
+            blog_refs: []
+            tags: ["task-management", "team-coordination"]
+            
+          - id: "feat_task_deadlines"
+            name: "Task Deadlines"
+            description: "Set task deadlines with visual overdue indicators. Track deadline adherence and task completion rates."
+            status: "available"
+            doc_refs:
+              - path: "src/components/event/TaskBoard.tsx"
+                section: "Deadline Management"
+            blog_refs: []
+            tags: ["task-management", "deadline-tracking"]
+
+  - id: "cat_communication"
+    name: "Communication & Chat"
+    description: "Chat, announcements, and notifications system"
+    subcategories:
+      - id: "sub_chat"
+        name: "Real-Time Chat"
+        features:
+          - id: "feat_event_chat"
+            name: "Event Chat Channels"
+            description: "Multi-channel real-time chat with event-level and sub-event specific channels. Supports 1000+ concurrent participants."
+            status: "available"
+            doc_refs:
+              - path: "src/components/event/ChatPanel.tsx"
+                section: "Chat System"
+            blog_refs: []
+            tags: ["communication", "real-time"]
+            
+          - id: "feat_role_badges"
+            name: "Role Badges"
+            description: "Display role indicators on messages (Organizer, Coordinator) to establish authority and trust in communications."
+            status: "available"
+            doc_refs:
+              - path: "src/components/event/ChatPanel.tsx"
+                section: "Message Rendering"
+            blog_refs: []
+            tags: ["communication"]
+            
+          - id: "feat_xss_protection"
+            name: "XSS Protection"
+            description: "Sanitize user inputs to prevent XSS attacks. Secure chat message rendering with HTML encoding."
+            status: "available"
+            doc_refs:
+              - path: "src/components/event/ChatPanel.tsx"
+                section: "Security"
+            blog_refs: []
+            tags: ["security"]
+
+      - id: "sub_announcements"
+        name: "Announcements"
+        features:
+          - id: "feat_announcements"
+            name: "Announcements System"
+            description: "Post pinned announcements at event and sub-event levels. Important updates remain visible at the top of chat."
+            status: "available"
+            doc_refs:
+              - path: "src/lib/events-context.tsx"
+                section: "Announcements"
+            blog_refs: []
+            tags: ["communication", "broadcast"]
+
+  - id: "cat_notifications"
+    name: "Notifications"
+    description: "Push notifications and automated alerts"
+    subcategories:
+      - id: "sub_push_notifications"
+        name: "Push Notifications"
+        features:
+          - id: "feat_browser_notifications"
+            name: "Browser Push Notifications"
+            description: "Send browser-based push notifications for real-time event updates, registration confirmations, and important announcements."
+            status: "available"
+            doc_refs:
+              - path: "src/lib/notifications.ts"
+                section: "Notification Service"
+            blog_refs: []
+            tags: ["notifications", "real-time"]
+            
+          - id: "feat_notification_customization"
+            name: "Notification Customization"
+            description: "Customize notification title, body, icons, and click actions. Direct users to relevant event pages on notification click."
+            status: "available"
+            doc_refs:
+              - path: "src/lib/notifications.ts"
+                section: "Notification Payload"
+            blog_refs: []
+            tags: ["notifications"]
+
+      - id: "sub_email_notifications"
+        name: "Email & Automation"
+        features:
+          - id: "feat_email_notifications"
+            name: "Email Integration"
+            description: "Send transactional emails for registrations, payments, announcements, and reminders using Gmail SMTP integration."
+            status: "available"
+            doc_refs:
+              - path: "src/lib/email.ts"
+                section: "Email Service"
+            blog_refs: []
+            tags: ["communication", "email"]
+            
+          - id: "feat_registration_emails"
+            name: "Registration Confirmation Emails"
+            description: "Automatic email confirmation when users register for events with event details and their registration status."
+            status: "available"
+            doc_refs:
+              - path: "src/app/api/auth/send-college-otp/"
+                section: "Email Service"
+            blog_refs: []
+            tags: ["email"]
+            
+          - id: "feat_event_reminders"
+            name: "Event Reminders"
+            description: "Automated reminder emails sent 24 hours and 1 hour before event start to registered participants."
+            status: "available"
+            doc_refs:
+              - path: "src/lib/events-context.tsx"
+                section: "Automation Rules"
+            blog_refs: []
+            tags: ["automation", "reminders"]
+            
+          - id: "feat_automation_rules"
+            name: "Automation Rules"
+            description: "Enable/disable automated notification triggers for registrations, payments, announcements, and task assignments."
+            status: "available"
+            doc_refs:
+              - path: "src/lib/events-context.tsx"
+                section: "Automation Logs"
+            blog_refs: []
+            tags: ["automation"]
+
+  - id: "cat_analytics"
+    name: "Analytics & Reporting"
+    description: "Event insights, analytics, and reporting dashboards"
+    subcategories:
+      - id: "sub_event_analytics"
+        name: "Event Analytics"
+        features:
+          - id: "feat_event_insights"
+            name: "Event Insights Dashboard"
+            description: "Comprehensive analytics showing participant demographics, registration trends, sub-event performance comparison, and attendance rates."
+            status: "in-development"
+            doc_refs:
+              - path: "src/app/events/[id]/insights/page.tsx"
+                section: "Insights Page"
+            blog_refs: []
+            tags: ["analytics"]
+            
+          - id: "feat_sub_event_comparison"
+            name: "Sub-Event Comparison"
+            description: "Compare performance across multiple sub-events within a single event. View participation, registration, and check-in metrics."
+            status: "in-development"
+            doc_refs:
+              - path: "src/app/events/[id]/insights/page.tsx"
+                section: "Comparison Analysis"
+            blog_refs: []
+            tags: ["analytics"]
+
+      - id: "sub_reporting"
+        name: "Reporting"
+        features:
+          - id: "feat_financial_reporting"
+            name: "Financial Reports"
+            description: "Detailed financial reports with revenue analytics, payment breakdowns, and sub-event revenue comparison."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/[id]/finance/page.tsx"
+                section: "Financial Reporting"
+            blog_refs: []
+            tags: ["reporting", "financial-analytics"]
+            
+          - id: "feat_attendance_reports"
+            name: "Attendance Reports"
+            description: "Generate attendance reports comparing registrations vs actual check-ins per event and sub-event."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/[id]/page.tsx"
+                section: "Attendance Reporting"
+            blog_refs: []
+            tags: ["reporting"]
+
+  - id: "cat_admin"
+    name: "Admin & Platform Management"
+    description: "Platform administration, user management, and approval workflows"
+    subcategories:
+      - id: "sub_admin_dashboard"
+        name: "Admin Dashboard"
+        features:
+          - id: "feat_admin_dashboard"
+            name: "Admin Dashboard"
+            description: "Platform-wide administrative controls with platform statistics, tabbed interface for different management functions."
+            status: "available"
+            doc_refs:
+              - path: "src/app/admin/page.tsx"
+                section: "Admin Dashboard"
+            blog_refs: []
+            tags: ["admin", "platform-management"]
+
+      - id: "sub_user_management"
+        name: "User Management"
+        features:
+          - id: "feat_user_management"
+            name: "User Management"
+            description: "Search, filter, view, and manage all user accounts. Assign roles, view user profiles, and manage permissions."
+            status: "available"
+            doc_refs:
+              - path: "src/app/admin/page.tsx"
+                section: "User Management"
+            blog_refs: []
+            tags: ["admin", "user-management"]
+            
+          - id: "feat_user_role_assignment"
+            name: "User Role Assignment"
+            description: "Assign and modify user roles (student/admin) for platform access control and permission management."
+            status: "available"
+            doc_refs:
+              - path: "src/app/admin/page.tsx"
+                section: "Role Assignment"
+            blog_refs: []
+            tags: ["admin", "permissions"]
+            
+          - id: "feat_user_deletion"
+            name: "User Deletion"
+            description: "Delete user accounts with confirmation dialogs to prevent accidental deletions. Soft or hard deletion options."
+            status: "available"
+            doc_refs:
+              - path: "src/app/admin/page.tsx"
+                section: "User Deletion"
+            blog_refs: []
+            tags: ["admin"]
+
+      - id: "sub_event_moderation"
+        name: "Event Moderation"
+        features:
+          - id: "feat_event_visibility_control"
+            name: "Event Visibility Control"
+            description: "Approve, reject, or hide events from public discovery. Suspend events that violate guidelines."
+            status: "available"
+            doc_refs:
+              - path: "src/app/admin/page.tsx"
+                section: "Event Management"
+            blog_refs: []
+            tags: ["moderation"]
+            
+          - id: "feat_event_deletion"
+            name: "Event Deletion"
+            description: "Delete events platform-wide with confirmation. Archive event data for compliance."
+            status: "available"
+            doc_refs:
+              - path: "src/app/admin/page.tsx"
+                section: "Event Moderation"
+            blog_refs: []
+            tags: ["moderation"]
+
+      - id: "sub_payment_admin"
+        name: "Payment Administration"
+        features:
+          - id: "feat_payment_admin_approval"
+            name: "Payment Approval/Rejection"
+            description: "Admin-level payment review and approval across all events. Reject fraudulent or disputed payments."
+            status: "available"
+            doc_refs:
+              - path: "src/app/admin/page.tsx"
+                section: "Payment Management"
+            blog_refs: []
+            tags: ["admin", "payment-management"]
+            
+          - id: "feat_payment_monitoring"
+            name: "Payment Monitoring"
+            description: "Monitor all platform payments, detect fraud patterns, and manage payment disputes."
+            status: "available"
+            doc_refs:
+              - path: "src/app/admin/page.tsx"
+                section: "Payment Analytics"
+            blog_refs: []
+            tags: ["admin"]
+
+  - id: "cat_user"
+    name: "User Profiles & Identity"
+    description: "User profiles, college verification, and identity management"
+    subcategories:
+      - id: "sub_profile_management"
+        name: "Profile Management"
+        features:
+          - id: "feat_user_profile"
+            name: "User Profile"
+            description: "Editable user profile with name, phone, bio, and avatar. Support custom profile pictures or auto-generated initials-based avatars."
+            status: "available"
+            doc_refs:
+              - path: "src/app/profile/page.tsx"
+                section: "Profile Management"
+            blog_refs: []
+            tags: ["user-profile"]
+            
+          - id: "feat_college_info_profile"
+            name: "College Information"
+            description: "Store college affiliation, department, roll number, and academic year in user profile."
+            status: "available"
+            doc_refs:
+              - path: "src/app/profile/page.tsx"
+                section: "College Info"
+            blog_refs: []
+            tags: ["user-profile", "college-verification"]
+
+      - id: "sub_email_verification"
+        name: "College Email Verification"
+        features:
+          - id: "feat_college_email_verification"
+            name: "College Email Verification"
+            description: "Verify college institutional email addresses using OTP-based authentication. Support for multiple college domains."
+            status: "available"
+            doc_refs:
+              - path: "src/app/api/auth/send-college-otp/"
+                section: "OTP Service"
+              - path: "src/app/api/auth/verify-college-otp/"
+                section: "Verification Endpoints"
+            blog_refs: []
+            tags: ["authentication", "verification"]
+            
+          - id: "feat_otp_generation"
+            name: "OTP Generation & Email"
+            description: "Generate secure 6-digit OTPs and send via Gmail SMTP with formatted HTML emails containing expiration warnings."
+            status: "available"
+            doc_refs:
+              - path: "src/lib/email.ts"
+                section: "OTP Email Service"
+            blog_refs: []
+            tags: ["authentication", "email"]
+            
+          - id: "feat_college_domain_support"
+            name: "Multi-College Support"
+            description: "Support verification for multiple college domains. Automatically link verified colleges to user accounts."
+            status: "available"
+            doc_refs:
+              - path: "src/app/profile/page.tsx"
+                section: "College Linking"
+            blog_refs: []
+            tags: ["authentication", "college-specific"]
+
+  - id: "cat_discovery"
+    name: "Social & Discovery"
+    description: "Social features and content discovery"
+    subcategories:
+      - id: "sub_social"
+        name: "Social Features"
+        features:
+          - id: "feat_og_meta_tags"
+            name: "Open Graph Meta Tags"
+            description: "SEO-optimized Open Graph tags for social sharing. Custom previews when events are shared on Facebook, Twitter, LinkedIn."
+            status: "available"
+            doc_refs:
+              - path: "src/app/layout.tsx"
+                section: "OG Meta Tags"
+              - path: "src/app/events/[id]/layout.tsx"
+                section: "Dynamic OG Generation"
+            blog_refs: []
+            tags: ["seo", "social-sharing"]
+            
+          - id: "feat_event_sharing"
+            name: "Event Sharing"
+            description: "Generate shareable event links with rich previews on social media platforms including title, description, and event image."
+            status: "available"
+            doc_refs:
+              - path: "src/app/events/[id]/layout.tsx"
+                section: "Share Functionality"
+            blog_refs: []
+            tags: ["social-sharing"]

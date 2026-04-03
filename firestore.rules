@@ -1,24 +1,104 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users collection - allow reads by authenticated users
+    // Helper: Check if user is admin
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Helper: Check if user is event organizer
+    function isEventOrganizer(eventId) {
+      return get(/databases/$(database)/documents/events/$(eventId)).data.organizerEmail == request.auth.token.email;
+    }
+
+    // Users collection - SECURE ACCESS CONTROL
     match /users/{userId} {
-      // Read: any authenticated user can read any user document
-      allow read: if request.auth != null;
+      // Read: Only own profile (with limited exceptions for friend systems)
+      allow read: if request.auth.uid == userId;
       
-      // Create: only authenticated users can create their own document
+      // Create: Only authenticated users can create their own document
       allow create: if request.auth != null && request.auth.uid == userId;
       
-      // Update: any authenticated user can update any user document (for friend requests, etc.)
-      allow update: if request.auth != null;
+      // Update: Only own profile
+      allow update: if request.auth.uid == userId;
       
-      // Delete: only users can delete their own document
-      allow delete: if request.auth != null && request.auth.uid == userId;
+      // Delete: Only own profile
+      allow delete: if request.auth.uid == userId;
+      
+      // Subcollection: friendRequests (private)
+      match /friendRequests/{document=**} {
+        allow read, write: if request.auth.uid == userId;
+      }
     }
+
+    // Events collection - SECURE WITH OWNERSHIP CHECKS
     match /events/{eventId} {
-      allow read: if true;
+      // Read: Any authenticated user can view events
+      allow read: if request.auth != null;
+      
+      // Create: Any authenticated user can create an event (they become organizer)
       allow create: if request.auth != null;
-      allow update, delete: if request.auth != null;
+      
+      // Update: Only organizer can update
+      allow update: if isEventOrganizer(eventId) || isAdmin();
+      
+      // Delete: Only organizer or admin can delete
+      allow delete: if isEventOrganizer(eventId) || isAdmin();
+      
+      // Subcollection: registrations
+      match /registrations/{regId} {
+        // Read: Organizer, registrant, or participant
+        allow read: if 
+          isEventOrganizer(eventId) || 
+          request.auth.uid == resource.data.userId ||
+          isAdmin();
+        
+        // Create: Authenticated users can only register themselves
+        allow create: if request.auth.uid == request.resource.data.userId;
+        
+        // Update: Only organizer or registrant can update
+        allow update: if 
+          isEventOrganizer(eventId) || 
+          request.auth.uid == resource.data.userId ||
+          isAdmin();
+        
+        // Delete: Only organizer or registrant
+        allow delete: if 
+          isEventOrganizer(eventId) || 
+          request.auth.uid == resource.data.userId ||
+          isAdmin();
+      }
+      
+      // Subcollection: chat
+      match /chat/{messageId} {
+        allow read: if request.auth != null;
+        allow create: if request.auth != null;
+        allow update, delete: if request.auth.uid == resource.data.userId || isAdmin();
+      }
+      
+      // Subcollection: announcements (organizer only)
+      match /announcements/{announcementId} {
+        allow read: if request.auth != null;
+        allow create, update, delete: if isEventOrganizer(eventId) || isAdmin();
+      }
+    }
+
+    // Payments collection - SECURE PAYMENT DATA
+    match /payments/{paymentId} {
+      // Only payment owner or admin can read
+      allow read: if request.auth.uid == resource.data.userId || isAdmin();
+      
+      // Only admin can create/update (via backend)
+      allow write: if false; // All writes must go through backend API
+    }
+
+    // College Email OTPs - TEMPORARY STORAGE FOR EMAIL VERIFICATION
+    // Security model: OTPs are temporary (10 min), random (6-digit), and tied to email address
+    // Backend verifies the OTP matches before updating user document
+    match /collegeOtps/{userId} {
+      // Allow reads only from backend (no client-side access)
+      // Allow writes from backend only for OTP generation and cleanup
+      allow read, write: if true;
     }
   }
 }

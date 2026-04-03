@@ -1,0 +1,78 @@
+# ============================================================
+# BLOG FRONTMATTER TEMPLATE
+# For Next.js MDX/Markdown blogs
+# ============================================================
+
+---
+title: "Blog Title Here (Max 60 chars)"
+description: "Meta description (Max 160 chars). Summarize the post value here."
+date: 2026-04-03
+slug: "blog-slug-max-5-words"
+author: "DushyJacks"
+category: "Category Name"
+tags: ["tag1", "tag2", "tag3"]
+image: "/images/blog/blog-image.jpg"
+draft: false
+updated_at: 2026-04-03
+---
+
+# Constraints & Guidelines
+
+## Title (≤ 60 characters)
+- Include primary keyword naturally
+- Make it compelling and specific
+- Example: "College Event Management Guide (2026)" = 43 chars
+
+## Description (≤ 160 characters)
+- Include primary keyword at least once
+- Make it click-worthy, not keyword-stuffed
+- Describe the specific value
+- Example: "Learn how to run college events without WhatsApp chaos. Complete guide to registration, payments, check-in, and analytics."
+
+## Slug (≤ 5 words, kebab-case)
+- Example: "college-event-management-guide"
+- Do NOT include year
+- Do NOT include "guide" or "how-to" if implied elsewhere
+- Make it concise: "best-college-events" not "the-best-college-event-platform-comparison-2026"
+
+## Date Format
+- Use ISO format: YYYY-MM-DD
+- publication: "2026-04-03"
+- updated_at: If you modify an old blog, update this
+
+## Author
+- Default: "DushyJacks"
+- Multiple authors: list as "Author One, Author Two"
+
+## Tags
+- 3-5 tags max
+- Examples: "college-events", "event-management", "student-tips"
+- Use consistently across all blog posts
+
+## Image
+- Use relative path: "/images/blog/filename.jpg"
+- Image should be 1200x630px for OG meta tag display
+- Create if missing
+
+## Draft Flag
+- draft: false → Published
+- draft: true → Unpublished (for review)
+
+---
+
+## Full Blog Frontmatter Example (Complete)
+
+```yaml
+---
+title: "10 Best College Event Management Tools"
+description: "Compare the top 10 event platforms chosen by student organizers. Features, pricing, and recommendations inside."
+date: 2026-04-10
+slug: "best-college-event-tools"
+author: "DushyJacks"
+category: "Event Management"
+tags: ["tools", "event-management", "college-events", "reviews"]
+image: "/images/blog/college-event-tools.jpg"
+draft: false
+updated_at: 2026-04-10
+---
+```

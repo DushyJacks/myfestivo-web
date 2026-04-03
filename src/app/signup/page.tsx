@@ -78,8 +78,8 @@ export default function SignupPage() {
     <PageTransition className="min-h-screen flex items-center justify-center px-4 py-16">
       <motion.div variants={pageItem} className="w-full max-w-lg">
         <div className="mb-12">
-          <Link href="/" className="text-xl font-semibold tracking-tight text-white mb-8 block" style={{ fontFamily: "'Poppins', sans-serif" }}>
-            MyFestivo
+          <Link href="/" className="block mb-8">
+            <img src="/logo.png" alt="MyFestivo" className="h-10 w-auto" />
           </Link>
           <MicroLabel>Create Account</MicroLabel>
           <h1 className="text-4xl font-light tracking-tight mb-2">Join the platform.</h1>

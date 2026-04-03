@@ -33,11 +33,11 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
   return (
     <aside className="w-[72px] lg:w-[260px] border-r border-white/[0.06] bg-black/60 backdrop-blur-md flex flex-col justify-between py-6 fixed h-screen z-40">
       <div>
-        <Link href="/" className="hidden lg:block px-5 mb-8 font-bold tracking-tight text-lg text-white">
-          MYFESTIVO
+        <Link href="/" className="hidden lg:block px-5 mb-8">
+          <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto" />
         </Link>
-        <Link href="/" className="block lg:hidden px-5 mb-8 font-bold tracking-tight text-lg text-white text-center">
-          MF
+        <Link href="/" className="block lg:hidden px-5 mb-8 text-center">
+          <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto mx-auto" />
         </Link>
 
         <nav className="flex flex-col gap-1 px-3">

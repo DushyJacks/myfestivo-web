@@ -1,0 +1,19 @@
+# ============================================================
+# CONTENT MAP
+# Generated: 2026-04-03
+# Maps existing blogs (none yet) to features, keywords, clusters
+# ============================================================
+
+last_updated: "2026-04-03"
+generated_from: "Blog directory scan (none found)"
+
+blogs: []
+
+# Note: No existing blog posts found. All posts in content-queue are new ideas.
+# As blogs are created and published, they will be registered here with:
+# - slug (from filename or frontmatter)
+# - title, published_date, last_updated
+# - blog_type, content_type, cluster assignment
+# - target keywords and features mentioned
+# - internal linking strategy
+# - E-E-A-T signals included

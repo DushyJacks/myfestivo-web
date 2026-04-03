@@ -1,0 +1,132 @@
+# ============================================================
+# SEO CONTENT ENGINE — PROJECT CONFIGURATION
+# Generated: 2026-04-03
+# ============================================================
+# Auto-detected and verified. Edit anytime — Claude Code reads this before every task.
+
+project:
+  name: "MyFestivo"
+  tagline: "The Event Operating System for College Communities"
+  description: "The all-in-one event operating system that helps college communities create, manage, and participate in campus events — from registration to check-in — replacing WhatsApp chaos with a professional, scalable platform."
+  website: "https://myfestivo.live"
+  target_audience:
+    primary: "College event organizers, student coordinators, student clubs"
+    secondary: "Institution admins, campus engagement teams"
+    technical_level: "mixed"
+
+# Author — from git config
+author:
+  name: "DushyJacks"
+  title: ""
+  bio: ""
+  website: ""
+  email: "dushyanthjp2@gmail.com"
+  social_links: {}
+
+# Trust signals — E-E-A-T
+trust_signals:
+  review_links:
+    g2: ""
+    trustpilot: ""
+    capterra: ""
+    product_hunt: ""
+    rightfeature: ""
+    canny: ""
+    other: []
+  testimonials: []
+  metrics: []
+  note: "User indicated metrics and review links not yet available. Will populate as platform grows."
+
+# CMS — Next.js
+cms:
+  type: "next.js"
+  framework_version: "16.2.1"
+  blog_directory: "blog/"  # Will create at top level
+  docs_directory: "docs/"
+  frontmatter_format: "yaml"
+  date_format: "YYYY-MM-DD"
+  slug_style: "kebab-case"
+  slug_max_words: 5
+  image_directory: "public/images/"
+  frontmatter_schema:
+    required:
+      - title
+      - description
+      - date
+      - slug
+    optional:
+      - author
+      - tags
+      - category
+      - image
+      - draft
+      - updated_at
+
+# Competitors — from competitor analysis
+competitors:
+  - name: "iCommunify"
+    website: "https://icommunify.com"
+    id: "comp_icommunify"
+    category: "Campus Event Platform"
+    
+  - name: "DoorList"
+    website: "https://doorlist.io"
+    id: "comp_doorlist"
+    category: "Social Event App"
+    
+  - name: "The CollegeFever"
+    website: "https://thecollegefever.com"
+    id: "comp_thecollegefever"
+    category: "College Fest Ticketing"
+    
+  - name: "Unstop"
+    website: "https://unstop.com"
+    id: "comp_unstop"
+    category: "Campus Competition Platform"
+    
+  - name: "Eventbrite"
+    website: "https://eventbrite.com"
+    id: "comp_eventbrite"
+    category: "Global Event Ticketing"
+
+# SEO Configuration
+seo:
+  primary_topics:
+    - "college event management"
+    - "college event hosting"
+    - "event hosting platform"
+    - "free college event hosting"
+    - "free college event management platform"
+  brand_terms:
+    - "MyFestivo"
+    - "myfestivo"
+  avoid_terms: []
+  target_regions: ["India", "Global"]
+  language: "en"
+
+# Content Configuration
+content:
+  min_word_count: 1200
+  max_word_count: 3500
+  default_author: "DushyJacks"
+  tone: "helpful-authoritative"
+  include_faq: true
+  include_toc: true
+  cta_text: "Try MyFestivo Free"
+  cta_url: "https://myfestivo.live/signup"
+  max_posts_per_month: 4
+  requires_human_review: true
+
+# Technical SEO
+technical_seo:
+  meta_description_max_chars: 160
+  title_tag_max_chars: 60
+  image_alt_text_required: true
+  canonical_url_pattern: "{website}/blog/{slug}"
+
+# Integrations
+integrations:
+  seo_tool: "none"
+  analytics: "none"
+  search_console: false
+  mcp_tools: []

@@ -39,8 +39,8 @@ export default function LandingPage() {
     <div className="scroll-smooth">
       {/* ═══ NAVBAR ═══ */}
       <header className="fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-6 md:px-10 z-50 bg-black/60 backdrop-blur-xl border-b border-white/[0.06]">
-        <Link href="/" className="text-xl font-semibold tracking-tight text-white" style={{ fontFamily: "'Poppins', sans-serif" }}>
-          MyFestivo
+        <Link href="/" className="flex items-center gap-2">
+          <img src="/logo.png" alt="MyFestivo" className="h-10 w-auto" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 text-[11px] font-mono tracking-widest text-white/40">
@@ -303,7 +303,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8">
           <div>
             <div className="mb-3">
-              <span className="text-lg font-semibold tracking-tight text-white" style={{ fontFamily: "'Poppins', sans-serif" }}>MyFestivo</span>
+              <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto" />
             </div>
             <p className="text-xs text-white/30 max-w-xs">The event operating system for colleges. Built with care in Chennai, India.</p>
           </div>

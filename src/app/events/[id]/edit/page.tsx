@@ -37,7 +37,7 @@ interface SubEventForm {
 
 export default function EditEventPage() {
   const { user } = useAuth()
-  const { events, updateEvent } = useEvents()
+  const { events, updateEvent, deleteEvent } = useEvents()
   const router = useRouter()
   const params = useParams()
 
@@ -65,6 +65,8 @@ export default function EditEventPage() {
   const [saved, setSaved] = useState(false)
   const [activeSection, setActiveSection] = useState<"details" | "rules" | "subevents" | "links" | "settings">("details")
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
+  const [showDeleteEventConfirm, setShowDeleteEventConfirm] = useState(false)
+  const [deletingEvent, setDeletingEvent] = useState(false)
   const [importantLinks, setImportantLinks] = useState<{ id: string; label: string; url: string }[]>([])
 
   const addLink = () => setImportantLinks(prev => [...prev, { id: `link-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, label: "", url: "" }])
@@ -255,6 +257,17 @@ export default function EditEventPage() {
       console.error("Failed to update event:", err)
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleDeleteEvent = async () => {
+    setDeletingEvent(true)
+    try {
+      await deleteEvent(event.id)
+      router.push("/events")
+    } catch (err) {
+      console.error("Failed to delete event:", err)
+      setDeletingEvent(false)
     }
   }
 

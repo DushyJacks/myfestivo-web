@@ -2,29 +2,33 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
+/* Dark mode support */
+@layer utilities {
+  .dark { color-scheme: dark; }
+}
 
-@theme inline {
-  --color-background: var(--color-bg);
-  --color-foreground: var(--color-text);
+/* CSS variables for theming */
+:root {
+  --color-background: var(--color-bg, #000000);
+  --color-foreground: var(--color-text, #ffffff);
 
-  --color-card: var(--color-surface);
-  --color-card-foreground: var(--color-text);
+  --color-card: var(--color-surface, #0a0a0a);
+  --color-card-foreground: var(--color-text, #ffffff);
 
-  --color-popover: var(--color-surface);
-  --color-popover-foreground: var(--color-text);
+  --color-popover: var(--color-surface, #0a0a0a);
+  --color-popover-foreground: var(--color-text, #ffffff);
 
-  --color-primary: var(--color-accent);
-  --color-primary-foreground: var(--color-text-invert);
+  --color-primary: var(--color-accent, #3b82f6);
+  --color-primary-foreground: var(--color-text-invert, #000000);
 
-  --color-secondary: var(--color-surface-2);
-  --color-secondary-foreground: var(--color-text);
+  --color-secondary: var(--color-surface-2, #1a1a1a);
+  --color-secondary-foreground: var(--color-text, #ffffff);
 
-  --color-muted: var(--color-surface-2);
-  --color-muted-foreground: var(--color-text-muted);
+  --color-muted: var(--color-surface-2, #1a1a1a);
+  --color-muted-foreground: var(--color-text-muted, #808080);
 
-  --color-accent: var(--color-surface-2);
-  --color-accent-foreground: var(--color-text);
+  --color-accent: var(--color-surface-2, #1a1a1a);
+  --color-accent-foreground: var(--color-text, #ffffff);
 
   --color-destructive: #ff3333;
   --color-destructive-foreground: #ffffff;

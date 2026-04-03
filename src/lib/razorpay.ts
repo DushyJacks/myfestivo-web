@@ -77,24 +77,38 @@ export const initiatePayment = async (options: RazorpayOptions) => {
 }
 
 /**
- * Verify payment on backend (optional - for enhanced security)
- * This would be called from your backend to verify the payment signature
+ * Verify payment on backend
+ * Calls the backend API to verify the Razorpay payment signature
+ * This is CRITICAL for security - must be called before marking registration as PAID
  */
 export const verifyPayment = async (
-  paymentId: string,
   orderId: string,
-  signature: string
-) => {
+  paymentId: string,
+  signature: string,
+  registrationId: string
+): Promise<{ valid: boolean; error?: string }> => {
   try {
-    const response = await fetch('/api/verify-payment', {
+    const response = await fetch('/api/payments/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ paymentId, orderId, signature }),
+      body: JSON.stringify({ 
+        razorpay_order_id: orderId,
+        razorpay_payment_id: paymentId,
+        razorpay_signature: signature,
+        registrationId
+      }),
     })
-    return response.ok
+    
+    const data = await response.json()
+    
+    if (!response.ok) {
+      return { valid: false, error: data.error || 'Payment verification failed' }
+    }
+    
+    return { valid: true }
   } catch (error) {
-    console.error('Payment verification failed:', error)
-    return false
+    console.error('Payment verification error:', error)
+    return { valid: false, error: 'Payment verification failed' }
   }
 }
 

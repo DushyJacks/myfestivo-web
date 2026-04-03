@@ -1,0 +1,431 @@
+# ============================================================
+# COMPETITORS MATRIX
+# Generated: 2026-04-03
+# Source: competitor_analysis.txt
+# ============================================================
+
+last_updated: "2026-04-03"
+last_verified: "2026-04-03"
+
+competitors:
+  - id: "comp_icommunify"
+    name: "iCommunify"
+    website: "https://icommunify.com"
+    category: "Campus Event Platform"
+    pricing_model: "free"
+    target_audience: "US college students and organizations"
+    strengths: |
+      - All-in-one campus platform with club discovery and event management
+      - Free to use for students
+      - One-click event creation (60 second setup)
+      - Auto calendar sync for RSVP confirmations
+      - Attendance tracking built-in
+      - Inter-college collaboration features
+    weaknesses: |
+      - Primarily US-college focused (email sign-up required)
+      - Still in active development (announcements marked "coming soon")
+      - Limited feature set compared to enterprise platforms
+      - No clear monetization for college organizers
+    notes: "Direct competitor in US market. Well suited for informal club events."
+    data_confidentness: "from_competitor_analysis"
+
+  - id: "comp_doorlist"
+    name: "DoorList"
+    website: "https://doorlist.io"
+    category: "Social Event App"
+    pricing_model: "0% fees"
+    target_audience: "College students organizing informal events and parties"
+    strengths: |
+      - Mobile-first design with no ticket fees (hosts keep 100% of sales)
+      - Group invite distribution via iMessage, Snapchat, messaging apps
+      - Fast check-in with dynamic QR codes
+      - Real-time guest lists for dynamic events
+      - Perfect for campus parties and casual mixers
+      - Frictionless social sharing
+    weaknesses: |
+      - Not designed for formal, large-scale events
+      - Web listing/discovery limited (social-first distribution)
+      - Limited organizer features (no analytics, limited management tools)
+      - Not suitable for institutional events or competitions
+    notes: "Strong competitor for informal social events. Weak on formal event needs."
+    data_confidentness: "from_competitor_analysis"
+
+  - id: "comp_thecollegefever"
+    name: "The CollegeFever"
+    website: "https://thecollegefever.com"
+    category: "College Fest Ticketing"
+    pricing_model: "commission-based"
+    target_audience: "Technical fests, cultural fests, hackathons in India (especially IITs, NITs)"
+    strengths: |
+      - Well-established in India with strong brand recognition
+      - Full-featured organizer dashboard (event editing, ticket sales, analytics)
+      - Integrated payment processing with weekly payouts
+      - Mobile app for organizers and participants
+      - Heavy promotion and discovery network
+      - Focus on large "fest" events with strong audience reach
+    weaknesses: |
+      - Commission fees on ticket sales (undisclosed but likely 5-10%)
+      - Primarily focused on large "fest" events, not casual club events
+      - Less suitable for small group gatherings or free events
+      - Regional focus (strongest in India)
+    notes: "Strong competitor in India for large festivals. Higher fees limit adoption for small events."
+    data_confidentness: "from_competitor_analysis"
+
+  - id: "comp_unstop"
+    name: "Unstop"
+    website: "https://unstop.com"
+    category: "Campus Competition Platform"
+    pricing_model: "freemium"
+    target_audience: "Engineering students, hackathon participants, job seekers"
+    strengths: |
+      - Massive student user base (tens of millions)
+      - Primary focus on hackathons, competitions, and employer hiring
+      - Comprehensive assessment and analytics tools for companies
+      - Strong reach among technical campus communities
+      - Event listing and registration for contests
+    weaknesses: |
+      - Core focus on competitions/hackathons, not general events
+      - Limited general event management features
+      - Not designed for hosting casual club events or cultural activities
+      - Recruitment-focused rather than event-centric
+      - Analytics and tools primarily for employers, not organizers
+    notes: "Threat mainly in hackathon/competition space. Not a general event platform."
+    data_confidentness: "from_competitor_analysis"
+
+  - id: "comp_eventbrite"
+    name: "Eventbrite"
+    website: "https://eventbrite.com"
+    category: "Global Event Ticketing"
+    pricing_model: "commission-based"
+    target_audience: "Large events, ticketed events worldwide"
+    strengths: |
+      - Global market leader in event ticketing
+      - Polished, mature platform with extensive features
+      - Strong marketing integrations and event discovery
+      - Large user base and high adoption
+      - Comprehensive organizer tools
+      - Payment processing and payout management
+    weaknesses: |
+      - High fees (3.7% + $1.79 per ticket + 2.9% payment processing)
+      - Not tailored to college events or student budgets
+      - Overkill for small, informal events
+      - Premium pricing model limits adoption for free college events
+      - Not campus-specific, generic event platform
+    notes: "Used by universities for large events. Expensive for student organizers."
+    data_confidentness: "from_competitor_analysis"
+
+  - id: "comp_meraevents"
+    name: "MeraEvents"
+    website: "https://meraevents.com"
+    category: "Event Marketplace"
+    pricing_model: "commission-based"
+    target_audience: "Event organizers across India and globally"
+    strengths: |
+      - Free event listing (no setup costs)
+      - Full event ticketing widget available
+      - SMS and email reminder capabilities
+      - Broad event marketplace appeal
+      - Analytics and attendee management
+      - Global reach with India focus
+    weaknesses: |
+      - Commission fees (~4.71% total: 2% service + 1.99% gateway)
+      - Not college-specific or student-focused
+      - Primarily for professional/corporate events
+      - Less suitable for small, free college events
+      - Limited organizer community features
+    notes: "Indirect competitor. Generic marketplace, not student-focused."
+    data_confidentness: "from_competitor_analysis"
+
+feature_matrix:
+  - feature_id: "feat_event_creation"
+    our_project:
+      supported: true
+      details: "One-click event creation with sub-events, full customization"
+      tier: "core"
+    competitors:
+      comp_icommunify:
+        supported: true
+        confidence: "verified"
+        details: "60-second event creation"
+        tier: "core"
+      comp_doorlist:
+        supported: true
+        confidence: "verified"
+        details: "Mobile-focused event creation"
+        tier: "core"
+      comp_thecollegefever:
+        supported: true
+        confidence: "verified"
+        details: "Dashboard event editing"
+        tier: "core"
+      comp_unstop:
+        supported: true
+        confidence: "verified"
+        details: "Competition and event listing"
+        tier: "core"
+      comp_eventbrite:
+        supported: true
+        confidence: "verified"
+        details: "Comprehensive event creation tools"
+        tier: "core"
+      comp_meraevents:
+        supported: true
+        confidence: "verified"
+        details: "Free event listing"
+        tier: "core"
+
+  - feature_id: "feat_registration_confirmation"
+    our_project:
+      supported: true
+      details: "Email confirmation with event details and next steps"
+      tier: "core"
+    competitors:
+      comp_icommunify:
+        supported: null
+        confidence: "unverified"
+        details: ""
+      comp_doorlist:
+        supported: null
+        confidence: "unverified"
+        details: ""
+      comp_thecollegefever:
+        supported: true
+        confidence: "verified"
+        details: "Registration confirmations"
+        tier: "standard"
+      comp_unstop:
+        supported: true
+        confidence: "verified"
+        details: "Registration management"
+        tier: "standard"
+      comp_eventbrite:
+        supported: true
+        confidence: "verified"
+        details: "Email confirmations standard"
+        tier: "core"
+      comp_meraevents:
+        supported: true
+        confidence: "verified"
+        details: "Email and SMS reminders"
+        tier: "standard"
+
+  - feature_id: "feat_team_registration"
+    our_project:
+      supported: true
+      details: "Full team registration with member management and size validation"
+      tier: "core"
+    competitors:
+      comp_icommunify:
+        supported: null
+        confidence: "unverified"
+      comp_doorlist:
+        supported: null
+        confidence: "unverified"
+      comp_thecollegefever:
+        supported: true
+        confidence: "verified"
+        details: "Team event support"
+      comp_unstop:
+        supported: true
+        confidence: "verified"
+        details: "Team registration for competitions"
+      comp_eventbrite:
+        supported: true
+        confidence: "verified"
+        details: "Group registration available"
+      comp_meraevents:
+        supported: null
+        confidence: "unverified"
+
+  - feature_id: "feat_razorpay_integration"
+    our_project:
+      supported: true
+      details: "Full Razorpay integration with multiple payment methods"
+      tier: "core"
+    competitors:
+      comp_icommunify:
+        supported: null
+        confidence: "unverified"
+        details: "Payment integration unclear"
+      comp_doorlist:
+        supported: true
+        confidence: "verified"
+        details: "Payment processing (0% fees)"
+      comp_thecollegefever:
+        supported: true
+        confidence: "verified"
+        details: "Handles payments, takes commission"
+      comp_unstop:
+        supported: null
+        confidence: "unverified"
+      comp_eventbrite:
+        supported: true
+        confidence: "verified"
+        details: "Full payment processing"
+      comp_meraevents:
+        supported: true
+        confidence: "verified"
+        details: "Online ticketing and payments"
+
+  - feature_id: "feat_qr_scanning"
+    our_project:
+      supported: true
+      details: "Real-time QR scanning with camera integration"
+      tier: "core"
+    competitors:
+      comp_icommunify:
+        supported: null
+        confidence: "unverified"
+      comp_doorlist:
+        supported: true
+        confidence: "verified"
+        details: "Dynamic QR check-in"
+      comp_thecollegefever:
+        supported: null
+        confidence: "unverified"
+      comp_unstop:
+        supported: null
+        confidence: "unverified"
+      comp_eventbrite:
+        supported: false
+        confidence: "verified"
+        details: "Main weakness vs mobile-first apps"
+      comp_meraevents:
+        supported: null
+        confidence: "unverified"
+
+  - feature_id: "feat_task_board"
+    our_project:
+      supported: true
+      details: "Drag-and-drop Kanban board with task assignment and deadlines"
+      tier: "core"
+    competitors:
+      comp_icommunify:
+        supported: null
+        confidence: "unverified"
+      comp_doorlist:
+        supported: false
+        confidence: "verified"
+        details: "Not designed for coordination"
+      comp_thecollegefever:
+        supported: null
+        confidence: "unverified"
+      comp_unstop:
+        supported: null
+        confidence: "unverified"
+      comp_eventbrite:
+        supported: null
+        confidence: "unverified"
+      comp_meraevents:
+        supported: null
+        confidence: "unverified"
+
+  - feature_id: "feat_event_chat"
+    our_project:
+      supported: true
+      details: "Multi-channel real-time chat with role badges and XSS protection"
+      tier: "core"
+    competitors:
+      comp_icommunify:
+        supported: null
+        confidence: "unverified"
+      comp_doorlist:
+        supported: null
+        confidence: "unverified"
+      comp_thecollegefever:
+        supported: null
+        confidence: "unverified"
+      comp_unstop:
+        supported: null
+        confidence: "unverified"
+      comp_eventbrite:
+        supported: false
+        confidence: "verified"
+        details: "Not a feature of Eventbrite"
+      comp_meraevents:
+        supported: null
+        confidence: "unverified"
+
+  - feature_id: "feat_finance_dashboard"
+    our_project:
+      supported: true
+      details: "Comprehensive finance dashboard with revenue, payment breakdown, and CSV export"
+      tier: "core"
+    competitors:
+      comp_icommunify:
+        supported: null
+        confidence: "unverified"
+      comp_doorlist:
+        supported: null
+        confidence: "unverified"
+        details: "Simple payout system"
+      comp_thecollegefever:
+        supported: true
+        confidence: "verified"
+        details: "Analytics, invoices, weekly payouts"
+      comp_unstop:
+        supported: null
+        confidence: "unverified"
+      comp_eventbrite:
+        supported: true
+        confidence: "verified"
+        details: "Comprehensive financial reporting"
+      comp_meraevents:
+        supported: true
+        confidence: "verified"
+        details: "Analytics and reports available"
+
+  - feature_id: "feat_college_email_verification"
+    our_project:
+      supported: true
+      details: "OTP-based college email verification with multi-college domain support"
+      tier: "core"
+    competitors:
+      comp_icommunify:
+        supported: true
+        confidence: "verified"
+        details: "College email sign-up requirement"
+      comp_doorlist:
+        supported: null
+        confidence: "unverified"
+      comp_thecollegefever:
+        supported: null
+        confidence: "unverified"
+      comp_unstop:
+        supported: null
+        confidence: "unverified"
+      comp_eventbrite:
+        supported: false
+        confidence: "verified"
+        details: "Not college-specific"
+      comp_meraevents:
+        supported: false
+        confidence: "verified"
+        details: "Not college-specific"
+
+  - feature_id: "feat_og_meta_tags"
+    our_project:
+      supported: true
+      details: "OG meta tags for social sharing with dynamic generation per event"
+      tier: "core"
+    competitors:
+      comp_icommunify:
+        supported: null
+        confidence: "unverified"
+      comp_doorlist:
+        supported: true
+        confidence: "verified"
+        details: "Social sharing optimized"
+      comp_thecollegefever:
+        supported: null
+        confidence: "unverified"
+      comp_unstop:
+        supported: null
+        confidence: "unverified"
+      comp_eventbrite:
+        supported: true
+        confidence: "verified"
+        details: "Event sharing available"
+      comp_meraevents:
+        supported: null
+        confidence: "unverified"

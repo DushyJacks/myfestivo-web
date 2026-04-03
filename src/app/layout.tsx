@@ -1,12 +1,35 @@
 import type { Metadata } from "next";
-import { Background3D } from "@/components/three/Background3D";
+import { BackgroundWrapper } from "@/components/three/BackgroundWrapper";
 import { Providers } from "./providers";
 import "./globals.css";
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://myfestivo.live"
 
 export const metadata: Metadata = {
   title: "MyFestivo — College Event Platform",
   description: "Your events. One place. Built for college events that actually happen.",
   themeColor: "#000000",
+  openGraph: {
+    title: "MyFestivo — College Event Platform",
+    description: "Your events. One place. Built for college events that actually happen.",
+    url: APP_URL,
+    siteName: "MyFestivo",
+    images: [
+      {
+        url: `${APP_URL}/logo.png`,
+        width: 1200,
+        height: 630,
+        alt: "MyFestivo",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MyFestivo — College Event Platform",
+    description: "Your events. One place. Built for college events that actually happen.",
+    images: [`${APP_URL}/logo.png`],
+  },
 };
 
 export default function RootLayout({
@@ -17,12 +40,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark h-full antialiased" style={{ colorScheme: 'dark' }}>
       <head>
+        <link rel="icon" href="/favicon.jpg" type="image/jpeg" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
       </head>
       <body className="min-h-full flex flex-col">
-        <Background3D />
+        <BackgroundWrapper />
         <Providers>
           <div className="relative z-10 flex-1 flex flex-col">
             {children}

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { useEvents, ChatMessage, MainEvent } from "@/lib/events-context"
+import { sanitizeUserInput } from "@/lib/xss-protection"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Send, Shield, Zap } from "lucide-react"
@@ -130,7 +131,7 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
                   ? "bg-white/[0.1] border border-white/[0.15] text-white/90"
                   : "bg-white/[0.04] border border-white/[0.08] text-white/70"
               }`}>
-                {m.message}
+                {sanitizeUserInput(m.message)}
               </div>
             </div>
           )

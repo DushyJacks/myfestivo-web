@@ -1,0 +1,410 @@
+# ============================================================
+# CONTENT QUEUE
+# Generated: 2026-04-03
+# Prioritized blog ideas for MyFestivo
+# ============================================================
+
+last_updated: "2026-04-03"
+
+queue:
+  # High Priority: PILLAR PAGES
+  # These foundational guides are prerequisites for cluster pages
+
+  - id: "q_001"
+    title: "The College Event Management Guide"
+    blog_type: "pillar"
+    content_type: "pillar"
+    cluster_id: "tc_college_event_mgmt"
+    target_keywords: ["college event management", "how to manage college events"]
+    target_features: ["feat_event_creation", "feat_task_board", "feat_event_chat", "feat_analytics"]
+    unique_angle: "Combines college-specific pain points (WhatsApp chaos, no analytics) with step-by-step using modern tools"
+    priority: "high"
+    priority_reason: "Foundational pillar article. All management-focused cluster pages depend on this."
+    status: "planned"
+    estimated_word_count: 3000
+    eeat_plan: "Include: 1 DushyJacks insight on college event pain points, 1 stat on events per college, example walkthrough"
+    serp_analyzed: false
+    cannibalization_check: "first-pillar"
+    notes: "BLOCKED: Needs SERP research. Ask user to Google 'college event management' and provide top results, PAA, related searches."
+    depends_on: []
+    internal_link_targets: []
+
+  - id: "q_002"
+    title: "Event Hosting Platform Comparison"
+    blog_type: "pillar"
+    content_type: "pillar"
+    cluster_id: "tc_event_hosting"
+    target_keywords: ["event hosting platform", "event management platform"]
+    target_features: ["feat_event_creation", "feat_payment_processing", "feat_finance_dashboard", "feat_analytics"]
+    unique_angle: "College-specific comparison with pricing transparency. Emphasize low costs vs Eventbrite."
+    priority: "high"
+    priority_reason: "Core pillar. Core competitor comparison blog cluster depends on it."
+    status: "planned"
+    estimated_word_count: 2800
+    eeat_plan: "Include: cost breakdown table, feature matrix vs competitors, real payment example"
+    serp_analyzed: false
+    cannibalization_check: "none"
+    notes: "BLOCKED: Needs SERP research. Ask user to Google 'event hosting platform' and provide top 5 results, PAA, related searches."
+    depends_on: []
+    internal_link_targets: []
+
+  - id: "q_003"
+    title: "College Event Registration System Guide"
+    blog_type: "pillar"
+    content_type: "pillar"
+    cluster_id: "tc_registration"
+    target_keywords: ["college event registration system", "event registration software"]
+    target_features: ["feat_team_registration", "feat_registration_confirmation", "feat_participant_list", "feat_csv_export"]
+    unique_angle: "Complete guide to solo vs team registration with fraud prevention tips"
+    priority: "high"
+    priority_reason: "Foundational registration guide. Multiple cluster pages reference it."
+    status: "planned"
+    estimated_word_count: 2500
+    eeat_plan: "Include: step-by-step registration setup, duplicate prevention explained, template confirmations"
+    serp_analyzed: false
+    cannibalization_check: "none"
+    notes: "BLOCKED: Needs SERP research. Ask user to Google 'college event registration system' and provide top results + PAA."
+    depends_on: []
+    internal_link_targets: []
+
+  - id: "q_004"
+    title: "College Event Payment Processing Guide"
+    blog_type: "pillar"
+    content_type: "pillar"
+    cluster_id: "tc_payment"
+    target_keywords: ["college event payment processing", "event ticketing payment"]
+    target_features: ["feat_razorpay_integration", "feat_dynamic_amount_calculation", "feat_transaction_tracking", "feat_payment_approval_workflow"]
+    unique_angle: "Focus on minimizing fees and maximizing revenue for student-run events"
+    priority: "high"
+    priority_reason: "Core pillar. Payment cluster pages link to it."
+    status: "planned"
+    estimated_word_count: 2600
+    eeat_plan: "Include: payment method pros/cons, fee breakdown calculator, India-specific Razorpay guide"
+    serp_analyzed: false
+    cannibalization_check: "none"
+    notes: "BLOCKED: Needs SERP research. Ask user to Google 'college event payment processing' and provide results."
+    depends_on: []
+    internal_link_targets: []
+
+  # High Priority: COMPETITOR COMPARISONS
+  # Direct comparisons drive commercial intent traffic
+
+  - id: "q_005"
+    title: "MyFestivo vs Eventbrite for College Events"
+    blog_type: "comparison"
+    content_type: "cluster"
+    cluster_id: "tc_college_event_mgmt"
+    target_keywords: ["MyFestivo vs Eventbrite", "Eventbrite alternative college"]
+    target_features: ["feat_event_creation", "feat_payment_processing", "feat_lower_fees", "feat_event_discovery"]
+    unique_angle: "Cost comparison (3.7% + $1.79 vs 0%) and college-specific feature advantage"
+    priority: "high"
+    priority_reason: "High commercial intent. Direct competitor comparison. Canonical keyword."
+    status: "planned"
+    estimated_word_count: 2000
+    eeat_plan: "Include: fee calculation example, feature parity table, student testimonial quote (create if needed)"
+    serp_analyzed: false
+    cannibalization_check: "passed"
+    notes: "Eventbrite is well-known, direct comparison entry point. Must link to pillar and payment guide."
+    depends_on: ["q_004"]
+    internal_link_targets: ["college-event-management-guide", "college-event-payments-guide"]
+
+  - id: "q_006"
+    title: "MyFestivo vs iCommunify: Which is Best for Your College?"
+    blog_type: "comparison"
+    content_type: "cluster"
+    cluster_id: "tc_college_event_mgmt"
+    target_keywords: ["MyFestivo vs iCommunify", "iCommunify alternative"]
+    target_features: ["feat_event_creation", "feat_team_registration", "feat_task_board", "feat_analytics"]
+    unique_angle: "iCommunify for clubs, MyFestivo for complex events with payments and coordination"
+    priority: "high"
+    priority_reason: "Direct competitor in campus space. High commercial intent."
+    status: "planned"
+    estimated_word_count: 1800
+    eeat_plan: "Include: feature comparison table, use-case analysis (club vs fest vs hackathon)"
+    serp_analyzed: false
+    cannibalization_check: "passed"
+    notes: "iCommunify is US-dominant. Emphasize India support and payment integration."
+    depends_on: []
+    internal_link_targets: ["college-event-management-guide"]
+
+  - id: "q_007"
+    title: "5 Best College Event Management Platforms"
+    blog_type: "listicle"
+    content_type: "cluster"
+    cluster_id: "tc_college_event_mgmt"
+    target_keywords: ["best college event management platform", "college event software review"]
+    target_features: ["feat_event_creation", "feat_registration_confirmation", "feat_analytics"]
+    unique_angle: "Objective comparison with rankings. MyFestivo positions as #1 for combined features and price."
+    priority: "high"
+    priority_reason: "Buyer-stage content. Decision-making keyword."
+    status: "planned"
+    estimated_word_count: 2200
+    eeat_plan: "Include: individual tool reviews, feature matrix, honest weakness for each platform"
+    serp_analyzed: false
+    cannibalization_check: "passed"
+    notes: "List includes: iCommunify, DoorList, Eventbrite, MeraEvents (+ MyFestivo). Honest about strengths/weaknesses."
+    depends_on: []
+    internal_link_targets: ["college-event-management-guide", "myfestivo-vs-eventbrite"]
+
+  # High Priority: Feature Deep-Dives with Commercial Intent
+
+  - id: "q_008"
+    title: "Eventbrite Alternatives: Cheaper Ways to Host College Events"
+    blog_type: "comparison"
+    content_type: "cluster"
+    cluster_id: "tc_event_hosting"
+    target_keywords: ["Eventbrite alternative college", "cheap event hosting", "low-cost event platform"]
+    target_features: ["feat_event_creation", "feat_payment_processing", "feat_lower_fees"]
+    unique_angle: "Emphasize 0% platform fees vs Eventbrite's 3.7% + $1.79. Calculate savings for 500-person event."
+    priority: "high"
+    priority_reason: "Strong commercial intent. Price-sensitive audience (students). Direct competitor mention increases rankings."
+    status: "planned"
+    estimated_word_count: 1900
+    eeat_plan: "Include: fee calculator comparison, TikTok/Instagram student quote, testimonial"
+    serp_analyzed: false
+    cannibalization_check: "passed"
+    notes: "Can also mention DoorList and iCommunify. MyFestivo positioned as best for events with payments."
+    depends_on: []
+    internal_link_targets: ["event-hosting-platform-comparison", "college-event-payments-guide"]
+
+  - id: "q_009"
+    title: "Free College Event Management Platform Guide"
+    blog_type: "comparison"
+    content_type: "pillar"
+    cluster_id: "tc_free_event_management"
+    target_keywords: ["free college event management platform", "free event management software"]
+    target_features: ["feat_event_creation", "feat_task_board", "feat_event_chat"]
+    unique_angle: "Deep dive on truly free platforms. Highlight MyFestivo's free tier for event creation."
+    priority: "high"
+    priority_reason: "High search volume. Student budget pain point. Commercial intent."
+    status: "planned"
+    estimated_word_count: 2300
+    eeat_plan: "Include: free-vs-paid comparison, budget analysis example, student coordinator interview quote"
+    serp_analyzed: false
+    cannibalization_check: "none"
+    notes: "BLOCKED: Needs SERP research. Ask user to Google 'free event management platform' and provide results."
+    depends_on: []
+    internal_link_targets: []
+
+  # Medium Priority: How-To & Educational Guides
+
+  - id: "q_010"
+    title: "College Event Planning Guide"
+    blog_type: "how_to"
+    content_type: "pillar"
+    cluster_id: "tc_event_planning"
+    target_keywords: ["college event planning guide", "how to plan college event"]
+    target_features: ["feat_event_creation", "feat_task_board", "feat_coordinator_assignment"]
+    unique_angle: "Step-by-step guide specifically for students (less jargon) with real college event examples"
+    priority: "medium"
+    priority_reason: "Awareness-stage content. Foundation for how-to cluster."
+    status: "planned"
+    estimated_word_count: 2400
+    eeat_plan: "Include: 10-step checklist, timeline example, DushyJacks insight on student pain point"
+    serp_analyzed: false
+    cannibalization_check: "passed"
+    notes: "Educational tone. Gentle sells. Introduce MyFestivo as efficient toolkit."
+    depends_on: []
+    internal_link_targets: ["college-event-management-guide"]
+
+  - id: "q_011"
+    title: "Student Guide: How to Organize a College Event"
+    blog_type: "how_to"
+    content_type: "cluster"
+    cluster_id: "tc_event_planning"
+    target_keywords: ["how to organize college event", "college event organizer guide"]
+    target_features: ["feat_event_creation", "feat_registration_confirmation", "feat_qr_scanning"]
+    unique_angle: "Practical walkthrough using MyFestivo as the platform. Real screenshots. Student-friendly language."
+    priority: "medium"
+    priority_reason: "Educational + soft product introduction. Traffic from beginner searches."
+    status: "planned"
+    estimated_word_count: 2000
+    eeat_plan: "Include: step-by-step with MyFestivo screenshots, real college event example, coordinator advice"
+    serp_analyzed: false
+    cannibalization_check: "passed"
+    notes: "Link heavily to this from pillar. Use in onboarding emails."
+    depends_on: ["q_010"]
+    internal_link_targets: ["college-event-planning-guide", "college-event-management-guide"]
+
+  - id: "q_012"
+    title: "QR Code Event Check-In Guide"
+    blog_type: "pillar"
+    content_type: "pillar"
+    cluster_id: "tc_attendance"
+    target_keywords: ["QR code event check-in", "event QR code system"]
+    target_features: ["feat_qr_scanning", "feat_attendance_tracking", "feat_attendance_stats"]
+    unique_angle: "How QR codes solve the 'long check-in queue' problem at college events"
+    priority: "medium"
+    priority_reason: "Technical feature pillar. Strong feature differentiator."
+    status: "planned"
+    estimated_word_count: 1800
+    eeat_plan: "Include: how QR works, camera permissions, compliance/data privacy note"
+    serp_analyzed: false
+    cannibalization_check: "none"
+    notes: "BLOCKED: Needs SERP research. Ask user to Google 'QR code event check-in' and provide results."
+    depends_on: []
+    internal_link_targets: []
+
+  - id: "q_013"
+    title: "Why College Events Need In-App Chat (Not WhatsApp)"
+    blog_type: "think_leadership"
+    content_type: "cluster"
+    cluster_id: "tc_communication"
+    target_keywords: ["college event communication", "event chat system"]
+    target_features: ["feat_event_chat", "feat_announcements", "feat_role_badges"]
+    unique_angle: "WhatsApp chaos pain points (500-member limit, message noise) solved by dedicated event chat"
+    priority: "medium"
+    priority_reason: "Thought leadership + feature benefit. Differentiator from competitors."
+    status: "planned"
+    estimated_word_count: 1600
+    eeat_plan: "Include: DushyJacks opinion on WhatsApp limitations, 2 student quotes (pain points), MyFestivo solution"
+    serp_analyzed: false
+    cannibalization_check: "passed"
+    notes: "Opinionated take. Lead with problems, positions solution. Not forced."
+    depends_on: []
+    internal_link_targets: ["college-event-management-guide"]
+
+  - id: "q_014"
+    title: "Event Task Management Guide"
+    blog_type: "pillar"
+    content_type: "pillar"
+    cluster_id: "tc_coordination"
+    target_keywords: ["event task management tools", "event coordinator software"]
+    target_features: ["feat_task_board", "feat_task_assignment", "feat_task_deadlines"]
+    unique_angle: "How Kanban boards replace fragmented coordinator communication (Slack, email, DMs)"
+    priority: "medium"
+    priority_reason: "Feature pillar. Coordination is core differentiator."
+    status: "planned"
+    estimated_word_count: 2000
+    eeat_plan: "Include: Kanban methodology explained, task board best practices, DushyJacks guide for large events"
+    serp_analyzed: false
+    cannibalization_check: "none"
+    notes: "BLOCKED: Needs SERP research. Ask user to Google 'event task management tools' and provide results."
+    depends_on: []
+    internal_link_targets: []
+
+  - id: "q_015"
+    title: "College Event Analytics Guide"
+    blog_type: "pillar"
+    content_type: "pillar"
+    cluster_id: "tc_analytics"
+    target_keywords: ["college event analytics", "event attendance tracking"]
+    target_features: ["feat_event_insights", "feat_finance_dashboard", "feat_attendance_reports"]
+    unique_angle: "Data-driven event improvement. Learn from past events to plan better ones."
+    priority: "medium"
+    priority_reason: "Feature pillar. Helps organizers make better decisions."
+    status: "planned"
+    estimated_word_count: 2100
+    eeat_plan: "Include: key metrics explained, analytics dashboard walkthrough, case study example"
+    serp_analyzed: false
+    cannibalization_check: "none"
+    notes: "BLOCKED: Needs SERP research. Ask user to Google 'college event analytics' and provide results."
+    depends_on: []
+    internal_link_targets: []
+
+  # Low Priority: Supporting Articles, Tactical Content
+
+  - id: "q_016"
+    title: "College Event Budget Planning"
+    blog_type: "how_to"
+    content_type: "cluster"
+    cluster_id: "tc_event_planning"
+    target_keywords: ["college event budget", "how much does event cost"]
+    target_features: ["feat_payment_processing", "feat_finance_dashboard"]
+    unique_angle: "Budget template for student organizers. Fixed vs variable costs breakdown."
+    priority: "medium"
+    priority_reason: "Practical how-to. Targets student audience."
+    status: "planned"
+    estimated_word_count: 1400
+    eeat_plan: "Include: budget template downloadable, real budget example with MyFestivo setup"
+    serp_analyzed: false
+    cannibalization_check: "passed"
+    notes: "Good place for downloadable template lead magnet."
+    depends_on: ["q_010"]
+    internal_link_targets: ["college-event-planning-guide"]
+
+  - id: "q_017"
+    title: "Payment Gateway Comparison: Razorpay vs Stripe vs PhonePe"
+    blog_type: "comparison"
+    content_type: "cluster"
+    cluster_id: "tc_payment"
+    target_keywords: ["razorpay vs stripe", "payment gateway comparison"]
+    target_features: ["feat_razorpay_integration"]
+    unique_angle: "India-specific payment comparison. Razorpay focus with MyFestivo integration."
+    priority: "low"
+    priority_reason: "Technical/niche. Serves small segment. Secondary traffic."
+    status: "planned"
+    estimated_word_count: 1700
+    eeat_plan: "Include: fee comparison table, UPI vs card breakdown, integration complexity"
+    serp_analyzed: false
+    cannibalization_check: "passed"
+    notes: "Target: college tech coordinators, not general organizers."
+    depends_on: []
+    internal_link_targets: ["college-event-payments-guide"]
+
+  - id: "q_018"
+    title: "Social Media Marketing for College Events"
+    blog_type: "how_to"
+    content_type: "cluster"
+    cluster_id: "tc_discovery"
+    target_keywords: ["promote event on social media", "event marketing tips"]
+    target_features: ["feat_og_meta_tags", "feat_event_sharing"]
+    unique_angle: "Instagram and TikTok specific strategies for college events. Organic reach tactics."
+    priority: "low"
+    priority_reason: "Supporting content. Awareness-stage."
+    status: "planned"
+    estimated_word_count: 1400
+    eeat_plan: "Include: TikTok trends example, Instagram story template, student content creator quote"
+    serp_analyzed: false
+    cannibalization_check: "passed"
+    notes: "Tie to OG meta tags feature. Include screenshot of rich preview."
+    depends_on: []
+    internal_link_targets: ["college-event-promotion-guide"]
+
+  - id: "q_019"
+    title: "Open Graph Meta Tags for Event Sharing"
+    blog_type: "tutorial"
+    content_type: "cluster"
+    cluster_id: "tc_discovery"
+    target_keywords: ["open graph meta tags events", "og tags social sharing"]
+    target_features: ["feat_og_meta_tags", "feat_event_sharing"]
+    unique_angle: "Technical guide for organizers. Why OG tags matter for event discovery."
+    priority: "low"
+    priority_reason: "Technical/niche. Serves developers, not mainstream organizers."
+    status: "planned"
+    estimated_word_count: 1200
+    eeat_plan: "Include: code example, before/after social preview screenshot"
+    serp_analyzed: false
+    cannibalization_check: "passed"
+    notes: "Developer-first. Could be featured in MyFestivo blog but will have limited reach."
+    depends_on: []
+    internal_link_targets: ["college-event-promotion-guide"]
+
+  - id: "q_020"
+    title: "Event Revenue Tracking and Financial Reporting"
+    blog_type: "tutorial"
+    content_type: "cluster"
+    cluster_id: "tc_analytics"
+    target_keywords: ["event financial reporting", "event revenue tracking"]
+    target_features: ["feat_finance_dashboard", "feat_financial_export"]
+    unique_angle: "Tax/compliance guide for student-run events. Income reporting requirements."
+    priority: "low"
+    priority_reason: "Niche (tax/legal). Low search volume but high-intent audience."
+    status: "planned"
+    estimated_word_count: 1300
+    eeat_plan: "Include: disclaimer note, linking to accountant resources, MyFestivo finance dashboard tour"
+    serp_analyzed: false
+    cannibalization_check: "passed"
+    notes: "Legal disclaimer required. No financial/tax advice claims."
+    depends_on: []
+    internal_link_targets: ["college-event-analytics-guide", "college-event-payments-guide"]
+
+# Summary Statistics
+queue_statistics:
+  total_ideas: 20
+  high_priority: 9
+  medium_priority: 7
+  low_priority: 4
+  blocked_on_serp_data: 7
+  estimated_total_word_count: 39500
+  publishing_cadence: "1 blog per week (4 per month) = 5-6 months to publish entire queue"

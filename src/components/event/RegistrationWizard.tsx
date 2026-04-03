@@ -54,6 +54,10 @@ export function RegistrationWizard({ event, onClose }: Props) {
     if (!selectedSe) return
     setSubmitting(true)
     const regId = `reg-${Date.now()}`
+    
+    // Determine if payment is required
+    const requiresPayment = event.price && event.price > 0
+    
     const reg: any = {
       id: regId,
       userId: user.id,
@@ -61,21 +65,92 @@ export function RegistrationWizard({ event, onClose }: Props) {
       userEmail: user.email,
       eventId: event.id,
       subEventId: selectedSe.id,
-      status: "PAID", // Auto-approve all registrations for now (Razorpay bypass)
+      // If payment required, start as PENDING. Otherwise mark PAID immediately.
+      status: requiresPayment ? "PENDING" : "PAID",
       timestamp: new Date().toISOString().slice(0, 16).replace("T", " "),
       checkedIn: false,
-      transactionId: `BYPASS-${regId}`, // Track bypass registrations
-      paymentMethod: "manual",
+      transactionId: requiresPayment ? undefined : `FREE-${regId}`,
+      paymentMethod: requiresPayment ? "pending" : "free",
     }
+    
     if (selectedSe.type === "team") {
       reg.teamName = teamName || `${user.name}'s Team`
       reg.teamMembers = [user.email, ...teamMembers]
     }
+    
     try {
+      // First, create the registration with PENDING or PAID status
       await registerForSubEvent(event.id, selectedSe.id, reg)
-      setDone(true)
+      
+      // If payment required, initiate Razorpay flow
+      if (requiresPayment) {
+        // Initiate Razorpay payment
+        const { initiatePayment } = await import("@/lib/razorpay")
+        const { verifyPayment } = await import("@/lib/razorpay")
+        
+        const paymentOptions = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY || '',
+          amount: event.price * 100, // Convert to paise
+          currency: 'INR',
+          name: 'MyFestivo',
+          description: `${event.title} - ${selectedSe.name}`,
+          order_id: regId,
+          prefill: {
+            name: user.name,
+            email: user.email,
+            contact: user.phone || '',
+          },
+          notes: {
+            eventId: event.id,
+            eventTitle: event.title,
+            registrationId: regId,
+          },
+          theme: {
+            color: '#3B82F6',
+          },
+          handler: async (response: any) => {
+            // Verify payment signature on backend
+            const verificationResult = await verifyPayment(
+              regId,
+              response.razorpay_payment_id,
+              response.razorpay_signature,
+              regId
+            )
+            
+            if (verificationResult.valid) {
+              // Update registration status to PAID
+              const updatedReg = {
+                ...reg,
+                status: "PAID",
+                transactionId: response.razorpay_payment_id,
+                paymentMethod: "razorpay",
+              }
+              await registerForSubEvent(event.id, selectedSe.id, updatedReg)
+              setDone(true)
+            } else {
+              // Payment verification failed
+              console.error('Payment verification failed:', verificationResult.error)
+              alert('Payment verification failed. Please try again.')
+              // Optionally refund the registration
+            }
+          },
+          modal: {
+            ondismiss: () => {
+              // User cancelled payment - keep registration as PENDING
+              console.log('Payment cancelled by user. Registration is PENDING.')
+              // Optionally show message to user
+            }
+          }
+        }
+        
+        await initiatePayment(paymentOptions)
+      } else {
+        // No payment required - mark as complete
+        setDone(true)
+      }
     } catch (err) {
-      console.error(err)
+      console.error('Registration error:', err)
+      alert('Registration failed. Please try again.')
     }
     setSubmitting(false)
   }

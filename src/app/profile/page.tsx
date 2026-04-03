@@ -70,19 +70,70 @@ export default function ProfilePage() {
     setTimeout(() => setFriendMsg(""), 3000)
   }
 
-  const handleSendOtp = () => {
+  const handleSendOtp = async () => {
     if (!collegePrefix.trim()) return
-    setVerifying(true); setVerifyError("")
-    setTimeout(() => { setOtpSent(true); setVerifying(false) }, 1000)
+    setVerifying(true)
+    setVerifyError("")
+    try {
+      const collegeEmail = `${collegePrefix}@${collegeDomain}`
+      const response = await fetch('/api/auth/send-college-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          uid: user.id,
+          collegeEmail,
+          collegeDomain,
+        }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        setOtpSent(true)
+      } else {
+        setVerifyError(data.message || 'Failed to send OTP')
+      }
+    } catch (error) {
+      console.error('Error sending OTP:', error)
+      setVerifyError('Network error. Please try again.')
+    } finally {
+      setVerifying(false)
+    }
   }
 
   const handleVerifyOtp = async () => {
-    if (otp.length < 4) { setVerifyError("Enter a valid OTP"); return }
-    setVerifying(true); setVerifyError("")
-    const success = await linkCollegeEmail(collegePrefix, collegeDomain)
-    setVerifying(false)
-    if (!success) { setVerifyError("Verification failed. Try again.") }
-    else { setOtpSent(false); setOtp(""); setCollegePrefix("") }
+    if (otp.length < 6) {
+      setVerifyError("Enter a valid 6-digit OTP")
+      return
+    }
+    setVerifying(true)
+    setVerifyError("")
+    try {
+      const response = await fetch('/api/auth/verify-college-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          uid: user.id,
+          otp,
+        }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        setOtpSent(false)
+        setOtp("")
+        setCollegePrefix("")
+        // Refresh user profile to show verified status
+        const refreshedUser = await fetch(`/api/auth/get-user?uid=${user.id}`).then(r => r.json()).catch(() => null)
+        if (refreshedUser?.success) {
+          // This will be picked up by the auth context
+        }
+      } else {
+        setVerifyError(data.message || 'Verification failed.')
+      }
+    } catch (error) {
+      console.error('Error verifying OTP:', error)
+      setVerifyError('Network error. Please try again.')
+    } finally {
+      setVerifying(false)
+    }
   }
 
   return (
@@ -226,7 +277,7 @@ export default function ProfilePage() {
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 p-3 rounded-md bg-white/[0.03] border border-white/[0.06]">
                         <Mail className="w-4 h-4 text-white/40" />
-                        <span className="text-xs text-white/50">OTP sent to {collegePrefix}@{collegeDomain} (demo: enter any 6 digits)</span>
+                        <span className="text-xs text-white/50">Check your email at {collegePrefix}@{collegeDomain} for the verification code. Valid for 10 minutes.</span>
                       </div>
                       <div className="flex gap-3">
                         <Input value={otp} onChange={e => setOtp(e.target.value)} placeholder="Enter 6-digit OTP" maxLength={6}
@@ -328,30 +379,7 @@ export default function ProfilePage() {
             </GlassCard>
           </motion.div>
 
-          {/* Account Info */}
-          <motion.div variants={pageItem}>
-            <GlassCard className="p-6 sm:p-8">
-              <MicroLabel>04 — Account Info</MicroLabel>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-white/[0.06]">
-                  <span className="text-sm text-white/40">Login Email</span>
-                  <span className="text-sm font-mono">{user.email}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-white/[0.06]">
-                  <span className="text-sm text-white/40">User ID</span>
-                  <span className="text-sm font-mono text-white/50">{user.id}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-white/[0.06]">
-                  <span className="text-sm text-white/40">Role</span>
-                  <span className="text-sm font-mono">{user.role}</span>
-                </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-sm text-white/40">Friends</span>
-                  <span className="text-sm font-mono">{user.friends.length}</span>
-                </div>
-              </div>
-            </GlassCard>
-          </motion.div>
+
         </PageTransition>
       </main>
     </div>

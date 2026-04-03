@@ -1,0 +1,370 @@
+# ============================================================
+# BLOG STRUCTURE TEMPLATES
+# By Blog Type - Define Voice, Outline Structure, E-E-A-T Injection Points
+# ============================================================
+
+blog_types:
+  - type: "pillar"
+    description: "Comprehensive foundational article. 2500-3500 words. Must be complete, authoritative."
+    voice: "Authoritative Expert"
+    tone_notes:
+      - "Position MyFestivo as one solution among many, not the only solution"
+      - "Focus on teaching, not selling"
+      - "Use clear, structured writing with lots of headers"
+      - "Anticipate reader questions"
+
+    sections:
+      - section: "Introduction"
+        guidance: "Hook the reader on the pain point. Why does this topic matter? Format: Problem → Solution → What they'll learn"
+        word_count: 200-300
+        
+      - section: "What is [Topic]?"
+        guidance: "Define the topic clearly, even if it seems obvious. Cluster pages will link here for foundational knowledge."
+        word_count: 300-400
+        note: "Pillar MUST define core concepts"
+        
+      - section: "Why Does [Topic] Matter?"
+        guidance: "Make the case for why your audience should care. Business/personal impact."
+        word_count: 200-300
+        
+      - section: "How [Topic] Works / Types of [Topic]"
+        guidance: "If applicable, explain mechanics or categorize subtypes. These map to cluster pages."
+        word_count: 400-500
+        eeat_injection: "Personal experience: 'In our work with 50+ college events...'"
+        
+      - section: "Best Practices / How to Do [Topic]"
+        guidance: "Step-by-step or principles. Make it actionable. Use subheaders for steps."
+        word_count: 600-800
+        eeat_injection: "Specific metric or quote from community"
+        
+      - section: "Common Mistakes to Avoid"
+        guidance: "Teach by showing what NOT to do. 3-5 mistakes with explanations."
+        word_count: 300-400
+        
+      - section: "Tools & Solutions Available"
+        guidance: "Overview of solutions in this space. Mention MyFestivo naturally. Not a hard sell."
+        word_count: 300-400
+        
+      - section: "FAQ"
+        guidance: "Answer 5-8 questions from People Also Ask or reader comments. Use actual SERP data."
+        word_count: 300-500
+        
+      - section: "Conclusion & Next Steps"
+        guidance: "Summarize key takeaways. Soft CTA: suggest next logical step."
+        word_count: 150-200
+
+    internal_linking: "Link to all cluster pages in this pillar. Link to related pillars. Minimum 8-10 links."
+    external_links: "2-3 to authoritative sources (not competitors)"
+    estimated_total: 2400-3800
+
+  - type: "cluster"
+    description: "Specific, focused article. 1500-2500 words. Addresses particular pain point or question."
+    voice: "Helpful Curator"
+    tone_notes:
+      - "More conversational than pillar, still authoritative"
+      - "Use 'you' and 'we' to engage reader"
+      - "Get to the point quickly"
+      - "Shorter paragraphs, more white space"
+      - "Use concrete examples"
+
+    sections:
+      - section: "Hook/Introduction"
+        guidance: "Start with the specific pain point or question. Make them feel heard."
+        word_count: 150-250
+        
+      - section: "Main Content (3-5 subsections)"
+        guidance: "Vary structure based on content type (comparison, how-to, tutorial, etc.). Use clear H2s and H3s."
+        word_count: 800-1400
+        eeat_injection: "Real example, quote, or experience story"
+        
+      - section: "Key Takeaways"
+        guidance: "Bullet list or short paragraphs. The one thing they should remember."
+        word_count: 100-200
+        
+      - section: "FAQ (3-5 questions)"
+        guidance: "Address remaining questions. Use SERP data for relevance."
+        word_count: 200-300
+        
+      - section: "Next Steps / CTA"
+        guidance: "What should they do next? Soft call-to-action."
+        word_count: 100-150
+
+    internal_linking: "Link to pillar. Link to related cluster pages in same cluster. Minimum 4-6 links."
+    external_links: "1-2 to social proof or authoritative sources"
+    estimated_total: 1400-2400
+
+  - type: "comparison"
+    description: "Compare 2-6 solutions/products/approaches. 1800-2400 words. Commercial intent."
+    voice: "Objective Evaluator"
+    tone_notes:
+      - "Lead with STRENGTHS of each option, not weaknesses"
+      - "Admit trade-offs honestly"
+      - "Use comparison tables for clarity"
+      - "Avoid bias — position MyFestivo objectively"
+      - "End with recommendation framework (not 'pick MyFestivo')"
+
+    sections:
+      - section: "Introduction"
+        guidance: "Frame the question. Why would someone compare these? What's the decision context?"
+        word_count: 150-250
+        
+      - section: "Option 1: [Name]"
+        guidance: "Pros, cons, best for (use case). Focus on PROS first."
+        word_count: 350-450
+        subsections: ["Strengths", "Weaknesses", "Best for", "Pricing"]
+        
+      - section: "Option 2: [Name]"
+        guidance: "Same structure as Option 1"
+        word_count: 350-450
+        
+      - section: "[... more options ...]"
+        word_count: 350-450
+        
+      - section: "Direct Comparison Table"
+        guidance: "Feature matrix: rows = features, columns = options. Make it scannable."
+        format: "Markdown table or embedded comparison tool"
+        
+      - section: "Which Should You Choose?"
+        guidance: "Decision framework. 'If you care about X, choose Y. If you need Z, choose A.'"
+        word_count: 300-400
+        eeat_injection: "Case study or example scenario"
+        
+      - section: "FAQ"
+        guidance: "Questions like 'Can I switch later?' 'Which is easiest?' 'Who else uses this?'"
+        word_count: 200-300
+        
+      - section: "Final Thoughts"
+        guidance: "Acknowledge there's no perfect choice. Invite reader perspective."
+        word_count: 100-150
+
+    internal_linking: "Link to pillar. Link to feature deep-dives if available. Feature matrices link to feature pages. Minimum 5-8 links."
+    external_links: "Links to official product pages (not competitive, you're fair)"
+    estimated_total: 1800-2600
+
+  - type: "listicle"
+    description: "List of items (5-10 best tools, tips, ideas). 2000-3000 words. High engagement."
+    voice: "Helpful Guide"
+    tone_notes:
+      - "Use actionable, scannable format"
+      - "Number or name each item clearly"
+      - "Explain WHY it made the list"
+      - "Include one honest weakness per item"
+      - "Use images/icons for visual break"
+
+    sections:
+      - section: "Introduction"
+        guidance: "Why these 5/10? What criteria? How were they selected?"
+        word_count: 200-300
+        
+      - section: "Item 1: [Name/Title]"
+        guidance: "150-300 words. Why it matters. Strengths. One honest weakness. Best for."
+        word_count: 150-300
+        subsections: ["Why it matters", "Strengths", "Honest weakness", "Best for"]
+        
+      - section: "Item 2: [Name/Title]"
+        guidance: "Same as Item 1"
+        word_count: 150-300
+        
+      - section: "[... more items ...]"
+        word_count: 150-300
+        
+      - section: "Comparison Table"
+        guidance: "Quick reference: all items with key features side-by-side"
+        format: "Markdown table"
+        
+      - section: "How We Selected These"
+        guidance: "Methodology. Transparency builds trust."
+        word_count: 150-250
+        
+      - section: "FAQ"
+        guidance: "Why didn't you include X? How often is this updated?"
+        word_count: 200-300
+        
+      - section: "Conclusion"
+        guidance: "Summary. Encourage reader to try a few. Link to trial/free tier."
+        word_count: 100-150
+
+    internal_linking: "Link to pillar. Link to comparison articles. Link to individual feature pages. Minimum 6-10 links."
+    external_links: "3-4 to product pages or reviews"
+    estimated_total: 1800-2600
+
+  - type: "how_to"
+    description: "Step-by-step tutorial. 1200-2000 words. Educational, practical."
+    voice: "Patient Teacher"
+    tone_notes:
+      - "Use 'you' throughout"
+      - "Write as if explaining to someone with zero experience"
+      - "Number each step clearly"
+      - "Use images/screenshots"
+      - "Include time estimates"
+      - "Acknowledge where steps get tricky"
+
+    sections:
+      - section: "Introduction"
+        guidance: "What will they learn? How long will it take? What do they need to start?"
+        word_count: 150-200
+        
+      - section: "What You'll Need"
+        guidance: "Tools, accounts, prerequisites. Be explicit."
+        word_count: 100-150
+        
+      - section: "Step 1: [Specific Action]"
+        guidance: "One clear action per step. Screenshots help. 100-200 words."
+        word_count: 100-200
+        subsections: ["Why this step matters", "How to do it", "What to expect"]
+        
+      - section: "Step 2: [Specific Action]"
+        guidance: "Same as Step 1"
+        word_count: 100-200
+        
+      - section: "[... more steps ...]"
+        word_count: 100-200
+        
+      - section: "Troubleshooting"
+        guidance: "Common errors and how to fix them"
+        word_count: 150-300
+        
+      - section: "Next Steps / Tips for Success"
+        guidance: "What to do after completion. Advanced tips."
+        word_count: 150-250
+        eeat_injection: "Personal tip or lesson learned"
+        
+      - section: "FAQ"
+        guidance: "Remaining questions"
+        word_count: 100-200
+
+    internal_linking: "Link to prerequisite content. Link to related how-tos. Minimum 3-4 links."
+    external_links: "Links to official docs if applicable"
+    estimated_total: 1200-1800
+
+  - type: "review"
+    description: "Review of a product/service. 1800-2400 words. Commercial intent."
+    voice: "Honest Reviewer"
+    tone_notes:
+      - "Be genuinely critical"
+      - "Lead with what it does well"
+      - "Don't gloss over weaknesses"
+      - "Transparent pricing breakdown"
+      - "Who would love this? Who'd be disappointed?"
+      - "If reviewing MyFestivo positively, still mention competitor strengths"
+
+    sections:
+      - section: "Introduction"
+        guidance: "What is this? Who is it for?"
+        word_count: 150-200
+        
+      - section: "What it Does Well (3-4 strengths)"
+        guidance: "Lead with positive. Feature deep-dive for each."
+        word_count: 300-400
+        eeat_injection: "Personal experience using the product"
+        
+      - section: "Where It Falls Short (2-3 weaknesses)"
+        guidance: "Be honest. Admit limitations."
+        word_count: 200-300
+        
+      - section: "Pricing & Value"
+        guidance: "Cost breakdown. Is it worth it? For whom?"
+        word_count: 150-250
+        
+      - section: "Who It's Best For"
+        guidance: "Use cases and customer segments where it excels"
+        word_count: 150-200
+        
+      - section: "Who Might Be Disappointed"
+        guidance: "Use cases where it doesn't fit"
+        word_count: 100-150
+        
+      - section: "Final Verdict"
+        guidance: "Honest rating and final thoughts"
+        word_count: 150-200
+        
+      - section: "FAQ"
+        guidance: "Additional questions"
+        word_count: 150-200
+
+    internal_linking: "Link to alternatives. Link to features being reviewed. Minimum 4-6 links."
+    external_links: "2-3 to external reviews or official docs"
+    estimated_total: 1800-2400
+
+  - type: "thought_leadership"
+    description: "Opinion/insight piece. 1500-2200 words. Take a stance."
+    voice: "Opinionated Expert"
+    tone_notes:
+      - "Take a clear position"
+      - "Support with reasoning, not just emotion"
+      - "Acknowledge opposing views respectfully"
+      - "Use personal experience as proof"
+      - "Be provocative but not inflammatory"
+
+    sections:
+      - section: "The Premise / What Everyone Gets Wrong"
+        guidance: "State the opinion or the problem clearly"
+        word_count: 200-300
+        eeat_injection: "Personal story or observation"
+        
+      - section: "Why This Matters"
+        guidance: "Impact. What happens if people don't understand this?"
+        word_count: 150-250
+        
+      - section: "The Conventional Wisdom (and why it's incomplete)"
+        guidance: "Acknowledge the opposite view. Respect it. Then refute it."
+        word_count: 200-300
+        
+      - section: "Here's What I Believe Instead"
+        guidance: "Your position with supporting points (3-4 reasons)"
+        word_count: 400-600
+        
+      - section: "Evidence / Examples"
+        guidance: "Concrete evidence. Case studies. Real examples."
+        word_count: 300-400
+        eeat_injection: "Data point, case study, or interview quote"
+        
+      - section: "Implications / What This Means"
+        guidance: "What should readers do with this insight?"
+        word_count: 150-250
+        
+      - section: "FAQ / Objections"
+        guidance: "Anticipate and address pushback"
+        word_count: 150-250
+        
+      - section: "Conclusion"
+        guidance: "Reiterate the position. Call to action (change thinking, not a product pitch)"
+        word_count: 100-150
+
+    internal_linking: "Link to supporting articles. Link to evidence/data. Minimum 3-5 links."
+    external_links: "Links to studies, articles, or sources cited"
+    estimated_total: 1500-2200
+
+---
+
+# E-E-A-T Injection Points (All Blog Types)
+
+## Experience
+Where to inject: Early in article + once per 1500 words
+Format: "In working with X college events..." or "We've seen..."
+Example: "After helping 50+ college events, we've learned..."
+
+## Expertise
+Where to inject: Problem diagnosis, technical explanations
+Format: "Based on X years of experience..." or reference to credentials
+Example: "As a platform used by 500+ student organizers..."
+
+## Authoritativeness
+Where to inject: Data points, quotes, source citations
+Format: Cite studies, data, or credible sources
+Example: "According to analysis of 1000+ college events..."
+
+## Trustworthiness
+Where to inject: Honest weaknesses, pricing clarity, disclaimers
+Format: "We should note..." or "One limitation..."
+Example: "MyFestivo is free for unlimited events, but check your college's AUP"
+
+---
+
+# CTA Rules (All Blog Types)
+
+- **ONE soft CTA per blog, at the end**
+- **Link, don't hard-sell**: "Try MyFestivo free" (link to signup)
+- **No more than 2 sentences**
+- **Example CTA**: "Ready to organize your first event? Try MyFestivo free — no credit card required."
+- **DO NOT**: Repeat CTA multiple times or use language like "Buy now" or aggressive language

@@ -1,0 +1,464 @@
+# ============================================================
+# TOPIC CLUSTERS & PILLAR ARCHITECTURE
+# Generated: 2026-04-03
+# ============================================================
+# Pillar pages require SERP data before finalizing. See instructions.
+
+last_updated: "2026-04-03"
+
+clusters:
+  # ──────────────────────────────────────────────────────────────
+  # Cluster 1: College Event Management (Core)
+  # ──────────────────────────────────────────────────────────────
+  - cluster_id: "tc_college_event_mgmt"
+    name: "College Event Management"
+    description: "Comprehensive content on managing college events from creation to analytics"
+
+    pillar:
+      title: "The College Event Management Guide"
+      target_keyword: "college event management"
+      slug: "college-event-management-guide"
+      status: "needs-serp-data"
+      blog_slug: ""
+      angle: "Complete guide for college students and organizations running events"
+      description: "Learn how to create, manage, and promote college events with modern tools, from registration to check-in and analytics."
+
+    cluster_pages:
+      - title: "MyFestivo vs Eventbrite for College Events"
+        target_keyword: "MyFestivo vs Eventbrite"
+        slug: "myfestivo-vs-eventbrite"
+        angle: "Compare cost, features, and student-friendliness of these event platforms"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "MyFestivo vs iCommunify: Which is Best for Your College?"
+        target_keyword: "MyFestivo vs iCommunify"
+        slug: "myfestivo-vs-icommunify"
+        angle: "Head-to-head comparison focused on club and college event needs"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "5 Best College Event Management Platforms"
+        target_keyword: "best college event management platform"
+        slug: "best-college-event-platforms"
+        angle: "Listicle of platforms with rankings and use-case analysis"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "Student Guide: How to Organize a College Event"
+        target_keyword: "how to organize college event"
+        slug: "how-to-organize-college-event"
+        angle: "Step-by-step process from concept to post-event analysis"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "College Event Task Management: Keeping Coordinators Aligned"
+        target_keyword: "college event coordinator tools"
+        slug: "event-task-management-guide"
+        angle: "Best practices for coordinating large events with multiple team members"
+        status: "planned"
+        blog_slug: ""
+
+    linking_rules:
+      - "Every cluster page MUST link to pillar page"
+      - "Pillar MUST link to all published cluster pages"
+      - "Comparison pages MAY link to feature pages for context"
+
+  # ──────────────────────────────────────────────────────────────
+  # Cluster 2: Event Hosting Platforms
+  # ──────────────────────────────────────────────────────────────
+  - cluster_id: "tc_event_hosting"
+    name: "Event Hosting Platforms"
+    description: "Content comparing and reviewing event hosting and ticketing platforms"
+
+    pillar:
+      title: "Event Hosting Platform Comparison"
+      target_keyword: "event hosting platform"
+      slug: "event-hosting-platform-comparison"
+      status: "needs-serp-data"
+      blog_slug: ""
+      angle: "In-depth comparison of platforms suitable for different event types"
+      description: "Compare event hosting platforms by features, pricing, ease of use, and best use cases."
+
+    cluster_pages:
+      - title: "Best Free Event Hosting Platforms"
+        target_keyword: "free college event hosting"
+        slug: "free-college-event-hosting"
+        angle: "Focus on zero-cost or freemium solutions for student budgets"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "Eventbrite Alternatives: Cheaper Ways to Host College Events"
+        target_keyword: "Eventbrite alternative for colleges"
+        slug: "eventbrite-alternative-colleges"
+        angle: "Position MyFestivo as lower-cost, college-focused alternative"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "Event Platform Pricing Guide: What You Actually Pay"
+        target_keyword: "college event platform pricing"
+        slug: "event-platform-pricing-guide"
+        angle: "Breakdown of hidden fees and total cost of ownership"
+        status: "planned"
+        blog_slug: ""
+
+    linking_rules:
+      - "Every cluster page MUST link to pillar page"
+      - "Pillar MUST link to all published cluster pages"
+
+  # ──────────────────────────────────────────────────────────────
+  # Cluster 3: Event Registration
+  # ──────────────────────────────────────────────────────────────
+  - cluster_id: "tc_registration"
+    name: "Event Registration Management"
+    description: "Registration systems, ticketing, and participant management"
+
+    pillar:
+      title: "College Event Registration System Guide"
+      target_keyword: "college event registration system"
+      slug: "college-event-registration-guide"
+      status: "needs-serp-data"
+      blog_slug: ""
+      angle: "Complete guide to setting up and managing event registrations"
+      description: "Learn how to create registration systems, manage participants, and collect payments for college events."
+
+    cluster_pages:
+      - title: "Solo vs Team Registration: Which Should You Use?"
+        target_keyword: "team registration events"
+        slug: "team-registration-guide"
+        angle: "Help organizers decide between individual and team registration models"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "How to Prevent Duplicate Event Registrations"
+        target_keyword: "event registration fraud prevention"
+        slug: "prevent-duplicate-registrations"
+        angle: "Technical and procedural strategies"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "Automated Registration Confirmation Emails"
+        target_keyword: "event confirmation email template"
+        slug: "registration-confirmation-emails"
+        angle: "Best practices with template examples"
+        status: "planned"
+        blog_slug: ""
+
+    linking_rules:
+      - "Every cluster page MUST link to pillar page"
+      - "Pillar MUST link to all published cluster pages"
+
+  # ──────────────────────────────────────────────────────────────
+  # Cluster 4: Payment Processing & College Events
+  # ──────────────────────────────────────────────────────────────
+  - cluster_id: "tc_payment"
+    name: "College Event Payment Processing"
+    description: "Payment methods, ticketing fees, and revenue management"
+
+    pillar:
+      title: "College Event Payment Processing Guide"
+      target_keyword: "college event payment processing"
+      slug: "college-event-payments-guide"
+      status: "needs-serp-data"
+      blog_slug: ""
+      angle: "How to accept payments, avoid fees, and maximize revenue"
+      description: "Learn all about payment gateway integration, fee comparison, and best practices for collecting event payments."
+
+    cluster_pages:
+      - title: "Low-Fee Event Payment Solutions for Students"
+        target_keyword: "zero fee event payment"
+        slug: "low-fee-event-payments"
+        angle: "Focus on platforms with minimal commission"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "Payment Gateway Comparison: Razorpay vs Stripe vs PhonePe"
+        target_keyword: "razorpay vs stripe events"
+        slug: "payment-gateway-comparison"
+        angle: "Technical and cost comparison for India"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "How Much Do Event Hosting Platforms Actually Cost?"
+        target_keyword: "event platform hidden fees"
+        slug: "event-platform-fee-breakdown"
+        angle: "Detailed breakdown of pricing models"
+        status: "planned"
+        blog_slug: ""
+
+    linking_rules:
+      - "Every cluster page MUST link to pillar page"
+      - "Pillar MUST link to all published cluster pages"
+
+  # ──────────────────────────────────────────────────────────────
+  # Cluster 5: Event Check-In & Attendance
+  # ──────────────────────────────────────────────────────────────
+  - cluster_id: "tc_attendance"
+    name: "Event Check-In & Attendance Tracking"
+    description: "QR codes, check-in systems, and attendance verification"
+
+    pillar:
+      title: "QR Code Event Check-In Guide"
+      target_keyword: "QR code event check-in"
+      slug: "qr-code-event-checkin-guide"
+      status: "needs-serp-data"
+      blog_slug: ""
+      angle: "Modern check-in systems to replace manual lists"
+      description: "Learn how QR codes streamline event check-in, reduce queues, and track real-time attendance."
+
+    cluster_pages:
+      - title: "Digital vs Physical Event Check-In Methods"
+        target_keyword: "event check-in system"
+        slug: "event-checkin-methods"
+        angle: "Pros and cons of different approaches"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "Attendance Rate Analysis: Why People Attend College Events"
+        target_keyword: "event attendance rate college"
+        slug: "attendance-tracking-analytics"
+        angle: "Data-driven insights for organizers"
+        status: "planned"
+        blog_slug: ""
+
+    linking_rules:
+      - "Every cluster page MUST link to pillar page"
+      - "Pillar MUST link to all published cluster pages"
+
+  # ──────────────────────────────────────────────────────────────
+  # Cluster 6: Event Coordination & Task Management
+  # ──────────────────────────────────────────────────────────────
+  - cluster_id: "tc_coordination"
+    name: "Event Coordination & Team Management"
+    description: "Task boards, team coordination, and event logistics"
+
+    pillar:
+      title: "Event Task Management Guide"
+      target_keyword: "event task management tools"
+      slug: "event-task-management-guide"
+      status: "needs-serp-data"
+      blog_slug: ""
+      angle: "How to organize coordination using modern tools"
+      description: "Learn how to keep event coordinators aligned using task boards, deadlines, and real-time communication."
+
+    cluster_pages:
+      - title: "Kanban Boards for Event Planning"
+        target_keyword: "kanban event coordination"
+        slug: "kanban-event-planning"
+        angle: "Specific implementation for events"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "Student Event Coordinator Best Practices"
+        target_keyword: "student event coordinator"
+        slug: "student-event-coordinator-guide"
+        angle: "Advice for students managing large events"
+        status: "planned"
+        blog_slug: ""
+
+    linking_rules:
+      - "Every cluster page MUST link to pillar page"
+      - "Pillar MUST link to all published cluster pages"
+
+  # ──────────────────────────────────────────────────────────────
+  # Cluster 7: Event Communication (Chat & Announcements)
+  # ──────────────────────────────────────────────────────────────
+  - cluster_id: "tc_communication"
+    name: "Real-Time Event Communication"
+    description: "Chat systems, announcements, and participant engagement"
+
+    pillar:
+      title: "Real-Time Event Communication Guide"
+      target_keyword: "event communication tools"
+      slug: "event-communication-guide"
+      status: "needs-serp-data"
+      blog_slug: ""
+      angle: "Move from WhatsApp to organized communication"
+      description: "Learn how in-app chat and announcements reduce chaos and keep everyone informed."
+
+    cluster_pages:
+      - title: "Why College Events Need In-App Chat (Not WhatsApp)"
+        target_keyword: "college event communication"
+        slug: "event-chat-vs-whatsapp"
+        angle: "WhatsApp pain points and solutions"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "Push Notifications for Event Updates"
+        target_keyword: "event notification system"
+        slug: "event-push-notifications"
+        angle: "Engagement and timeliness benefits"
+        status: "planned"
+        blog_slug: ""
+
+    linking_rules:
+      - "Every cluster page MUST link to pillar page"
+      - "Pillar MUST link to all published cluster pages"
+
+  # ──────────────────────────────────────────────────────────────
+  # Cluster 8: Event Analytics & Insights
+  # ──────────────────────────────────────────────────────────────
+  - cluster_id: "tc_analytics"
+    name: "Event Analytics & Performance Tracking"
+    description: "Analytics dashboards, reporting, and data insights"
+
+    pillar:
+      title: "College Event Analytics Guide"
+      target_keyword: "college event analytics"
+      slug: "college-event-analytics-guide"
+      status: "needs-serp-data"
+      blog_slug: ""
+      angle: "Data-driven event organization and improvement"
+      description: "Learn how to use analytics to understand attendance, engagement, and ROI of college events."
+
+    cluster_pages:
+      - title: "Event Revenue Tracking and Financial Reporting"
+        target_keyword: "event financial reporting"
+        slug: "event-revenue-tracking"
+        angle: "Accounting for college event budgets"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "Key Metrics for Measuring Event Success"
+        target_keyword: "event success metrics"
+        slug: "event-success-metrics"
+        angle: "What KPIs matter for college events"
+        status: "planned"
+        blog_slug: ""
+
+    linking_rules:
+      - "Every cluster page MUST link to pillar page"
+      - "Pillar MUST link to all published cluster pages"
+
+  # ──────────────────────────────────────────────────────────────
+  # Cluster 9: Event Planning (How-To)
+  # ──────────────────────────────────────────────────────────────
+  - cluster_id: "tc_event_planning"
+    name: "Event Planning How-To"
+    description: "Practical guides for planning and executing college events"
+
+    pillar:
+      title: "College Event Planning Guide"
+      target_keyword: "college event planning guide"
+      slug: "college-event-planning-guide"
+      status: "needs-serp-data"
+      blog_slug: ""
+      angle: "Complete step-by-step guide from concept to execution"
+      description: "Learn how to plan and execute successful college events with proven strategies and tools."
+
+    cluster_pages:
+      - title: "10-Step Checklist for Organizing a College Event"
+        target_keyword: "college event planning checklist"
+        slug: "event-planning-checklist"
+        angle: "Actionable checklist format"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "How to Set a College Event Budget"
+        target_keyword: "college event budget"
+        slug: "college-event-budgeting"
+        angle: "Financial planning for students"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "College Event Timeline: How Long to Plan?"
+        target_keyword: "how long to plan event"
+        slug: "event-planning-timeline"
+        angle: "Realistic timelines and milestones"
+        status: "planned"
+        blog_slug: ""
+
+    linking_rules:
+      - "Every cluster page MUST link to pillar page"
+      - "Pillar MUST link to all published cluster pages"
+
+  # ──────────────────────────────────────────────────────────────
+  # Cluster 10: Event Promotion & Discovery
+  # ──────────────────────────────────────────────────────────────
+  - cluster_id: "tc_discovery"
+    name: "Event Promotion & Discovery"
+    description: "Marketing, social sharing, and event discovery strategies"
+
+    pillar:
+      title: "College Event Promotion Guide"
+      target_keyword: "college event promotion"
+      slug: "college-event-promotion-guide"
+      status: "needs-serp-data"
+      blog_slug: ""
+      angle: "How to get students to know about and attend your events"
+      description: "Learn proven promotional strategies to maximize attendance at college events."
+
+    cluster_pages:
+      - title: "Social Media Marketing for College Events"
+        target_keyword: "promote event on social media"
+        slug: "event-social-media-marketing"
+        angle: "Instagram, X, LinkedIn strategies"
+        status: "planned"
+        blog_slug: ""
+
+      - title: "Open Graph Meta Tags for Event Sharing"
+        target_keyword: "event social sharing"
+        slug: "og-meta-tags-events"
+        angle: "Technical guide to rich previews"
+        status: "planned"
+        blog_slug: ""
+
+    linking_rules:
+      - "Every cluster page MUST link to pillar page"
+      - "Pillar MUST link to all published cluster pages"
+
+  # ──────────────────────────────────────────────────────────────
+  # Cluster 11: Free Event Management
+  # ──────────────────────────────────────────────────────────────
+  - cluster_id: "tc_free_event_management"
+    name: "Free Event Management Platforms"
+    description: "Zero-cost and freemium event management solutions"
+
+    pillar:
+      title: "Free College Event Management Platform Guide"
+      target_keyword: "free college event management platform"
+      slug: "free-event-management-guide"
+      status: "needs-serp-data"
+      blog_slug: ""
+      angle: "Best free options for students with limited budgets"
+      description: "Review free event management platforms perfect for student organizations with zero budget."
+
+    cluster_pages:
+      - title: "Free vs Paid Event Management: When to Upgrade"
+        target_keyword: "paid event management platform"
+        slug: "free-vs-paid-event-management"
+        angle: "Decision framework for budget growth"
+        status: "planned"
+        blog_slug: ""
+
+    linking_rules:
+      - "Every cluster page MUST link to pillar page"
+      - "Pillar MUST link to all published cluster pages"
+
+  # ──────────────────────────────────────────────────────────────
+  # Cluster 12: Free Event Hosting
+  # ──────────────────────────────────────────────────────────────
+  - cluster_id: "tc_free_event_hosting"
+    name: "Free Event Hosting"
+    description: "Running events with zero or minimal platform fees"
+
+    pillar:
+      title: "Free College Event Hosting Guide"
+      target_keyword: "free college event hosting"
+      slug: "free-college-event-hosting-guide"
+      status: "needs-serp-data"
+      blog_slug: ""
+      angle: "Cost-effective event hosting strategies"
+      description: "Learn how to host college events with zero or minimal platform fees."
+
+    cluster_pages:
+      - title: "Hidden Costs in Event Hosting Platforms"
+        target_keyword: "event hosting fees"
+        slug: "event-hosting-costs"
+        angle: "Warns about surprise fees"
+        status: "planned"
+        blog_slug: ""
+
+    linking_rules:
+      - "Every cluster page MUST link to pillar page"
+      - "Pillar MUST link to all published cluster pages"
