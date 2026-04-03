@@ -5,6 +5,13 @@ import { db } from "./firebase"
 import {
   collection, doc, onSnapshot, addDoc, updateDoc, arrayUnion, increment, setDoc, deleteDoc,
 } from "firebase/firestore"
+import { 
+  sendRegistrationConfirmation, 
+  sendPaymentConfirmation, 
+  sendEventReminder,
+  sendAnnouncementNotification,
+  sendTaskAssignment,
+} from "./notifications"
 
 // ─── Sub-Event Types ───
 export interface SubEventCoordinator {
@@ -223,10 +230,40 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   }
 
   const registerForSubEvent = async (eventId: string, _subEventId: string, reg: Registration) => {
+    const evt = events.find(e => e.id === eventId)
+    if (!evt) return
+
     await updateDoc(getEventRef(eventId), {
       registrations: arrayUnion(reg),
       registeredCount: increment(1),
     })
+
+    // Trigger on_register automation
+    const onRegisterRule = evt.automations.find(a => a.trigger === "on_register" && a.enabled)
+    if (onRegisterRule) {
+      try {
+        // Send notification
+        const subEvent = evt.subEvents.find(se => se.id === _subEventId)
+        await sendRegistrationConfirmation(
+          eventId,
+          evt.title,
+          reg.userEmail,
+          subEvent?.name || "Event"
+        )
+
+        // Log automation
+        await addAutomationLog(eventId, {
+          id: `log-${Date.now()}`,
+          ruleId: onRegisterRule.id,
+          ruleName: onRegisterRule.name,
+          recipientEmail: reg.userEmail,
+          message: onRegisterRule.message,
+          timestamp: new Date().toISOString(),
+        })
+      } catch (error) {
+        console.error("Error triggering on_register automation:", error)
+      }
+    }
   }
 
   const addChatMessage = async (eventId: string, _subEventId: string, msg: ChatMessage) => {
@@ -263,6 +300,31 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       } : r
     )
     await updateDoc(getEventRef(eventId), { registrations: updatedRegs })
+
+    // Send payment confirmation if approved
+    if (isPaid) {
+      const reg = evt.registrations.find(r => r.id === regId)
+      if (reg) {
+        try {
+          await sendPaymentConfirmation(eventId, evt.title, reg.userEmail, evt.price)
+
+          // Trigger payment_pending automation if exists
+          const paymentRule = evt.automations.find(a => a.trigger === "payment_pending" && a.enabled)
+          if (paymentRule) {
+            await addAutomationLog(eventId, {
+              id: `log-${Date.now()}`,
+              ruleId: paymentRule.id,
+              ruleName: paymentRule.name,
+              recipientEmail: reg.userEmail,
+              message: paymentRule.message,
+              timestamp: new Date().toISOString(),
+            })
+          }
+        } catch (error) {
+          console.error("Error sending payment confirmation:", error)
+        }
+      }
+    }
   }
 
   const approvePayment = async (eventId: string, regId: string) => {
@@ -288,16 +350,48 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     const evt = events.find(e => e.id === eventId)
     if (!evt) return
     await updateDoc(getEventRef(eventId), { announcements: [a, ...evt.announcements] })
+
+    // Send announcement notification to all registered participants
+    try {
+      const registeredEmails = [...new Set(evt.registrations.map(r => r.userEmail))]
+      if (registeredEmails.length > 0) {
+        await sendAnnouncementNotification(
+          eventId,
+          evt.title,
+          registeredEmails,
+          a.title,
+          a.message
+        )
+      }
+    } catch (error) {
+      console.error("Error sending announcement notification:", error)
+    }
   }
 
   // Module 3 — Tasks
   const addTask = async (eventId: string, task: Task) => {
     try {
+      const evt = events.find(e => e.id === eventId)
+      if (!evt) return
+
       const docRef = doc(db, "events", eventId)
       await updateDoc(docRef, {
         tasks: arrayUnion(task),
         restricted_registrations: arrayUnion(task.assignedTo)
       })
+
+      // Send task assignment notification
+      try {
+        await sendTaskAssignment(
+          eventId,
+          evt.title,
+          task.assignedTo,
+          task.title,
+          task.deadline
+        )
+      } catch (error) {
+        console.error("Error sending task notification:", error)
+      }
     } catch (error) {
       console.error("Error adding task: ", error)
     }

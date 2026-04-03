@@ -14,6 +14,7 @@ import {
   Save, Mail, Phone, School, BadgeCheck, AlertCircle,
   Loader2, CheckCircle2, Shield, User, BookOpen, UserPlus
 } from "lucide-react"
+import { NotificationSettings } from "@/components/settings/NotificationSettings"
 
 export default function ProfilePage() {
   const { user, updateProfile, linkCollegeEmail, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend } = useAuth()
@@ -351,6 +352,11 @@ export default function ProfilePage() {
                 </div>
               </div>
             </GlassCard>
+          </motion.div>
+
+          {/* Notification Settings */}
+          <motion.div variants={pageItem}>
+            <NotificationSettings userEmail={user.email} />
           </motion.div>
         </PageTransition>
       </main>

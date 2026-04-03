@@ -17,6 +17,7 @@ import { ChatPanel } from "@/components/event/ChatPanel"
 import { RegistrationWizard } from "@/components/event/RegistrationWizard"
 import { ParticipantsList } from "@/components/event/ParticipantsList"
 import { QRScanner } from "@/components/event/QRScanner"
+import { useEventReminders } from "@/hooks/useEventReminders"
 import {
   MapPin, Clock, UserCheck, Users, MessageSquare, ArrowLeft,
   Lock, Check, PlusCircle, Send, Trophy, Phone, FileText,
@@ -26,7 +27,7 @@ import {
   Pencil, LinkIcon, ExternalLink, Camera, X
 } from "lucide-react"
 
-type TabId = "overview" | "chat" | "announcements" | "tasks" | "payments" | "checkin" | "automation" | "participant_qr" | "participants"
+type TabId = "overview" | "chat" | "announcements" | "tasks" | "checkin" | "automation" | "participant_qr" | "participants"
 
 export default function EventDetailPage() {
   const params = useParams()
@@ -59,6 +60,9 @@ export default function EventDetailPage() {
   const [taskSubEvent, setTaskSubEvent] = useState("")
 
   const event = events.find(e => e.id === params.id)
+
+  // Set up automatic event reminders
+  useEventReminders(event || null as any)
 
   if (!event) {
     return (
@@ -181,7 +185,6 @@ export default function EventDetailPage() {
     { id: "participants" as TabId, label: "Participants", icon: Users },
     { id: "announcements" as TabId, label: "Announcements", icon: Megaphone },
     { id: "tasks" as TabId, label: "Tasks", icon: ListTodo },
-    { id: "payments" as TabId, label: "Payments", icon: CreditCard },
     { id: "checkin" as TabId, label: "Check-In", icon: QrCode },
     { id: "automation" as TabId, label: "Automation", icon: Zap },
   ]
@@ -581,59 +584,6 @@ export default function EventDetailPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          </motion.div>
-        )}
-
-        {/* ═══ PAYMENTS TAB ═══ */}
-        {activeTab === "payments" && isHost && (
-          <motion.div variants={pageItem}>
-            <div className="flex justify-between items-center mb-6">
-              <MicroLabel className="mb-0">Payment Management</MicroLabel>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-white/[0.03] text-white/50">
-                    <th className="text-left p-3 text-[10px] font-mono tracking-widest">Registrant</th>
-                    <th className="text-left p-3 text-[10px] font-mono tracking-widest">Sub-Event</th>
-                    <th className="text-left p-3 text-[10px] font-mono tracking-widest">Transaction Info</th>
-                    <th className="text-right p-3 text-[10px] font-mono tracking-widest">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {event.registrations.map(reg => {
-                    const se = event.subEvents.find(s => s.id === reg.subEventId)
-                    return (
-                      <tr key={reg.id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
-                        <td className="p-3">
-                          <div className="font-medium">{reg.userName}</div>
-                          <div className="text-[10px] text-white/30 font-mono italic">{reg.userEmail}</div>
-                        </td>
-                        <td className="p-3 text-white/60">{se?.name}</td>
-                        <td className="p-3">
-                          {reg.transactionId ? (
-                            <div>
-                              <div className="text-[11px] font-mono text-white/80 uppercase">{reg.transactionId}</div>
-                              <div className="text-[10px] text-white/40 font-mono">{reg.paymentMethod} • {reg.timestamp}</div>
-                            </div>
-                          ) : <span className="text-[10px] font-mono text-white/20">NO TRANSACTION</span>}
-                        </td>
-                        <td className="p-3 text-right">
-                          {reg.status === "PENDING" && reg.transactionId && (
-                            <div className="flex justify-end gap-2">
-                              <Button onClick={() => approvePayment(event.id, reg.id)} className="h-7 px-3 bg-green-500 text-black text-[9px] font-mono uppercase tracking-widest hover:bg-green-400">Approve</Button>
-                              <Button onClick={() => rejectPayment(event.id, reg.id)} variant="ghost" className="h-7 px-3 border border-red-500/30 text-red-400 text-[9px] font-mono uppercase tracking-widest hover:bg-red-500/10 hover:text-red-300">Reject</Button>
-                            </div>
-                          )}
-                          {reg.status === "PAID" && <span className="text-green-400 text-[9px] font-mono flex items-center justify-end gap-1"><BadgeCheck className="w-3 h-3" /> VERIFIED</span>}
-                          {reg.status === "REFUNDED" && <span className="text-white/20 text-[9px] font-mono flex items-center justify-end gap-1">REJECTED</span>}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
             </div>
           </motion.div>
         )}
