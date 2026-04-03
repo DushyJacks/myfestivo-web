@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
-import { auth, db } from "./firebase"
+import { AuthInstance as auth, db } from "./firebase"
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
