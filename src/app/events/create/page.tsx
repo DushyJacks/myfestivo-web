@@ -271,7 +271,7 @@ export default function CreateEventPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div><label className={labelCls}>Event Date</label><Input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} className={`${inputCls} h-11`} required /></div>
               <div><label className={labelCls}>Venue</label><Input value={form.venue} onChange={(e) => update("venue", e.target.value)} placeholder="Main Auditorium" className={`${inputCls} h-11`} required /></div>
-              <div><label className={labelCls}>Registration Deadline</label><Input type="date" value={form.registrationDeadline} onChange={(e) => update("registrationDeadline", e.target.value)} className={`${inputCls} h-11`} /></div>
+              <div><label className={labelCls}>Registration Deadline</label><Input type="date" value={form.registrationDeadline} onChange={(e) => update("registrationDeadline", e.target.value)} max={form.date} className={`${inputCls} h-11`} /></div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div><label className={labelCls}>Total Seats</label><Input type="number" value={form.seats} onChange={(e) => update("seats", parseInt(e.target.value) || 0)} className={`${inputCls} h-11`} required /></div>

@@ -533,7 +533,7 @@ export default function EventDetailPage() {
                 </div>
                 <Input value={taskDesc} onChange={e => setTaskDesc(e.target.value)} placeholder="Description (optional)" className={`${inputCls} h-9`} />
                 <div className="flex gap-3">
-                  <Input type="date" value={taskDeadline} onChange={e => setTaskDeadline(e.target.value)} className={`${inputCls} h-8 flex-1`} />
+                  <Input type="date" value={taskDeadline} onChange={e => setTaskDeadline(e.target.value)} max={event.date} className={`${inputCls} h-8 flex-1`} />
                   <select value={taskSubEvent} onChange={e => setTaskSubEvent(e.target.value)} className="h-8 bg-white/[0.03] border border-white/[0.08] text-white text-xs rounded-md px-2 flex-1">
                     <option value="">General</option>
                     {event.subEvents.map(se => <option key={se.id} value={se.id}>{se.name}</option>)}
