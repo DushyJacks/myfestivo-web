@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/auth-context"
-import { useEvents, MainEvent, SubEvent, ImportantLink } from "@/lib/events-context"
+import { useEvents, MainEvent, SubEvent } from "@/lib/events-context"
 import { useRouter } from "next/navigation"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { MicroLabel } from "@/components/ui/MicroLabel"
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
 import { motion } from "framer-motion"
-import { PlusCircle, X, Trophy, Phone, LinkIcon, Users, Search } from "lucide-react"
+import { PlusCircle, X, Trophy, Phone, LinkIcon, Users, Search, Clock } from "lucide-react"
 import Link from "next/link"
 import { compressImage } from "@/lib/utils"
 
@@ -35,7 +35,7 @@ interface SubEventForm {
 }
 
 export default function CreateEventPage() {
-  const { user } = useAuth()
+  const { user, isLoading } = useAuth()
   const { addEvent } = useEvents()
   const router = useRouter()
 
@@ -56,12 +56,17 @@ export default function CreateEventPage() {
     description: "",
     collegeDomain: "",
     organizerPhone: "",
+    showPrizePool: false,
     prizePool: "",
     registrationDeadline: "",
     posterBase64: "",
     rules: [""],
     allowedDepartments: [] as string[],
   })
+
+  // Submission state
+  const [submitting, setSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
   const emptySubEvent = (): SubEventForm => ({
     name: "", description: "", type: "solo", maxParticipants: 50,
@@ -178,6 +183,8 @@ export default function CreateEventPage() {
       return
     }
 
+    setSubmitting(true)
+
     const slug = form.title
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, "")
@@ -201,11 +208,13 @@ export default function CreateEventPage() {
       price: form.price,
       description: form.description,
       rules: form.rules.filter(r => r.trim()),
-      prizePool: form.prizePool,
+      prizePool: form.showPrizePool ? form.prizePool : "",
       collegeDomain: form.isInter ? "" : form.collegeDomain,
-      registrationOpen: true,
+      registrationOpen: false,  // Starts closed — opened after admin approval
       registrationDeadline: form.registrationDeadline || "",
       eventCoordinators: [],
+      // @ts-ignore — status field for admin review workflow
+      status: "pending_review",
       subEvents: subEvents.filter((se) => se.name).map((se, i) => {
         const sub: SubEvent = {
           id: `sub-${Date.now()}-${i}`,
@@ -215,10 +224,11 @@ export default function CreateEventPage() {
           maxParticipants: se.maxParticipants,
           rules: se.rules.filter(r => r.trim()),
           prize: se.showPrize
-            ? { first: se.prizeFirst || "TBD", second: se.prizeSecond || "TBD", ...(se.prizeThird ? { third: se.prizeThird } : {}) }
-            : { first: "TBD", second: "TBD" },
+            ? { first: se.prizeFirst || "", second: se.prizeSecond || "", ...(se.prizeThird ? { third: se.prizeThird } : {}) }
+            : null as any,
+          showPrize: se.showPrize,
           coordinators: se.incharges,
-        }
+        } as any
         if (se.type === "team") {
           sub.minTeamSize = se.minTeamSize
           sub.maxTeamSize = se.maxTeamSize
@@ -248,17 +258,68 @@ export default function CreateEventPage() {
 
     try {
       await addEvent(newEvent)
-      router.push(`/events/${newEvent.id}`)
+      setSubmitted(true)
+      setSubmitting(false)
     } catch (err) {
-      console.error("Failed to publish event:", err)
+      console.error("Failed to submit event for review:", err)
+      setSubmitting(false)
     }
   }
 
   useEffect(() => {
-    if (!user) router.push("/login")
-  }, [user, router])
+    if (!isLoading && !user) router.push("/login")
+  }, [user, isLoading, router])
+
+  if (isLoading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+    </div>
+  )
 
   if (!user) return null
+
+  // ── Submission success screen ──
+  if (submitted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="max-w-lg w-full text-center"
+        >
+          <div className="w-20 h-20 mx-auto rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mb-6">
+            <Clock className="w-10 h-10 text-green-400" />
+          </div>
+          <h1 className="text-3xl font-light tracking-tight mb-4">Event Submitted!</h1>
+          <GlassCard className="p-6 mb-6 text-left">
+            <p className="text-sm text-white/70 leading-relaxed mb-4">
+              Your event has been submitted for review. It will be published within{" "}
+              <span className="text-white font-medium">1 hour</span> after our team reviews and approves it.
+            </p>
+            <div className="flex items-start gap-3 p-3 rounded-md bg-yellow-500/10 border border-yellow-500/20">
+              <div className="w-2 h-2 rounded-full bg-yellow-400 mt-1.5 shrink-0" />
+              <p className="text-xs text-yellow-400/80 leading-relaxed">
+                Your event registration is currently closed. It will open automatically once approved by the admin.
+              </p>
+            </div>
+          </GlassCard>
+          <div className="flex gap-3 justify-center">
+            <Link href="/dashboard">
+              <Button className="bg-white text-black hover:bg-white/90 font-medium">
+                Go to Dashboard
+              </Button>
+            </Link>
+            <Link href="/events">
+              <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                Browse Events
+              </Button>
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    )
+  }
 
   const inputCls = "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-10 text-sm"
   const labelCls = "text-[10px] font-mono text-white/40 mb-1 block tracking-widest uppercase"
@@ -330,9 +391,26 @@ export default function CreateEventPage() {
                 <label className={labelCls}><Phone className="w-3 h-3 inline mr-1" />Organizer Phone</label>
                 <Input value={form.organizerPhone} onChange={(e) => update("organizerPhone", e.target.value)} placeholder="+91 98765 43210" className={`${inputCls} h-11`} />
               </div>
+              {/* Total Prize Pool with toggle */}
               <div>
-                <label className={labelCls}><Trophy className="w-3 h-3 inline mr-1" />Total Prize Pool</label>
-                <Input value={form.prizePool} onChange={(e) => update("prizePool", e.target.value)} placeholder="₹1,50,000" className={`${inputCls} h-11`} />
+                <div className="flex items-center justify-between mb-1">
+                  <label className={labelCls}><Trophy className="w-3 h-3 inline mr-1" />Total Prize Pool</label>
+                  <button
+                    type="button"
+                    onClick={() => update("showPrizePool", !form.showPrizePool)}
+                    aria-label={form.showPrizePool ? "Disable prize pool" : "Enable prize pool"}
+                    className={`relative w-9 h-5 rounded-full transition-colors ${form.showPrizePool ? "bg-green-500" : "bg-white/10"}`}
+                  >
+                    <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${form.showPrizePool ? "left-4" : "left-0.5"}`} />
+                  </button>
+                </div>
+                {form.showPrizePool ? (
+                  <Input value={form.prizePool} onChange={(e) => update("prizePool", e.target.value)} placeholder="₹1,50,000" className={`${inputCls} h-11`} />
+                ) : (
+                  <div className="h-11 bg-white/[0.01] border border-white/[0.04] rounded-md px-3 flex items-center">
+                    <span className="text-xs text-white/20 font-mono">Toggle to add prize pool</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -442,7 +520,7 @@ export default function CreateEventPage() {
                   </div>
                 </div>
 
-                {/* Max Participants / Teams — below solo/team toggle */}
+                {/* Max Participants / Teams */}
                 <div>
                   <label className={labelCls}>{se.type === "team" ? "Max Teams" : "Max Participants"}</label>
                   <Input type="number" value={se.maxParticipants} onChange={(e) => updateSubEvent(idx, "maxParticipants", parseInt(e.target.value) || 0)} className={inputCls} />
@@ -590,8 +668,15 @@ export default function CreateEventPage() {
             )}
           </GlassCard>
 
-          <Button type="submit" className="w-full bg-white text-black hover:bg-white/90 font-medium h-12 text-base">
-            Publish Event
+          <Button type="submit" disabled={submitting} className="w-full bg-white text-black hover:bg-white/90 font-medium h-12 text-base disabled:opacity-50">
+            {submitting ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                Submitting for Review...
+              </span>
+            ) : (
+              "Submit for Review"
+            )}
           </Button>
         </form>
       </motion.div>

@@ -57,6 +57,7 @@ export default function EventDetailPage() {
   const [taskTitle, setTaskTitle] = useState("")
   const [taskDesc, setTaskDesc] = useState("")
   const [taskAssignee, setTaskAssignee] = useState("")
+  const [taskAssigneeResults, setTaskAssigneeResults] = useState<{ email: string }[]>([])
   const [taskDeadline, setTaskDeadline] = useState("")
   const [taskSubEvent, setTaskSubEvent] = useState("")
 
@@ -366,10 +367,17 @@ export default function EventDetailPage() {
 
                         <p className="text-sm text-white/50 mb-4">{se.description}</p>
 
+  {/* Prize badges — only show when showPrize is enabled */}
                         <div className="flex flex-wrap gap-2 mb-3">
-                          <span className="text-[10px] bg-yellow-500/10 border border-yellow-500/20 text-yellow-400/80 px-2 py-0.5 rounded flex items-center gap-1"><Trophy className="w-3 h-3 text-yellow-500" /> {se.prize.first}</span>
-                          <span className="text-[10px] bg-white/[0.04] border border-white/[0.08] text-white/40 px-2 py-0.5 rounded flex items-center gap-1"><Trophy className="w-3 h-3 text-gray-400" /> {se.prize.second}</span>
-                          {se.prize.third && <span className="text-[10px] bg-white/[0.04] border border-white/[0.08] text-white/30 px-2 py-0.5 rounded flex items-center gap-1"><Trophy className="w-3 h-3 text-amber-700" /> {se.prize.third}</span>}
+                          {(se as any).showPrize && se.prize ? (
+                            <>
+                              <span className="text-[10px] bg-yellow-500/10 border border-yellow-500/20 text-yellow-400/80 px-2 py-0.5 rounded flex items-center gap-1"><Trophy className="w-3 h-3 text-yellow-500" /> {se.prize.first}</span>
+                              <span className="text-[10px] bg-white/[0.04] border border-white/[0.08] text-white/40 px-2 py-0.5 rounded flex items-center gap-1"><Trophy className="w-3 h-3 text-gray-400" /> {se.prize.second}</span>
+                              {se.prize.third && <span className="text-[10px] bg-white/[0.04] border border-white/[0.08] text-white/30 px-2 py-0.5 rounded flex items-center gap-1"><Trophy className="w-3 h-3 text-amber-700" /> {se.prize.third}</span>}
+                            </>
+                          ) : (
+                            <span className="text-[10px] bg-white/[0.02] border border-white/[0.06] text-white/30 px-2 py-0.5 rounded">No Special rewards</span>
+                          )}
                         </div>
 
                         {se.rules.length > 0 && (
@@ -562,13 +570,55 @@ export default function EventDetailPage() {
                 <p className="text-xs font-mono text-white/40 tracking-widest uppercase">New Task</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Input value={taskTitle} onChange={e => setTaskTitle(e.target.value)} placeholder="Task title" className={`${inputCls} h-9`} />
-                  <Input value={taskAssignee} onChange={e => setTaskAssignee(e.target.value)} placeholder="Assign to (email)" className={`${inputCls} h-9`} />
+                  {/* Assignee with friends autofill */}
+                  <div className="relative">
+                    <Input
+                      value={taskAssignee}
+                      onChange={e => {
+                        const val = e.target.value
+                        setTaskAssignee(val)
+                        if (user && val.trim()) {
+                          const q = val.toLowerCase()
+                          const matches = user.friends
+                            .filter(f => f.toLowerCase().includes(q))
+                            .map(email => ({ email }))
+                          setTaskAssigneeResults(matches)
+                        } else {
+                          setTaskAssigneeResults([])
+                        }
+                      }}
+                      placeholder="Assign to (email)"
+                      className={`${inputCls} h-9`}
+                    />
+                    {taskAssigneeResults.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 border border-white/[0.1] rounded-md z-20 overflow-hidden">
+                        {taskAssigneeResults.map(f => (
+                          <button
+                            key={f.email}
+                            type="button"
+                            onClick={() => { setTaskAssignee(f.email); setTaskAssigneeResults([]) }}
+                            className="w-full text-left px-3 py-2 text-xs text-white/70 hover:bg-white/[0.08] transition-colors flex items-center gap-2"
+                          >
+                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[9px] font-bold">{f.email[0].toUpperCase()}</div>
+                            <span>{f.email}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <Input value={taskDesc} onChange={e => setTaskDesc(e.target.value)} placeholder="Description (required)" className={`${inputCls} h-9`} required />
                 <div className="flex gap-3 items-end">
                   <div className="flex-1">
                     <label className="text-[9px] font-mono text-white/30 mb-1 block tracking-widest uppercase">Deadline</label>
-                    <Input type="date" value={taskDeadline} onChange={e => setTaskDeadline(e.target.value)} max={event.date} className={`${inputCls} h-8`} />
+                    <Input
+                      type="date"
+                      value={taskDeadline}
+                      onChange={e => setTaskDeadline(e.target.value)}
+                      min={new Date().toISOString().slice(0, 10)}
+                      max={event.date}
+                      className={`${inputCls} h-8`}
+                    />
                   </div>
                   <select value={taskSubEvent} onChange={e => setTaskSubEvent(e.target.value)} className="h-8 bg-white/[0.03] border border-white/[0.08] text-white text-xs rounded-md px-2 flex-1">
                     <option value="">General</option>
@@ -685,8 +735,8 @@ export default function EventDetailPage() {
                 <p className="text-2xl font-light">{event.registrations.filter(r => r.checkedIn).length}</p>
               </GlassCard>
               <GlassCard className="p-4 text-center">
-                <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Total Paid</p>
-                <p className="text-2xl font-light text-green-400">{event.registrations.filter(r => r.status === "PAID").length}</p>
+                <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Total Registered</p>
+                <p className="text-2xl font-light text-green-400">{event.registrations.length}</p>
               </GlassCard>
               <GlassCard className="p-4 text-center col-span-2 flex items-center justify-center border-white/20">
                 <Button onClick={() => setShowQRScanner(true)} className="bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80 h-10 px-8 rounded-full max-w-sm w-full">

@@ -25,6 +25,7 @@ interface SubEventForm {
   minTeamSize: number
   maxTeamSize: number
   rules: string[]
+  showPrize: boolean
   prizeFirst: string
   prizeSecond: string
   prizeThird: string
@@ -36,7 +37,7 @@ interface SubEventForm {
 }
 
 export default function EditEventPage() {
-  const { user } = useAuth()
+  const { user, isLoading } = useAuth()
   const { events, updateEvent, deleteEvent } = useEvents()
   const router = useRouter()
   const params = useParams()
@@ -54,6 +55,7 @@ export default function EditEventPage() {
     description: "",
     collegeDomain: "",
     organizerPhone: "",
+    showPrizePool: false,
     prizePool: "",
     registrationDeadline: "",
     registrationOpen: true,
@@ -62,7 +64,6 @@ export default function EditEventPage() {
 
   const [subEvents, setSubEvents] = useState<SubEventForm[]>([])
   const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
   const [activeSection, setActiveSection] = useState<"details" | "rules" | "subevents" | "links" | "settings">("details")
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
   const [showDeleteEventConfirm, setShowDeleteEventConfirm] = useState(false)
@@ -88,30 +89,37 @@ export default function EditEventPage() {
         description: event.description,
         collegeDomain: event.collegeDomain || "",
         organizerPhone: event.organizerPhone || "",
+        showPrizePool: !!(event.prizePool && event.prizePool.trim()),
         prizePool: event.prizePool || "",
         registrationDeadline: event.registrationDeadline || "",
         registrationOpen: event.registrationOpen,
         rules: event.rules.length > 0 ? event.rules : [""],
       })
 
-      setSubEvents(event.subEvents.map(se => ({
-        id: se.id,
-        name: se.name,
-        description: se.description,
-        type: se.type,
-        maxParticipants: se.maxParticipants,
-        minTeamSize: se.minTeamSize || 2,
-        maxTeamSize: se.maxTeamSize || 4,
-        rules: se.rules.length > 0 ? se.rules : [""],
-        prizeFirst: se.prize.first || "",
-        prizeSecond: se.prize.second || "",
-        prizeThird: se.prize.third || "",
-        coordName: "",
-        coordEmail: "",
-        coordPhone: "",
-        coordRole: "Head Coordinator",
-        coordinators: se.coordinators || [],
-      })))
+      setSubEvents(event.subEvents.map((se: any) => {
+        // showPrize: true if the sub-event was created with prize toggle on
+        // Detect: showPrize stored on sub-event OR prize fields are non-empty/non-null
+        const hasPrize = se.showPrize === true || (se.prize && se.prize !== null && (se.prize.first || se.prize.second))
+        return {
+          id: se.id,
+          name: se.name,
+          description: se.description,
+          type: se.type,
+          maxParticipants: se.maxParticipants,
+          minTeamSize: se.minTeamSize || 2,
+          maxTeamSize: se.maxTeamSize || 4,
+          rules: se.rules.length > 0 ? se.rules : [""],
+          showPrize: !!hasPrize,
+          prizeFirst: se.prize?.first || "",
+          prizeSecond: se.prize?.second || "",
+          prizeThird: se.prize?.third || "",
+          coordName: "",
+          coordEmail: "",
+          coordPhone: "",
+          coordRole: "Head Coordinator",
+          coordinators: se.coordinators || [],
+        }
+      }))
 
       setImportantLinks((event.importantLinks || []).map(l => ({
         id: l.id,
@@ -121,6 +129,11 @@ export default function EditEventPage() {
     }
   }, [event])
 
+  if (isLoading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+    </div>
+  )
   if (!user) { router.push("/login"); return null }
   if (!event) {
     return (
@@ -151,7 +164,7 @@ export default function EditEventPage() {
     if (form.rules.length > 1) setForm((prev) => ({ ...prev, rules: prev.rules.filter((_, i) => i !== idx) }))
   }
 
-  const updateSubEvent = (idx: number, key: string, value: string | number) => {
+  const updateSubEvent = (idx: number, key: string, value: string | number | boolean) => {
     setSubEvents((prev) => prev.map((se, i) => i === idx ? { ...se, [key]: value } : se))
   }
   const updateSubRule = (seIdx: number, rIdx: number, val: string) => {
@@ -184,7 +197,7 @@ export default function EditEventPage() {
     id: `sub-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     name: "", description: "", type: "solo", maxParticipants: 50,
     minTeamSize: 2, maxTeamSize: 4,
-    rules: [""], prizeFirst: "", prizeSecond: "", prizeThird: "",
+    rules: [""], showPrize: false, prizeFirst: "", prizeSecond: "", prizeThird: "",
     coordName: "", coordEmail: "", coordPhone: "", coordRole: "Head Coordinator",
     coordinators: [],
   })
@@ -217,23 +230,22 @@ export default function EditEventPage() {
       description: form.description,
       collegeDomain: form.isInter ? "" : form.collegeDomain,
       organizerPhone: form.organizerPhone,
-      prizePool: form.prizePool,
+      prizePool: form.showPrizePool ? form.prizePool : "",
       registrationDeadline: form.registrationDeadline,
       registrationOpen: form.registrationOpen,
       rules: form.rules.filter(r => r.trim()),
       subEvents: subEvents.filter((se) => se.name).map((se) => {
-        const sub: SubEvent = {
+        const sub: any = {
           id: se.id,
           name: se.name,
           description: se.description,
           type: se.type,
           maxParticipants: se.maxParticipants,
           rules: se.rules.filter(r => r.trim()),
-          prize: {
-            first: se.prizeFirst || "TBD",
-            second: se.prizeSecond || "TBD",
-            ...(se.prizeThird ? { third: se.prizeThird } : {}),
-          },
+          showPrize: se.showPrize,
+          prize: se.showPrize
+            ? { first: se.prizeFirst || "", second: se.prizeSecond || "", ...(se.prizeThird ? { third: se.prizeThird } : {}) }
+            : null,
           coordinators: se.coordinators,
         }
         if (se.type === "team") {
@@ -251,11 +263,10 @@ export default function EditEventPage() {
 
     try {
       await updateEvent(event.id, updates)
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2500)
+      // Navigate back to event page so changes are visible immediately
+      router.push(`/events/${event.id}`)
     } catch (err) {
       console.error("Failed to update event:", err)
-    } finally {
       setSaving(false)
     }
   }
@@ -293,18 +304,6 @@ export default function EditEventPage() {
           <div>
             <MicroLabel>Edit Event</MicroLabel>
             <h1 className="text-3xl font-light tracking-tight">Edit {event.title}</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            {saved && (
-              <motion.span
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="text-green-400 text-xs font-mono tracking-widest uppercase flex items-center gap-1"
-              >
-                ✓ Saved
-              </motion.span>
-            )}
           </div>
         </div>
       </motion.div>
@@ -357,8 +356,24 @@ export default function EditEventPage() {
                   <Input value={form.organizerPhone} onChange={(e) => update("organizerPhone", e.target.value)} placeholder="+91 98765 43210" className={`${inputCls} h-11`} />
                 </div>
                 <div>
-                  <label className={labelCls}><Trophy className="w-3 h-3 inline mr-1" />Total Prize Pool</label>
-                  <Input value={form.prizePool} onChange={(e) => update("prizePool", e.target.value)} placeholder="₹1,50,000" className={`${inputCls} h-11`} />
+                  <div className="flex items-center justify-between mb-1">
+                    <label className={labelCls}><Trophy className="w-3 h-3 inline mr-1" />Total Prize Pool</label>
+                    <button
+                      type="button"
+                      onClick={() => update("showPrizePool", !form.showPrizePool)}
+                      aria-label={form.showPrizePool ? "Disable prize pool" : "Enable prize pool"}
+                      className={`relative w-9 h-5 rounded-full transition-colors ${form.showPrizePool ? "bg-green-500" : "bg-white/10"}`}
+                    >
+                      <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${form.showPrizePool ? "left-4" : "left-0.5"}`} />
+                    </button>
+                  </div>
+                  {form.showPrizePool ? (
+                    <Input value={form.prizePool} onChange={(e) => update("prizePool", e.target.value)} placeholder="₹1,50,000" className={`${inputCls} h-11`} />
+                  ) : (
+                    <div className="h-11 bg-white/[0.01] border border-white/[0.04] rounded-md px-3 flex items-center">
+                      <span className="text-xs text-white/20 font-mono">Toggle to add prize pool</span>
+                    </div>
+                  )}
                 </div>
               </div>
               {/* Event Scope */}
@@ -495,21 +510,32 @@ export default function EditEventPage() {
 
                     {/* Sub-Event Prizes */}
                     <div>
-                      <span className={labelCls}><Trophy className="w-3 h-3 inline mr-1" />Prize Money</span>
-                      <div className="grid grid-cols-3 gap-2 mt-1">
-                        <div>
-                          <span className="text-[9px] font-mono text-white/30 flex items-center gap-1"><Trophy className="w-2.5 h-2.5" /> 1st Prize</span>
-                          <Input value={se.prizeFirst} onChange={(e) => updateSubEvent(idx, "prizeFirst", e.target.value)} placeholder="₹50,000" className={`${inputCls} h-8 text-xs mt-1`} />
-                        </div>
-                        <div>
-                          <span className="text-[9px] font-mono text-white/30 flex items-center gap-1"><Trophy className="w-2.5 h-2.5 text-gray-400" /> 2nd Prize</span>
-                          <Input value={se.prizeSecond} onChange={(e) => updateSubEvent(idx, "prizeSecond", e.target.value)} placeholder="₹25,000" className={`${inputCls} h-8 text-xs mt-1`} />
-                        </div>
-                        <div>
-                          <span className="text-[9px] font-mono text-white/30 flex items-center gap-1"><Trophy className="w-2.5 h-2.5 text-amber-700" /> 3rd Prize</span>
-                          <Input value={se.prizeThird} onChange={(e) => updateSubEvent(idx, "prizeThird", e.target.value)} placeholder="₹10,000" className={`${inputCls} h-8 text-xs mt-1`} />
-                        </div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={labelCls}><Trophy className="w-3 h-3 inline mr-1" />Prize Money</span>
+                        <button
+                          type="button"
+                          onClick={() => updateSubEvent(idx, "showPrize", !se.showPrize)}
+                          className={`relative w-9 h-5 rounded-full transition-colors ${se.showPrize ? "bg-green-500" : "bg-white/10"}`}
+                        >
+                          <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${se.showPrize ? "left-4" : "left-0.5"}`} />
+                        </button>
                       </div>
+                      {se.showPrize && (
+                        <div className="grid grid-cols-3 gap-2 mt-1">
+                          <div>
+                            <span className="text-[9px] font-mono text-white/30 flex items-center gap-1"><Trophy className="w-2.5 h-2.5" /> 1st Prize</span>
+                            <Input value={se.prizeFirst} onChange={(e) => updateSubEvent(idx, "prizeFirst", e.target.value)} placeholder="₹50,000" className={`${inputCls} h-8 text-xs mt-1`} />
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-mono text-white/30 flex items-center gap-1"><Trophy className="w-2.5 h-2.5 text-gray-400" /> 2nd Prize</span>
+                            <Input value={se.prizeSecond} onChange={(e) => updateSubEvent(idx, "prizeSecond", e.target.value)} placeholder="₹25,000" className={`${inputCls} h-8 text-xs mt-1`} />
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-mono text-white/30 flex items-center gap-1"><Trophy className="w-2.5 h-2.5 text-amber-700" /> 3rd Prize</span>
+                            <Input value={se.prizeThird} onChange={(e) => updateSubEvent(idx, "prizeThird", e.target.value)} placeholder="₹10,000" className={`${inputCls} h-8 text-xs mt-1`} />
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Sub-Event In-charges */}

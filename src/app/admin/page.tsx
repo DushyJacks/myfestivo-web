@@ -259,6 +259,11 @@ export default function AdminPage() {
                 {tab.id === "events" && (
                   <span className="hidden lg:inline ml-auto text-[10px] font-mono text-white/30 bg-white/[0.06] px-1.5 py-0.5 rounded">{events.length}</span>
                 )}
+                {tab.id === "events" && events.filter((e: any) => e.status === "pending_review").length > 0 && (
+                  <span className="hidden lg:inline ml-1 text-[10px] font-mono bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-1.5 py-0.5 rounded animate-pulse">
+                    {events.filter((e: any) => e.status === "pending_review").length} pending
+                  </span>
+                )}
               </button>
             ))}
           </nav>
@@ -404,6 +409,64 @@ export default function AdminPage() {
                   <Button variant="outline" className="border-white/20 text-white text-sm hover:bg-white/10">+ Create Event</Button>
                 </Link>
               </div>
+
+              {/* ── Pending Review Queue ── */}
+              {events.filter((e: any) => e.status === "pending_review").length > 0 && (
+                <div className="mb-8">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
+                    <MicroLabel className="mb-0 text-yellow-400/80">Pending Review ({events.filter((e: any) => e.status === "pending_review").length})</MicroLabel>
+                  </div>
+                  <div className="space-y-3">
+                    {events.filter((e: any) => e.status === "pending_review").map(evt => (
+                      <GlassCard key={evt.id} className="p-5 border-yellow-500/10">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-[9px] font-mono bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">PENDING REVIEW</span>
+                              <span className="text-[10px] font-mono text-white/30">{evt.category}</span>
+                            </div>
+                            <h3 className="font-medium text-white mb-0.5">{evt.title}</h3>
+                            <p className="text-xs text-white/40 font-mono mb-2">by {evt.organizer} · {evt.date} · {evt.venue}</p>
+                            <p className="text-xs text-white/50 line-clamp-2">{evt.description}</p>
+                          </div>
+                          <div className="flex gap-2 shrink-0">
+                            <Button
+                              onClick={() => setConfirmAction({
+                                title: "Approve Event",
+                                message: `Approve "${evt.title}"? This will publish it and open registration for participants.`,
+                                variant: "warning",
+                                action: async () => {
+                                  await updateEvent(evt.id, { registrationOpen: true, status: "published" } as any)
+                                  setConfirmAction(null)
+                                }
+                              })}
+                              className="bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 text-xs h-8 px-3"
+                            >
+                              <Check className="w-3 h-3 mr-1" /> Approve
+                            </Button>
+                            <Button
+                              onClick={() => setConfirmAction({
+                                title: "Reject Event",
+                                message: `Reject and permanently delete "${evt.title}"? This cannot be undone.`,
+                                variant: "danger",
+                                action: async () => {
+                                  await deleteEvent(evt.id)
+                                  setConfirmAction(null)
+                                }
+                              })}
+                              variant="ghost"
+                              className="border border-red-500/30 text-red-400 text-xs h-8 px-3 hover:bg-red-500/10"
+                            >
+                              <X className="w-3 h-3 mr-1" /> Reject
+                            </Button>
+                          </div>
+                        </div>
+                      </GlassCard>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Search & Filter Bar */}
               <div className="flex flex-wrap gap-3 mb-6">

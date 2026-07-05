@@ -21,16 +21,22 @@ import {
 } from "lucide-react"
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth()
+  const { user, isLoading } = useAuth()
   const { events, updateTaskStatus } = useEvents()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<"overview" | "hosted" | "registered" | "tasks">("overview")
   const [showQR, setShowQR] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!user) router.push("/login")
-    else if (user.role === "admin") router.push("/admin")
-  }, [user, router])
+    if (!isLoading && !user) router.push("/login")
+    else if (!isLoading && user && user.role === "admin") router.push("/admin")
+  }, [user, isLoading, router])
+
+  if (isLoading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+    </div>
+  )
 
   if (!user) return null
 
@@ -193,7 +199,7 @@ export default function DashboardPage() {
                         <div className="flex justify-between items-start mb-4">
                           <div>
                             <h3 className="text-lg font-medium mb-1">{evt.title}</h3>
-                            <p className="text-xs font-mono text-white/40">{evt.date} â€” {evt.venue}</p>
+                            <p className="text-xs font-mono text-white/40">{evt.date} &mdash; {evt.venue}</p>
                           </div>
                           <Link href={`/events/${evt.id}`}>
                             <Button variant="outline" className="border-white/20 text-white text-xs">View Event</Button>
@@ -212,7 +218,9 @@ export default function DashboardPage() {
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <span className={`font-mono text-[10px] px-2 py-0.5 border rounded ${reg.status === "PAID" ? "border-green-500/30 text-green-400" : reg.status === "PENDING" ? "border-yellow-500/30 text-yellow-400" : "border-white/20 text-white/40"}`}>{reg.status}</span>
+                                  <span className={`font-mono text-[10px] px-2 py-0.5 border rounded ${reg.status === "PAID" ? "border-green-500/30 text-green-400" : reg.status === "PENDING" ? "border-yellow-500/30 text-yellow-400" : "border-white/20 text-white/40"}`}>
+                                    {reg.status === "PAID" ? "REGISTERED" : reg.status}
+                                  </span>
                                   {reg.checkedIn && <span className="text-[10px] font-mono text-green-400 flex items-center gap-1"><CheckSquare className="w-3 h-3" />Checked In</span>}
                                   <button onClick={() => setShowQR(isOpen ? null : reg.id)} aria-label={isOpen ? "Hide QR pass" : "Show QR pass"} className="flex items-center gap-1 text-xs text-white/50 hover:text-white border border-white/20 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40">
                                     <QrCode className="w-3 h-3" aria-hidden="true" />{isOpen ? "Hide" : "QR Pass"}
