@@ -69,7 +69,7 @@ export default function EventsFeed() {
       </motion.div>
 
       {/* Search & Filters */}
-      <motion.div variants={pageItem} className="sticky top-0 z-30 pt-2 pb-4 mb-6 border-b dark:border-white/[0.08] border-[rgba(179,136,255,0.15)] dark:bg-black/40 bg-white/80 backdrop-blur-md -mx-6 lg:-mx-8 px-6 lg:px-8">
+      <motion.div variants={pageItem} className="pt-2 pb-4 mb-6 border-b dark:border-white/[0.08] border-[rgba(179,136,255,0.15)]">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-3" suppressHydrationWarning>
           <div className="relative max-w-md w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
@@ -77,15 +77,8 @@ export default function EventsFeed() {
               placeholder="Search events, venues, sub-events..."
               className="pl-9 dark:bg-white/[0.03] bg-[rgba(179,136,255,0.05)] dark:border-white/[0.08] border-[rgba(179,136,255,0.20)] dark:text-white text-[#1A1625] dark:placeholder:text-white/30 placeholder:text-[#B0A8C8] h-10 rounded-full" />
           </div>
-          <button onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs border transition-colors ${
-              showFilters
-                ? 'border-[#B388FF] text-[#B388FF] bg-[rgba(179,136,255,0.10)]'
-                : 'dark:border-white/10 border-[rgba(179,136,255,0.20)] dark:text-white/40 text-[#6B6480] hover:border-[#B388FF] hover:text-[#B388FF]'
-            }`}>
-            <SlidersHorizontal className="w-3 h-3" /> Filters
-          </button>
-          <div className="flex items-center gap-1.5 ml-auto">
+          {/* Sort — moved left of the Filters button */}
+          <div className="flex items-center gap-1.5">
             <ArrowUpDown className="w-3 h-3 text-white/30" aria-hidden="true" />
             <label htmlFor="sort-select" className="sr-only">Sort events by</label>
             <select id="sort-select" value={sortBy} onChange={e => setSortBy(e.target.value as SortOption)}
@@ -97,6 +90,14 @@ export default function EventsFeed() {
               <option value="price-high">Price: High → Low</option>
             </select>
           </div>
+          <button onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs border transition-colors ${
+              showFilters
+                ? 'border-[#B388FF] text-[#B388FF] bg-[rgba(179,136,255,0.10)]'
+                : 'dark:border-white/10 border-[rgba(179,136,255,0.20)] dark:text-white/40 text-[#6B6480] hover:border-[#B388FF] hover:text-[#B388FF]'
+            }`}>
+            <SlidersHorizontal className="w-3 h-3" /> Filters
+          </button>
         </div>
 
         {/* Category chips */}

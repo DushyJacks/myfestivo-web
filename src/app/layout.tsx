@@ -72,11 +72,13 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: dark)",  color: "#000000" },
-    { media: "(prefers-color-scheme: light)", color: "#F8F7FF" },
+    { media: "(prefers-color-scheme: light)", color: "#000000" },
   ],
   width: "device-width",
   initialScale: 1,
+  minimumScale: 1,
   maximumScale: 5,
+  userScalable: false,
   viewportFit: "cover",
 };
 
@@ -87,7 +89,7 @@ export default function RootLayout({
 }>) {
   return (
     /* Dark mode is permanent — class is hardcoded, no script flash needed */
-    <html lang="en" className="h-full antialiased dark" style={{ colorScheme: "dark" }} suppressHydrationWarning>
+    <html lang="en" className="h-full antialiased dark" style={{ colorScheme: "dark", backgroundColor: "#000000" }} suppressHydrationWarning>
       <head>
         {/* Favicon */}
         <link rel="icon" href="/favicon.jpg" type="image/jpeg" />

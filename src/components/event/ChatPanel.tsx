@@ -67,7 +67,7 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
       userId: user.id,
       userName: user.name,
       message: msg.trim(),
-      timestamp: new Date().toISOString().slice(0, 16).replace("T", " "),
+      timestamp: new Date().toLocaleString("sv-SE", { timeZone: "Asia/Kolkata" }).slice(0, 16),
     })
     setMsg("")
   }

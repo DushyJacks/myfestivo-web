@@ -1,7 +1,7 @@
 "use client"
 
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import * as THREE from 'three'
 
 function FloatingShapes() {
@@ -58,13 +58,14 @@ function FloatingShapes3() {
   )
 }
 
-function Particles() {
-  const particlesCount = 800
-  const positions = new Float32Array(particlesCount * 3)
-
-  for (let i = 0; i < particlesCount * 3; i++) {
-    positions[i] = (Math.random() - 0.5) * 50
-  }
+function Particles({ count }: { count: number }) {
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3)
+    for (let i = 0; i < count * 3; i++) {
+      arr[i] = (Math.random() - 0.5) * 50
+    }
+    return arr
+  }, [count])
 
   return (
     <points>
@@ -86,11 +87,19 @@ function Particles() {
 }
 
 export function Background3D() {
+  // Reduce particle count and disable antialiasing on mobile for performance
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768
+  const particleCount = isMobile ? 300 : 800
+
   return (
     <div className="fixed inset-0 z-0 pointer-events-none bg-black">
       <Canvas
         camera={{ position: [0, 0, 8], fov: 60 }}
-        gl={{ alpha: false }}
+        gl={{
+          alpha: false,
+          antialias: !isMobile,
+          powerPreference: isMobile ? "low-power" : "high-performance",
+        }}
         style={{ background: "#000000" }}
         onCreated={({ gl }) => {
           gl.setClearColor(0x000000, 1)
@@ -100,7 +109,7 @@ export function Background3D() {
         <FloatingShapes />
         <FloatingShapes2 />
         <FloatingShapes3 />
-        <Particles />
+        <Particles count={particleCount} />
       </Canvas>
     </div>
   )

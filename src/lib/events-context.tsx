@@ -362,7 +362,14 @@ export function EventsProvider({ children }: { children: ReactNode }) {
   const addAnnouncement = async (eventId: string, a: Announcement) => {
     const evt = events.find(e => e.id === eventId)
     if (!evt) return
-    await updateDoc(getEventRef(eventId), { announcements: [a, ...evt.announcements] })
+
+    // If the new announcement is pinned, unpin all existing ones first
+    // so only one announcement is ever pinned at a time
+    const updatedExisting = a.pinned
+      ? evt.announcements.map(ann => ann.pinned ? { ...ann, pinned: false } : ann)
+      : evt.announcements
+
+    await updateDoc(getEventRef(eventId), { announcements: [a, ...updatedExisting] })
 
     // Send announcement notification to all registered participants
     try {

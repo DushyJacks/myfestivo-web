@@ -8,9 +8,9 @@
   .light { color-scheme: light; }
 }
 
-/* ─── LIGHT MODE (default :root) ────────────────────────────── */
+/* ─── FORCE DARK — site is always dark, never light mode ───── */
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 
   /* Surfaces */
   --color-bg:        #F8F7FF;
@@ -285,6 +285,9 @@
 
   html {
     scroll-behavior: smooth;
+    /* Prevent any OS-level light-mode white flash */
+    background-color: #000000;
+    color-scheme: dark;
   }
 
   body {
@@ -292,6 +295,8 @@
     color: var(--color-text);
     letter-spacing: var(--tracking-normal);
     transition: background-color 0.3s ease, color 0.3s ease;
+    /* Prevent white background flash before React hydrates */
+    background-color: #000000;
   }
 
   /* ─── Fix native <select> dropdown white glitch ─────────────── */

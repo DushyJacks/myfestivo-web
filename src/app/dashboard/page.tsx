@@ -262,30 +262,45 @@ export default function DashboardPage() {
               ) : (
                 <div className="space-y-4">
                   {hostedEvents.map(evt => (
-                    <GlassCard key={evt.id} className="p-6 transition-colors">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-medium mb-1">{evt.title}</h3>
-                          <p className="text-xs font-mono text-white/40 mb-2">{evt.date}</p>
-                          <div className="flex gap-4 text-xs text-white/50">
-                            <span className="flex items-center gap-1"><Users className="w-3 h-3" />{evt.registeredCount} registrations</span>
-                            <span>{evt.subEvents.length} sub-events</span>
-                            <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" />{(evt.registrations.filter(r => r.status === "PAID").length * evt.price).toLocaleString()}</span>
-                            <span className="flex items-center gap-1"><ListTodo className="w-3 h-3" />{evt.tasks.filter(t => t.status !== "DONE").length} tasks</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0 ml-4">
-                          <Link href={`/events/${evt.id}/edit`}>
-                            <Button variant="outline" className="border-white/20 text-white text-xs h-8 px-3 hover:bg-white/10">
-                              <Pencil className="w-3 h-3 mr-1.5" />Edit
-                            </Button>
-                          </Link>
-                          <Link href={`/events/${evt.id}`}>
-                            <Button variant="ghost" className="text-white/50 hover:text-white text-xs h-8 px-3">
-                              View<ChevronRight className="w-4 h-4 ml-1" />
-                            </Button>
-                          </Link>
-                        </div>
+                    <GlassCard key={evt.id} className="p-5 transition-colors">
+                      {/* Top row: title + date */}
+                      <div className="mb-3">
+                        <h3 className="text-base font-semibold truncate mb-0.5">{evt.title}</h3>
+                        <p className="text-[11px] font-mono text-white/40">{evt.date}</p>
+                      </div>
+
+                      {/* Stats — 2×2 grid on mobile, single row on sm+ */}
+                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-4 gap-y-2 text-xs text-white/50 mb-4">
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3 h-3 shrink-0" />
+                          <span>{evt.registeredCount} registrations</span>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <CalendarDays className="w-3 h-3 shrink-0" />
+                          <span>{evt.subEvents.length} sub-events</span>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <DollarSign className="w-3 h-3 shrink-0" />
+                          <span>₹{(evt.registrations.filter(r => r.status === "PAID").length * evt.price).toLocaleString()}</span>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <ListTodo className="w-3 h-3 shrink-0" />
+                          <span>{evt.tasks.filter(t => t.status !== "DONE").length} open tasks</span>
+                        </span>
+                      </div>
+
+                      {/* Action buttons — stack on mobile, row on sm+ */}
+                      <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+                        <Link href={`/events/${evt.id}/edit`} className="flex-1 sm:flex-none">
+                          <Button variant="outline" className="w-full sm:w-auto border-white/20 text-white text-xs h-9 px-4 hover:bg-white/10">
+                            <Pencil className="w-3 h-3 mr-1.5" />Edit
+                          </Button>
+                        </Link>
+                        <Link href={`/events/${evt.id}`} className="flex-1 sm:flex-none">
+                          <Button variant="ghost" className="w-full sm:w-auto text-white/50 hover:text-white text-xs h-9 px-4">
+                            View<ChevronRight className="w-4 h-4 ml-1" />
+                          </Button>
+                        </Link>
                       </div>
                     </GlassCard>
                   ))}

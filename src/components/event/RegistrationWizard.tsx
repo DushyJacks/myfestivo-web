@@ -67,7 +67,7 @@ export function RegistrationWizard({ event, onClose }: Props) {
       subEventId: selectedSe.id,
       // If payment required, start as PENDING. Otherwise mark PAID immediately.
       status: requiresPayment ? "PENDING" : "PAID",
-      timestamp: new Date().toISOString().slice(0, 16).replace("T", " "),
+      timestamp: new Date().toLocaleString("sv-SE", { timeZone: "Asia/Kolkata" }).slice(0, 16),
       checkedIn: false,
       transactionId: requiresPayment ? undefined : `FREE-${regId}`,
       paymentMethod: requiresPayment ? "pending" : "free",

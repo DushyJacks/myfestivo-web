@@ -117,7 +117,7 @@ export default function EventDetailPage() {
       eventId: event.id,
       subEventId: seId,
       status: "PENDING",
-      timestamp: new Date().toISOString().slice(0, 16).replace("T", " "),
+      timestamp: new Date().toLocaleString("sv-SE", { timeZone: "Asia/Kolkata" }).slice(0, 16),
       checkedIn: false
     })
   }
@@ -128,7 +128,7 @@ export default function EventDetailPage() {
       id: `ann-${Date.now()}`, title: annTitle, message: annMsg,
       authorName: user.name, authorEmail: user.email,
       targetSubEventId: annTarget || "", pinned: annPinned,
-      timestamp: new Date().toISOString().slice(0, 16).replace("T", " "),
+      timestamp: new Date().toLocaleString("sv-SE", { timeZone: "Asia/Kolkata" }).slice(0, 16),
     })
     setAnnTitle(""); setAnnMsg(""); setAnnTarget(""); setAnnPinned(false)
   }
@@ -153,7 +153,7 @@ export default function EventDetailPage() {
       userId: user.id,
       userName: user.name,
       message: workUpdateText.trim(),
-      timestamp: new Date().toISOString().slice(0, 16).replace("T", " "),
+      timestamp: new Date().toLocaleString("sv-SE", { timeZone: "Asia/Kolkata" }).slice(0, 16),
     })
     setWorkUpdateText("")
   }
@@ -258,23 +258,33 @@ export default function EventDetailPage() {
           <Link href="/events" className="text-white/40 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
           <span className="font-medium text-white truncate">{event.title}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           {isHost && (
             <>
+              {/* Registration toggle — short text on mobile */}
               <button
                 onClick={() => updateEvent(event.id, { registrationOpen: !event.registrationOpen })}
-                className={`text-[10px] font-mono tracking-widest uppercase px-3 py-1.5 rounded border transition-colors ${event.registrationOpen
+                className={`text-[10px] font-mono tracking-widest uppercase px-2 sm:px-3 py-1.5 rounded border transition-colors ${event.registrationOpen
                   ? "border-green-500/30 text-green-400 hover:bg-green-500/10"
                   : "border-red-500/30 text-red-400 hover:bg-red-500/10"
                   }`}
               >
-                Registration {event.registrationOpen ? "Open" : "Closed"}
+                <span className="sm:hidden">{event.registrationOpen ? "Open" : "Closed"}</span>
+                <span className="hidden sm:inline">Registration {event.registrationOpen ? "Open" : "Closed"}</span>
               </button>
+              {/* Edit — icon only on mobile */}
               <Link href={`/events/${event.id}/edit`}>
-                <Button variant="ghost" className="text-white/50 hover:text-white text-sm"><Pencil className="w-4 h-4 mr-1" />Edit</Button>
+                <Button variant="ghost" className="text-white/50 hover:text-white h-9 px-2 sm:px-3">
+                  <Pencil className="w-4 h-4" />
+                  <span className="hidden sm:inline ml-1 text-sm">Edit</span>
+                </Button>
               </Link>
+              {/* Finance — icon only on mobile */}
               <Link href={`/events/${event.id}/finance`}>
-                <Button variant="ghost" className="text-white/50 hover:text-white text-sm"><DollarSign className="w-4 h-4 mr-1" />Finance</Button>
+                <Button variant="ghost" className="text-white/50 hover:text-white h-9 px-2 sm:px-3">
+                  <DollarSign className="w-4 h-4" />
+                  <span className="hidden sm:inline ml-1 text-sm">Finance</span>
+                </Button>
               </Link>
             </>
           )}
@@ -534,7 +544,9 @@ export default function EventDetailPage() {
               {event.announcements.length === 0 ? (
                 <p className="text-white/30 text-sm font-mono py-12 text-center border border-white/[0.04] rounded-lg bg-white/[0.01]">No announcements yet.</p>
               ) : (
-                event.announcements.map(ann => {
+                [...event.announcements]
+                  .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))
+                  .map(ann => {
                   const se = event.subEvents.find(s => s.id === ann.targetSubEventId)
                   return (
                     <GlassCard key={ann.id} className={`p-5 relative ${ann.pinned ? 'border-l-white border-l-2' : ''}`}>
