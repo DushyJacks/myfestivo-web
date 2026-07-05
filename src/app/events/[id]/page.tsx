@@ -781,7 +781,9 @@ export default function EventDetailPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       {reg.checkedIn ? (
-                        <span className="text-[10px] font-mono text-white/20 uppercase tracking-widest">Arrived @ {reg.checkInTime?.slice(11)}</span>
+                        <span className="text-[10px] font-mono text-white/20 uppercase tracking-widest">
+                          Arrived @ {reg.checkInTime ? new Date(reg.checkInTime.includes('T') ? reg.checkInTime : reg.checkInTime.replace(' ', 'T') + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'UNKNOWN'}
+                        </span>
                       ) : (
                         <Button onClick={() => checkInParticipant(event.id, reg.id)} className="h-8 bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80">Check In</Button>
                       )}

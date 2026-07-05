@@ -428,7 +428,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     const evt = events.find(e => e.id === eventId)
     if (!evt) return
     const updatedRegs = evt.registrations.map(r =>
-      r.id === regId ? { ...r, checkedIn: true, checkInTime: new Date().toISOString().slice(0, 16).replace("T", " ") } : r
+      r.id === regId ? { ...r, checkedIn: true, checkInTime: new Date().toISOString() } : r
     )
     await updateDoc(getEventRef(eventId), { registrations: updatedRegs })
   }
