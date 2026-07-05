@@ -69,22 +69,26 @@ export default function EventsFeed() {
       </motion.div>
 
       {/* Search & Filters */}
-      <motion.div variants={pageItem} className="sticky top-0 z-30 pt-2 pb-4 mb-6 border-b border-white/[0.08] bg-black/40 backdrop-blur-md -mx-6 lg:-mx-8 px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-3">
+      <motion.div variants={pageItem} className="sticky top-0 z-30 pt-2 pb-4 mb-6 border-b dark:border-white/[0.08] border-[rgba(179,136,255,0.15)] dark:bg-black/40 bg-white/80 backdrop-blur-md -mx-6 lg:-mx-8 px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-3" suppressHydrationWarning>
           <div className="relative max-w-md w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
             <Input value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Search events, venues, sub-events..."
-              className="pl-9 bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-10 rounded-full" />
+              className="pl-9 dark:bg-white/[0.03] bg-[rgba(179,136,255,0.05)] dark:border-white/[0.08] border-[rgba(179,136,255,0.20)] dark:text-white text-[#1A1625] dark:placeholder:text-white/30 placeholder:text-[#B0A8C8] h-10 rounded-full" />
           </div>
           <button onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs border transition-colors ${showFilters ? 'border-white text-white bg-white/[0.05]' : 'border-white/10 text-white/40 hover:border-white/30'}`}>
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-xs border transition-colors ${
+              showFilters
+                ? 'border-[#B388FF] text-[#B388FF] bg-[rgba(179,136,255,0.10)]'
+                : 'dark:border-white/10 border-[rgba(179,136,255,0.20)] dark:text-white/40 text-[#6B6480] hover:border-[#B388FF] hover:text-[#B388FF]'
+            }`}>
             <SlidersHorizontal className="w-3 h-3" /> Filters
           </button>
           <div className="flex items-center gap-1.5 ml-auto">
             <ArrowUpDown className="w-3 h-3 text-white/30" />
             <select value={sortBy} onChange={e => setSortBy(e.target.value as SortOption)}
-              className="bg-transparent border border-white/10 text-white/50 text-xs rounded-full px-3 py-1.5 cursor-pointer">
+              className="dark:bg-black bg-white border dark:border-white/10 border-[rgba(179,136,255,0.20)] dark:text-white/50 text-[#6B6480] text-xs rounded-full px-3 py-1.5 cursor-pointer">
               <option value="date">Date ↑</option>
               <option value="popularity">Most Popular</option>
               <option value="price-low">Price: Low → High</option>
@@ -97,8 +101,10 @@ export default function EventsFeed() {
         <div className="flex gap-2 flex-wrap">
           {categories.map(cat => (
             <button key={cat} onClick={() => setCategoryFilter(cat)}
-              className={`px-4 py-1.5 rounded-full text-xs transition-colors border ${
-                categoryFilter === cat ? "border-white text-white bg-white/[0.05]" : "border-white/10 text-white/40 hover:border-white/30 hover:text-white/60"
+              className={`px-4 py-1.5 rounded-full text-xs transition-all duration-200 border ${
+                categoryFilter === cat
+                  ? "border-[#B388FF] text-[#B388FF] bg-[rgba(179,136,255,0.12)] font-medium"
+                  : "dark:border-white/10 border-[rgba(179,136,255,0.20)] dark:text-white/40 text-[#6B6480] hover:border-[#B388FF] hover:text-[#B388FF]"
               }`}>{cat}</button>
           ))}
         </div>
@@ -111,7 +117,11 @@ export default function EventsFeed() {
               <div className="flex gap-1">
                 {([["all", "All"], ["free", "Free"], ["paid", "Paid"]] as [PriceFilter, string][]).map(([val, label]) => (
                   <button key={val} onClick={() => setPriceFilter(val)}
-                    className={`px-3 py-1 rounded text-[10px] border transition-colors ${priceFilter === val ? 'border-white text-white bg-white/[0.05]' : 'border-white/10 text-white/40'}`}>{label}</button>
+                    className={`px-3 py-1 rounded text-[10px] border transition-colors ${
+                      priceFilter === val
+                        ? 'border-[#B388FF] text-[#B388FF] bg-[rgba(179,136,255,0.12)]'
+                        : 'dark:border-white/10 border-[rgba(179,136,255,0.20)] dark:text-white/40 text-[#6B6480]'
+                    }`}>{label}</button>
                 ))}
               </div>
             </div>
@@ -120,7 +130,11 @@ export default function EventsFeed() {
               <div className="flex gap-1">
                 {([["all", "All"], ["inter", "Inter-College"], ["intra", "Intra-College"]] as [TypeFilter, string][]).map(([val, label]) => (
                   <button key={val} onClick={() => setTypeFilter(val)}
-                    className={`px-3 py-1 rounded text-[10px] border transition-colors ${typeFilter === val ? 'border-white text-white bg-white/[0.05]' : 'border-white/10 text-white/40'}`}>{label}</button>
+                    className={`px-3 py-1 rounded text-[10px] border transition-colors ${
+                      typeFilter === val
+                        ? 'border-[#B388FF] text-[#B388FF] bg-[rgba(179,136,255,0.12)]'
+                        : 'dark:border-white/10 border-[rgba(179,136,255,0.20)] dark:text-white/40 text-[#6B6480]'
+                    }`}>{label}</button>
                 ))}
               </div>
             </div>
@@ -150,15 +164,15 @@ export default function EventsFeed() {
               <Link href={`/events/${evt.id}`}>
                 <GlassCard className={`p-0 hover:scale-[1.01] transition-transform duration-150 ease-out cursor-pointer relative overflow-hidden group h-full flex flex-col ${evt.isInter ? '' : 'border-l-yellow-500/50 border-l-[3px]'}`}>
                   
-                  {/* Poster section - always render with fixed height for consistent card sizing */}
-                  <div className="w-full h-32 overflow-hidden border-b border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] flex items-center justify-center">
+                  {/* Poster section - 16:9 compact aspect ratio */}
+                  <div className="w-full aspect-[16/9] overflow-hidden border-b dark:border-white/[0.06] border-[rgba(179,136,255,0.12)] bg-gradient-to-br dark:from-white/[0.05] from-[rgba(179,136,255,0.05)] dark:to-white/[0.02] to-[rgba(179,136,255,0.02)] flex items-center justify-center">
                     {evt.poster_base64 ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={evt.poster_base64} alt={evt.title} width={256} height={128} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={evt.poster_base64} alt={evt.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
-                      <div className="flex flex-col items-center justify-center gap-1">
-                        <div className="w-6 h-6 rounded border border-white/20 flex items-center justify-center text-white/30 text-xs">📷</div>
-                        <span className="text-[10px] text-white/20">No poster</span>
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <div className="w-10 h-10 rounded-xl border dark:border-white/20 border-[rgba(179,136,255,0.30)] flex items-center justify-center dark:text-white/30 text-[#B388FF] text-lg bg-[rgba(179,136,255,0.08)]">🎉</div>
+                        <span className="text-[10px] dark:text-white/20 text-[#B0A8C8]">No poster</span>
                       </div>
                     )}
                   </div>
@@ -193,11 +207,13 @@ export default function EventsFeed() {
                   )}
 
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 font-mono text-[11px] text-white/50">
+                    <div className="flex items-center gap-3 font-mono text-[11px] dark:text-white/50 text-[#6B6480]">
                       <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{evt.date}</span>
-                      <span className="flex items-center gap-1"><Users className="w-3 h-3" />{evt.registeredCount}/{evt.seats}</span>
+                      <span className="flex items-center gap-1 text-[#B388FF]/80"><Users className="w-3 h-3" />{evt.registeredCount} registered</span>
                     </div>
-                    <span className="font-mono text-[11px] text-white/40">{evt.price > 0 ? `₹${evt.price}` : "FREE"}</span>
+                    <span className={`font-mono text-[11px] font-medium ${ evt.price > 0 ? 'text-[#B388FF]' : 'dark:text-green-400/80 text-green-600'}`}>
+                      {evt.price > 0 ? `₹${evt.price}` : "FREE"}
+                    </span>
                   </div>
 
                   {/* Capacity bar */}

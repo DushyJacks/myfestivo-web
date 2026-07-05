@@ -26,15 +26,25 @@ export default function LoginPage() {
     setError("")
     setLoading(true)
 
-    const success = await login(email, password)
-    setLoading(false)
-
-    if (success) {
-      router.push("/dashboard")
-    } else {
-      setError("Invalid email or password. Please try again.")
+    try {
+      const success = await login(email, password)
+      if (success) {
+        router.push("/dashboard")
+      } else {
+        setError("Invalid email or password. Please try again.")
+      }
+    } catch (err: any) {
+      const code = err?.code || ""
+      if (code === "auth/user-not-found" || code === "auth/wrong-password" || code === "auth/invalid-credential")
+        setError("Invalid email or password. Please try again.")
+      else if (code === "auth/too-many-requests")
+        setError("Too many attempts. Please wait a moment and try again.")
+      else
+        setError(err?.message || "Sign in failed. Please try again.")
     }
+    setLoading(false)
   }
+
 
   return (
     <PageTransition className="min-h-screen flex items-center justify-center px-4 py-16">
@@ -125,13 +135,23 @@ export default function LoginPage() {
             onClick={async () => {
               setGoogleLoading(true)
               setError("")
-              const success = await signInWithGoogle()
-              setGoogleLoading(false)
-              if (success) {
-                router.push("/dashboard")
-              } else {
-                setError("Google sign-in failed. Please try again.")
+              try {
+                const success = await signInWithGoogle()
+                if (success) {
+                  router.push("/dashboard")
+                } else {
+                  setError("Google sign-in failed. Please try again.")
+                }
+              } catch (err: any) {
+                const code = err?.code || ""
+                if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request")
+                  setError("Sign-in was cancelled.")
+                else if (code === "auth/popup-blocked")
+                  setError("Pop-up was blocked by your browser. Please allow pop-ups for this site.")
+                else
+                  setError(err?.message || "Google sign-in failed. Please try again.")
               }
+              setGoogleLoading(false)
             }}
             className="w-full bg-white/[0.05] border border-white/[0.1] text-white hover:bg-white/[0.1] font-medium h-12 transition-colors"
           >

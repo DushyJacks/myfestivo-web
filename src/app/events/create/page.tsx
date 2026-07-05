@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { useEvents, MainEvent, SubEvent, ImportantLink } from "@/lib/events-context"
 import { useRouter } from "next/navigation"
@@ -10,9 +10,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
 import { motion } from "framer-motion"
-import { PlusCircle, X, ArrowLeft, Trophy, Phone, LinkIcon } from "lucide-react"
+import { PlusCircle, X, Trophy, Phone, LinkIcon, Users, Search } from "lucide-react"
 import Link from "next/link"
 import { compressImage } from "@/lib/utils"
+
+const DEPARTMENTS = ["Computer Science", "Cyber Security", "AI/ML", "BCA"]
+const INCHARGE_ROLES = ["Host", "Coordinator", "Volunteer"]
 
 interface SubEventForm {
   name: string
@@ -22,14 +25,13 @@ interface SubEventForm {
   minTeamSize: number
   maxTeamSize: number
   rules: string[]
+  showPrize: boolean
   prizeFirst: string
   prizeSecond: string
   prizeThird: string
-  coordName: string
-  coordEmail: string
-  coordPhone: string
-  coordRole: string
-  coordinators: { name: string; email: string; phone: string; role: string }[]
+  inchargeSearch: string
+  inchargeRole: string
+  incharges: { name: string; email: string; phone: string; role: string }[]
 }
 
 export default function CreateEventPage() {
@@ -37,11 +39,17 @@ export default function CreateEventPage() {
   const { addEvent } = useEvents()
   const router = useRouter()
 
+  // Compute date constraints
+  const today = new Date()
+  const minEventDate = new Date(today)
+  minEventDate.setDate(today.getDate() + 2)
+  const minEventDateStr = minEventDate.toISOString().slice(0, 10)
+  const todayStr = today.toISOString().slice(0, 10)
+
   const [form, setForm] = useState({
     title: "",
     date: "",
     venue: "",
-    seats: 100,
     category: "Technical" as "Technical" | "Cultural" | "Sports" | "Workshop",
     isInter: true,
     price: 0,
@@ -52,25 +60,21 @@ export default function CreateEventPage() {
     registrationDeadline: "",
     posterBase64: "",
     rules: [""],
+    allowedDepartments: [] as string[],
   })
 
   const emptySubEvent = (): SubEventForm => ({
     name: "", description: "", type: "solo", maxParticipants: 50,
     minTeamSize: 2, maxTeamSize: 4,
-    rules: [""], prizeFirst: "", prizeSecond: "", prizeThird: "",
-    coordName: "", coordEmail: "", coordPhone: "", coordRole: "Head Coordinator",
-    coordinators: [],
+    rules: [""], showPrize: false, prizeFirst: "", prizeSecond: "", prizeThird: "",
+    inchargeSearch: "", inchargeRole: "Coordinator", incharges: [],
   })
 
   const [subEvents, setSubEvents] = useState<SubEventForm[]>([emptySubEvent()])
   const [importantLinks, setImportantLinks] = useState<{ label: string; url: string }[]>([])
-  
-  // Event-level coordinators
-  const [eventCoordName, setEventCoordName] = useState("")
-  const [eventCoordEmail, setEventCoordEmail] = useState("")
-  const [eventCoordPhone, setEventCoordPhone] = useState("")
-  const [eventCoordRole, setEventCoordRole] = useState("Overall Coordinator")
-  const [eventCoordinators, setEventCoordinators] = useState<{ name: string; email: string; phone: string; role: string }[]>([])
+
+  // Friends autocomplete state per sub-event
+  const [inchargeResults, setInchargeResults] = useState<{ [key: number]: any[] }>({})
 
   const addLink = () => setImportantLinks(prev => [...prev, { label: "", url: "" }])
   const updateLink = (idx: number, key: "label" | "url", val: string) =>
@@ -88,7 +92,16 @@ export default function CreateEventPage() {
     if (form.rules.length > 1) setForm((prev) => ({ ...prev, rules: prev.rules.filter((_, i) => i !== idx) }))
   }
 
-  const updateSubEvent = (idx: number, key: string, value: string | number) => {
+  const toggleDepartment = (dept: string) => {
+    setForm(prev => ({
+      ...prev,
+      allowedDepartments: prev.allowedDepartments.includes(dept)
+        ? prev.allowedDepartments.filter(d => d !== dept)
+        : [...prev.allowedDepartments, dept]
+    }))
+  }
+
+  const updateSubEvent = (idx: number, key: string, value: string | number | boolean) => {
     setSubEvents((prev) => prev.map((se, i) => i === idx ? { ...se, [key]: value } : se))
   }
   const updateSubRule = (seIdx: number, rIdx: number, val: string) => {
@@ -101,34 +114,35 @@ export default function CreateEventPage() {
     setSubEvents((prev) => prev.map((se, i) => i === seIdx && se.rules.length > 1 ? { ...se, rules: se.rules.filter((_, j) => j !== rIdx) } : se))
   }
 
-  const addSubCoordinator = (seIdx: number) => {
-    setSubEvents((prev) => prev.map((se, i) => {
-      if (i === seIdx && se.coordName && se.coordEmail) {
-        return {
-          ...se,
-          coordinators: [...se.coordinators, { name: se.coordName, email: se.coordEmail, phone: se.coordPhone, role: se.coordRole }],
-          coordName: "", coordEmail: "", coordPhone: "", coordRole: "Logistics",
-        }
-      }
-      return se
-    }))
-  }
-  const removeSubCoordinator = (seIdx: number, cIdx: number) => {
-    setSubEvents((prev) => prev.map((se, i) => i === seIdx ? { ...se, coordinators: se.coordinators.filter((_, j) => j !== cIdx) } : se))
-  }
-
-  const addEventCoordinator = () => {
-    if (eventCoordName && eventCoordEmail) {
-      setEventCoordinators(prev => [...prev, { name: eventCoordName, email: eventCoordEmail, phone: eventCoordPhone, role: eventCoordRole }])
-      setEventCoordName("")
-      setEventCoordEmail("")
-      setEventCoordPhone("")
-      setEventCoordRole("Overall Coordinator")
+  // In-charges: search friends by name/email
+  const handleInchargeSearch = (seIdx: number, query: string) => {
+    updateSubEvent(seIdx, "inchargeSearch", query)
+    if (!user || !query.trim()) {
+      setInchargeResults(prev => ({ ...prev, [seIdx]: [] }))
+      return
     }
+    const q = query.toLowerCase()
+    const filtered = user.friends
+      .filter(email => email.toLowerCase().includes(q))
+      .map(email => ({ email, name: email.split('@')[0] }))
+    setInchargeResults(prev => ({ ...prev, [seIdx]: filtered }))
   }
 
-  const removeEventCoordinator = (idx: number) => {
-    setEventCoordinators(prev => prev.filter((_, i) => i !== idx))
+  const addIncharge = (seIdx: number, friend: { name: string; email: string }) => {
+    setSubEvents(prev => prev.map((se, i) => {
+      if (i !== seIdx) return se
+      if (se.incharges.some(c => c.email === friend.email)) return { ...se, inchargeSearch: "", }
+      return {
+        ...se,
+        incharges: [...se.incharges, { name: friend.name, email: friend.email, phone: "", role: se.inchargeRole }],
+        inchargeSearch: "",
+      }
+    }))
+    setInchargeResults(prev => ({ ...prev, [seIdx]: [] }))
+  }
+
+  const removeIncharge = (seIdx: number, cIdx: number) => {
+    setSubEvents((prev) => prev.map((se, i) => i === seIdx ? { ...se, incharges: se.incharges.filter((_, j) => j !== cIdx) } : se))
   }
 
   const addSubEvent = () => setSubEvents((prev) => [...prev, emptySubEvent()])
@@ -143,17 +157,12 @@ export default function CreateEventPage() {
       alert("Image is too large (max 5MB)")
       return
     }
-    
     try {
-      // Compress image to reduce base64 size
       const compressedBase64 = await compressImage(file, 800, 600, 0.7)
-      
-      // Check if compressed size is still within firebase limit
       if (compressedBase64.length > 1048487) {
         alert("Compressed image is still too large. Please use a smaller image.")
         return
       }
-      
       setForm(prev => ({ ...prev, posterBase64: compressedBase64 }))
     } catch (error) {
       console.error("Error compressing image:", error)
@@ -164,8 +173,6 @@ export default function CreateEventPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user) return
-
-    // Validate poster is provided
     if (!form.posterBase64) {
       alert("Event poster is required. Please upload an image.")
       return
@@ -187,7 +194,7 @@ export default function CreateEventPage() {
       organizerPhone: form.organizerPhone,
       date: form.date,
       venue: form.venue,
-      seats: form.seats,
+      seats: 9999, // Unlimited seats — capacity managed per sub-event maxParticipants
       registeredCount: 0,
       category: form.category,
       isInter: form.isInter,
@@ -198,7 +205,7 @@ export default function CreateEventPage() {
       collegeDomain: form.isInter ? "" : form.collegeDomain,
       registrationOpen: true,
       registrationDeadline: form.registrationDeadline || "",
-      eventCoordinators: eventCoordinators,
+      eventCoordinators: [],
       subEvents: subEvents.filter((se) => se.name).map((se, i) => {
         const sub: SubEvent = {
           id: `sub-${Date.now()}-${i}`,
@@ -207,8 +214,10 @@ export default function CreateEventPage() {
           type: se.type,
           maxParticipants: se.maxParticipants,
           rules: se.rules.filter(r => r.trim()),
-          prize: { first: se.prizeFirst || "TBD", second: se.prizeSecond || "TBD", ...(se.prizeThird ? { third: se.prizeThird } : {}) },
-          coordinators: se.coordinators,
+          prize: se.showPrize
+            ? { first: se.prizeFirst || "TBD", second: se.prizeSecond || "TBD", ...(se.prizeThird ? { third: se.prizeThird } : {}) }
+            : { first: "TBD", second: "TBD" },
+          coordinators: se.incharges,
         }
         if (se.type === "team") {
           sub.minTeamSize = se.minTeamSize
@@ -232,8 +241,10 @@ export default function CreateEventPage() {
         url: l.url,
       })),
       restricted_registrations: [],
-      ...(form.posterBase64 ? { poster_base64: form.posterBase64 } : {})
-    }
+      // Store allowed departments as extra field for intra-college filtering
+      ...(form.posterBase64 ? { poster_base64: form.posterBase64 } : {}),
+      ...(!form.isInter && form.allowedDepartments.length > 0 ? { allowedDepartments: form.allowedDepartments } : {}),
+    } as MainEvent & { allowedDepartments?: string[] }
 
     try {
       await addEvent(newEvent)
@@ -254,6 +265,7 @@ export default function CreateEventPage() {
 
   return (
     <div className="pb-16 px-4 max-w-3xl mx-auto">
+      <PageTransition>
       <motion.div variants={pageItem}>
         <MicroLabel>New Event</MicroLabel>
         <h1 className="text-3xl font-light tracking-tight mb-8">Host your event.</h1>
@@ -268,19 +280,47 @@ export default function CreateEventPage() {
               <label className={labelCls}>Event Title</label>
               <Input value={form.title} onChange={(e) => update("title", e.target.value)} placeholder="TechFest '26" className={`${inputCls} h-11`} required />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div><label className={labelCls}>Event Date</label><Input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} className={`${inputCls} h-11`} required /></div>
-              <div><label className={labelCls}>Venue</label><Input value={form.venue} onChange={(e) => update("venue", e.target.value)} placeholder="Main Auditorium" className={`${inputCls} h-11`} required /></div>
-              <div><label className={labelCls}>Registration Deadline</label><Input type="date" value={form.registrationDeadline} onChange={(e) => update("registrationDeadline", e.target.value)} max={form.date} className={`${inputCls} h-11`} /></div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div><label className={labelCls}>Total Seats</label><Input type="number" value={form.seats} onChange={(e) => update("seats", parseInt(e.target.value) || 0)} className={`${inputCls} h-11`} required /></div>
-              <div><label className={labelCls}>Price (₹)</label><Input type="number" value={form.price} onChange={(e) => update("price", parseInt(e.target.value) || 0)} className={`${inputCls} h-11`} /></div>
-              <div><label className={labelCls}>Category</label>
-                <select value={form.category} onChange={(e) => update("category", e.target.value)} className="w-full h-11 bg-white/[0.03] border border-white/[0.08] text-white rounded-md px-3 text-sm">
-                  <option value="Technical">Technical</option><option value="Cultural">Cultural</option><option value="Sports">Sports</option><option value="Workshop">Workshop</option>
-                </select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls}>Event Date</label>
+                <Input
+                  type="date"
+                  value={form.date}
+                  min={minEventDateStr}
+                  onChange={(e) => update("date", e.target.value)}
+                  className={`${inputCls} h-11`}
+                  required
+                />
+                <p className="text-[10px] text-white/30 mt-1">Must be at least 2 days from today</p>
               </div>
+              <div>
+                <label className={labelCls}>Venue</label>
+                <Input value={form.venue} onChange={(e) => update("venue", e.target.value)} placeholder="Main Auditorium" className={`${inputCls} h-11`} required />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls}>Registration Deadline</label>
+                <Input
+                  type="date"
+                  value={form.registrationDeadline}
+                  min={todayStr}
+                  max={form.date || undefined}
+                  onChange={(e) => update("registrationDeadline", e.target.value)}
+                  className={`${inputCls} h-11`}
+                />
+                <p className="text-[10px] text-white/30 mt-1">Between today and the event date</p>
+              </div>
+              <div>
+                <label className={labelCls}>Price (₹)</label>
+                <Input type="number" value={form.price} onChange={(e) => update("price", parseInt(e.target.value) || 0)} className={`${inputCls} h-11`} />
+              </div>
+            </div>
+            <div>
+              <label className={labelCls}>Category</label>
+              <select value={form.category} onChange={(e) => update("category", e.target.value)} className="w-full h-11 bg-white/[0.03] border border-white/[0.08] text-white rounded-md px-3 text-sm">
+                <option value="Technical">Technical</option><option value="Cultural">Cultural</option><option value="Sports">Sports</option><option value="Workshop">Workshop</option>
+              </select>
             </div>
             <div><label className={labelCls}>Description</label>
               <textarea value={form.description} onChange={(e) => update("description", e.target.value)} placeholder="Describe your event..." rows={4} className="w-full bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-white/30 rounded-md px-3 py-3 text-sm resize-none" required />
@@ -295,6 +335,7 @@ export default function CreateEventPage() {
                 <Input value={form.prizePool} onChange={(e) => update("prizePool", e.target.value)} placeholder="₹1,50,000" className={`${inputCls} h-11`} />
               </div>
             </div>
+
             {/* Event Scope */}
             <div><label className={labelCls}>Event Scope</label>
               <div className="flex gap-2">
@@ -303,12 +344,38 @@ export default function CreateEventPage() {
               </div>
             </div>
             {!form.isInter && (
-              <div><label className={labelCls}>College Email Domain</label>
-                <Input value={form.collegeDomain} onChange={(e) => update("collegeDomain", e.target.value)} placeholder="srmist.edu.in" className={`${inputCls} h-11`} />
-                <p className="text-[10px] text-white/30 mt-1">Only users with verified @{form.collegeDomain || "domain"} email can register</p>
+              <div className="space-y-4">
+                <div><label className={labelCls}>College Email Domain</label>
+                  <Input value={form.collegeDomain} onChange={(e) => update("collegeDomain", e.target.value)} placeholder="srmist.edu.in" className={`${inputCls} h-11`} />
+                  <p className="text-[10px] text-white/30 mt-1">Students with a @{form.collegeDomain || "domain"} email can register</p>
+                </div>
+                {/* Optional Department Filter */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className={labelCls}>Restrict by Department (optional)</label>
+                    {form.allowedDepartments.length > 0 && (
+                      <button type="button" onClick={() => setForm(p => ({ ...p, allowedDepartments: [] }))} className="text-[10px] text-white/30 hover:text-white/60">Clear</button>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {DEPARTMENTS.map(dept => (
+                      <button
+                        key={dept}
+                        type="button"
+                        onClick={() => toggleDepartment(dept)}
+                        className={`px-3 py-1.5 rounded-md text-xs border transition-colors ${form.allowedDepartments.includes(dept) ? "bg-white text-black border-white" : "bg-white/[0.03] text-white/50 border-white/[0.08] hover:border-white/30"}`}
+                      >
+                        {dept}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-white/30 mt-2">
+                    {form.allowedDepartments.length === 0 ? "All departments can register (no restriction)" : `Only: ${form.allowedDepartments.join(", ")}`}
+                  </p>
+                </div>
               </div>
             )}
-            
+
             {/* Poster Upload */}
             <div>
               <label className={labelCls}>Event Poster <span className="text-red-400">*</span></label>
@@ -322,11 +389,11 @@ export default function CreateEventPage() {
                 {form.posterBase64 && (
                   <div className="w-11 h-11 rounded-md overflow-hidden shrink-0 border border-white/[0.08]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={form.posterBase64} alt="Poster preview" width={44} height={44} className="w-full h-full object-cover" />
+                    <img src={form.posterBase64} alt="Poster preview" className="w-full h-full object-cover" />
                   </div>
                 )}
               </div>
-              <p className="text-[10px] text-white/30 mt-1">Max 5MB. Supports both vertical and horizontal images. Will be displayed on event cards.</p>
+              <p className="text-[10px] text-white/30 mt-1">Max 5MB. Will be displayed in 16:9 ratio on event cards.</p>
             </div>
           </GlassCard>
 
@@ -347,83 +414,6 @@ export default function CreateEventPage() {
             ))}
           </GlassCard>
 
-          {/* Event-Level Coordinators */}
-          <GlassCard className="p-6 space-y-4">
-            <div className="flex justify-between items-center">
-              <MicroLabel className="mb-0">02a — Event Coordinators</MicroLabel>
-            </div>
-            <p className="text-[10px] text-white/30">Assign students to coordinate and manage the event at various levels.</p>
-            
-            {/* List of existing coordinators */}
-            <div className="space-y-2">
-              {eventCoordinators.length > 0 && (
-                <>
-                  <span className={labelCls}>Assigned Coordinators</span>
-                  {eventCoordinators.map((c, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 rounded bg-white/[0.03] border border-white/[0.05]">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-white/70 font-medium">{c.name}</span>
-                          <span className="text-[9px] font-mono text-white/40 bg-white/[0.05] px-2 py-0.5 rounded">{c.role}</span>
-                        </div>
-                        <div className="text-[10px] text-white/40 mt-1">{c.email} • {c.phone}</div>
-                      </div>
-                      <button type="button" onClick={() => removeEventCoordinator(idx)} className="text-white/20 hover:text-red-400 transition-colors ml-2">
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </>
-              )}
-            </div>
-
-            {/* Add coordinator form */}
-            <div className="space-y-2">
-              <span className={labelCls}>Add New Coordinator</span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <Input 
-                  value={eventCoordName} 
-                  onChange={(e) => setEventCoordName(e.target.value)} 
-                  placeholder="Full Name" 
-                  className={`${inputCls} h-10`} 
-                />
-                <Input 
-                  value={eventCoordEmail} 
-                  onChange={(e) => setEventCoordEmail(e.target.value)} 
-                  placeholder="Email" 
-                  type="email"
-                  className={`${inputCls} h-10`} 
-                />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <Input 
-                  value={eventCoordPhone} 
-                  onChange={(e) => setEventCoordPhone(e.target.value)} 
-                  placeholder="Phone" 
-                  className={`${inputCls} h-10`} 
-                />
-                <select 
-                  value={eventCoordRole} 
-                  onChange={(e) => setEventCoordRole(e.target.value)}
-                  className="h-10 bg-white/[0.03] border border-white/[0.08] text-white rounded-md px-3 text-sm"
-                >
-                  <option value="Overall Coordinator">Overall Coordinator</option>
-                  <option value="Event Lead">Event Lead</option>
-                  <option value="Co-Organizer">Co-Organizer</option>
-                  <option value="Technical Lead">Technical Lead</option>
-                  <option value="Logistics Lead">Logistics Lead</option>
-                </select>
-                <Button 
-                  type="button" 
-                  onClick={addEventCoordinator}
-                  className="bg-white text-black hover:bg-white/90 h-10 text-sm"
-                >
-                  Add Coordinator
-                </Button>
-              </div>
-            </div>
-          </GlassCard>
-
           {/* Sub Events */}
           <GlassCard className="p-6 space-y-5">
             <div className="flex justify-between items-center">
@@ -440,13 +430,24 @@ export default function CreateEventPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div><label className={labelCls}>Name</label><Input value={se.name} onChange={(e) => updateSubEvent(idx, "name", e.target.value)} placeholder="Hackathon" className={inputCls} required /></div>
-                  <div><label className={labelCls}>Max Participants</label><Input type="number" value={se.maxParticipants} onChange={(e) => updateSubEvent(idx, "maxParticipants", parseInt(e.target.value) || 0)} className={inputCls} /></div>
+                  <div><label className={labelCls}>Description</label><Input value={se.description} onChange={(e) => updateSubEvent(idx, "description", e.target.value)} placeholder="Brief description" className={inputCls} /></div>
                 </div>
-                <div><label className={labelCls}>Description</label><Input value={se.description} onChange={(e) => updateSubEvent(idx, "description", e.target.value)} placeholder="Brief description" className={inputCls} /></div>
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => updateSubEvent(idx, "type", "solo")} className={`flex-1 py-2 rounded-md text-xs transition-colors border ${se.type === "solo" ? "bg-white text-black border-white" : "bg-white/[0.03] text-white/50 border-white/[0.08]"}`}>Solo</button>
-                  <button type="button" onClick={() => updateSubEvent(idx, "type", "team")} className={`flex-1 py-2 rounded-md text-xs transition-colors border ${se.type === "team" ? "bg-white text-black border-white" : "bg-white/[0.03] text-white/50 border-white/[0.08]"}`}>Team</button>
+
+                {/* Solo / Team Toggle */}
+                <div>
+                  <label className={labelCls}>Participation Type</label>
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => updateSubEvent(idx, "type", "solo")} className={`flex-1 py-2 rounded-md text-xs transition-colors border ${se.type === "solo" ? "bg-white text-black border-white" : "bg-white/[0.03] text-white/50 border-white/[0.08]"}`}>Solo</button>
+                    <button type="button" onClick={() => updateSubEvent(idx, "type", "team")} className={`flex-1 py-2 rounded-md text-xs transition-colors border ${se.type === "team" ? "bg-white text-black border-white" : "bg-white/[0.03] text-white/50 border-white/[0.08]"}`}>Team</button>
+                  </div>
                 </div>
+
+                {/* Max Participants / Teams — below solo/team toggle */}
+                <div>
+                  <label className={labelCls}>{se.type === "team" ? "Max Teams" : "Max Participants"}</label>
+                  <Input type="number" value={se.maxParticipants} onChange={(e) => updateSubEvent(idx, "maxParticipants", parseInt(e.target.value) || 0)} className={inputCls} />
+                </div>
+
                 {se.type === "team" && (
                   <div className="grid grid-cols-2 gap-3 p-3 rounded-md bg-white/[0.02] border border-white/[0.06]">
                     <div>
@@ -475,49 +476,90 @@ export default function CreateEventPage() {
                   ))}
                 </div>
 
-                {/* Sub-Event Prizes */}
+                {/* Prize Money Toggle */}
                 <div>
-                  <span className={labelCls}><Trophy className="w-3 h-3 inline mr-1" />Prize Money</span>
-                  <div className="grid grid-cols-3 gap-2 mt-1">
-                    <div>
-                      <span className="text-[9px] font-mono text-white/30 flex items-center gap-1"><Trophy className="w-2.5 h-2.5" /> 1st Prize</span>
-                      <Input value={se.prizeFirst} onChange={(e) => updateSubEvent(idx, "prizeFirst", e.target.value)} placeholder="₹50,000" className={`${inputCls} h-8 text-xs mt-1`} />
-                    </div>
-                    <div>
-                      <span className="text-[9px] font-mono text-white/30 flex items-center gap-1"><Trophy className="w-2.5 h-2.5 text-gray-400" /> 2nd Prize</span>
-                      <Input value={se.prizeSecond} onChange={(e) => updateSubEvent(idx, "prizeSecond", e.target.value)} placeholder="₹25,000" className={`${inputCls} h-8 text-xs mt-1`} />
-                    </div>
-                    <div>
-                      <span className="text-[9px] font-mono text-white/30 flex items-center gap-1"><Trophy className="w-2.5 h-2.5 text-amber-700" /> 3rd Prize</span>
-                      <Input value={se.prizeThird} onChange={(e) => updateSubEvent(idx, "prizeThird", e.target.value)} placeholder="₹10,000" className={`${inputCls} h-8 text-xs mt-1`} />
-                    </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={labelCls}><Trophy className="w-3 h-3 inline mr-1" />Prize Money</span>
+                    <button
+                      type="button"
+                      onClick={() => updateSubEvent(idx, "showPrize", !se.showPrize)}
+                      className={`relative w-9 h-5 rounded-full transition-colors ${se.showPrize ? "bg-green-500" : "bg-white/10"}`}
+                    >
+                      <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${se.showPrize ? "left-4" : "left-0.5"}`} />
+                    </button>
                   </div>
+                  {se.showPrize && (
+                    <div className="grid grid-cols-3 gap-2 mt-1">
+                      <div>
+                        <span className="text-[9px] font-mono text-white/30 flex items-center gap-1"><Trophy className="w-2.5 h-2.5" /> 1st Prize</span>
+                        <Input value={se.prizeFirst} onChange={(e) => updateSubEvent(idx, "prizeFirst", e.target.value)} placeholder="₹50,000" className={`${inputCls} h-8 text-xs mt-1`} />
+                      </div>
+                      <div>
+                        <span className="text-[9px] font-mono text-white/30 flex items-center gap-1"><Trophy className="w-2.5 h-2.5 text-gray-400" /> 2nd Prize</span>
+                        <Input value={se.prizeSecond} onChange={(e) => updateSubEvent(idx, "prizeSecond", e.target.value)} placeholder="₹25,000" className={`${inputCls} h-8 text-xs mt-1`} />
+                      </div>
+                      <div>
+                        <span className="text-[9px] font-mono text-white/30 flex items-center gap-1"><Trophy className="w-2.5 h-2.5 text-amber-700" /> 3rd Prize</span>
+                        <Input value={se.prizeThird} onChange={(e) => updateSubEvent(idx, "prizeThird", e.target.value)} placeholder="₹10,000" className={`${inputCls} h-8 text-xs mt-1`} />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Sub-Event Coordinators */}
+                {/* In-charges (friends autocomplete) */}
                 <div className="space-y-2">
-                  <span className={labelCls}><Phone className="w-3 h-3 inline mr-1" />Coordinators</span>
-                  {se.coordinators.map((c, cIdx) => (
+                  <span className={labelCls}><Users className="w-3 h-3 inline mr-1" />In-charges</span>
+                  {se.incharges.map((c, cIdx) => (
                     <div key={cIdx} className="flex items-center justify-between p-2 rounded bg-white/[0.03] border border-white/[0.05] text-xs">
                       <div>
-                        <span className="text-white/70">{c.name}</span>
-                        <span className="text-white/30 ml-2">{c.phone}</span>
+                        <span className="text-white/70">{c.name || c.email}</span>
                         <span className="ml-2 text-[9px] font-mono text-white/30">{c.role}</span>
                       </div>
-                      <button type="button" onClick={() => removeSubCoordinator(idx, cIdx)} className="text-white/20 hover:text-red-400"><X className="w-3 h-3" /></button>
+                      <button type="button" onClick={() => removeIncharge(idx, cIdx)} className="text-white/20 hover:text-red-400"><X className="w-3 h-3" /></button>
                     </div>
                   ))}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <Input value={se.coordName} onChange={(e) => updateSubEvent(idx, "coordName", e.target.value)} placeholder="Name" className={`${inputCls} h-8 text-xs`} />
-                    <Input value={se.coordEmail} onChange={(e) => updateSubEvent(idx, "coordEmail", e.target.value)} placeholder="Email" className={`${inputCls} h-8 text-xs`} />
-                    <Input value={se.coordPhone} onChange={(e) => updateSubEvent(idx, "coordPhone", e.target.value)} placeholder="Phone" className={`${inputCls} h-8 text-xs`} />
-                    <div className="flex gap-1">
-                      <select value={se.coordRole} onChange={(e) => updateSubEvent(idx, "coordRole", e.target.value)} className="flex-1 h-8 bg-white/[0.03] border border-white/[0.08] text-white text-xs rounded-md px-1">
-                        <option value="Head Coordinator">Head</option><option value="Logistics">Logistics</option><option value="Finance">Finance</option><option value="Communications">Comms</option>
-                      </select>
-                      <Button type="button" onClick={() => addSubCoordinator(idx)} className="bg-white text-black h-8 px-2 text-xs shrink-0">+</Button>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {/* Search friends */}
+                    <div className="relative sm:col-span-2">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+                      <Input
+                        value={se.inchargeSearch}
+                        onChange={(e) => handleInchargeSearch(idx, e.target.value)}
+                        placeholder="Search friends by name or email..."
+                        className={`${inputCls} h-8 text-xs pl-8`}
+                      />
+                      {/* Autocomplete dropdown */}
+                      {(inchargeResults[idx] || []).length > 0 && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 border border-white/[0.1] rounded-md z-20 overflow-hidden">
+                          {(inchargeResults[idx] || []).map((f: any) => (
+                            <button
+                              key={f.email}
+                              type="button"
+                              onClick={() => addIncharge(idx, f)}
+                              className="w-full text-left px-3 py-2 text-xs text-white/70 hover:bg-white/[0.08] transition-colors flex items-center gap-2"
+                            >
+                              <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[9px] font-bold">{f.email[0].toUpperCase()}</div>
+                              <span>{f.email}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {se.inchargeSearch && (inchargeResults[idx] || []).length === 0 && (
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 border border-white/[0.1] rounded-md z-20 px-3 py-2">
+                          <p className="text-[10px] text-white/30">No friends found. Friends must be added first.</p>
+                        </div>
+                      )}
                     </div>
+                    {/* Role selector */}
+                    <select
+                      value={se.inchargeRole}
+                      onChange={(e) => updateSubEvent(idx, "inchargeRole", e.target.value)}
+                      className="h-8 bg-white/[0.03] border border-white/[0.08] text-white text-xs rounded-md px-2"
+                    >
+                      {INCHARGE_ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                    </select>
                   </div>
+                  <p className="text-[10px] text-white/30">Only users in your friends list can be added as in-charges.</p>
                 </div>
               </div>
             ))}
@@ -553,6 +595,7 @@ export default function CreateEventPage() {
           </Button>
         </form>
       </motion.div>
+      </PageTransition>
     </div>
   )
 }

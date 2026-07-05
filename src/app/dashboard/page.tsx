@@ -17,22 +17,15 @@ import { TaskBoard } from "@/components/event/TaskBoard"
 import {
   ChevronRight, Ticket, BarChart3,
   ListTodo, QrCode, CheckSquare, Clock, DollarSign, Megaphone,
-  Pencil, Search, Check, Trash2, Mail, PlusCircle, Users, CalendarDays, X, UserPlus
+  Pencil, PlusCircle, CalendarDays, Users
 } from "lucide-react"
-import { db as getDb } from "@/lib/firebase"
-import { collection, query, where, getDocs, limit } from "firebase/firestore"
 
 export default function DashboardPage() {
-  const { user, logout, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend } = useAuth()
+  const { user, logout } = useAuth()
   const { events, updateTaskStatus } = useEvents()
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<"overview" | "friends" | "hosted" | "registered" | "tasks">("overview")
+  const [activeTab, setActiveTab] = useState<"overview" | "hosted" | "registered" | "tasks">("overview")
   const [showQR, setShowQR] = useState<string | null>(null)
-
-  // ─── Friends State ───
-  const [searchQuery, setSearchQuery] = useState("")
-  const [searchResults, setSearchResults] = useState<any[]>([])
-  const [isSearching, setIsSearching] = useState(false)
 
   useEffect(() => {
     if (!user) router.push("/login")
@@ -54,60 +47,32 @@ export default function DashboardPage() {
     e.announcements.slice(0, 3).map(a => ({ ...a, eventTitle: e.title, eventId: e.id }))
   ).slice(0, 5)
 
-  const handleSearchUsers = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!searchQuery.trim() || !user) return
-    setIsSearching(true)
-    try {
-      const q = query(
-        collection(getDb(), "users"),
-        where("email", "!=", user.email),
-        limit(10)
-      )
-      const snap = await getDocs(q)
-      const results = snap.docs
-        .map(d => ({ ...d.data(), id: d.id }))
-        .filter((u: any) => 
-          u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-          u.email.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      setSearchResults(results)
-    } catch (err) {
-      console.error("Search failed:", err)
-    }
-    setIsSearching(false)
-  }
-
-  const handleSendRequest = async (email: string) => {
-    const ok = await sendFriendRequest(email)
-    if (ok) {
-      setSearchResults(prev => prev.filter(u => u.email !== email))
-    }
-  }
-
   const tabs = [
     { id: "overview" as const, label: "Overview", icon: BarChart3 },
     { id: "registered" as const, label: "My Tickets", icon: QrCode },
     { id: "hosted" as const, label: "Hosted", icon: PlusCircle },
     { id: "tasks" as const, label: `Tasks${pendingTasks.length > 0 ? ` (${pendingTasks.length})` : ''}`, icon: ListTodo },
-    { id: "friends" as const, label: "Friends", icon: Users },
   ]
 
   return (
     <div className="flex min-h-screen">
       <AppSidebar activeItem="dashboard" />
 
-      <main className="flex-1 ml-[72px] lg:ml-[260px]">
+      <main className="flex-1 md:ml-[72px] lg:ml-[260px] pb-20 md:pb-0">
         <PageTransition className="p-6 lg:p-10 max-w-6xl mx-auto">
           <motion.div variants={pageItem} className="mb-10">
             <MicroLabel>Student Dashboard</MicroLabel>
             <h1 className="text-3xl lg:text-4xl font-light tracking-tight">Hey, {user.name.split(" ")[0]}.</h1>
           </motion.div>
 
-          <motion.div variants={pageItem} className="flex gap-1 mb-10 border-b border-white/[0.08] overflow-x-auto">
+          <motion.div variants={pageItem} className="flex gap-1 mb-10 border-b dark:border-white/[0.08] border-[rgba(179,136,255,0.15)] overflow-x-auto">
             {tabs.map(tab => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm transition-colors border-b-2 whitespace-nowrap ${activeTab === tab.id ? "text-white border-white" : "text-white/40 border-transparent hover:text-white/60"}`}>
+                className={`flex items-center gap-2 px-4 py-3 text-sm transition-colors border-b-2 whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? "text-[#B388FF] border-[#B388FF]"
+                    : "dark:text-white/40 text-[#6B6480] border-transparent hover:text-[#B388FF]/70"
+                }`}>
                 <tab.icon className="w-4 h-4" strokeWidth={1.5} />{tab.label}
               </button>
             ))}
@@ -228,7 +193,7 @@ export default function DashboardPage() {
                         <div className="flex justify-between items-start mb-4">
                           <div>
                             <h3 className="text-lg font-medium mb-1">{evt.title}</h3>
-                            <p className="text-xs font-mono text-white/40">{evt.date} — {evt.venue}</p>
+                            <p className="text-xs font-mono text-white/40">{evt.date} â€” {evt.venue}</p>
                           </div>
                           <Link href={`/events/${evt.id}`}>
                             <Button variant="outline" className="border-white/20 text-white text-xs">View Event</Button>
@@ -360,140 +325,10 @@ export default function DashboardPage() {
             </motion.div>
           )}
 
-          {/* FRIENDS */}
-          {activeTab === "friends" && (
-            <motion.div variants={pageItem}>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Column: Search & Pending */}
-                <div className="lg:col-span-1 space-y-8">
-                  <div>
-                    <MicroLabel>Find Peers</MicroLabel>
-                    <GlassCard className="p-4 mb-4">
-                      <form onSubmit={handleSearchUsers} className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                        <Input 
-                          value={searchQuery} 
-                          onChange={e => setSearchQuery(e.target.value)}
-                          placeholder="Search by name or email..." 
-                          className="pl-9 bg-white/[0.03] border-white/10 text-sm h-10" 
-                        />
-                      </form>
-                    </GlassCard>
-
-                    <div className="space-y-2">
-                      {isSearching && <p className="text-[10px] font-mono text-white/20 text-center py-2 animate-pulse">SEARCHING...</p>}
-                      {!isSearching && searchQuery && searchResults.length === 0 && (
-                        <p className="text-[10px] font-mono text-white/20 text-center py-2 uppercase">No results found</p>
-                      )}
-                      {searchResults.map(u => {
-                        const isFriend = user.friends.includes(u.email)
-                        const isSent = user.friendRequestsOut.includes(u.email)
-                        const isIncoming = user.friendRequestsIn.some(r => r.from === u.email)
-                        
-                        return (
-                          <GlassCard key={u.id} className="p-3 border-white/[0.03]">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-bold overflow-hidden">
-                                  {u.avatarUrl ? <img src={u.avatarUrl} alt={u.name} width={32} height={32} className="w-full h-full object-cover" /> : u.name.charAt(0)}
-                                </div>
-                                <div className="min-w-0">
-                                  <p className="text-xs font-medium truncate">{u.name}</p>
-                                  <p className="text-[9px] font-mono text-white/30 truncate">{u.email}</p>
-                                </div>
-                              </div>
-                              {isFriend ? (
-                                <span className="text-[9px] font-mono text-green-400/50 uppercase">Friend</span>
-                              ) : isSent ? (
-                                <span className="text-[9px] font-mono text-white/20 uppercase">Sent</span>
-                              ) : isIncoming ? (
-                                <span className="text-[9px] font-mono text-yellow-400/50 uppercase">Pending</span>
-                              ) : (
-                                <button 
-                                  onClick={() => handleSendRequest(u.email)}
-                                  className="p-1.5 rounded hover:bg-white/10 text-white/40 hover:text-white transition-colors"
-                                >
-                                  <UserPlus className="w-4 h-4" />
-                                </button>
-                              )}
-                            </div>
-                          </GlassCard>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Incoming Requests */}
-                  {user.friendRequestsIn.length > 0 && (
-                    <div>
-                      <MicroLabel>Friend Requests ({user.friendRequestsIn.length})</MicroLabel>
-                      <div className="space-y-2">
-                        {user.friendRequestsIn.map(req => (
-                          <GlassCard key={req.from} className="p-4 border-yellow-500/20 bg-yellow-500/[0.02]">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center text-xs text-yellow-500 font-bold">
-                                  {req.fromName.charAt(0)}
-                                </div>
-                                <div>
-                                  <p className="text-xs font-medium">{req.fromName}</p>
-                                  <p className="text-[9px] font-mono text-white/40">{req.from}</p>
-                                </div>
-                              </div>
-                              <div className="flex gap-1">
-                                <button onClick={() => acceptFriendRequest(req.from)} aria-label="Accept friend request" className="p-1.5 rounded hover:bg-green-500/20 text-green-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400/40"><Check className="w-4 h-4" aria-hidden="true" /></button>
-                                <button onClick={() => declineFriendRequest(req.from)} aria-label="Decline friend request" className="p-1.5 rounded hover:bg-red-500/20 text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/40"><X className="w-4 h-4" aria-hidden="true" /></button>
-                              </div>
-                            </div>
-                          </GlassCard>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Right Column: Friends List */}
-                <div className="lg:col-span-2">
-                  <div className="flex items-center justify-between mb-4">
-                    <MicroLabel className="mb-0">My Friends ({user.friends.length})</MicroLabel>
-                  </div>
-                  
-                  {user.friends.length === 0 ? (
-                    <div className="h-[200px] flex items-center justify-center border border-dashed border-white/10 rounded-xl">
-                      <p className="text-sm text-white/20 font-mono italic">YOUR SOCIAL CIRCLE IS EMPTY</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {user.friends.map(email => (
-                        <GlassCard key={email} className="p-4 hover:border-white/10 transition-colors group">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-sm font-bold border border-white/10">
-                                {email.charAt(0).toUpperCase()}
-                              </div>
-                              <div>
-                                <p className="text-sm font-medium">{email.split('@')[0]}</p>
-                                <p className="text-[10px] font-mono text-white/30 italic">{email}</p>
-                              </div>
-                            </div>
-                            <button 
-                              onClick={() => removeFriend(email)}
-                              className="p-2 rounded hover:bg-red-500/10 text-white/20 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
-                              title="Remove Friend"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </GlassCard>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          )}
+          {/* Friends moved to /friends \u2014 accessible via sidebar */}
         </PageTransition>
       </main>
     </div>
   )
 }
+

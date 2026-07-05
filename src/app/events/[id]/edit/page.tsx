@@ -336,12 +336,11 @@ export default function EditEventPage() {
                 <Input value={form.title} onChange={(e) => update("title", e.target.value)} placeholder="TechFest '26" className={`${inputCls} h-11`} required />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div><label className={labelCls}>Event Date</label><Input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} className={`${inputCls} h-11`} required /></div>
+                              <div><label className={labelCls}>Event Date</label><Input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} className={`${inputCls} h-11`} required /></div>
                 <div><label className={labelCls}>Venue</label><Input value={form.venue} onChange={(e) => update("venue", e.target.value)} placeholder="Main Auditorium" className={`${inputCls} h-11`} required /></div>
                 <div><label className={labelCls}>Registration Deadline</label><Input type="date" value={form.registrationDeadline} onChange={(e) => update("registrationDeadline", e.target.value)} className={`${inputCls} h-11`} /></div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div><label className={labelCls}>Total Seats</label><Input type="number" value={form.seats} onChange={(e) => update("seats", parseInt(e.target.value) || 0)} className={`${inputCls} h-11`} required /></div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><label className={labelCls}>Price (₹)</label><Input type="number" value={form.price} onChange={(e) => update("price", parseInt(e.target.value) || 0)} className={`${inputCls} h-11`} /></div>
                 <div><label className={labelCls}>Category</label>
                   <select value={form.category} onChange={(e) => update("category", e.target.value)} className="w-full h-11 bg-white/[0.03] border border-white/[0.08] text-white rounded-md px-3 text-sm">
@@ -513,9 +512,9 @@ export default function EditEventPage() {
                       </div>
                     </div>
 
-                    {/* Sub-Event Coordinators */}
+                    {/* Sub-Event In-charges */}
                     <div className="space-y-2">
-                      <span className={labelCls}><Phone className="w-3 h-3 inline mr-1" />Coordinators</span>
+                      <span className={labelCls}><Phone className="w-3 h-3 inline mr-1" />In-charges</span>
                       {se.coordinators.map((c, cIdx) => (
                         <div key={cIdx} className="flex items-center justify-between p-2 rounded bg-white/[0.03] border border-white/[0.05] text-xs">
                           <div>
@@ -532,7 +531,7 @@ export default function EditEventPage() {
                         <Input value={se.coordPhone} onChange={(e) => updateSubEvent(idx, "coordPhone", e.target.value)} placeholder="Phone" className={`${inputCls} h-8 text-xs`} />
                         <div className="flex gap-1">
                           <select value={se.coordRole} onChange={(e) => updateSubEvent(idx, "coordRole", e.target.value)} className="flex-1 h-8 bg-white/[0.03] border border-white/[0.08] text-white text-xs rounded-md px-1">
-                            <option value="Head Coordinator">Head</option><option value="Logistics">Logistics</option><option value="Finance">Finance</option><option value="Communications">Comms</option>
+                            <option value="Host">Host</option><option value="Coordinator">Coordinator</option><option value="Volunteer">Volunteer</option>
                           </select>
                           <Button type="button" onClick={() => addSubCoordinator(idx)} className="bg-white text-black h-8 px-2 text-xs shrink-0">+</Button>
                         </div>

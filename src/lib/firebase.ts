@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from "firebase/app"
-import { getAuth as firebaseGetAuth } from "firebase/auth"
+import { getAuth as firebaseGetAuth, setPersistence, browserLocalPersistence } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
 
 let firebaseApp: any = null
@@ -31,6 +31,14 @@ function ensureFirebaseInitialized() {
     firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
     firebaseAuth = firebaseGetAuth(firebaseApp)
     firebaseDb = getFirestore(firebaseApp)
+
+    // Persist session in localStorage so reloads don't log the user out.
+    // Token auto-refreshes every ~1 hour; session stays valid until explicit sign-out.
+    if (typeof window !== 'undefined') {
+      setPersistence(firebaseAuth, browserLocalPersistence).catch(() => {
+        // Silently ignore — default is already LOCAL in most environments
+      })
+    }
   } catch (error) {
     console.warn('Firebase initialization failed:', error)
   }

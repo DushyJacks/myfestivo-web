@@ -84,7 +84,9 @@ function pickColor(name: string) {
 const googleProvider = new GoogleAuthProvider()
 
 async function fetchUserProfile(uid: string): Promise<User | null> {
-  const snap = await getDoc(doc(getDb(), "users", uid))
+  const db = getDb()
+  if (!db) return null
+  const snap = await getDoc(doc(db, "users", uid))
   if (snap.exists()) {
     const data = snap.data()
     return {
@@ -104,7 +106,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Listen for Firebase Auth state changes
   useEffect(() => {
-    const unsub = onAuthStateChanged(getAuthInstance(), async (firebaseUser) => {
+    const authInstance = getAuthInstance()
+    if (!authInstance) {
+      console.warn("[AuthProvider] Firebase Auth not initialized — skipping. Check your .env.local")
+      setIsLoading(false)
+      return
+    }
+    const unsub = onAuthStateChanged(authInstance, async (firebaseUser) => {
       if (firebaseUser) {
         const profile = await fetchUserProfile(firebaseUser.uid)
         setUser(profile)
@@ -116,28 +124,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsub()
   }, [])
 
+
   const persistProfile = async (u: User) => {
+    const db = getDb()
+    if (!db) return
     setUser(u)
-    await setDoc(doc(getDb(), "users", u.id), u, { merge: true })
+    await setDoc(doc(db, "users", u.id), u, { merge: true })
   }
 
   const login = async (email: string, password: string): Promise<boolean> => {
+    const authInstance = getAuthInstance()
+    if (!authInstance) throw new Error("Firebase not configured. Check your .env.local file.")
     try {
-      const cred = await signInWithEmailAndPassword(getAuthInstance(), email, password)
+      const cred = await signInWithEmailAndPassword(authInstance, email, password)
       const profile = await fetchUserProfile(cred.user.uid)
       if (profile) {
         setUser(profile)
         return true
       }
       return false
-    } catch {
-      return false
+    } catch (err: any) {
+      throw err
     }
   }
 
   const signup = async (data: SignupData): Promise<boolean> => {
+    const authInstance = getAuthInstance()
+    if (!authInstance) throw new Error("Firebase not configured. Check your .env.local file.")
+    const db = getDb()
+    if (!db) throw new Error("Firebase Firestore not configured. Check your .env.local file.")
     try {
-      const cred = await createUserWithEmailAndPassword(getAuthInstance(), data.email, data.password)
+      const cred = await createUserWithEmailAndPassword(authInstance, data.email, data.password)
 
       const newUser: User = {
         id: cred.user.uid,
@@ -162,22 +179,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         coordinatingEvents: [],
       }
 
-      await setDoc(doc(getDb(), "users", cred.user.uid), newUser)
+      await setDoc(doc(db, "users", cred.user.uid), newUser)
       setUser(newUser)
       return true
-    } catch {
-      return false
+    } catch (err: any) {
+      throw err
     }
   }
 
   const logout = async () => {
-    await signOut(getAuthInstance())
+    const authInstance = getAuthInstance()
+    if (authInstance) await signOut(authInstance)
     setUser(null)
   }
 
   const signInWithGoogle = async (): Promise<boolean> => {
+    const authInstance = getAuthInstance()
+    if (!authInstance) throw new Error("Firebase not configured. Check your .env.local file.")
+    const db = getDb()
+    if (!db) throw new Error("Firebase Firestore not configured. Check your .env.local file.")
     try {
-      const cred = await signInWithPopup(getAuthInstance(), googleProvider)
+      const cred = await signInWithPopup(authInstance, googleProvider)
       const existing = await fetchUserProfile(cred.user.uid)
       if (existing) {
         setUser(existing)
@@ -206,11 +228,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         hostedEvents: [],
         coordinatingEvents: [],
       }
-      await setDoc(doc(getDb(), "users", cred.user.uid), newUser)
+      await setDoc(doc(db, "users", cred.user.uid), newUser)
       setUser(newUser)
       return true
-    } catch {
-      return false
+    } catch (err: any) {
+      throw err
     }
   }
 

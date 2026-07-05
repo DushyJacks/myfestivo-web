@@ -1,17 +1,38 @@
-"use client"
+import type { Metadata } from "next"
+import EventsLayoutClient from "./events-layout-client"
 
-import { AppSidebar } from "@/components/layout/AppSidebar"
-import { PageTransition } from "@/components/animation/PageTransition"
+export const metadata: Metadata = {
+  title: "Browse Events — Discover College Fests & Competitions",
+  description:
+    "Browse and register for college events, cultural fests, technical competitions, sports events, and workshops. Filter by category, price, and type.",
+  keywords: [
+    "college events",
+    "college fest",
+    "student events",
+    "inter college events",
+    "college competitions",
+    "cultural fest",
+    "technical events",
+    "sports events college",
+  ],
+  alternates: {
+    canonical: "/events",
+  },
+  openGraph: {
+    title: "Browse College Events — MyFestivo",
+    description:
+      "Find and register for the best college fests, cultural events, technical competitions, and sports events.",
+    url: "/events",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Browse College Events — MyFestivo",
+    description:
+      "Find and register for the best college fests, cultural events, technical competitions, and sports events.",
+  },
+}
 
 export default function EventsLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex min-h-screen">
-      <AppSidebar />
-      <main className="flex-1 ml-[72px] lg:ml-[260px] min-h-full">
-        <PageTransition className="p-6 lg:p-8">
-          {children}
-        </PageTransition>
-      </main>
-    </div>
-  )
+  return <EventsLayoutClient>{children}</EventsLayoutClient>
 }

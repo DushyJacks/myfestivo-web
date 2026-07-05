@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { QRCodeSVG } from "qrcode.react"
 import { AppSidebar } from "@/components/layout/AppSidebar"
 import { ChatPanel } from "@/components/event/ChatPanel"
@@ -33,7 +33,7 @@ export default function EventDetailPage() {
   const params = useParams()
   const router = useRouter()
   const { user } = useAuth()
-  const { events, updateEvent, registerForSubEvent, addAnnouncement, addTask, updateTaskStatus, approvePayment, rejectPayment, checkInParticipant, toggleAutomation, addAutomationLog } = useEvents()
+  const { events, updateEvent, registerForSubEvent, addChatMessage, addAnnouncement, addTask, updateTaskStatus, approvePayment, rejectPayment, checkInParticipant, toggleAutomation, addAutomationLog } = useEvents()
 
   const [activeTab, setActiveTab] = useState<TabId>("overview")
   const [selectedSubEvent, setSelectedSubEvent] = useState<string | null>(null)
@@ -48,7 +48,8 @@ export default function EventDetailPage() {
 
   // Push notification state
   const [pushRecipient, setPushRecipient] = useState("")
-  const [pushMessage, setPushMessage] = useState("")
+  const [pushSubject, setPushSubject] = useState("")
+  const [pushBody, setPushBody] = useState("")
   const [annTarget, setAnnTarget] = useState("")
   const [annPinned, setAnnPinned] = useState(false)
 
@@ -58,6 +59,9 @@ export default function EventDetailPage() {
   const [taskAssignee, setTaskAssignee] = useState("")
   const [taskDeadline, setTaskDeadline] = useState("")
   const [taskSubEvent, setTaskSubEvent] = useState("")
+
+  // Work Update state
+  const [workUpdateText, setWorkUpdateText] = useState("")
 
   const event = events.find(e => e.id === params.id)
 
@@ -75,8 +79,25 @@ export default function EventDetailPage() {
   const isHost = user?.email === event.organizerEmail
   const isCoordinator = event.subEvents.some(se => se.coordinators.some(c => c.email === user?.email))
   const isRegistered = user ? event.registrations.some(r => r.userEmail === user.email) : false
-  const canAccessIntra = !event.collegeDomain || (user?.collegeEmailVerified && user?.collegeEmail?.endsWith(`@${event.collegeDomain}`))
+  // Loosened: college email verification no longer required — any user can participate
+  const canAccessIntra = !event.collegeDomain || !!user
   const isRestricted = !!(event.collegeDomain && !canAccessIntra)
+
+  // Chat channel access by role
+  const myRegisteredSubEventIds = user
+    ? event.registrations.filter(r => r.userEmail === user.email).map(r => r.subEventId)
+    : []
+  const myCoordinatingSubEventIds = user
+    ? event.subEvents.filter(se => se.coordinators.some(c => c.email === user.email)).map(se => se.id)
+    : []
+  // Accessible chat channels: host → all; in-charge → general + own sub-events; participant → general + registered sub-events
+  const accessibleChannels: string[] = isHost
+    ? ["general", ...event.subEvents.map(se => se.id)]
+    : isCoordinator
+    ? ["general", ...myCoordinatingSubEventIds]
+    : isRegistered
+    ? ["general", ...myRegisteredSubEventIds]
+    : []
   const now = new Date()
   const eventDate = new Date(event.date)
   const eventExpired = eventDate.getTime() + 86400000 < now.getTime() // event day has ended
@@ -112,7 +133,8 @@ export default function EventDetailPage() {
   }
 
   const handleAddTask = () => {
-    if (!user || !taskTitle.trim() || !taskAssignee.trim()) return
+    // Description is required
+    if (!user || !taskTitle.trim() || !taskAssignee.trim() || !taskDesc.trim()) return
     addTask(event.id, {
       id: `task-${Date.now()}`, title: taskTitle, description: taskDesc,
       assignedTo: taskAssignee, assignedBy: user.email, deadline: taskDeadline,
@@ -121,20 +143,42 @@ export default function EventDetailPage() {
     setTaskTitle(""); setTaskDesc(""); setTaskAssignee(""); setTaskDeadline(""); setTaskSubEvent("")
   }
 
+  const handleAddWorkUpdate = () => {
+    if (!user || !workUpdateText.trim()) return
+    addChatMessage(event.id, "work-updates", {
+      id: `wu-${Date.now()}`,
+      eventId: event.id,
+      subEventId: "work-updates",
+      userId: user.id,
+      userName: user.name,
+      message: workUpdateText.trim(),
+      timestamp: new Date().toISOString().slice(0, 16).replace("T", " "),
+    })
+    setWorkUpdateText("")
+  }
+
   const handleSendPush = () => {
-    if (!pushMessage || !event) return
+    if (!pushSubject || !pushBody || !event) return
     const logId = `log-${Date.now()}`
     addAutomationLog(event.id, {
       id: logId,
       ruleId: "manual-push",
       ruleName: "Manual Push Notification",
       recipientEmail: pushRecipient || "All Participants",
-      message: pushMessage,
+      message: `Subject: ${pushSubject}\n\n${pushBody}`,
       timestamp: new Date().toLocaleString()
     })
-    setPushMessage("")
+    setPushSubject("")
+    setPushBody("")
     setPushRecipient("")
   }
+  // Guard: ensure chatChannel is always in accessibleChannels
+  useEffect(() => {
+    if (accessibleChannels.length > 0 && !accessibleChannels.includes(chatChannel)) {
+      setChatChannel(accessibleChannels[0])
+    }
+  }, [chatChannel, accessibleChannels.join(",")])
+
   const handleQRScan = (data: string) => {
     if (!event) return
 
@@ -186,7 +230,8 @@ export default function EventDetailPage() {
     { id: "announcements" as TabId, label: "Announcements", icon: Megaphone },
     { id: "tasks" as TabId, label: "Tasks", icon: ListTodo },
     { id: "checkin" as TabId, label: "Check-In", icon: QrCode },
-    { id: "automation" as TabId, label: "Automation", icon: Zap },
+    // Automation tab hidden for now
+    // { id: "automation" as TabId, label: "Automation", icon: Zap },
   ]
   const coordinatorTabs = [
     { id: "overview" as TabId, label: "Overview", icon: Eye },
@@ -207,7 +252,7 @@ export default function EventDetailPage() {
 
   return (
     <>
-      <header className="fixed top-0 left-[72px] lg:left-[260px] right-0 h-16 flex items-center justify-between px-8 z-50 bg-black/60 backdrop-blur-md border-b border-white/[0.06]">
+      <header className="fixed top-0 left-0 md:left-[72px] lg:left-[260px] right-0 h-16 flex items-center justify-between px-4 md:px-8 z-50 dark:bg-black/60 bg-white/80 backdrop-blur-md dark:border-b dark:border-white/[0.06] border-b border-[rgba(179,136,255,0.15)]">
         <div className="flex items-center gap-4">
           <Link href="/events" className="text-white/40 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
           <span className="font-medium text-white truncate">{event.title}</span>
@@ -240,25 +285,9 @@ export default function EventDetailPage() {
         </div>
       </header>
 
-      <div className="pt-24 pb-16 px-4 md:px-8 max-w-6xl mx-auto">
+      <div className="pt-24 pb-24 md:pb-16 px-4 md:px-8 max-w-6xl mx-auto">
         {/* Hero Section */}
         <motion.div variants={pageItem} className="mb-12">
-          {/* Poster - always render with fixed height for consistent layout */}
-          <div className="w-full h-64 md:h-96 rounded-2xl overflow-hidden mb-8 border border-white/[0.06] relative bg-gradient-to-br from-white/[0.05] to-white/[0.02] flex items-center justify-center">
-            {event.poster_base64 ? (
-              <>
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={event.poster_base64} alt={event.title} width={400} height={600} className="w-full h-full object-cover opacity-80" />
-              </>
-            ) : (
-              <div className="text-center">
-                <div className="text-4xl mb-2">📷</div>
-                <span className="text-sm text-white/30">Event poster unavailable</span>
-              </div>
-            )}
-          </div>
           <div className="flex flex-wrap gap-2 mb-4">
             {!event.collegeDomain ? <span className="font-mono text-[10px] px-2 py-0.5 border border-white/20 text-white/50">OPEN EVENT</span>
               : <span className="font-mono text-[10px] px-2 py-0.5 border border-yellow-500/50 text-yellow-400">INTRA — @{event.collegeDomain}</span>}
@@ -273,21 +302,25 @@ export default function EventDetailPage() {
           <div className="flex flex-wrap gap-5 font-mono text-sm text-white/50">
             <span className="flex items-center gap-2"><MapPin className="w-4 h-4" />{event.venue}</span>
             <span className="flex items-center gap-2"><Clock className="w-4 h-4" />{event.date}</span>
-            <span className="flex items-center gap-2"><Users className="w-4 h-4" />{event.registeredCount} / {event.seats} registered</span>
+            <span className="flex items-center gap-2"><Users className="w-4 h-4" />{event.registeredCount}{event.seats !== 9999 ? ` / ${event.seats}` : ""} registered</span>
           </div>
         </motion.div>
 
         {/* Navigation Tabs */}
-        <motion.div variants={pageItem} className="flex w-full gap-1 border-b border-white/[0.06] mb-8 overflow-x-auto pb-px no-scrollbar">
+        <motion.div variants={pageItem} className="flex w-full gap-1 border-b dark:border-white/[0.06] border-[rgba(179,136,255,0.15)] mb-8 overflow-x-auto pb-px no-scrollbar">
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 text-xs font-medium transition-all relative whitespace-nowrap ${activeTab === tab.id ? "text-white" : "text-white/40 hover:text-white/60"}`}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 md:px-6 py-4 text-xs font-medium transition-all relative whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'text-[#B388FF]'
+                  : 'dark:text-white/40 text-[#6B6480] hover:text-[#B388FF]/70'
+              }`}
             >
               <tab.icon className="w-4 h-4" />
-              {tab.label}
-              {activeTab === tab.id && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
+              <span className="hidden sm:inline">{tab.label}</span>
+              {activeTab === tab.id && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#B388FF]" />}
             </button>
           ))}
         </motion.div>
@@ -531,59 +564,113 @@ export default function EventDetailPage() {
                   <Input value={taskTitle} onChange={e => setTaskTitle(e.target.value)} placeholder="Task title" className={`${inputCls} h-9`} />
                   <Input value={taskAssignee} onChange={e => setTaskAssignee(e.target.value)} placeholder="Assign to (email)" className={`${inputCls} h-9`} />
                 </div>
-                <Input value={taskDesc} onChange={e => setTaskDesc(e.target.value)} placeholder="Description (optional)" className={`${inputCls} h-9`} />
-                <div className="flex gap-3">
-                  <Input type="date" value={taskDeadline} onChange={e => setTaskDeadline(e.target.value)} max={event.date} className={`${inputCls} h-8 flex-1`} />
+                <Input value={taskDesc} onChange={e => setTaskDesc(e.target.value)} placeholder="Description (required)" className={`${inputCls} h-9`} required />
+                <div className="flex gap-3 items-end">
+                  <div className="flex-1">
+                    <label className="text-[9px] font-mono text-white/30 mb-1 block tracking-widest uppercase">Deadline</label>
+                    <Input type="date" value={taskDeadline} onChange={e => setTaskDeadline(e.target.value)} max={event.date} className={`${inputCls} h-8`} />
+                  </div>
                   <select value={taskSubEvent} onChange={e => setTaskSubEvent(e.target.value)} className="h-8 bg-white/[0.03] border border-white/[0.08] text-white text-xs rounded-md px-2 flex-1">
                     <option value="">General</option>
                     {event.subEvents.map(se => <option key={se.id} value={se.id}>{se.name}</option>)}
                   </select>
-                  <Button onClick={handleAddTask} className="bg-white text-black text-xs h-8 px-4"><PlusCircle className="w-3 h-3 mr-1" />Add</Button>
+                  <Button onClick={handleAddTask} disabled={!taskTitle.trim() || !taskAssignee.trim() || !taskDesc.trim()} className="bg-white text-black text-xs h-8 px-4"><PlusCircle className="w-3 h-3 mr-1" />Assign</Button>
                 </div>
               </GlassCard>
             )}
 
-            {/* Kanban Board */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {(["TODO", "IN_PROGRESS", "DONE"] as TaskStatus[]).map(status => (
-                <div key={status} className="space-y-3">
-                  <div className="flex items-center justify-between px-1">
-                    <span className="text-[10px] font-mono tracking-widest text-white/30 uppercase">{status}</span>
-                    <span className="text-[10px] font-mono text-white/20">{event.tasks.filter(t => t.status === status).length}</span>
+            {/* Kanban Board + Work Update */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {(["TODO", "IN_PROGRESS", "DONE"] as TaskStatus[]).map(status => {
+                const statusConfig = {
+                  TODO: { label: "To-do", btnCls: "bg-red-500/20 border-red-500/30 text-red-300 hover:bg-red-500/30" },
+                  IN_PROGRESS: { label: "In Progress", btnCls: "bg-yellow-500/20 border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/30" },
+                  DONE: { label: "Done", btnCls: "bg-green-500/20 border-green-500/30 text-green-300 hover:bg-green-500/30" },
+                }[status]
+                return (
+                  <div key={status} className="space-y-3">
+                    <div className="flex items-center justify-between px-1">
+                      <span className={`text-[10px] font-mono tracking-widest uppercase font-semibold ${
+                        status === 'TODO' ? 'text-red-400/70' : status === 'IN_PROGRESS' ? 'text-yellow-400/70' : 'text-green-400/70'
+                      }`}>{statusConfig.label}</span>
+                      <span className="text-[10px] font-mono text-white/20">{event.tasks.filter(t => t.status === status).length}</span>
+                    </div>
+                    <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg p-2 min-h-[400px] space-y-2">
+                      {event.tasks.filter(t => t.status === status).map(task => {
+                        const se = event.subEvents.find(s => s.id === task.subEventId)
+                        const isOverdue = task.deadline && new Date(task.deadline) < new Date() && status !== "DONE"
+                        // Only the assignee can change task status
+                        const canChangeStatus = user?.email === task.assignedTo || user?.collegeEmail === task.assignedTo
+                        return (
+                          <GlassCard key={task.id} className="p-3 space-y-2 border-white/[0.04]">
+                            <p className="text-sm font-medium">{task.title}</p>
+                            {task.description && <p className="text-xs text-white/40 line-clamp-2">{task.description}</p>}
+                            <div className="flex flex-wrap gap-1 mb-1">
+                              <span className="text-[9px] font-mono bg-white/[0.05] px-1.5 py-0.5 rounded text-white/40">{task.assignedTo}</span>
+                              {se && <span className="text-[9px] font-mono bg-white/[0.05] px-1.5 py-0.5 rounded text-white/30">{se.name}</span>}
+                              {task.deadline && <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded flex items-center gap-1 ${isOverdue ? 'bg-red-500/10 text-red-400' : 'bg-white/[0.05] text-white/30'}`}><CalendarDays className="w-2.5 h-2.5" /> {task.deadline}</span>}
+                            </div>
+                            {/* Status change buttons — only shown to the assignee */}
+                            {canChangeStatus && (
+                              <div className="flex gap-1.5 flex-wrap">
+                                {status !== "IN_PROGRESS" && status !== "DONE" && (
+                                  <button onClick={() => updateTaskStatus(event.id, task.id, "IN_PROGRESS")}
+                                    className={`text-[10px] font-mono px-3 py-1.5 border rounded-md transition-colors ${statusConfig.btnCls.includes('yellow') ? '' : 'bg-yellow-500/20 border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/30'}`}>In Progress</button>
+                                )}
+                                {status !== "DONE" && (
+                                  <button onClick={() => updateTaskStatus(event.id, task.id, "DONE")}
+                                    className="text-[10px] font-mono px-3 py-1.5 border rounded-md transition-colors bg-green-500/20 border-green-500/30 text-green-300 hover:bg-green-500/30">Done</button>
+                                )}
+                                {status === "DONE" && (
+                                  <button onClick={() => updateTaskStatus(event.id, task.id, "TODO")}
+                                    className="text-[10px] font-mono px-3 py-1.5 border rounded-md transition-colors bg-red-500/20 border-red-500/30 text-red-300 hover:bg-red-500/30">Re-open</button>
+                                )}
+                              </div>
+                            )}
+                          </GlassCard>
+                        )
+                      })}
+                    </div>
                   </div>
-                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg p-2 min-h-[400px] space-y-2">
-                    {event.tasks.filter(t => t.status === status).map(task => {
-                      const se = event.subEvents.find(s => s.id === task.subEventId)
-                      const isOverdue = task.deadline && new Date(task.deadline) < new Date() && status !== "DONE"
-                      return (
-                        <GlassCard key={task.id} className="p-3 space-y-2 border-white/[0.04]">
-                          <p className="text-sm font-medium">{task.title}</p>
-                          {task.description && <p className="text-xs text-white/40 line-clamp-2">{task.description}</p>}
-                          <div className="flex flex-wrap gap-1 mb-2">
-                            <span className="text-[9px] font-mono bg-white/[0.05] px-1.5 py-0.5 rounded text-white/40">{task.assignedTo}</span>
-                            {se && <span className="text-[9px] font-mono bg-white/[0.05] px-1.5 py-0.5 rounded text-white/30">{se.name}</span>}
-                            {task.deadline && <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded flex items-center gap-1 ${isOverdue ? 'bg-red-500/10 text-red-400' : 'bg-white/[0.05] text-white/30'}`}><CalendarDays className="w-2.5 h-2.5" /> {task.deadline}</span>}
-                          </div>
-                          <div className="flex gap-1">
-                            {status !== "IN_PROGRESS" && status !== "DONE" && (
-                              <button onClick={() => updateTaskStatus(event.id, task.id, "IN_PROGRESS")}
-                                className="text-[9px] font-mono p-1 border border-white/10 hover:border-white/30 text-white/40 rounded transition-colors"><ArrowRight className="w-2.5 h-2.5" /></button>
-                            )}
-                            {status !== "DONE" && (
-                              <button onClick={() => updateTaskStatus(event.id, task.id, "DONE")}
-                                className="text-[9px] font-mono p-1 border border-white/10 hover:border-white/30 text-white/40 rounded transition-colors"><Check className="w-2.5 h-2.5" /></button>
-                            )}
-                            {status === "DONE" && (
-                              <button onClick={() => updateTaskStatus(event.id, task.id, "TODO")}
-                                className="text-[9px] font-mono p-1 border border-white/10 hover:border-white/30 text-white/40 rounded transition-colors"><Lock className="w-2.5 h-2.5 rotate-180" /></button>
-                            )}
-                          </div>
-                        </GlassCard>
-                      )
-                    })}
-                  </div>
+                )
+              })}
+
+              {/* Work Update column */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-[10px] font-mono tracking-widest text-white/30 uppercase">Work Update</span>
                 </div>
-              ))}
+                <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg flex flex-col min-h-[400px]">
+                  {/* Feed */}
+                  <div className="flex-1 overflow-y-auto p-3 space-y-2">
+                    {event.chatMessages.filter(m => m.subEventId === "work-updates").length === 0 && (
+                      <p className="text-[10px] font-mono text-white/15 text-center mt-8">No updates yet</p>
+                    )}
+                    {event.chatMessages.filter(m => m.subEventId === "work-updates").map(m => (
+                      <div key={m.id} className="p-2 rounded bg-white/[0.03] border border-white/[0.05] text-xs">
+                        <div className="flex items-center gap-1 mb-1">
+                          <span className="font-medium text-white/70 text-[10px]">{m.userName}</span>
+                          <span className="text-[9px] text-white/20 font-mono">{m.timestamp.slice(11)}</span>
+                        </div>
+                        <p className="text-white/50 leading-relaxed">{m.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Input */}
+                  {user && (isHost || isCoordinator || isRegistered) && (
+                    <div className="p-2 border-t border-white/[0.06] flex gap-1">
+                      <input
+                        value={workUpdateText}
+                        onChange={e => setWorkUpdateText(e.target.value)}
+                        onKeyDown={e => e.key === "Enter" && handleAddWorkUpdate()}
+                        placeholder="Post an update..."
+                        className="flex-1 bg-white/[0.03] border border-white/[0.06] text-white text-[10px] rounded px-2 py-1.5 placeholder:text-white/20 outline-none"
+                      />
+                      <button onClick={handleAddWorkUpdate} className="bg-white text-black text-[9px] px-2 py-1.5 rounded font-mono">Post</button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
@@ -705,9 +792,16 @@ export default function EventDetailPage() {
             <div className="mt-8">
               <MicroLabel>Manual Push Notification</MicroLabel>
               <GlassCard className="p-4 flex flex-col gap-3">
-                <Input placeholder="Recipient Email (Leave empty for all)" value={pushRecipient} onChange={e => setPushRecipient(e.target.value)} className="bg-white/[0.03] border-white/[0.08]" />
-                <textarea placeholder="Message content..." value={pushMessage} onChange={e => setPushMessage(e.target.value)} className="bg-white/[0.03] border-white/[0.08] text-sm text-white placeholder:text-white/30 rounded-md p-3 min-h-[80px] outline-none focus:border-white/20 transition-colors" />
-                <Button onClick={handleSendPush} className="bg-white text-black self-end text-xs h-9 px-4">Send Push Notification</Button>
+                <Input placeholder="Recipient Email (leave empty for all participants)" value={pushRecipient} onChange={e => setPushRecipient(e.target.value)} className="bg-white/[0.03] border-white/[0.08]" />
+                <div>
+                  <label className="text-[9px] font-mono text-white/30 mb-1 block tracking-widest uppercase">Email Subject</label>
+                  <Input placeholder="e.g. Important Update for TechFest" value={pushSubject} onChange={e => setPushSubject(e.target.value)} className="bg-white/[0.03] border-white/[0.08]" />
+                </div>
+                <div>
+                  <label className="text-[9px] font-mono text-white/30 mb-1 block tracking-widest uppercase">Email Body</label>
+                  <textarea placeholder="Write the full email message here..." value={pushBody} onChange={e => setPushBody(e.target.value)} className="bg-white/[0.03] border border-white/[0.08] text-sm text-white placeholder:text-white/30 rounded-md p-3 min-h-[100px] w-full outline-none focus:border-white/20 transition-colors" />
+                </div>
+                <Button onClick={handleSendPush} disabled={!pushSubject.trim() || !pushBody.trim()} className="bg-white text-black self-end text-xs h-9 px-4">Send Notification</Button>
               </GlassCard>
             </div>
           </motion.div>
@@ -742,20 +836,23 @@ export default function EventDetailPage() {
           <motion.div variants={pageItem} className="max-w-3xl">
             <MicroLabel>Event Chat</MicroLabel>
             <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
-              <button
-                onClick={() => setChatChannel("general")}
-                className={`px-3 py-1.5 rounded text-[10px] font-mono tracking-widest uppercase whitespace-nowrap transition-colors ${chatChannel === "general" ? "bg-white text-black" : "bg-white/[0.04] text-white/40 hover:text-white/60 border border-white/[0.08]"
-                  }`}
-              ># General</button>
-              {event.subEvents.map(se => (
+              {/* General channel — always accessible */}
+              {accessibleChannels.includes("general") && (
+                <button
+                  onClick={() => setChatChannel("general")}
+                  className={`px-3 py-1.5 rounded text-[10px] font-mono tracking-widest uppercase whitespace-nowrap transition-colors ${chatChannel === "general" ? "bg-white text-black" : "bg-white/[0.04] text-white/40 hover:text-white/60 border border-white/[0.08]"}`}
+                ># General</button>
+              )}
+              {/* Sub-event channels — filtered by role */}
+              {event.subEvents.filter(se => accessibleChannels.includes(se.id)).map(se => (
                 <button
                   key={se.id}
                   onClick={() => setChatChannel(se.id)}
-                  className={`px-3 py-1.5 rounded text-[10px] font-mono tracking-widest uppercase whitespace-nowrap transition-colors ${chatChannel === se.id ? "bg-white text-black" : "bg-white/[0.04] text-white/40 hover:text-white/60 border border-white/[0.08]"
-                    }`}
+                  className={`px-3 py-1.5 rounded text-[10px] font-mono tracking-widest uppercase whitespace-nowrap transition-colors ${chatChannel === se.id ? "bg-white text-black" : "bg-white/[0.04] text-white/40 hover:text-white/60 border border-white/[0.08]"}`}
                 ># {se.name}</button>
               ))}
             </div>
+
             <GlassCard className="p-0 overflow-hidden">
               <ChatPanel
                 event={event}

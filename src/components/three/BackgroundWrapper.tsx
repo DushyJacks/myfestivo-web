@@ -8,7 +8,7 @@ const Background3D = dynamic(
     default: mod.Background3D
   })),
   {
-    loading: () => <div className="absolute inset-0 bg-black" />,
+    loading: () => <div className="fixed inset-0 bg-black" />,
     ssr: false
   }
 )

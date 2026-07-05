@@ -177,14 +177,18 @@ interface EventsContextType {
 
 const EventsContext = createContext<EventsContextType | null>(null)
 
-// Helper: get events collection (lazy)
+// Helper: get events collection (lazy) — returns null if Firebase not initialized
 function getEventsCol() {
-  return collection(getDb(), "events")
+  const db = getDb()
+  if (!db) return null
+  return collection(db, "events")
 }
 
-// Helper: get current event from local state and update Firestore
+// Helper: get current event ref — throws if Firebase not initialized (mutations require auth)
 function getEventRef(eventId: string) {
-  return doc(getDb(), "events", eventId)
+  const db = getDb()
+  if (!db) throw new Error("[MyFestivo] Firebase not initialized. Check your .env.local file.")
+  return doc(db, "events", eventId)
 }
 
 // ─── Provider ───
@@ -193,7 +197,12 @@ export function EventsProvider({ children }: { children: ReactNode }) {
 
   // Real-time listener for all events
   useEffect(() => {
-    const unsub = onSnapshot(getEventsCol(), (snapshot) => {
+    const col = getEventsCol()
+    if (!col) {
+      console.warn("[EventsProvider] Firebase not initialized — skipping onSnapshot. Check your .env.local")
+      return
+    }
+    const unsub = onSnapshot(col, (snapshot) => {
       const fetched: MainEvent[] = snapshot.docs.map((d) => {
         const data = d.data()
         return {
@@ -221,7 +230,8 @@ export function EventsProvider({ children }: { children: ReactNode }) {
 
   const addEvent = async (event: MainEvent) => {
     const { id, ...data } = event
-    await setDoc(doc(getDb(), "events", id), data)
+    const ref = getEventRef(id)
+    await setDoc(ref, data)
   }
 
   const updateEvent = async (id: string, updates: Partial<MainEvent>) => {
@@ -377,7 +387,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       const evt = events.find(e => e.id === eventId)
       if (!evt) return
 
-      const docRef = doc(getDb(), "events", eventId)
+      const docRef = getEventRef(eventId)
       await updateDoc(docRef, {
         tasks: arrayUnion(task),
         restricted_registrations: arrayUnion(task.assignedTo)

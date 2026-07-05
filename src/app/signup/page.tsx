@@ -53,23 +53,30 @@ export default function SignupPage() {
     }
 
     setLoading(true)
-    const success = await signup({
-      name: form.name,
-      email: form.email,
-      password: form.password,
-      role: form.role,
-      college: form.college,
-      rollNo: form.rollNo,
-      department: form.department,
-      year: form.year,
-    })
-    setLoading(false)
-
-    if (success) {
-      router.push("/dashboard")
-    } else {
-      setError("Signup failed. Try again.")
+    try {
+      const success = await signup({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        role: form.role,
+        college: form.college,
+        rollNo: form.rollNo,
+        department: form.department,
+        year: form.year,
+      })
+      if (success) {
+        router.push("/dashboard")
+      } else {
+        setError("Signup failed. Please try again.")
+      }
+    } catch (err: any) {
+      const code = err?.code || ""
+      if (code === "auth/email-already-in-use") setError("An account with this email already exists.")
+      else if (code === "auth/invalid-email") setError("Invalid email address.")
+      else if (code === "auth/weak-password") setError("Password is too weak. Use at least 6 characters.")
+      else setError(err?.message || "Signup failed. Please try again.")
     }
+    setLoading(false)
   }
 
   return (
@@ -130,7 +137,19 @@ export default function SignupPage() {
                   </div>
                   <div>
                     <label htmlFor="department" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Department</label>
-                    <Input id="department" value={form.department} onChange={(e) => update("department", e.target.value)} placeholder="Computer Science" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required aria-required="true" />
+                    <select
+                      id="department"
+                      value={form.department}
+                      onChange={(e) => update("department", e.target.value)}
+                      required
+                      aria-required="true"
+                      className="w-full h-11 px-3 rounded-md bg-white/[0.03] border border-white/[0.08] text-white text-sm focus:outline-none focus:border-white/30 transition-colors"
+                    >
+                      <option value="" className="bg-black text-white/50">Select department...</option>
+                      {["Computer Science", "Cyber Security", "AI/ML", "BCA"].map(dept => (
+                        <option key={dept} value={dept} className="bg-black text-white">{dept}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
                 <div>
@@ -184,13 +203,23 @@ export default function SignupPage() {
             onClick={async () => {
               setGoogleLoading(true)
               setError("")
-              const success = await signInWithGoogle()
-              setGoogleLoading(false)
-              if (success) {
-                router.push("/dashboard")
-              } else {
-                setError("Google sign-in failed. Please try again.")
+              try {
+                const success = await signInWithGoogle()
+                if (success) {
+                  router.push("/dashboard")
+                } else {
+                  setError("Google sign-in failed. Please try again.")
+                }
+              } catch (err: any) {
+                const code = err?.code || ""
+                if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request")
+                  setError("Sign-in was cancelled.")
+                else if (code === "auth/popup-blocked")
+                  setError("Pop-up was blocked by your browser. Please allow pop-ups for this site.")
+                else
+                  setError(err?.message || "Google sign-in failed. Please try again.")
               }
+              setGoogleLoading(false)
             }}
             className="w-full bg-white/[0.05] border border-white/[0.1] text-white hover:bg-white/[0.1] font-medium h-12 transition-colors"
           >

@@ -282,7 +282,7 @@ export default function AdminPage() {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 ml-[72px] lg:ml-[260px]">
+      <main className="flex-1 md:ml-[72px] lg:ml-[260px] pb-20 md:pb-0">
         <PageTransition className="p-6 lg:p-10 max-w-7xl mx-auto">
 
           {/* ═══════════════════════════════════════ */}
