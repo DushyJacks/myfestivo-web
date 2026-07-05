@@ -105,20 +105,54 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
         <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com" />
 
-        {/* JSON-LD — Organization structured data */}
+        {/* JSON-LD — Organization + WebSite structured data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: "MyFestivo",
-              url: APP_URL,
-              logo: `${APP_URL}/logo.png`,
-              description:
-                "MyFestivo is the all-in-one college event management platform for student organizers and participants.",
-              sameAs: [],
-            }),
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                name: "MyFestivo",
+                url: APP_URL,
+                logo: {
+                  "@type": "ImageObject",
+                  url: `${APP_URL}/logo.png`,
+                  width: 120,
+                  height: 40,
+                },
+                description:
+                  "MyFestivo is the all-in-one college event management platform for student organizers and participants in India.",
+                contactPoint: {
+                  "@type": "ContactPoint",
+                  email: "myfestivo@gmail.com",
+                  contactType: "customer support",
+                },
+                sameAs: [],
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                name: "MyFestivo",
+                url: APP_URL,
+                description:
+                  "Discover, register, and host college fests, cultural events, tech hackathons, and sports events — all in one place.",
+                potentialAction: {
+                  "@type": "SearchAction",
+                  target: {
+                    "@type": "EntryPoint",
+                    urlTemplate: `${APP_URL}/events?q={search_term_string}`,
+                  },
+                  "query-input": "required name=search_term_string",
+                },
+                hasPart: [
+                  { "@type": "WebPage", name: "Browse Events", url: `${APP_URL}/events` },
+                  { "@type": "WebPage", name: "Create Account", url: `${APP_URL}/signup` },
+                  { "@type": "WebPage", name: "Sign In", url: `${APP_URL}/login` },
+                  { "@type": "WebPage", name: "Site Map", url: `${APP_URL}/sitemap-page` },
+                ],
+              },
+            ]),
           }}
         />
 

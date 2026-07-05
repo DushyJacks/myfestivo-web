@@ -51,7 +51,7 @@ export default function LoginPage() {
       <motion.div variants={pageItem} className="w-full max-w-md">
         <div className="mb-12">
           <Link href="/" className="block mb-8">
-            <img src="/logo.png" alt="MyFestivo" className="h-10 w-auto" />
+            <img src="/logo.png" alt="MyFestivo" className="h-10 w-auto" width={120} height={40} />
           </Link>
           <MicroLabel>Sign In</MicroLabel>
           <h1 className="text-4xl font-light tracking-tight mb-2">Welcome back.</h1>
@@ -68,7 +68,7 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label htmlFor="email" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">
+              <label htmlFor="email" className="text-[11px] font-mono tracking-widest uppercase text-white/60 mb-2 block">
                 Email Address
               </label>
               <Input
@@ -85,7 +85,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">
+              <label htmlFor="password" className="text-[11px] font-mono tracking-widest uppercase text-white/60 mb-2 block">
                 Password
               </label>
               <Input
@@ -122,7 +122,7 @@ export default function LoginPage() {
 
           <div className="my-6 flex items-center gap-4" aria-hidden="true">
             <div className="flex-1 h-px bg-white/[0.08]" />
-            <span className="text-[10px] font-mono tracking-widest uppercase text-white/30">or</span>
+            <span className="text-[10px] font-mono tracking-widest uppercase text-white/50">or</span>
             <div className="flex-1 h-px bg-white/[0.08]" />
           </div>
 
@@ -172,7 +172,7 @@ export default function LoginPage() {
             )}
           </Button>
 
-          <div className="mt-6 pt-6 border-t border-white/[0.06] text-center text-sm text-white/40">
+          <div className="mt-6 pt-6 border-t border-white/[0.06] text-center text-sm text-white/60">
             No account?{" "}
             <Link href="/signup" className="text-white hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/50">
               Sign up

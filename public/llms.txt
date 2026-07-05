@@ -1,0 +1,42 @@
+# MyFestivo — LLMs.txt
+
+> MyFestivo is a college event management platform built for student organizers and participants in India.
+
+## About
+
+MyFestivo is the all-in-one platform for college fests, cultural events, technical hackathons, workshops, and sports competitions. It enables students to discover events, register individually or in teams, and receive QR-based entry passes. Organizers can create and manage events, track registrations, and restrict access to verified college-domain emails.
+
+Built by students at SRM Institute of Science and Technology, Chennai, India.
+
+## Key Pages
+
+- [Home](https://myfestivo.live/) — Landing page, platform overview, features
+- [Browse Events](https://myfestivo.live/events) — Discover and filter college events
+- [Create Account](https://myfestivo.live/signup) — Register as a student organizer or participant
+- [Sign In](https://myfestivo.live/login) — Access your account
+- [Site Map](https://myfestivo.live/sitemap-page) — Complete site navigation
+
+## Authenticated Features (require login)
+
+- Dashboard — Manage your registrations and hosted events
+- Profile — Update college email for intra-college event access
+- Friends — Connect with other students on the platform
+- Create Event — Host a new college event with sub-events and team registration
+
+## Contact
+
+- Email: myfestivo@gmail.com
+- Operated by: MyFestivo Team, SRM Institute of Science and Technology, Chennai, India
+
+## Technical Notes
+
+- Framework: Next.js (App Router)
+- Deployment: Firebase / Netlify
+- Authentication: Firebase Auth (email/password + Google OAuth)
+- Database: Firestore
+- Public pages: `/`, `/events`, `/login`, `/signup`, `/sitemap-page`, `/sitemap.xml`, `/robots.txt`
+- Private pages (require authentication): `/dashboard`, `/profile`, `/friends`, `/admin`, `/events/create`
+
+## Content Policy
+
+MyFestivo content is intended for college students and educational institutions in India. Event listings are created by verified student organizers. Personal data is protected and not shared publicly.

@@ -129,7 +129,7 @@ export default function LandingPage() {
               </Link>
               <Link
                 href="/events"
-                className="inline-flex items-center justify-center border border-white/20 text-white/70 hover:bg-white/[0.05] h-12 px-8 text-sm rounded-md transition-colors"
+                className="inline-flex items-center justify-center border border-white/20 text-white hover:bg-white/[0.05] h-12 px-8 text-sm rounded-md transition-colors"
               >
                 Browse Events
               </Link>
@@ -186,28 +186,29 @@ export default function LandingPage() {
             <div className="mb-3">
               <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto" width={100} height={32} />
             </div>
-            <p className="text-xs text-white/30 max-w-xs">The event operating system for colleges. Built with care in Chennai, India.</p>
-            <a href="mailto:myfestivo@gmail.com" className="mt-3 flex items-center gap-2 text-xs text-white/30 hover:text-white/60 transition-colors font-mono">
+            <p className="text-xs text-white/50 max-w-xs">The event operating system for colleges. Built with care in Chennai, India.</p>
+            <a href="mailto:myfestivo@gmail.com" className="mt-3 flex items-center gap-2 text-xs text-white/50 hover:text-white/80 transition-colors font-mono">
               <Mail className="w-3.5 h-3.5" />
               myfestivo@gmail.com
             </a>
           </div>
           <div className="flex gap-12 text-[11px] font-mono tracking-widest uppercase">
             <div className="space-y-3">
-              <p className="text-white/20 mb-4">Platform</p>
-              <Link href="/events" className="block text-white/40 hover:text-white transition-colors">Events</Link>
-              <Link href="/signup" className="block text-white/40 hover:text-white transition-colors">Sign Up</Link>
-              <Link href="/login" className="block text-white/40 hover:text-white transition-colors">Sign In</Link>
+              <p className="text-white/50 mb-4">Platform</p>
+              <Link href="/events" className="block text-white/60 hover:text-white transition-colors">Events</Link>
+              <Link href="/signup" className="block text-white/60 hover:text-white transition-colors">Sign Up</Link>
+              <Link href="/login" className="block text-white/60 hover:text-white transition-colors">Sign In</Link>
+              <Link href="/sitemap-page" className="block text-white/60 hover:text-white transition-colors">Site Map</Link>
             </div>
             <div className="space-y-3">
-              <p className="text-white/20 mb-4">Company</p>
-              <button onClick={() => setModal("about")} className="block text-white/40 hover:text-white transition-colors">About</button>
-              <button onClick={() => setModal("features")} className="block text-white/40 hover:text-white transition-colors">Features</button>
-              <button onClick={() => setModal("contact")} className="block text-white/40 hover:text-white transition-colors">Contact</button>
+              <p className="text-white/50 mb-4">Company</p>
+              <button onClick={() => setModal("about")} className="block text-white/60 hover:text-white transition-colors">About</button>
+              <button onClick={() => setModal("features")} className="block text-white/60 hover:text-white transition-colors">Features</button>
+              <button onClick={() => setModal("contact")} className="block text-white/60 hover:text-white transition-colors">Contact</button>
             </div>
           </div>
         </div>
-        <div className="max-w-6xl mx-auto mt-12 pt-6 border-t border-white/[0.04] text-[10px] font-mono text-white/20 tracking-widest">
+        <div className="max-w-6xl mx-auto mt-12 pt-6 border-t border-white/[0.04] text-[10px] font-mono text-white/50 tracking-widest">
           © {new Date().getFullYear()} MyFestivo. All rights reserved.
         </div>
       </footer>

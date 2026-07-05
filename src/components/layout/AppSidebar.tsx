@@ -60,10 +60,10 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
         <div>
           {/* Logo */}
           <Link href="/" className="hidden lg:block px-5 mb-8">
-            <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto" />
+            <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto" width={100} height={32} />
           </Link>
           <Link href="/" className="block lg:hidden px-5 mb-8 text-center">
-            <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto mx-auto" />
+            <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto mx-auto" width={100} height={32} />
           </Link>
 
           {/* Nav items */}

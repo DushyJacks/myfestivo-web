@@ -84,7 +84,7 @@ export default function SignupPage() {
       <motion.div variants={pageItem} className="w-full max-w-lg">
         <div className="mb-12">
           <Link href="/" className="block mb-8">
-            <img src="/logo.png" alt="MyFestivo" className="h-10 w-auto" />
+            <img src="/logo.png" alt="MyFestivo" className="h-10 w-auto" width={120} height={40} />
           </Link>
           <MicroLabel>Create Account</MicroLabel>
           <h1 className="text-4xl font-light tracking-tight mb-2">Join the platform.</h1>
@@ -103,23 +103,23 @@ export default function SignupPage() {
             )}
 
             <div>
-              <label htmlFor="fullname" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Full Name</label>
+              <label htmlFor="fullname" className="text-[11px] font-mono tracking-widest uppercase text-white/60 mb-2 block">Full Name</label>
               <Input id="fullname" value={form.name} onChange={(e) => update("name", e.target.value)} placeholder="Your full name" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
             </div>
 
             <div>
-              <label htmlFor="signup-email" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Email Address</label>
+              <label htmlFor="signup-email" className="text-[11px] font-mono tracking-widest uppercase text-white/60 mb-2 block">Email Address</label>
               <Input id="signup-email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="you@gmail.com" autoComplete="email" spellCheck={false} className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required aria-describedby="email-hint" />
-              <p id="email-hint" className="text-[10px] text-white/30 mt-1">You can link your college email from your Profile later for intra-college events.</p>
+              <p id="email-hint" className="text-xs text-white/50 mt-1">You can link your college email from your Profile later for intra-college events.</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="signup-password" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Password</label>
+                <label htmlFor="signup-password" className="text-[11px] font-mono tracking-widest uppercase text-white/60 mb-2 block">Password</label>
                 <Input id="signup-password" type="password" value={form.password} onChange={(e) => update("password", e.target.value)} placeholder="••••••••" autoComplete="new-password" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
               </div>
               <div>
-                <label htmlFor="signup-confirm-password" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Confirm Password</label>
+                <label htmlFor="signup-confirm-password" className="text-[11px] font-mono tracking-widest uppercase text-white/60 mb-2 block">Confirm Password</label>
                 <Input id="signup-confirm-password" type="password" value={form.confirmPassword} onChange={(e) => update("confirmPassword", e.target.value)} placeholder="••••••••" autoComplete="new-password" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
               </div>
             </div>
@@ -127,22 +127,21 @@ export default function SignupPage() {
             {form.role === "student" && (
               <>
                 <div>
-                  <label htmlFor="college" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">College / University</label>
+                  <label htmlFor="college" className="text-[11px] font-mono tracking-widest uppercase text-white/60 mb-2 block">College / University</label>
                   <Input id="college" value={form.college} onChange={(e) => update("college", e.target.value)} placeholder="e.g. SRM Institute of Science and Technology" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="rollNo" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Roll Number</label>
+                    <label htmlFor="rollNo" className="text-[11px] font-mono tracking-widest uppercase text-white/60 mb-2 block">Roll Number</label>
                     <Input id="rollNo" value={form.rollNo} onChange={(e) => update("rollNo", e.target.value)} placeholder="RA2211003010001" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
                   </div>
                   <div>
-                    <label htmlFor="department" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Department</label>
+                    <label htmlFor="department" className="text-[11px] font-mono tracking-widest uppercase text-white/60 mb-2 block">Department</label>
                     <select
                       id="department"
                       value={form.department}
                       onChange={(e) => update("department", e.target.value)}
                       required
-                      aria-required="true"
                       className="w-full h-11 px-3 rounded-md bg-white/[0.03] border border-white/[0.08] text-white text-sm focus:outline-none focus:border-white/30 transition-colors"
                     >
                       <option value="" className="bg-black text-white/50">Select department...</option>
@@ -153,7 +152,7 @@ export default function SignupPage() {
                   </div>
                 </div>
                 <div>
-                  <span id="year-group-label" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Year</span>
+                  <span id="year-group-label" className="text-[11px] font-mono tracking-widest uppercase text-white/60 mb-2 block">Year</span>
                   <div className="flex gap-2 flex-wrap" role="group" aria-labelledby="year-group-label">
                     {["1st Year", "2nd Year", "3rd Year", "4th Year"].map((yr) => (
                       <button
@@ -192,7 +191,7 @@ export default function SignupPage() {
 
           <div className="my-6 flex items-center gap-4" aria-hidden="true">
             <div className="flex-1 h-px bg-white/[0.08]" />
-            <span className="text-[10px] font-mono tracking-widest uppercase text-white/30">or</span>
+            <span className="text-[10px] font-mono tracking-widest uppercase text-white/50">or</span>
             <div className="flex-1 h-px bg-white/[0.08]" />
           </div>
 
@@ -242,7 +241,7 @@ export default function SignupPage() {
             )}
           </Button>
 
-          <div className="mt-6 pt-6 border-t border-white/[0.06] text-center text-sm text-white/40">
+          <div className="mt-6 pt-6 border-t border-white/[0.06] text-center text-sm text-white/60">
             Already have an account?{" "}
             <Link href="/login" className="text-white hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/50">
               Sign in
