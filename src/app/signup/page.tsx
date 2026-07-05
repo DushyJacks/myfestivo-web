@@ -104,23 +104,23 @@ export default function SignupPage() {
 
             <div>
               <label htmlFor="fullname" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Full Name</label>
-              <Input id="fullname" value={form.name} onChange={(e) => update("name", e.target.value)} placeholder="Your full name" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required aria-required="true" />
+              <Input id="fullname" value={form.name} onChange={(e) => update("name", e.target.value)} placeholder="Your full name" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
             </div>
 
             <div>
               <label htmlFor="signup-email" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Email Address</label>
-              <Input id="signup-email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="you@gmail.com" autoComplete="email" spellCheck={false} className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required aria-required="true" aria-describedby="email-hint" />
+              <Input id="signup-email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="you@gmail.com" autoComplete="email" spellCheck={false} className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required aria-describedby="email-hint" />
               <p id="email-hint" className="text-[10px] text-white/30 mt-1">You can link your college email from your Profile later for intra-college events.</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="signup-password" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Password</label>
-                <Input id="signup-password" type="password" value={form.password} onChange={(e) => update("password", e.target.value)} placeholder="••••••••" autoComplete="new-password" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required aria-required="true" />
+                <Input id="signup-password" type="password" value={form.password} onChange={(e) => update("password", e.target.value)} placeholder="••••••••" autoComplete="new-password" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
               </div>
               <div>
                 <label htmlFor="signup-confirm-password" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Confirm Password</label>
-                <Input id="signup-confirm-password" type="password" value={form.confirmPassword} onChange={(e) => update("confirmPassword", e.target.value)} placeholder="••••••••" autoComplete="new-password" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required aria-required="true" />
+                <Input id="signup-confirm-password" type="password" value={form.confirmPassword} onChange={(e) => update("confirmPassword", e.target.value)} placeholder="••••••••" autoComplete="new-password" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
               </div>
             </div>
 
@@ -128,12 +128,12 @@ export default function SignupPage() {
               <>
                 <div>
                   <label htmlFor="college" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">College / University</label>
-                  <Input id="college" value={form.college} onChange={(e) => update("college", e.target.value)} placeholder="e.g. SRM Institute of Science and Technology" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required aria-required="true" />
+                  <Input id="college" value={form.college} onChange={(e) => update("college", e.target.value)} placeholder="e.g. SRM Institute of Science and Technology" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="rollNo" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Roll Number</label>
-                    <Input id="rollNo" value={form.rollNo} onChange={(e) => update("rollNo", e.target.value)} placeholder="RA2211003010001" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required aria-required="true" />
+                    <Input id="rollNo" value={form.rollNo} onChange={(e) => update("rollNo", e.target.value)} placeholder="RA2211003010001" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
                   </div>
                   <div>
                     <label htmlFor="department" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Department</label>
@@ -153,8 +153,8 @@ export default function SignupPage() {
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="year" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Year</label>
-                  <div className="flex gap-2 flex-wrap" role="group" aria-labelledby="year">
+                  <span id="year-group-label" className="text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block">Year</span>
+                  <div className="flex gap-2 flex-wrap" role="group" aria-labelledby="year-group-label">
                     {["1st Year", "2nd Year", "3rd Year", "4th Year"].map((yr) => (
                       <button
                         key={yr}

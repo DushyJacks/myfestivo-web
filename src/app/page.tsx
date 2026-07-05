@@ -8,7 +8,7 @@ import {
   Zap, Building2, MessageSquare, Users, Shield, ArrowRight,
   Calendar, Trophy, QrCode, X, Mail, ChevronDown
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -51,7 +51,7 @@ export default function LandingPage() {
       {/* ═══ NAVBAR ═══ */}
       <header className="fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-6 md:px-10 z-50 bg-black/60 backdrop-blur-xl border-b border-white/[0.06]">
         <Link href="/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="MyFestivo" className="h-10 w-auto" />
+          <img src="/logo.png" alt="MyFestivo" className="h-10 w-auto" width={120} height={40} />
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 text-[11px] font-mono tracking-widest text-white/40">
@@ -76,11 +76,17 @@ export default function LandingPage() {
             </Link>
           ) : (
             <>
-              <Link href="/login">
-                <Button variant="ghost" className="text-white/70 hover:text-white text-sm h-9">Sign In</Button>
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center text-white/70 hover:text-white text-sm h-9 px-4 rounded-md transition-colors"
+              >
+                Sign In
               </Link>
-              <Link href="/signup">
-                <Button className="bg-white text-black hover:bg-white/90 text-sm font-medium h-9 px-5">Get Started</Button>
+              <Link
+                href="/signup"
+                className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-sm font-medium h-9 px-5 rounded-md transition-colors"
+              >
+                Get Started
               </Link>
             </>
           )}
@@ -115,15 +121,17 @@ export default function LandingPage() {
               Built for college events that actually happen. Host, participate, coordinate — all from one platform.
             </motion.p>
             <motion.div variants={fadeUp} className="flex flex-wrap gap-4">
-              <Link href={user ? "/events" : "/signup"}>
-                <Button className="bg-white text-black hover:bg-white/90 font-medium h-12 px-8 text-sm gap-2">
-                  {user ? "Go to Events" : "Create Account"} <ArrowRight className="w-4 h-4" />
-                </Button>
+              <Link
+                href={user ? "/events" : "/signup"}
+                className="inline-flex items-center justify-center gap-2 bg-white text-black hover:bg-white/90 font-medium h-12 px-8 text-sm rounded-md transition-colors"
+              >
+                {user ? "Go to Events" : "Create Account"} <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </Link>
-              <Link href="/events">
-                <Button variant="outline" className="border-white/20 text-white/70 hover:bg-white/[0.05] h-12 px-8 text-sm">
-                  Browse Events
-                </Button>
+              <Link
+                href="/events"
+                className="inline-flex items-center justify-center border border-white/20 text-white/70 hover:bg-white/[0.05] h-12 px-8 text-sm rounded-md transition-colors"
+              >
+                Browse Events
               </Link>
               <button onClick={() => setModal("features")} className="text-[11px] font-mono tracking-widest text-white/30 hover:text-white/60 transition-colors h-12 px-4 flex items-center gap-1">
                 What we offer <ChevronDown className="w-3.5 h-3.5" />
@@ -138,8 +146,8 @@ export default function LandingPage() {
           transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
         >
-          <button onClick={() => scrollTo(ctaRef)} className="text-white/20 hover:text-white/40 transition-colors">
-            <ChevronDown className="w-6 h-6" />
+          <button onClick={() => scrollTo(ctaRef)} className="text-white/20 hover:text-white/40 transition-colors" aria-label="Scroll to call to action section">
+            <ChevronDown className="w-6 h-6" aria-hidden="true" />
           </button>
         </motion.div>
       </section>
@@ -158,10 +166,11 @@ export default function LandingPage() {
             Join hundreds of student organizers who&apos;ve switched to MyFestivo. It takes 30 seconds to get started.
           </motion.p>
           <motion.div variants={fadeUp} className="flex flex-wrap justify-center gap-4">
-            <Link href={user ? "/events/create" : "/signup"}>
-              <Button className="bg-white text-black hover:bg-white/90 font-medium h-12 px-10 text-sm gap-2">
-                {user ? "Create Event" : "Get Started Free"} <ArrowRight className="w-4 h-4" />
-              </Button>
+            <Link
+              href={user ? "/events/create" : "/signup"}
+              className="inline-flex items-center justify-center gap-2 bg-white text-black hover:bg-white/90 font-medium h-12 px-10 text-sm rounded-md transition-colors"
+            >
+              {user ? "Create Event" : "Get Started Free"} <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </Link>
             <button onClick={() => setModal("contact")} className="h-12 px-6 text-sm text-white/40 hover:text-white font-mono tracking-widest uppercase transition-colors border border-white/[0.08] hover:border-white/20 rounded-md flex items-center gap-2">
               <Mail className="w-4 h-4" /> Contact Us
@@ -175,7 +184,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8">
           <div>
             <div className="mb-3">
-              <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto" />
+              <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto" width={100} height={32} />
             </div>
             <p className="text-xs text-white/30 max-w-xs">The event operating system for colleges. Built with care in Chennai, India.</p>
             <a href="mailto:myfestivo@gmail.com" className="mt-3 flex items-center gap-2 text-xs text-white/30 hover:text-white/60 transition-colors font-mono">
@@ -227,9 +236,10 @@ export default function LandingPage() {
               {/* Close button */}
               <button
                 onClick={closeModal}
+                aria-label="Close modal"
                 className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/[0.04] hover:bg-white/[0.08] flex items-center justify-center transition-colors z-10"
               >
-                <X className="w-4 h-4 text-white/60" />
+                <X className="w-4 h-4 text-white/60" aria-hidden="true" />
               </button>
 
               {/* ── Features Modal ── */}

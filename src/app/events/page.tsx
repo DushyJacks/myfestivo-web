@@ -86,8 +86,10 @@ export default function EventsFeed() {
             <SlidersHorizontal className="w-3 h-3" /> Filters
           </button>
           <div className="flex items-center gap-1.5 ml-auto">
-            <ArrowUpDown className="w-3 h-3 text-white/30" />
-            <select value={sortBy} onChange={e => setSortBy(e.target.value as SortOption)}
+            <ArrowUpDown className="w-3 h-3 text-white/30" aria-hidden="true" />
+            <label htmlFor="sort-select" className="sr-only">Sort events by</label>
+            <select id="sort-select" value={sortBy} onChange={e => setSortBy(e.target.value as SortOption)}
+              aria-label="Sort events by"
               className="dark:bg-black bg-white border dark:border-white/10 border-[rgba(179,136,255,0.20)] dark:text-white/50 text-[#6B6480] text-xs rounded-full px-3 py-1.5 cursor-pointer">
               <option value="date">Date ↑</option>
               <option value="popularity">Most Popular</option>

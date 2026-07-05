@@ -306,6 +306,17 @@
     background-color: #111111;
     color: rgba(255, 255, 255, 0.8);
   }
+
+  /* ─── Ensure visible keyboard focus for all interactive elements ── */
+  :focus-visible {
+    outline: 2px solid #B388FF;
+    outline-offset: 2px;
+  }
+
+  /* Allow elements to opt out of the ring if they define their own */
+  [data-no-focus-ring]:focus-visible {
+    outline: none;
+  }
 }
 
 /* ─── MARQUEE ANIMATION ─────────────────────────────────────── */

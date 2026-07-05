@@ -81,7 +81,6 @@ export default function LoginPage() {
                 spellCheck={false}
                 className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11"
                 required
-                aria-required="true"
               />
             </div>
 
@@ -98,7 +97,6 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11"
                 required
-                aria-required="true"
               />
             </div>
 

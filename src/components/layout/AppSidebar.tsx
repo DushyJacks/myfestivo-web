@@ -67,7 +67,7 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
           </Link>
 
           {/* Nav items */}
-          <nav className="flex flex-col gap-1 px-3" role="navigation">
+          <nav className="flex flex-col gap-1 px-3" aria-label="Main navigation links">
             {visibleNavItems.map(item => {
               const isActive = active === item.id
               return (
