@@ -198,7 +198,6 @@ export default function LandingPage() {
               <Link href="/events" className="block text-white/60 hover:text-white transition-colors">Events</Link>
               <Link href="/signup" className="block text-white/60 hover:text-white transition-colors">Sign Up</Link>
               <Link href="/login" className="block text-white/60 hover:text-white transition-colors">Sign In</Link>
-              <Link href="/sitemap-page" className="block text-white/60 hover:text-white transition-colors">Site Map</Link>
             </div>
             <div className="space-y-3">
               <p className="text-white/50 mb-4">Company</p>
@@ -327,14 +326,14 @@ export default function LandingPage() {
                   <div className="space-y-4">
                     <a
                       href="mailto:myfestivo@gmail.com"
-                      className="flex items-center gap-5 p-6 rounded-xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/[0.16] transition-all group"
+                      className="flex items-center gap-4 p-5 rounded-xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/[0.16] transition-all group overflow-hidden"
                     >
-                      <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
                         <Mail className="w-5 h-5 text-purple-400" />
                       </div>
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Email</p>
-                        <p className="text-white/80 font-medium group-hover:text-white transition-colors">myfestivo@gmail.com</p>
+                        <p className="text-white/80 font-medium group-hover:text-white transition-colors break-all">myfestivo@gmail.com</p>
                         <p className="text-xs text-white/30 mt-0.5">We usually respond within 24 hours</p>
                       </div>
                     </a>
