@@ -294,7 +294,7 @@
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* ─── Fix native <select> dropdown white glitch in dark mode ── */
+  /* ─── Fix native <select> dropdown white glitch ─────────────── */
   select {
     color-scheme: dark;
     background-color: #0a0a0a;
@@ -305,6 +305,21 @@
   select option {
     background-color: #111111;
     color: rgba(255, 255, 255, 0.8);
+  }
+
+  /* ─── Fix Chrome/WebKit autofill white flash ─────────────────── */
+  /* Chrome injects its own background on autofill that can't be removed
+     via background-color. The inset box-shadow trick paints over it.   */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 9999px #111111 inset !important;
+    box-shadow:         0 0 0 9999px #111111 inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff;
+    /* Delay the transition so Chrome doesn't flash white first */
+    transition: background-color 99999s ease-in-out 0s;
   }
 
   /* ─── Ensure visible keyboard focus for all interactive elements ── */
