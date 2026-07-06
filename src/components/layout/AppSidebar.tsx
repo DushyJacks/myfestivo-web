@@ -39,7 +39,7 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
 
   // ── Shared active item style ──────────────────────────────────────────
   const activeClass = "bg-[rgba(179,136,255,0.12)] text-[#B388FF] border-[rgba(179,136,255,0.30)]"
-  const inactiveClass = "dark:text-white/50 text-[#6B6480] hover:bg-[rgba(179,136,255,0.08)] hover:text-[#B388FF] border-transparent"
+  const inactiveClass = "text-white/50 hover:bg-[rgba(179,136,255,0.08)] hover:text-[#B388FF] border-transparent"
 
   return (
     <>
@@ -48,8 +48,8 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
         className="
           hidden md:flex
           w-[72px] lg:w-[260px]
-          border-r dark:border-white/[0.06] border-[rgba(179,136,255,0.15)]
-          dark:bg-black/60 bg-white/80
+          border-r border-white/[0.06]
+          bg-black/60
           backdrop-blur-md
           flex-col justify-between
           py-6 fixed h-screen z-40 overflow-y-auto
@@ -96,15 +96,15 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
             <>
               {/* User info */}
               <div className={`flex items-center justify-center lg:justify-start gap-3 p-3 rounded-lg
-                dark:bg-white/[0.03] bg-[rgba(179,136,255,0.06)]
-                dark:border-white/[0.06] border-[rgba(179,136,255,0.15)] border`}>
+                bg-white/[0.03]
+                border-white/[0.06] border`}>
                 <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 text-white"
                   style={{ background: "linear-gradient(135deg, #B388FF, #7C5CBF)" }}>
                   {user.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="hidden lg:block flex-1 min-w-0">
-                  <p className="text-sm dark:text-white text-[#1A1625] truncate font-medium">{user.name}</p>
-                  <p className="text-[10px] font-mono dark:text-white/40 text-[#6B6480] truncate">{user.email}</p>
+                  <p className="text-sm text-white truncate font-medium">{user.name}</p>
+                  <p className="text-[10px] font-mono text-white/40 truncate">{user.email}</p>
                 </div>
               </div>
 
@@ -113,7 +113,7 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
                 onClick={logout}
                 aria-label="Sign out"
                 className="flex items-center justify-center lg:justify-start gap-3 p-3 w-full rounded-lg
-                  hover:bg-red-500/10 transition-colors dark:text-white/40 text-[#6B6480]
+                  hover:bg-red-500/10 transition-colors text-white/40
                   hover:text-red-400 touch-target focus-ring border border-transparent"
               >
                 <LogOut className="w-4 h-4 shrink-0" strokeWidth={1.5} aria-hidden="true" />
@@ -125,7 +125,7 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
               href="/login"
               aria-label="Sign in to MyFestivo"
               className="flex items-center justify-center lg:justify-start gap-3 p-3 rounded-lg
-                hover:bg-[rgba(179,136,255,0.08)] dark:text-white/50 text-[#6B6480]
+                hover:bg-[rgba(179,136,255,0.08)] text-white/50
                 hover:text-[#B388FF] transition-colors touch-target focus-ring border border-transparent"
             >
               <User className="w-5 h-5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
@@ -139,9 +139,9 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
       <nav
         className="
           md:hidden fixed bottom-0 left-0 right-0 z-50
-          dark:bg-black/90 bg-white/95
+          bg-black/90
           backdrop-blur-xl
-          dark:border-t dark:border-white/[0.06] border-t border-[rgba(179,136,255,0.15)]
+          border-t border-white/[0.06]
           pb-safe
         "
         aria-label="Mobile navigation"
@@ -159,7 +159,7 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
                 className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 min-w-[56px] ${
                   isActive
                     ? "text-[#B388FF]"
-                    : "dark:text-white/40 text-[#6B6480]"
+                    : "text-white/40"
                 }`}
               >
                 <item.icon

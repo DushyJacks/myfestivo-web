@@ -76,9 +76,8 @@ export const viewport: Viewport = {
   ],
   width: "device-width",
   initialScale: 1,
-  minimumScale: 1,
   maximumScale: 5,
-  userScalable: false,
+  // userScalable intentionally omitted — defaults to true (WCAG AA 1.4.4)
   viewportFit: "cover",
 };
 
