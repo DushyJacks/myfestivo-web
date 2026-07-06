@@ -285,18 +285,16 @@
 
   html {
     scroll-behavior: smooth;
-    /* Prevent any OS-level light-mode white flash */
+    /* Force dark on all browsers including mobile Chrome/Safari */
     background-color: #000000;
     color-scheme: dark;
   }
 
   body {
-    background-color: var(--color-bg);
-    color: var(--color-text);
-    letter-spacing: var(--tracking-normal);
-    transition: background-color 0.3s ease, color 0.3s ease;
-    /* Prevent white background flash before React hydrates */
     background-color: #000000;
+    color: #ffffff;
+    letter-spacing: var(--tracking-normal);
+    /* No transition — avoid white flash before React hydrates */
   }
 
   /* ─── Fix native <select> dropdown white glitch ─────────────── */

@@ -91,6 +91,8 @@ export default function RootLayout({
     /* Dark mode is permanent — class is hardcoded, no script flash needed */
     <html lang="en" className="h-full antialiased dark" style={{ colorScheme: "dark", backgroundColor: "#000000" }} suppressHydrationWarning>
       <head>
+        {/* Force dark color scheme — prevents white flash on mobile Chrome/Safari */}
+        <meta name="color-scheme" content="dark" />
         {/* Favicon */}
         <link rel="icon" href="/favicon.jpg" type="image/jpeg" />
         <link rel="shortcut icon" href="/favicon.jpg" type="image/jpeg" />
@@ -158,7 +160,19 @@ export default function RootLayout({
           }}
         />
 
-        {/* Dark mode is always on — no inline script needed */}
+        {/* Blocking script: runs before first paint to guarantee black background */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){
+                var d = document.documentElement;
+                d.style.backgroundColor = '#000000';
+                d.style.colorScheme = 'dark';
+                document.body && (document.body.style.backgroundColor = '#000000');
+              })();
+            `,
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         {/* Skip to content link for accessibility */}
