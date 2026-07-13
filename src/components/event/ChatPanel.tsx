@@ -16,6 +16,38 @@ interface ChatPanelProps {
   messages: ChatMessage[]
 }
 
+/** Format a date-only label like WhatsApp: Today, Yesterday, or "Mon, 14 Jul" */
+function formatDateLabel(dateStr: string): string {
+  // dateStr is "YYYY-MM-DD"
+  const msgDate = new Date(dateStr + "T00:00:00")
+  const today = new Date()
+  const yesterday = new Date()
+  yesterday.setDate(today.getDate() - 1)
+
+  const toKey = (d: Date) => d.toISOString().slice(0, 10)
+
+  if (toKey(msgDate) === toKey(today)) return "Today"
+  if (toKey(msgDate) === toKey(yesterday)) return "Yesterday"
+
+  return msgDate.toLocaleDateString("en-IN", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  })
+}
+
+/** Extract YYYY-MM-DD from a "YYYY-MM-DD HH:mm" timestamp */
+function extractDate(timestamp: string): string {
+  return timestamp.slice(0, 10)
+}
+
+/** Format time portion for display: "HH:mm" */
+function formatTime(timestamp: string): string {
+  // timestamp may be "YYYY-MM-DD HH:mm"
+  if (timestamp.length >= 16) return timestamp.slice(11, 16)
+  return timestamp
+}
+
 export function ChatPanel({ event, eventId, channelId, channelLabel, messages }: ChatPanelProps) {
   const { user } = useAuth()
   const { addChatMessage } = useEvents()
@@ -87,51 +119,70 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
             <p className="text-white/20 text-sm font-mono text-center">No messages yet. Start the conversation!</p>
           </div>
         )}
-        {filtered.map(m => {
+        {filtered.map((m, idx) => {
           const { isOrganizer, eventCoordinatorRoles, subEventRoles } = getUserRole(m.userId, m.userId)
           
+          // ── Date separator logic ──────────────────────────────────
+          const msgDate = extractDate(m.timestamp)
+          const prevDate = idx > 0 ? extractDate(filtered[idx - 1].timestamp) : null
+          const showDateSeparator = msgDate !== prevDate
+
           return (
-            <div key={m.id} className={`flex flex-col ${m.userId === user?.id ? "items-end" : "items-start"}`}>
-              {/* User info with roles */}
-              <div className="flex items-center gap-2 mb-1.5">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm font-medium text-white">{m.userName}</span>
+            <div key={m.id}>
+              {/* WhatsApp-style date separator */}
+              {showDateSeparator && (
+                <div className="flex items-center justify-center my-4">
+                  <span className="px-3 py-1 rounded-full text-[10px] font-mono text-white/40 bg-white/[0.05] border border-white/[0.08] tracking-widest">
+                    {formatDateLabel(msgDate)}
+                  </span>
+                </div>
+              )}
+
+              <div className={`flex flex-col ${m.userId === user?.id ? "items-end" : "items-start"}`}>
+                {/* User info with roles */}
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-medium text-white">{m.userName}</span>
+                    
+                    {/* Overall Event Organizer Badge */}
+                    {isOrganizer && (
+                      <span className="flex items-center gap-1 px-2 py-0.5 bg-purple-500/20 border border-purple-500/40 rounded-full text-[10px] font-mono text-purple-300 tracking-tight">
+                        <Shield className="w-3 h-3" />
+                        EVENT ORG
+                      </span>
+                    )}
+                    
+                    {/* Event-Level Coordinator Badges */}
+                    {eventCoordinatorRoles.length > 0 && eventCoordinatorRoles.map((role, i) => (
+                      <span key={`event-${i}`} className="flex items-center gap-1 px-2 py-0.5 bg-amber-500/20 border border-amber-500/40 rounded-full text-[10px] font-mono text-amber-300 tracking-tight">
+                        <Shield className="w-3 h-3" />
+                        {role.toUpperCase()}
+                      </span>
+                    ))}
+                    
+                    {/* Sub-Event Coordinator Badges */}
+                    {subEventRoles.length > 0 && subEventRoles.map((role, i) => (
+                      <span key={`sub-${i}`} className="flex items-center gap-1 px-2 py-0.5 bg-blue-500/20 border border-blue-500/40 rounded-full text-[10px] font-mono text-blue-300 tracking-tight">
+                        <Zap className="w-3 h-3" />
+                        {role.toUpperCase()}
+                      </span>
+                    ))}
+                  </div>
                   
-                  {/* Overall Event Organizer Badge */}
-                  {isOrganizer && (
-                    <span className="flex items-center gap-1 px-2 py-0.5 bg-purple-500/20 border border-purple-500/40 rounded-full text-[10px] font-mono text-purple-300 tracking-tight">
-                      <Shield className="w-3 h-3" />
-                      EVENT ORG
-                    </span>
-                  )}
-                  
-                  {/* Event-Level Coordinator Badges */}
-                  {eventCoordinatorRoles.length > 0 && eventCoordinatorRoles.map((role, i) => (
-                    <span key={`event-${i}`} className="flex items-center gap-1 px-2 py-0.5 bg-amber-500/20 border border-amber-500/40 rounded-full text-[10px] font-mono text-amber-300 tracking-tight">
-                      <Shield className="w-3 h-3" />
-                      {role.toUpperCase()}
-                    </span>
-                  ))}
-                  
-                  {/* Sub-Event Coordinator Badges */}
-                  {subEventRoles.length > 0 && subEventRoles.map((role, i) => (
-                    <span key={`sub-${i}`} className="flex items-center gap-1 px-2 py-0.5 bg-blue-500/20 border border-blue-500/40 rounded-full text-[10px] font-mono text-blue-300 tracking-tight">
-                      <Zap className="w-3 h-3" />
-                      {role.toUpperCase()}
-                    </span>
-                  ))}
+                  {/* Show date + time */}
+                  <span className="text-[9px] font-mono text-white/20">
+                    {formatTime(m.timestamp)}
+                  </span>
                 </div>
                 
-                <span className="text-[9px] font-mono text-white/20">{m.timestamp.slice(11)}</span>
-              </div>
-              
-              {/* Message bubble */}
-              <div className={`max-w-[70%] px-4 py-2.5 rounded-lg text-sm leading-relaxed ${
-                m.userId === user?.id
-                  ? "bg-white/[0.1] border border-white/[0.15] text-white/90"
-                  : "bg-white/[0.04] border border-white/[0.08] text-white/70"
-              }`}>
-                {sanitizeUserInput(m.message)}
+                {/* Message bubble */}
+                <div className={`max-w-[70%] px-4 py-2.5 rounded-lg text-sm leading-relaxed ${
+                  m.userId === user?.id
+                    ? "bg-white/[0.1] border border-white/[0.15] text-white/90"
+                    : "bg-white/[0.04] border border-white/[0.08] text-white/70"
+                }`}>
+                  {sanitizeUserInput(m.message)}
+                </div>
               </div>
             </div>
           )

@@ -74,9 +74,9 @@ export function ProfileCompleteModal() {
             transition={{ type: "spring", stiffness: 300, damping: 28 }}
             className="w-full max-w-lg"
           >
-            <GlassCard className="p-0 overflow-hidden border border-[rgba(179,136,255,0.2)]">
+            <GlassCard className="p-0 overflow-hidden border border-[rgba(179,136,255,0.2)] max-h-[90dvh] overflow-y-auto">
               {/* Header */}
-              <div className="px-8 py-6 border-b border-white/[0.06] bg-gradient-to-r from-[rgba(179,136,255,0.08)] to-transparent">
+              <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-white/[0.06] bg-gradient-to-r from-[rgba(179,136,255,0.08)] to-transparent sticky top-0 z-10 backdrop-blur-sm">
                 <div className="flex items-center gap-3 mb-1">
                   <div className="w-9 h-9 rounded-full bg-[rgba(179,136,255,0.12)] flex items-center justify-center">
                     <User className="w-4 h-4 text-[#B388FF]" />
@@ -89,7 +89,7 @@ export function ProfileCompleteModal() {
               </div>
 
               {/* Body */}
-              <div className="px-8 py-6 space-y-4">
+              <div className="px-4 sm:px-8 py-4 sm:py-6 space-y-4">
                 {/* Welcome message */}
                 <div className="flex items-start gap-3 p-4 rounded-lg bg-[rgba(179,136,255,0.06)] border border-[rgba(179,136,255,0.12)]">
                   <span className="text-[#B388FF] text-lg">👋</span>
@@ -175,7 +175,7 @@ export function ProfileCompleteModal() {
               </div>
 
               {/* Footer */}
-              <div className="px-8 py-5 border-t border-white/[0.06] bg-black/20 flex items-center justify-between gap-3">
+              <div className="px-4 sm:px-8 py-4 sm:py-5 border-t border-white/[0.06] bg-black/20 flex items-center justify-between gap-3">
                 <Button
                   variant="ghost"
                   onClick={() => setOpen(false)}

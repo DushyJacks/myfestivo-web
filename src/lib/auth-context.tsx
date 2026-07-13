@@ -9,9 +9,32 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
+  deleteUser,
 } from "firebase/auth"
 import { collection, query, where, getDocs } from "firebase/firestore"
-import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore"
+import { doc, setDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore"
+
+const SESSION_KEY = "mf_session_start"
+const SESSION_MAX_MS = 3 * 24 * 60 * 60 * 1000 // 3 days in milliseconds
+
+function recordSessionStart() {
+  try { localStorage.setItem(SESSION_KEY, Date.now().toString()) } catch {}
+}
+
+function clearSessionStart() {
+  try { localStorage.removeItem(SESSION_KEY) } catch {}
+}
+
+function isSessionExpired(): boolean {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY)
+    if (!raw) return false // no timestamp → don't force-logout (legacy sessions)
+    const elapsed = Date.now() - parseInt(raw, 10)
+    return elapsed > SESSION_MAX_MS
+  } catch {
+    return false
+  }
+}
 
 export type UserRole = "student" | "admin"
 
@@ -50,6 +73,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>
   signup: (data: SignupData) => Promise<boolean>
   logout: () => void
+  deleteAccount: () => Promise<void>
   addFriend: (gmail: string) => void
   removeFriend: (gmail: string) => void
   updateProfile: (updates: Partial<User>) => void
@@ -114,6 +138,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const unsub = onAuthStateChanged(authInstance, async (firebaseUser) => {
       if (firebaseUser) {
+        // ── 3-day absolute session timeout ──────────────────────────
+        if (isSessionExpired()) {
+          clearSessionStart()
+          await signOut(authInstance)
+          setUser(null)
+          setIsLoading(false)
+          return
+        }
         const profile = await fetchUserProfile(firebaseUser.uid)
         setUser(profile)
       } else {
@@ -139,6 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const cred = await signInWithEmailAndPassword(authInstance, email, password)
       const profile = await fetchUserProfile(cred.user.uid)
       if (profile) {
+        recordSessionStart()
         setUser(profile)
         return true
       }
@@ -190,6 +223,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     const authInstance = getAuthInstance()
     if (authInstance) await signOut(authInstance)
+    clearSessionStart()
+    setUser(null)
+  }
+
+  const deleteAccount = async (): Promise<void> => {
+    const authInstance = getAuthInstance()
+    const db = getDb()
+    if (!authInstance?.currentUser || !user) throw new Error("Not authenticated")
+    // Delete Firestore document
+    if (db) await deleteDoc(doc(db, "users", user.id))
+    // Delete Firebase Auth user
+    await deleteUser(authInstance.currentUser)
+    clearSessionStart()
     setUser(null)
   }
 
@@ -202,6 +248,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const cred = await signInWithPopup(authInstance, googleProvider)
       const existing = await fetchUserProfile(cred.user.uid)
       if (existing) {
+        recordSessionStart()
         setUser(existing)
         return true
       }
@@ -229,6 +276,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         coordinatingEvents: [],
       }
       await setDoc(doc(db, "users", cred.user.uid), newUser)
+      recordSessionStart()
       setUser(newUser)
       return true
     } catch (err: any) {
@@ -330,7 +378,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, login, signup, logout, addFriend, removeFriend, updateProfile, linkCollegeEmail, signInWithGoogle, sendFriendRequest, acceptFriendRequest, declineFriendRequest }}
+      value={{ user, isLoading, login, signup, logout, deleteAccount, addFriend, removeFriend, updateProfile, linkCollegeEmail, signInWithGoogle, sendFriendRequest, acceptFriendRequest, declineFriendRequest }}
     >
       {children}
     </AuthContext.Provider>

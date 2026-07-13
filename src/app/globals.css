@@ -296,17 +296,34 @@
     /* No transition — avoid white flash before React hydrates */
   }
 
-  /* ─── Fix native <select> dropdown white glitch ─────────────── */
+  /* ─── Fix native <select> dropdown — dark on all browsers incl. mobile Chrome ── */
   select {
-    color-scheme: dark;
-    background-color: #0a0a0a;
-    color: rgba(255, 255, 255, 0.7);
-    border-color: rgba(255, 255, 255, 0.08);
+    color-scheme: dark !important;
+    background-color: #0a0a0a !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    /* Override Chrome mobile / Safari system-theme picker appearance */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
   }
 
   select option {
-    background-color: #111111;
-    color: rgba(255, 255, 255, 0.8);
+    background-color: #111111 !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  /* Ensure dark even when OS is in light mode on mobile */
+  @media (prefers-color-scheme: light) {
+    select {
+      color-scheme: dark !important;
+      background-color: #0a0a0a !important;
+      color: rgba(255, 255, 255, 0.75) !important;
+    }
+    select option {
+      background-color: #111111 !important;
+      color: rgba(255, 255, 255, 0.85) !important;
+    }
   }
 
   /* ─── Fix Chrome/WebKit autofill white flash ─────────────────── */

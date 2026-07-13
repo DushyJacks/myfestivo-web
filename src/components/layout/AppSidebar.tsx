@@ -3,7 +3,7 @@
 import { useAuth } from "@/lib/auth-context"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Compass, Calendar, PlusCircle, LogOut, User, Users } from "lucide-react"
+import { Compass, Calendar, PlusCircle, LogOut, User, Users, House } from "lucide-react"
 
 
 interface AppSidebarProps {
@@ -148,7 +148,24 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <div className="flex items-center justify-around px-2 py-2">
-          {visibleNavItems.slice(0, 5).map(item => {
+          {/* Landing page breadcrumb — always visible on mobile */}
+          <Link
+            href="/"
+            aria-label="Go to MyFestivo home"
+            className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 min-w-[48px] ${
+              pathname === "/" ? "text-[#B388FF]" : "text-white/40"
+            }`}
+          >
+            <House
+              className={`w-5 h-5 transition-transform duration-200 ${pathname === "/" ? "scale-110" : ""}`}
+              strokeWidth={pathname === "/" ? 2 : 1.5}
+              aria-hidden="true"
+            />
+            <span className="text-[9px] font-medium tracking-wide">Home</span>
+            {pathname === "/" && <span className="w-1 h-1 rounded-full bg-[#B388FF] mt-0.5" />}
+          </Link>
+
+          {visibleNavItems.slice(0, 4).map(item => {
             const isActive = active === item.id
             return (
               <Link
@@ -156,7 +173,7 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
                 href={item.href}
                 aria-label={item.label}
                 aria-current={isActive ? "page" : undefined}
-                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 min-w-[56px] ${
+                className={`flex flex-col items-center gap-1 px-2 py-2 rounded-xl transition-all duration-200 min-w-[48px] ${
                   isActive
                     ? "text-[#B388FF]"
                     : "text-white/40"

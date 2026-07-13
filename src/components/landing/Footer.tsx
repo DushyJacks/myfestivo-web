@@ -75,21 +75,21 @@ export function Footer() {
 
           {/* Legal links */}
           <div>
-            <h3 className="text-xs font-mono tracking-widest uppercase text-white/40 mb-4 sr-only">Legal</h3>
+            <h3 className="text-xs font-mono tracking-widest uppercase text-white/40 mb-4">Legal</h3>
             <ul className="space-y-2.5">
               <li>
-                <Link href="#" className="text-sm text-white/60 hover:text-white transition-colors">
+                <Link href="/privacy-policy" className="text-sm text-white/60 hover:text-white transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm text-white/60 hover:text-white transition-colors">
-                  Terms of Service
+                <Link href="/terms" className="text-sm text-white/60 hover:text-white transition-colors">
+                  Terms &amp; Conditions
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm text-white/60 hover:text-white transition-colors">
-                  Cookie Policy
+                <Link href="/sitemap-page" className="text-sm text-white/60 hover:text-white transition-colors">
+                  Site Map
                 </Link>
               </li>
             </ul>
@@ -99,7 +99,10 @@ export function Footer() {
         {/* Bottom footer */}
         <div className="border-t border-white/[0.06] pt-8 md:pt-12 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-white/40">
           <p>© {currentYear} MyFestivo. All rights reserved.</p>
-          <p className="text-center md:text-right">Made with passion for college events</p>
+          <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
+            <Link href="/privacy-policy" className="hover:text-white/70 transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-white/70 transition-colors">Terms &amp; Conditions</Link>
+          </div>
         </div>
       </div>
     </footer>

@@ -8,18 +8,102 @@ import { AppSidebar } from "@/components/layout/AppSidebar"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { MicroLabel } from "@/components/ui/MicroLabel"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Save, Mail, Phone, School, BadgeCheck, AlertCircle,
-  Loader2, CheckCircle2, Shield, User, BookOpen, Pencil, X
+  Loader2, CheckCircle2, Shield, User, BookOpen, Pencil, X,
+  LogOut, Trash2, AlertTriangle
 } from "lucide-react"
 
 const DEPARTMENTS = ["Computer Science", "Cyber Security", "AI/ML", "BCA"]
 
+/** Confirmation modal used for both sign-out and delete account */
+function ConfirmModal({
+  type,
+  onConfirm,
+  onCancel,
+  loading,
+}: {
+  type: "signout" | "delete"
+  onConfirm: () => void
+  onCancel: () => void
+  loading: boolean
+}) {
+  const isDelete = type === "delete"
+  return (
+    <motion.div
+      key="confirm-backdrop"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[300] flex items-center justify-center px-4 bg-black/80 backdrop-blur-sm"
+      onClick={onCancel}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96 }}
+        transition={{ type: "spring", stiffness: 340, damping: 30 }}
+        className="w-full max-w-sm"
+        onClick={e => e.stopPropagation()}
+      >
+        <GlassCard className={`p-6 border ${isDelete ? "border-red-500/30" : "border-white/10"}`}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDelete ? "bg-red-500/10" : "bg-white/[0.06]"}`}>
+              {isDelete ? (
+                <AlertTriangle className="w-5 h-5 text-red-400" />
+              ) : (
+                <LogOut className="w-5 h-5 text-white/60" />
+              )}
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-white">
+                {isDelete ? "Delete Account?" : "Sign Out?"}
+              </h2>
+              <p className="text-xs text-white/40">
+                {isDelete ? "This action cannot be undone" : "You can sign back in anytime"}
+              </p>
+            </div>
+          </div>
+
+          {isDelete && (
+            <div className="mb-4 p-3 rounded-md bg-red-500/10 border border-red-500/20">
+              <p className="text-xs text-red-300 leading-relaxed">
+                <strong>Warning:</strong> This will permanently delete your account, profile data, and remove you from all events. This cannot be reversed.
+              </p>
+            </div>
+          )}
+
+          <div className="flex gap-3 justify-end">
+            <button
+              onClick={onCancel}
+              className="px-4 py-2 rounded-md text-xs border border-white/[0.1] text-white/50 hover:text-white hover:border-white/20 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              disabled={loading}
+              className={`px-4 py-2 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50 ${
+                isDelete
+                  ? "bg-red-500 hover:bg-red-600 text-white"
+                  : "bg-white hover:bg-white/90 text-black"
+              }`}
+            >
+              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              {isDelete ? "Yes, Delete My Account" : "Yes, Sign Out"}
+            </button>
+          </div>
+        </GlassCard>
+      </motion.div>
+    </motion.div>
+  )
+}
+
 export default function ProfilePage() {
-  const { user, updateProfile, linkCollegeEmail, sendFriendRequest } = useAuth()
+  const { user, updateProfile, linkCollegeEmail, sendFriendRequest, logout, deleteAccount } = useAuth()
   const { events } = useEvents()
   const router = useRouter()
 
@@ -39,6 +123,11 @@ export default function ProfilePage() {
   const [otpSent, setOtpSent] = useState(false)
   const [otp, setOtp] = useState("")
   const [verifyError, setVerifyError] = useState("")
+
+  // Confirmation modals
+  const [confirmModal, setConfirmModal] = useState<"signout" | "delete" | null>(null)
+  const [actionLoading, setActionLoading] = useState(false)
+  const [deleteError, setDeleteError] = useState("")
 
   useEffect(() => {
     if (!user) { router.push("/login"); return }
@@ -105,6 +194,27 @@ export default function ProfilePage() {
     finally { setVerifying(false) }
   }
 
+  const handleSignOut = async () => {
+    setActionLoading(true)
+    await logout()
+    setActionLoading(false)
+    setConfirmModal(null)
+    router.push("/login")
+  }
+
+  const handleDeleteAccount = async () => {
+    setActionLoading(true)
+    setDeleteError("")
+    try {
+      await deleteAccount()
+      setConfirmModal(null)
+      router.push("/")
+    } catch (err: any) {
+      setDeleteError(err?.message || "Failed to delete account. Please try again.")
+      setActionLoading(false)
+    }
+  }
+
   const inputCls = "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11"
   const readonlyCls = "h-11 px-3 flex items-center text-sm text-white/80 bg-white/[0.02] border border-white/[0.06] rounded-md"
   const labelCls = "text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block"
@@ -112,6 +222,18 @@ export default function ProfilePage() {
   return (
     <div className="flex min-h-screen">
       <AppSidebar activeItem="profile" />
+
+      {/* Confirmation modals */}
+      <AnimatePresence>
+        {confirmModal && (
+          <ConfirmModal
+            type={confirmModal}
+            onConfirm={confirmModal === "signout" ? handleSignOut : handleDeleteAccount}
+            onCancel={() => { setConfirmModal(null); setDeleteError("") }}
+            loading={actionLoading}
+          />
+        )}
+      </AnimatePresence>
 
       <main className="flex-1 md:ml-[72px] lg:ml-[260px] pb-20 md:pb-0">
         <PageTransition className="p-6 lg:p-10 max-w-3xl mx-auto">
@@ -326,6 +448,48 @@ export default function ProfilePage() {
               )}
             </GlassCard>
           </motion.div>
+
+          {/* ── Account Actions ── */}
+          <motion.div variants={pageItem} className="mb-8">
+            <GlassCard className="p-6 sm:p-8">
+              <MicroLabel>03 — Account</MicroLabel>
+              <p className="text-sm text-white/40 mb-6">Manage your session and account data.</p>
+
+              <div className="space-y-3">
+                {/* Sign Out */}
+                <button
+                  onClick={() => setConfirmModal("signout")}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-white/[0.08] text-white/60 hover:text-white hover:border-white/20 hover:bg-white/[0.03] transition-all text-sm"
+                >
+                  <LogOut className="w-4 h-4 shrink-0" />
+                  <div className="text-left">
+                    <p className="font-medium">Sign Out</p>
+                    <p className="text-xs text-white/30">End your current session</p>
+                  </div>
+                </button>
+
+                {/* Delete Account */}
+                <button
+                  onClick={() => setConfirmModal("delete")}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-red-500/20 text-red-400/70 hover:text-red-400 hover:border-red-500/40 hover:bg-red-500/[0.05] transition-all text-sm"
+                >
+                  <Trash2 className="w-4 h-4 shrink-0" />
+                  <div className="text-left">
+                    <p className="font-medium">Delete Account</p>
+                    <p className="text-xs text-red-400/40">Permanently remove your account and all data</p>
+                  </div>
+                </button>
+
+                {deleteError && (
+                  <div className="flex items-center gap-2 p-3 rounded-md bg-red-500/10 border border-red-500/20 text-xs text-red-400">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    {deleteError}
+                  </div>
+                )}
+              </div>
+            </GlassCard>
+          </motion.div>
+
         </PageTransition>
       </main>
     </div>

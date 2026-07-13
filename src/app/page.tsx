@@ -206,6 +206,11 @@ export default function LandingPage() {
               <button onClick={() => setModal("features")} className="block text-white/75 hover:text-white transition-colors">Features</button>
               <button onClick={() => setModal("contact")} className="block text-white/75 hover:text-white transition-colors">Contact</button>
             </div>
+            <div className="space-y-3">
+              <p className="text-white/70 mb-4">Legal</p>
+              <Link href="/privacy-policy" className="block text-white/75 hover:text-white transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="block text-white/75 hover:text-white transition-colors">Terms &amp; Conditions</Link>
+            </div>
           </div>
         </div>
         <div className="max-w-6xl mx-auto mt-12 pt-6 border-t border-white/[0.04] text-[10px] font-mono text-white/60 tracking-widest">
