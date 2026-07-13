@@ -8,24 +8,84 @@
   NODE_VERSION = "20"
   NPM_VERSION = "10"
 
-# Redirect all requests to index for client-side routing
+# ─── Redirects ───────────────────────────────────────────────────────────────
+# SPA fallback for client-side routing (Next.js handles this, but kept as safety net)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
   force = false
 
-# Cache settings
+# ─── Compression ─────────────────────────────────────────────────────────────
+# Netlify automatically applies Brotli and GZIP compression to all text-based
+# responses (HTML, CSS, JS, JSON, SVG, XML). No additional configuration is
+# needed. next.config.ts also sets `compress: true` for the Node server layer.
+
+# ─── Cache: Next.js immutable static assets ──────────────────────────────────
 [[headers]]
   for = "/_next/static/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# ─── Cache: Fonts ─────────────────────────────────────────────────────────────
+[[headers]]
+  for = "/*.woff2"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.woff"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ─── Cache: Images ───────────────────────────────────────────────────────────
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/*.jpeg"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/*.avif"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
+
+# ─── Cache: Favicon & App Icons ──────────────────────────────────────────────
 [[headers]]
   for = "/favicon.ico"
   [headers.values]
     Cache-Control = "public, max-age=604800"
 
+[[headers]]
+  for = "/favicon.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/icons/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# ─── Cache: JS & CSS bundles (non-immutable public assets) ───────────────────
 [[headers]]
   for = "/*.js"
   [headers.values]
@@ -38,3 +98,7 @@
 
 # Environment variables will be set via Netlify UI
 # See: https://docs.netlify.com/configure-builds/environment-variables/
+# Required:
+#   GMAIL_EMAIL         = myfestivo@gmail.com
+#   GMAIL_APP_PASSWORD  = <16-char Gmail App Password>
+#   NEXT_PUBLIC_APP_URL = https://myfestivo.live

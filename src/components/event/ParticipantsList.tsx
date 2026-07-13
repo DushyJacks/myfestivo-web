@@ -97,13 +97,12 @@ export function ParticipantsList({ event }: Props) {
               <th className="text-left p-3 text-[10px] font-mono tracking-widest">Participant</th>
               <th className="text-left p-3 text-[10px] font-mono tracking-widest">Sub-Event</th>
               <th className="text-left p-3 text-[10px] font-mono tracking-widest">Team</th>
-              <th className="text-left p-3 text-[10px] font-mono tracking-widest">Status</th>
               <th className="text-left p-3 text-[10px] font-mono tracking-widest">Date</th>
             </tr>
           </thead>
           <tbody>
             {regs.length === 0 ? (
-              <tr><td colSpan={6} className="p-8 text-center text-white/20 font-mono">No registrations yet</td></tr>
+              <tr><td colSpan={5} className="p-8 text-center text-white/20 font-mono">No registrations yet</td></tr>
             ) : regs.map((reg, i) => {
               const se = event.subEvents.find(s => s.id === reg.subEventId)
               return (
@@ -137,12 +136,6 @@ export function ParticipantsList({ event }: Props) {
                         )}
                       </div>
                     ) : <span className="text-[10px] font-mono text-white/20">Solo</span>}
-                  </td>
-                  <td className="p-3">
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${reg.status === "PAID" ? "border-green-500/30 text-green-400" :
-                        reg.status === "PENDING" ? "border-yellow-500/30 text-yellow-400" :
-                          "border-white/20 text-white/40"
-                      }`}>{reg.status}</span>
                   </td>
                   <td className="p-3 text-[10px] font-mono text-white/30">{reg.timestamp}</td>
                 </tr>

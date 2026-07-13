@@ -14,7 +14,7 @@ export function Footer() {
           {/* Brand section */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link href="/" className="block mb-4">
-              <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto" width={100} height={32} />
+              <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto" width={100} height={32} loading="lazy" decoding="async" />
             </Link>
             <p className="text-sm text-white/60 mb-4">
               Built for college events that actually happen. One platform. All events.

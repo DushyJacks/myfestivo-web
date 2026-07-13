@@ -9,8 +9,9 @@ import { MicroLabel } from "@/components/ui/MicroLabel"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { UserPlus, AlertCircle } from "lucide-react"
+import { TermsModal, useLegalAccepted } from "@/components/ui/TermsModal"
 
 export default function SignupPage() {
   const { signup, signInWithGoogle } = useAuth()
@@ -29,6 +30,8 @@ export default function SignupPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+
+  const { accepted, accept } = useLegalAccepted()
 
   const update = (key: string, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -79,12 +82,27 @@ export default function SignupPage() {
     setLoading(false)
   }
 
+  const showTerms = accepted === false
+
   return (
-    <PageTransition className="min-h-screen flex items-center justify-center px-4 py-16">
+    <>
+      <AnimatePresence>
+        {showTerms && <TermsModal onAccept={accept} />}
+      </AnimatePresence>
+
+      <PageTransition className="min-h-screen flex items-center justify-center px-4 py-16">
       <motion.div variants={pageItem} className="w-full max-w-lg">
         <div className="mb-12">
           <Link href="/" className="block mb-8">
-            <img src="/logo.png" alt="MyFestivo" className="h-10 w-auto" width={120} height={40} />
+            <img
+              src="/logo.png"
+              alt="MyFestivo"
+              className="h-10 w-auto"
+              width={120}
+              height={40}
+              loading="lazy"
+              decoding="async"
+            />
           </Link>
           <MicroLabel>Create Account</MicroLabel>
           <h1 className="text-4xl font-light tracking-tight mb-2">Join the platform.</h1>
@@ -174,7 +192,7 @@ export default function SignupPage() {
               </>
             )}
 
-            <Button type="submit" disabled={loading} aria-label={loading ? "Creating account..." : "Create account"} className="w-full bg-white text-black hover:bg-white/90 font-medium h-12 transition-colors mt-2">
+            <Button type="submit" disabled={loading || accepted === false} aria-label={loading ? "Creating account..." : "Create account"} className="w-full bg-white text-black hover:bg-white/90 font-medium h-12 transition-colors mt-2 disabled:opacity-50">
               {loading ? (
                 <span className="inline-flex items-center gap-2">
                   <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" aria-hidden="true" />
@@ -197,7 +215,7 @@ export default function SignupPage() {
 
           <Button
             type="button"
-            disabled={googleLoading}
+            disabled={googleLoading || accepted === false}
             aria-label={googleLoading ? "Connecting to Google..." : "Continue with Google"}
             onClick={async () => {
               setGoogleLoading(true)
@@ -250,5 +268,6 @@ export default function SignupPage() {
         </GlassCard>
       </motion.div>
     </PageTransition>
+    </>
   )
 }

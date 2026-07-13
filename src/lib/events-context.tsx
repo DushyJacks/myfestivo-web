@@ -156,6 +156,7 @@ export interface ImportantLink {
 // ─── Context Type ───
 interface EventsContextType {
   events: MainEvent[]
+  isLoading: boolean
   addEvent: (event: MainEvent) => void
   deleteEvent: (id: string) => void
   updateEvent: (id: string, updates: Partial<MainEvent>) => void
@@ -194,12 +195,14 @@ function getEventRef(eventId: string) {
 // ─── Provider ───
 export function EventsProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<MainEvent[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   // Real-time listener for all events
   useEffect(() => {
     const col = getEventsCol()
     if (!col) {
       console.warn("[EventsProvider] Firebase not initialized — skipping onSnapshot. Check your .env.local")
+      setIsLoading(false)
       return
     }
     const unsub = onSnapshot(col, (snapshot) => {
@@ -224,6 +227,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
         } as MainEvent
       })
       setEvents(fetched)
+      setIsLoading(false)
     })
     return () => unsub()
   }, [])
@@ -460,7 +464,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
 
   return (
     <EventsContext.Provider value={{
-      events, addEvent, deleteEvent, updateEvent, registerForSubEvent, addChatMessage, addCoordinator,
+      events, isLoading, addEvent, deleteEvent, updateEvent, registerForSubEvent, addChatMessage, addCoordinator,
       submitTransaction, approvePayment, rejectPayment,
       addAnnouncement, addTask, updateTaskStatus, updateTaskOrder, checkInParticipant,
       addAutomation, toggleAutomation, addAutomationLog

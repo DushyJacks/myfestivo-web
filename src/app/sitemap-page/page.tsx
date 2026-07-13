@@ -46,7 +46,7 @@ export default function SitemapPage() {
       <header className="mb-16">
         <Link href="/" className="inline-block mb-10" aria-label="Go to MyFestivo home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="MyFestivo" width={120} height={40} className="h-10 w-auto" />
+          <img src="/logo.png" alt="MyFestivo" width={120} height={40} className="h-10 w-auto" loading="lazy" decoding="async" />
         </Link>
         <p className="text-[10px] font-mono tracking-[0.3em] uppercase text-white/30 mb-3">
           Navigation

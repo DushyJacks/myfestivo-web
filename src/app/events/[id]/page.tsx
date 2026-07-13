@@ -33,7 +33,7 @@ export default function EventDetailPage() {
   const params = useParams()
   const router = useRouter()
   const { user } = useAuth()
-  const { events, updateEvent, registerForSubEvent, addChatMessage, addAnnouncement, addTask, updateTaskStatus, approvePayment, rejectPayment, checkInParticipant, toggleAutomation, addAutomationLog } = useEvents()
+  const { events, updateEvent, registerForSubEvent, addChatMessage, addAnnouncement, addTask, updateTaskStatus, approvePayment, rejectPayment, checkInParticipant, toggleAutomation, addAutomationLog, isLoading } = useEvents()
 
   const [activeTab, setActiveTab] = useState<TabId>("overview")
   const [selectedSubEvent, setSelectedSubEvent] = useState<string | null>(null)
@@ -68,6 +68,17 @@ export default function EventDetailPage() {
 
   // Set up automatic event reminders
   useEventReminders(event || null as any)
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
+          <p className="text-white/30 font-mono text-xs tracking-widest uppercase">Loading event…</p>
+        </div>
+      </div>
+    )
+  }
 
   if (!event) {
     return (
@@ -253,7 +264,7 @@ export default function EventDetailPage() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 md:left-[72px] lg:left-[260px] right-0 h-16 flex items-center justify-between px-4 md:px-8 z-50 dark:bg-black/60 bg-white/80 backdrop-blur-md dark:border-b dark:border-white/[0.06] border-b border-[rgba(179,136,255,0.15)]">
+      <header className="fixed top-0 left-0 md:left-[72px] lg:left-[260px] right-0 h-16 flex items-center justify-between px-4 md:px-8 z-50 bg-black/60 backdrop-blur-md border-b border-white/[0.06]">
         <div className="flex items-center gap-4">
           <Link href="/events" className="text-white/40 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
           <span className="font-medium text-white truncate">{event.title}</span>
@@ -318,7 +329,7 @@ export default function EventDetailPage() {
         </motion.div>
 
         {/* Navigation Tabs */}
-        <motion.div variants={pageItem} className="flex w-full gap-1 border-b dark:border-white/[0.06] border-[rgba(179,136,255,0.15)] mb-8 overflow-x-auto pb-px no-scrollbar">
+        <motion.div variants={pageItem} className="flex w-full gap-1 border-b border-white/[0.06] mb-8 overflow-x-auto pb-px no-scrollbar">
           {tabs.map(tab => (
             <button
               key={tab.id}
@@ -326,7 +337,7 @@ export default function EventDetailPage() {
               className={`flex-1 flex items-center justify-center gap-2 px-4 md:px-6 py-4 text-xs font-medium transition-all relative whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'text-[#B388FF]'
-                  : 'dark:text-white/40 text-[#6B6480] hover:text-[#B388FF]/70'
+                  : 'text-white/40 hover:text-[#B388FF]/70'
               }`}
             >
               <tab.icon className="w-4 h-4" />
