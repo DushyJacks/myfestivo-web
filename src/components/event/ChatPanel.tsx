@@ -16,19 +16,30 @@ interface ChatPanelProps {
   messages: ChatMessage[]
 }
 
+/** Returns "YYYY-MM-DD" from the local calendar (not UTC) for a given Date */
+function toLocalDateKey(d: Date): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, "0")
+  const day = String(d.getDate()).padStart(2, "0")
+  return `${y}-${m}-${day}`
+}
+
 /** Format a date-only label like WhatsApp: Today, Yesterday, or "Mon, 14 Jul" */
 function formatDateLabel(dateStr: string): string {
-  // dateStr is "YYYY-MM-DD"
-  const msgDate = new Date(dateStr + "T00:00:00")
-  const today = new Date()
-  const yesterday = new Date()
-  yesterday.setDate(today.getDate() - 1)
+  // dateStr is "YYYY-MM-DD" already in local (IST) time from the sv-SE timestamp
+  const today = toLocalDateKey(new Date())
+  const yesterday = (() => {
+    const d = new Date()
+    d.setDate(d.getDate() - 1)
+    return toLocalDateKey(d)
+  })()
 
-  const toKey = (d: Date) => d.toISOString().slice(0, 10)
+  if (dateStr === today) return "Today"
+  if (dateStr === yesterday) return "Yesterday"
 
-  if (toKey(msgDate) === toKey(today)) return "Today"
-  if (toKey(msgDate) === toKey(yesterday)) return "Yesterday"
-
+  // Parse as local midnight for display formatting
+  const [y, mo, da] = dateStr.split("-").map(Number)
+  const msgDate = new Date(y, mo - 1, da)
   return msgDate.toLocaleDateString("en-IN", {
     weekday: "short",
     day: "numeric",

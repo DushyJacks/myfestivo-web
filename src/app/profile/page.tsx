@@ -104,7 +104,7 @@ function ConfirmModal({
 
 export default function ProfilePage() {
   const { user, updateProfile, linkCollegeEmail, sendFriendRequest, logout, deleteAccount } = useAuth()
-  const { events } = useEvents()
+  const { events, isLoading: eventsLoading } = useEvents()
   const router = useRouter()
 
   const [isEditing, setIsEditing] = useState(false)
@@ -142,10 +142,14 @@ export default function ProfilePage() {
 
   if (!user) return null
 
-  // Check if user has any active (non-expired) event registrations → lock editing
+  // Check if user has any active (non-expired) event registrations → lock editing.
+  // While events are still loading we conservatively treat it as locked to prevent
+  // a flash where the edit button is enabled before data arrives from Firestore.
   const now = new Date()
-  const hasActiveRegistration = events.some(evt => {
-    const isRegistered = evt.registrations.some(r => r.userEmail === user.email)
+  const hasActiveRegistration = eventsLoading || events.some(evt => {
+    const isRegistered = evt.registrations.some(
+      r => r.userEmail === user.email || r.userId === user.id
+    )
     if (!isRegistered) return false
     const eventDate = new Date(evt.date)
     const eventEnded = eventDate.getTime() + 86400000 < now.getTime()
@@ -311,7 +315,9 @@ export default function ProfilePage() {
               {hasActiveRegistration && !isEditing && (
                 <div className="mb-4 flex items-center gap-2 p-3 rounded-md bg-yellow-500/10 border border-yellow-500/20 text-xs text-yellow-400">
                   <AlertCircle className="w-4 h-4 shrink-0" />
-                  Profile editing is locked while you have active event registrations.
+                  {eventsLoading
+                    ? "Checking event registrations…"
+                    : "Profile editing is locked while you have active event registrations."}
                 </div>
               )}
 

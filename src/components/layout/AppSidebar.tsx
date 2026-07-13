@@ -147,12 +147,12 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
         aria-label="Mobile navigation"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
-        <div className="flex items-center justify-around px-2 py-2">
+        <div className="flex items-center justify-around px-1 py-2">
           {/* Landing page breadcrumb — always visible on mobile */}
           <Link
             href="/"
             aria-label="Go to MyFestivo home"
-            className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 min-w-[48px] ${
+            className={`flex flex-col items-center gap-0.5 px-1.5 py-2 rounded-xl transition-all duration-200 min-w-[40px] ${
               pathname === "/" ? "text-[#B388FF]" : "text-white/40"
             }`}
           >
@@ -161,11 +161,11 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
               strokeWidth={pathname === "/" ? 2 : 1.5}
               aria-hidden="true"
             />
-            <span className="text-[9px] font-medium tracking-wide">Home</span>
-            {pathname === "/" && <span className="w-1 h-1 rounded-full bg-[#B388FF] mt-0.5" />}
+            <span className="text-[8px] font-medium tracking-wide">Home</span>
+            {pathname === "/" && <span className="w-1 h-1 rounded-full bg-[#B388FF]" />}
           </Link>
 
-          {visibleNavItems.slice(0, 4).map(item => {
+          {visibleNavItems.map(item => {
             const isActive = active === item.id
             return (
               <Link
@@ -173,10 +173,8 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
                 href={item.href}
                 aria-label={item.label}
                 aria-current={isActive ? "page" : undefined}
-                className={`flex flex-col items-center gap-1 px-2 py-2 rounded-xl transition-all duration-200 min-w-[48px] ${
-                  isActive
-                    ? "text-[#B388FF]"
-                    : "text-white/40"
+                className={`flex flex-col items-center gap-0.5 px-1.5 py-2 rounded-xl transition-all duration-200 min-w-[40px] ${
+                  isActive ? "text-[#B388FF]" : "text-white/40"
                 }`}
               >
                 <item.icon
@@ -184,16 +182,13 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
                   strokeWidth={isActive ? 2 : 1.5}
                   aria-hidden="true"
                 />
-                <span className="text-[9px] font-medium tracking-wide">
-                  {item.label.split(" ")[0]}
+                <span className="text-[8px] font-medium tracking-wide">
+                  {item.label.split(" ")[0].slice(0, 7)}
                 </span>
-                {isActive && (
-                  <span className="w-1 h-1 rounded-full bg-[#B388FF] mt-0.5" />
-                )}
+                {isActive && <span className="w-1 h-1 rounded-full bg-[#B388FF]" />}
               </Link>
             )
           })}
-
         </div>
       </nav>
     </>
