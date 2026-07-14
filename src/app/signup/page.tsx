@@ -158,8 +158,8 @@ export default function SignupPage() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="rollNo" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">Roll Number</label>
-                    <Input id="rollNo" value={form.rollNo} onChange={(e) => update("rollNo", e.target.value)} placeholder="RA2211003010001" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
+                    <label htmlFor="rollNo" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">Roll Number <span className="text-white/30">(optional)</span></label>
+                    <Input id="rollNo" value={form.rollNo} onChange={(e) => update("rollNo", e.target.value)} placeholder="RA2211003010001" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" />
                   </div>
                   <div>
                     <label htmlFor="department" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">Department</label>
