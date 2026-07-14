@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 
 const DEPARTMENTS = ["Computer Science", "Cyber Security", "AI/ML", "BCA"]
+const YEAR_OPTIONS = ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "Postgraduate", "PhD", "Faculty/Staff"]
 
 /** Confirmation modal used for both sign-out and delete account */
 function ConfirmModal({
@@ -156,8 +157,13 @@ export default function ProfilePage() {
     return !eventEnded
   })
 
+  const phoneDigits = phone.replace(/\D/g, "")
+  const isPhoneValid = phoneDigits.length === 10
+  const canSave = name.trim() && isPhoneValid && college.trim() && department.trim() && rollNo.trim() && year.trim()
+
   const handleSave = () => {
     if (hasActiveRegistration) return
+    if (!canSave) return
     updateProfile({ name, phone, bio, college, department, rollNo, year })
     setSaved(true)
     setTimeout(() => { setSaved(false); setIsEditing(false) }, 1500)
@@ -325,16 +331,24 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}><User className="w-3 h-3 inline mr-1" />Full Name</label>
+                    <label className={labelCls}><User className="w-3 h-3 inline mr-1" />Full Name <span className="text-red-400">*</span></label>
                     {isEditing
                       ? <Input value={name} onChange={e => setName(e.target.value)} className={inputCls} />
                       : <div className={readonlyCls}>{user.name || <span className="text-white/30">Not set</span>}</div>}
                   </div>
                   <div>
-                    <label className={labelCls}><Phone className="w-3 h-3 inline mr-1" />Phone</label>
-                    {isEditing
-                      ? <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+91 98765 43210" className={inputCls} />
-                      : <div className={readonlyCls}>{user.phone || <span className="text-white/30">Not set</span>}</div>}
+                    <label className={labelCls}><Phone className="w-3 h-3 inline mr-1" />Phone <span className="text-red-400">*</span></label>
+                    {isEditing ? (
+                      <div>
+                        <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="9876543210" type="tel" maxLength={10}
+                          className={`${inputCls} ${phone && !isPhoneValid ? "border-red-500/50" : ""}`} />
+                        {phone && !isPhoneValid && (
+                          <p className="text-[10px] text-red-400 mt-1">Phone number must be exactly 10 digits</p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className={readonlyCls}>{user.phone || <span className="text-white/30">Not set</span>}</div>
+                    )}
                   </div>
                 </div>
                 <div>
@@ -345,13 +359,13 @@ export default function ProfilePage() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}><School className="w-3 h-3 inline mr-1" />College</label>
+                    <label className={labelCls}><School className="w-3 h-3 inline mr-1" />College <span className="text-red-400">*</span></label>
                     {isEditing
                       ? <Input value={college} onChange={e => setCollege(e.target.value)} className={inputCls} />
                       : <div className={readonlyCls}>{user.college || <span className="text-white/30">Not set</span>}</div>}
                   </div>
                   <div>
-                    <label className={labelCls}><BookOpen className="w-3 h-3 inline mr-1" />Department</label>
+                    <label className={labelCls}><BookOpen className="w-3 h-3 inline mr-1" />Department <span className="text-red-400">*</span></label>
                     {isEditing ? (
                       <select
                         value={department}
@@ -368,20 +382,22 @@ export default function ProfilePage() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}>Roll Number</label>
+                    <label className={labelCls}>Roll Number <span className="text-red-400">*</span></label>
                     {isEditing
                       ? <Input value={rollNo} onChange={e => setRollNo(e.target.value)} className={inputCls} />
                       : <div className={readonlyCls}>{user.rollNo || <span className="text-white/30">Not set</span>}</div>}
                   </div>
                   <div>
-                    <label className={labelCls}>Year</label>
+                    <label className={labelCls}>Year <span className="text-red-400">*</span></label>
                     {isEditing ? (
-                      <div className="flex gap-2">
-                        {["1st Year", "2nd Year", "3rd Year", "4th Year"].map(yr => (
-                          <button key={yr} type="button" onClick={() => setYear(yr)}
-                            className={`flex-1 py-2.5 rounded-md text-xs transition-colors border ${year === yr ? "bg-white text-black border-white" : "bg-white/[0.03] text-white/50 border-white/[0.08] hover:border-white/20"}`}>{yr}</button>
-                        ))}
-                      </div>
+                      <select
+                        value={year}
+                        onChange={e => setYear(e.target.value)}
+                        className="w-full h-11 bg-white/[0.03] border border-white/[0.08] text-white rounded-md px-3 text-sm"
+                      >
+                        <option value="">Select year</option>
+                        {YEAR_OPTIONS.map(yr => <option key={yr} value={yr}>{yr}</option>)}
+                      </select>
                     ) : (
                       <div className={readonlyCls}>{user.year || <span className="text-white/30">Not set</span>}</div>
                     )}
@@ -391,7 +407,7 @@ export default function ProfilePage() {
 
               {isEditing && (
                 <div className="mt-6 flex items-center gap-3">
-                  <Button onClick={handleSave} className="bg-white text-black hover:bg-white/90 font-medium h-11 px-8">
+                  <Button onClick={handleSave} disabled={!canSave} className="bg-white text-black hover:bg-white/90 font-medium h-11 px-8 disabled:opacity-50">
                     <Save className="w-4 h-4 mr-2" />Save Changes
                   </Button>
                   {saved && <span className="text-sm text-green-400 flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> Saved!</span>}

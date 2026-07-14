@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
 import { motion, AnimatePresence } from "framer-motion"
-import { UserPlus, AlertCircle } from "lucide-react"
+import { UserPlus, AlertCircle, Phone } from "lucide-react"
 import { TermsModal, useLegalAccepted } from "@/components/ui/TermsModal"
 
 export default function SignupPage() {
@@ -26,6 +26,7 @@ export default function SignupPage() {
     rollNo: "",
     department: "",
     year: "1st Year",
+    phone: "",
   })
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
@@ -55,6 +56,12 @@ export default function SignupPage() {
       return
     }
 
+    const phoneDigits = form.phone.replace(/\D/g, "")
+    if (phoneDigits.length !== 10) {
+      setError("Please enter a valid 10-digit phone number")
+      return
+    }
+
     setLoading(true)
     try {
       const success = await signup({
@@ -66,6 +73,7 @@ export default function SignupPage() {
         rollNo: form.rollNo,
         department: form.department,
         year: form.year,
+        phone: form.phone.replace(/\D/g, ""),
       })
       if (success) {
         router.push("/dashboard")
@@ -170,24 +178,38 @@ export default function SignupPage() {
                   </div>
                 </div>
                 <div>
-                  <span id="year-group-label" className="text-[11px] font-mono tracking-widest uppercase text-white/60 mb-2 block">Year</span>
-                  <div className="flex gap-2 flex-wrap" role="group" aria-labelledby="year-group-label">
-                    {["1st Year", "2nd Year", "3rd Year", "4th Year"].map((yr) => (
-                      <button
-                        key={yr}
-                        type="button"
-                        onClick={() => update("year", yr)}
-                        aria-pressed={form.year === yr}
-                        className={`flex-1 min-w-[80px] py-2 px-3 rounded-md text-xs transition-colors border touch-target ${
-                          form.year === yr
-                            ? "bg-white text-black border-white"
-                            : "bg-white/[0.03] text-white/50 border-white/[0.08] hover:border-white/20"
-                        }`}
-                      >
-                        {yr}
-                      </button>
+                  <label htmlFor="year" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">Year of Study</label>
+                  <select
+                    id="year"
+                    value={form.year}
+                    onChange={(e) => update("year", e.target.value)}
+                    required
+                    className="w-full h-11 px-3 rounded-md bg-white/[0.03] border border-white/[0.08] text-white text-sm focus:outline-none focus:border-white/30 transition-colors"
+                  >
+                    {["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "Postgraduate", "PhD", "Faculty/Staff"].map((yr) => (
+                      <option key={yr} value={yr} className="bg-black text-white">{yr}</option>
                     ))}
-                  </div>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="phone" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 flex items-center gap-1.5">
+                    <Phone className="w-3 h-3" /> Phone Number
+                  </label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={form.phone}
+                    onChange={(e) => update("phone", e.target.value)}
+                    placeholder="9876543210"
+                    maxLength={10}
+                    className={`bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11 ${
+                      form.phone && form.phone.replace(/\D/g, "").length !== 10 ? "border-red-500/50" : ""
+                    }`}
+                    required
+                  />
+                  {form.phone && form.phone.replace(/\D/g, "").length !== 10 && (
+                    <p className="text-[11px] text-red-400 mt-1">Must be exactly 10 digits</p>
+                  )}
                 </div>
               </>
             )}

@@ -46,6 +46,7 @@ export interface Registration {
   userId: string
   userName: string
   userEmail: string
+  userPhone?: string
   eventId: string
   subEventId: string
   status: "PAID" | "PENDING" | "REFUNDED"
