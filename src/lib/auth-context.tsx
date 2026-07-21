@@ -99,6 +99,7 @@ interface SignupData {
   rollNo: string
   department: string
   year: string
+  phone: string
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -216,7 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         rollNo: data.rollNo,
         department: data.department,
         year: data.year,
-        phone: "",
+        phone: data.phone || "",
         bio: "",
         avatarColor: pickColor(data.name),
         avatarUrl: "",

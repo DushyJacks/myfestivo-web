@@ -184,7 +184,7 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
                   aria-hidden="true"
                 />
                 <span className="text-[8px] font-medium tracking-wide">
-                  {item.label.split(" ")[0].slice(0, 7)}
+                  {item.id === "browse" ? "Events" : item.id === "dashboard" ? "Dash" : item.id === "host" ? "Host" : item.id === "friends" ? "Friends" : "Profile"}
                 </span>
                 {isActive && <span className="w-1 h-1 rounded-full bg-[#B388FF]" />}
               </Link>

@@ -4,7 +4,7 @@ import { MainEvent, Registration } from "@/lib/events-context"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { MicroLabel } from "@/components/ui/MicroLabel"
 import { Button } from "@/components/ui/button"
-import { Download, Users, BadgeCheck, Clock, ExternalLink } from "lucide-react"
+import { Download, Users, BadgeCheck, Clock, ExternalLink, Phone } from "lucide-react"
 import { useState } from "react"
 import { ParticipantDetailModal } from "./ParticipantDetailModal"
 
@@ -22,12 +22,13 @@ export function ParticipantsList({ event }: Props) {
     : event.registrations
 
   const downloadCSV = () => {
-    const headers = ["Name", "Email", "Sub-Event", "Status", "Team Name", "Team Members", "Registered At", "Checked In"]
+    const headers = ["Name", "Email", "Phone", "Sub-Event", "Status", "Team Name", "Team Members", "Registered At", "Checked In"]
     const rows = regs.map(r => {
       const se = event.subEvents.find(s => s.id === r.subEventId)
       return [
         r.userName,
         r.userEmail,
+        r.userPhone || "",
         se?.name || "",
         r.status,
         r.teamName || "",
@@ -49,14 +50,10 @@ export function ParticipantsList({ event }: Props) {
   return (
     <div>
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         <GlassCard className="p-4 text-center">
           <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Total</p>
           <p className="text-2xl font-light">{event.registrations.length}</p>
-        </GlassCard>
-        <GlassCard className="p-4 text-center">
-          <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Paid</p>
-          <p className="text-2xl font-light text-green-400">{event.registrations.filter(r => r.status === "PAID").length}</p>
         </GlassCard>
         <GlassCard className="p-4 text-center">
           <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Pending</p>
@@ -95,6 +92,7 @@ export function ParticipantsList({ event }: Props) {
             <tr className="bg-white/[0.03] text-white/50">
               <th className="text-left p-3 text-[10px] font-mono tracking-widest">#</th>
               <th className="text-left p-3 text-[10px] font-mono tracking-widest">Participant</th>
+              <th className="text-left p-3 text-[10px] font-mono tracking-widest">Phone</th>
               <th className="text-left p-3 text-[10px] font-mono tracking-widest">Sub-Event</th>
               <th className="text-left p-3 text-[10px] font-mono tracking-widest">Team</th>
               <th className="text-left p-3 text-[10px] font-mono tracking-widest">Date</th>
@@ -102,7 +100,7 @@ export function ParticipantsList({ event }: Props) {
           </thead>
           <tbody>
             {regs.length === 0 ? (
-              <tr><td colSpan={5} className="p-8 text-center text-white/20 font-mono">No registrations yet</td></tr>
+              <tr><td colSpan={6} className="p-8 text-center text-white/20 font-mono">No registrations yet</td></tr>
             ) : regs.map((reg, i) => {
               const se = event.subEvents.find(s => s.id === reg.subEventId)
               return (
@@ -125,6 +123,16 @@ export function ParticipantsList({ event }: Props) {
                         <p className="text-[10px] font-mono text-white/30">{reg.userEmail}</p>
                       </div>
                     </div>
+                  </td>
+                  <td className="p-3">
+                    {reg.userPhone ? (
+                      <div className="flex items-center gap-1.5 text-xs text-white/60">
+                        <Phone className="w-3 h-3 text-white/30" />
+                        <span className="font-mono">{reg.userPhone}</span>
+                      </div>
+                    ) : (
+                      <span className="text-[10px] font-mono text-white/20">—</span>
+                    )}
                   </td>
                   <td className="p-3 text-white/50 text-xs">{se?.name}</td>
                   <td className="p-3">

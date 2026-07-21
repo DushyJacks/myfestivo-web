@@ -63,6 +63,7 @@ export function RegistrationWizard({ event, onClose }: Props) {
       userId: user.id,
       userName: user.name,
       userEmail: user.email,
+      userPhone: user.phone || "",
       eventId: event.id,
       subEventId: selectedSe.id,
       // If payment required, start as PENDING. Otherwise mark PAID immediately.

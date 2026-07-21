@@ -36,7 +36,9 @@ export function ProfileCompleteModal() {
 
   if (!open || !user) return null
 
-  const canSave = college.trim() && department.trim() && year.trim()
+  const phoneDigits = phone.replace(/\D/g, "")
+  const isPhoneValid = phoneDigits.length === 10
+  const canSave = college.trim() && department.trim() && year.trim() && isPhoneValid
 
   const handleSave = async () => {
     if (!canSave) return
@@ -113,7 +115,7 @@ export function ProfileCompleteModal() {
                   <Input
                     value={college}
                     onChange={e => setCollege(e.target.value)}
-                    placeholder="e.g. IIT Bombay"
+                    placeholder="e.g. SRM Institute of Science and Technology"
                     className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 h-10"
                     required
                   />
@@ -124,13 +126,17 @@ export function ProfileCompleteModal() {
                   <label className="text-[10px] font-mono tracking-widest uppercase text-white/50 mb-1.5 flex items-center gap-1.5 block">
                     <BookOpen className="w-3 h-3" /> Department <span className="text-red-400">*</span>
                   </label>
-                  <Input
+                  <select
                     value={department}
                     onChange={e => setDepartment(e.target.value)}
-                    placeholder="e.g. Computer Science"
-                    className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 h-10"
-                    required
-                  />
+                    className="w-full h-10 bg-white/[0.03] border border-white/[0.08] text-white text-sm rounded-md px-3 outline-none focus:border-[rgba(179,136,255,0.4)] transition-colors"
+                  >
+                    <option value="" disabled>Select department</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Cyber Security">Cyber Security</option>
+                    <option value="AI/ML">AI/ML</option>
+                    <option value="BCA">BCA</option>
+                  </select>
                 </div>
 
                 {/* Year */}
@@ -155,18 +161,23 @@ export function ProfileCompleteModal() {
                   </select>
                 </div>
 
-                {/* Phone (optional) */}
+                {/* Phone (required) */}
                 <div>
                   <label className="text-[10px] font-mono tracking-widest uppercase text-white/50 mb-1.5 flex items-center gap-1.5 block">
-                    <Phone className="w-3 h-3" /> Phone <span className="text-white/25">(optional)</span>
+                    <Phone className="w-3 h-3" /> Phone <span className="text-red-400">*</span>
                   </label>
                   <Input
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
-                    placeholder="e.g. +91 98765 43210"
+                    placeholder="e.g. 9876543210"
                     type="tel"
-                    className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 h-10"
+                    maxLength={10}
+                    className={`bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 h-10 ${phone && !isPhoneValid ? "border-red-500/50" : ""}`}
+                    required
                   />
+                  {phone && !isPhoneValid && (
+                    <p className="text-[10px] text-red-400 mt-1">Phone number must be exactly 10 digits</p>
+                  )}
                 </div>
 
                 <p className="text-[11px] text-white/25 font-mono">
