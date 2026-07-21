@@ -192,43 +192,73 @@ function getEventRef(eventId: string) {
   return doc(db, "events", eventId)
 }
 
+// ─── SessionStorage cache helpers ───
+const EVENTS_CACHE_KEY = 'mf_events_cache_v1'
+
+/** Strip poster_base64 (large base64 string) before caching to stay under the ~5MB sessionStorage limit. */
+function eventsForCache(evts: MainEvent[]): object[] {
+  return evts.map(({ poster_base64: _p, ...rest }) => rest)
+}
+
 // ─── Provider ───
 export function EventsProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<MainEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  // Real-time listener for all events
+  // Real-time listener for all events + sessionStorage read-through cache
   useEffect(() => {
+    // ── 1. Serve stale cache immediately so pages don't show a spinner on reload ──
+    try {
+      const raw = sessionStorage.getItem(EVENTS_CACHE_KEY)
+      if (raw) {
+        setEvents(JSON.parse(raw))
+        setIsLoading(false) // unblock page render with cached data right away
+      }
+    } catch {}
+
+    // ── 2. Set up live Firestore listener (updates over the cached data) ──
     const col = getEventsCol()
     if (!col) {
       console.warn("[EventsProvider] Firebase not initialized — skipping onSnapshot. Check your .env.local")
       setIsLoading(false)
       return
     }
-    const unsub = onSnapshot(col, (snapshot) => {
-      const fetched: MainEvent[] = snapshot.docs.map((d) => {
-        const data = d.data()
-        return {
-          ...data,
-          id: d.id,
-          // Ensure arrays exist even if missing in Firestore
-          subEvents: data.subEvents || [],
-          registrations: data.registrations || [],
-          chatMessages: data.chatMessages || [],
-          announcements: data.announcements || [],
-          tasks: data.tasks || [],
-          automations: data.automations || [],
-          automationLogs: data.automationLogs || [],
-          importantLinks: data.importantLinks || [],
-          restricted_registrations: data.restricted_registrations || [],
-          rules: data.rules || [],
-          registrationOpen: data.registrationOpen !== false,
-          registrationDeadline: data.registrationDeadline || "",
-        } as MainEvent
-      })
-      setEvents(fetched)
-      setIsLoading(false)
-    })
+    const unsub = onSnapshot(
+      col,
+      (snapshot) => {
+        const fetched: MainEvent[] = snapshot.docs.map((d) => {
+          const data = d.data()
+          return {
+            ...data,
+            id: d.id,
+            // Ensure arrays exist even if missing in Firestore
+            subEvents: data.subEvents || [],
+            registrations: data.registrations || [],
+            chatMessages: data.chatMessages || [],
+            announcements: data.announcements || [],
+            tasks: data.tasks || [],
+            automations: data.automations || [],
+            automationLogs: data.automationLogs || [],
+            importantLinks: data.importantLinks || [],
+            restricted_registrations: data.restricted_registrations || [],
+            rules: data.rules || [],
+            registrationOpen: data.registrationOpen !== false,
+            registrationDeadline: data.registrationDeadline || "",
+          } as MainEvent
+        })
+        setEvents(fetched)
+        setIsLoading(false)
+        // Persist fresh data to sessionStorage for the next reload
+        try {
+          sessionStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify(eventsForCache(fetched)))
+        } catch {}
+      },
+      (error) => {
+        // Firestore error — cached data is already displayed; just stop loading
+        console.error('[EventsProvider] Firestore listener error:', error)
+        setIsLoading(false)
+      }
+    )
     return () => unsub()
   }, [])
 

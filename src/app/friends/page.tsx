@@ -1,6 +1,7 @@
 "use client"
 
 import { useAuth } from "@/lib/auth-context"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { AppSidebar } from "@/components/layout/AppSidebar"
@@ -110,7 +111,7 @@ export default function FriendsPage() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-bold overflow-hidden">
-                              {u.avatarUrl ? <img src={u.avatarUrl} alt={u.name} className="w-full h-full object-cover" loading="lazy" decoding="async" /> : u.name?.charAt(0)}
+                              {u.avatarUrl ? <Image src={u.avatarUrl} alt={u.name ?? "User"} width={32} height={32} className="w-full h-full object-cover" /> : u.name?.charAt(0)}
                             </div>
                             <div className="min-w-0">
                               <p className="text-xs font-medium truncate">{u.name}</p>

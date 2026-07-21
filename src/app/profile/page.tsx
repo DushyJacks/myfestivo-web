@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth-context"
 import { useEvents } from "@/lib/events-context"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import Image from "next/image"
 import { AppSidebar } from "@/components/layout/AppSidebar"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { MicroLabel } from "@/components/ui/MicroLabel"
@@ -253,7 +254,7 @@ export default function ProfilePage() {
               <div className="flex flex-col sm:flex-row items-start gap-6 mb-8">
                 <div className="relative group shrink-0">
                   {user.avatarUrl ? (
-                    <img src={user.avatarUrl} alt="User avatar" width={80} height={80} className="w-20 h-20 rounded-full object-cover" loading="lazy" decoding="async" />
+                    <Image src={user.avatarUrl} alt="User avatar" width={80} height={80} className="w-20 h-20 rounded-full object-cover" />
                   ) : (
                     <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white"
                       style={{ backgroundColor: user.avatarColor || "#3B82F6" }}>

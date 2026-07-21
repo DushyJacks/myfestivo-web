@@ -12,7 +12,7 @@ import { pageItem } from "@/components/animation/PageTransition"
 import { motion } from "framer-motion"
 import {
   PlusCircle, X, ArrowLeft, Trophy, Phone, Save, AlertTriangle,
-  Trash2, ToggleLeft, ToggleRight, Settings, CalendarDays, Info, LinkIcon
+  Trash2, ToggleLeft, ToggleRight, Settings, CalendarDays, Info, LinkIcon, Search, Users
 } from "lucide-react"
 import Link from "next/link"
 
@@ -29,9 +29,8 @@ interface SubEventForm {
   prizeFirst: string
   prizeSecond: string
   prizeThird: string
-  coordName: string
-  coordEmail: string
-  coordPhone: string
+  /** Search query for friend-based in-charge lookup (transient, not persisted) */
+  inchargeSearch: string
   coordRole: string
   coordinators: { name: string; email: string; phone: string; role: string }[]
 }
@@ -69,6 +68,8 @@ export default function EditEventPage() {
   const [showDeleteEventConfirm, setShowDeleteEventConfirm] = useState(false)
   const [deletingEvent, setDeletingEvent] = useState(false)
   const [importantLinks, setImportantLinks] = useState<{ id: string; label: string; url: string }[]>([])
+  // Per-sub-event autocomplete results for in-charge search
+  const [inchargeResults, setInchargeResults] = useState<{ [key: number]: { email: string; name: string }[] }>({})
 
   const addLink = () => setImportantLinks(prev => [...prev, { id: `link-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, label: "", url: "" }])
   const updateLink = (idx: number, key: "label" | "url", val: string) =>
@@ -113,10 +114,8 @@ export default function EditEventPage() {
           prizeFirst: se.prize?.first || "",
           prizeSecond: se.prize?.second || "",
           prizeThird: se.prize?.third || "",
-          coordName: "",
-          coordEmail: "",
-          coordPhone: "",
           coordRole: "Head Coordinator",
+          inchargeSearch: "",
           coordinators: se.coordinators || [],
         }
       }))
@@ -177,17 +176,31 @@ export default function EditEventPage() {
     setSubEvents((prev) => prev.map((se, i) => i === seIdx && se.rules.length > 1 ? { ...se, rules: se.rules.filter((_, j) => j !== rIdx) } : se))
   }
 
-  const addSubCoordinator = (seIdx: number) => {
-    setSubEvents((prev) => prev.map((se, i) => {
-      if (i === seIdx && se.coordName && se.coordEmail) {
-        return {
-          ...se,
-          coordinators: [...se.coordinators, { name: se.coordName, email: se.coordEmail, phone: se.coordPhone, role: se.coordRole }],
-          coordName: "", coordEmail: "", coordPhone: "", coordRole: "Logistics",
-        }
+  // In-charges: search friends by name or email, then add
+  const handleInchargeSearch = (seIdx: number, query: string) => {
+    updateSubEvent(seIdx, "inchargeSearch", query)
+    if (!user || !query.trim()) {
+      setInchargeResults(prev => ({ ...prev, [seIdx]: [] }))
+      return
+    }
+    const q = query.toLowerCase()
+    const filtered = user.friends
+      .filter(email => email.toLowerCase().includes(q))
+      .map(email => ({ email, name: email.split('@')[0] }))
+    setInchargeResults(prev => ({ ...prev, [seIdx]: filtered }))
+  }
+
+  const addIncharge = (seIdx: number, friend: { name: string; email: string }) => {
+    setSubEvents(prev => prev.map((se, i) => {
+      if (i !== seIdx) return se
+      if (se.coordinators.some(c => c.email === friend.email)) return { ...se, inchargeSearch: "" }
+      return {
+        ...se,
+        coordinators: [...se.coordinators, { name: friend.name, email: friend.email, phone: "", role: se.coordRole }],
+        inchargeSearch: "",
       }
-      return se
     }))
+    setInchargeResults(prev => ({ ...prev, [seIdx]: [] }))
   }
   const removeSubCoordinator = (seIdx: number, cIdx: number) => {
     setSubEvents((prev) => prev.map((se, i) => i === seIdx ? { ...se, coordinators: se.coordinators.filter((_, j) => j !== cIdx) } : se))
@@ -198,7 +211,7 @@ export default function EditEventPage() {
     name: "", description: "", type: "solo", maxParticipants: 50,
     minTeamSize: 2, maxTeamSize: 4,
     rules: [""], showPrize: false, prizeFirst: "", prizeSecond: "", prizeThird: "",
-    coordName: "", coordEmail: "", coordPhone: "", coordRole: "Head Coordinator",
+    inchargeSearch: "", coordRole: "Head Coordinator",
     coordinators: [],
   })
 
@@ -538,29 +551,63 @@ export default function EditEventPage() {
                       )}
                     </div>
 
-                    {/* Sub-Event In-charges */}
+                    {/* Sub-Event In-charges (friend search autocomplete) */}
                     <div className="space-y-2">
-                      <span className={labelCls}><Phone className="w-3 h-3 inline mr-1" />In-charges</span>
+                      <span className={labelCls}><Users className="w-3 h-3 inline mr-1" />In-charges</span>
+                      {/* Already-added in-charges */}
                       {se.coordinators.map((c, cIdx) => (
                         <div key={cIdx} className="flex items-center justify-between p-2 rounded bg-white/[0.03] border border-white/[0.05] text-xs">
                           <div>
-                            <span className="text-white/70">{c.name}</span>
-                            <span className="text-white/30 ml-2">{c.phone}</span>
+                            <span className="text-white/70">{c.name || c.email}</span>
+                            <span className="text-white/30 ml-2">{c.email}</span>
                             <span className="ml-2 text-[9px] font-mono text-white/30">{c.role}</span>
                           </div>
                           <button type="button" onClick={() => removeSubCoordinator(idx, cIdx)} className="text-white/20 hover:text-red-400 transition-colors"><X className="w-3 h-3" /></button>
                         </div>
                       ))}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        <Input value={se.coordName} onChange={(e) => updateSubEvent(idx, "coordName", e.target.value)} placeholder="Name" className={`${inputCls} h-8 text-xs`} />
-                        <Input value={se.coordEmail} onChange={(e) => updateSubEvent(idx, "coordEmail", e.target.value)} placeholder="Email" className={`${inputCls} h-8 text-xs`} />
-                        <Input value={se.coordPhone} onChange={(e) => updateSubEvent(idx, "coordPhone", e.target.value)} placeholder="Phone" className={`${inputCls} h-8 text-xs`} />
-                        <div className="flex gap-1">
-                          <select value={se.coordRole} onChange={(e) => updateSubEvent(idx, "coordRole", e.target.value)} className="flex-1 h-8 bg-white/[0.03] border border-white/[0.08] text-white text-xs rounded-md px-1">
-                            <option value="Host">Host</option><option value="Coordinator">Coordinator</option><option value="Volunteer">Volunteer</option>
-                          </select>
-                          <Button type="button" onClick={() => addSubCoordinator(idx)} className="bg-white text-black h-8 px-2 text-xs shrink-0">+</Button>
+                      {/* Search + role row */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        {/* Search friends */}
+                        <div className="relative sm:col-span-2">
+                          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+                          <Input
+                            value={se.inchargeSearch}
+                            onChange={(e) => handleInchargeSearch(idx, e.target.value)}
+                            placeholder="Search friends by name or email…"
+                            className={`${inputCls} h-8 text-xs pl-8`}
+                          />
+                          {/* Autocomplete dropdown */}
+                          {(inchargeResults[idx] || []).length > 0 && (
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 border border-white/[0.1] rounded-md z-20 overflow-hidden">
+                              {(inchargeResults[idx] || []).map((f) => (
+                                <button
+                                  key={f.email}
+                                  type="button"
+                                  onClick={() => addIncharge(idx, f)}
+                                  className="w-full text-left px-3 py-2 text-xs text-white/70 hover:bg-white/[0.08] transition-colors flex items-center gap-2"
+                                >
+                                  <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[9px] font-bold">{f.email[0].toUpperCase()}</div>
+                                  <span>{f.email}</span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          {se.inchargeSearch && (inchargeResults[idx] || []).length === 0 && (
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 border border-white/[0.1] rounded-md z-20 px-3 py-2">
+                              <p className="text-[10px] text-white/30">No friends found matching “{se.inchargeSearch}”. Add them as friends first.</p>
+                            </div>
+                          )}
                         </div>
+                        {/* Role selector */}
+                        <select
+                          value={se.coordRole}
+                          onChange={(e) => updateSubEvent(idx, "coordRole", e.target.value)}
+                          className="h-8 bg-white/[0.03] border border-white/[0.08] text-white text-xs rounded-md px-2"
+                        >
+                          <option value="Host">Host</option>
+                          <option value="Coordinator">Coordinator</option>
+                          <option value="Volunteer">Volunteer</option>
+                        </select>
                       </div>
                     </div>
                   </div>

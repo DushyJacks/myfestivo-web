@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { Button } from "@/components/ui/button"
 import { Check, ChevronDown, FileText, Shield, X } from "lucide-react"
+import { useAuth } from "@/lib/auth-context"
 
 const STORAGE_KEY = "myfestivo_legal_accepted_v1"
 
@@ -336,18 +337,32 @@ export function TermsModal({ onAccept }: TermsModalProps) {
 }
 
 /**
- * Hook — returns whether the user has already accepted the legal docs (via localStorage).
+ * Hook — returns whether the user has accepted the legal docs.
+ * Checks BOTH localStorage (this device) AND user.termsAccepted from Firestore (any device).
+ * This means once accepted anywhere, the modal never shows again on any device.
  */
 export function useLegalAccepted() {
-  const [accepted, setAccepted] = useState<boolean | null>(null)
+  const [localAccepted, setLocalAccepted] = useState<boolean | null>(null)
+  const { user, acceptTerms } = useAuth()
 
   useEffect(() => {
-    setAccepted(localStorage.getItem(STORAGE_KEY) === '1')
+    setLocalAccepted(localStorage.getItem(STORAGE_KEY) === '1')
   }, [])
 
-  const accept = () => {
+  // Accepted if Firestore profile says so (cross-device) OR localStorage says so (this device)
+  const accepted: boolean | null =
+    user?.termsAccepted === true ? true
+    : localAccepted === true ? true
+    : localAccepted === null ? null   // still reading localStorage — don't flash modal
+    : false                           // explicitly not accepted on this device
+
+  const accept = async () => {
     localStorage.setItem(STORAGE_KEY, '1')
-    setAccepted(true)
+    setLocalAccepted(true)
+    // If user is already logged in, sync to Firestore immediately
+    if (user) {
+      try { await acceptTerms() } catch {}
+    }
   }
 
   return { accepted, accept }

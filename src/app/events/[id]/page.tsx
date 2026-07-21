@@ -41,6 +41,8 @@ export default function EventDetailPage() {
   const [showQRScanner, setShowQRScanner] = useState(false)
   const [chatChannel, setChatChannel] = useState("general")
   const [scanStatus, setScanStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null)
+  // Timeout flag — set to true after 8s if Firestore is still loading (offline / slow network)
+  const [loadTimedOut, setLoadTimedOut] = useState(false)
 
   // Announcement state
   const [annTitle, setAnnTitle] = useState("")
@@ -69,12 +71,66 @@ export default function EventDetailPage() {
   // Set up automatic event reminders
   useEventReminders(event || null as any)
 
-  if (isLoading) {
+  // ── Check-In CSV export (checked-in participants only) ──
+  const downloadCheckedInCSV = () => {
+    if (!event) return
+    const checkedInRegs = event.registrations.filter(r => r.checkedIn)
+    const headers = ["Name", "Email", "Sub-Event", "Check-In Time"]
+    const rows = checkedInRegs.map(r => {
+      const se = event.subEvents.find(s => s.id === r.subEventId)
+      const rawTime = r.checkInTime || ""
+      const time = rawTime
+        ? new Date(rawTime.includes('T') ? rawTime : rawTime.replace(' ', 'T') + 'Z').toLocaleString()
+        : "Unknown"
+      return [r.userName, r.userEmail, se?.name || "", time]
+    })
+    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(",")).join("\n")
+    const blob = new Blob([csv], { type: "text/csv" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${event.title.replace(/\s+/g, "_")}_checkedin.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  // ── 8-second loading timeout — show a friendly error instead of infinite spinner ──
+  useEffect(() => {
+    if (!isLoading) return
+    const timer = setTimeout(() => setLoadTimedOut(true), 8000)
+    return () => clearTimeout(timer)
+  }, [isLoading])
+
+  if (isLoading && !loadTimedOut) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-8 h-8 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
           <p className="text-white/30 font-mono text-xs tracking-widest uppercase">Loading event…</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadTimedOut && !event) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="flex flex-col items-center gap-5 text-center">
+          <div className="w-12 h-12 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center">
+            <X className="w-5 h-5 text-white/40" />
+          </div>
+          <div>
+            <p className="text-white/60 font-medium mb-1">Couldn’t load this event</p>
+            <p className="text-white/30 text-sm font-mono">Check your connection and try again.</p>
+          </div>
+          <div className="flex gap-3">
+            <Button onClick={() => window.location.reload()} className="bg-white text-black text-xs h-9 px-5 hover:bg-white/80">
+              Reload
+            </Button>
+            <Button onClick={() => router.back()} variant="outline" className="border-white/20 text-white/60 text-xs h-9 px-5">
+              Go Back
+            </Button>
+          </div>
         </div>
       </div>
     )
@@ -761,9 +817,12 @@ export default function EventDetailPage() {
                 <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Total Registered</p>
                 <p className="text-2xl font-light text-green-400">{event.registrations.length}</p>
               </GlassCard>
-              <GlassCard className="p-4 text-center col-span-2 flex items-center justify-center border-white/20">
-                <Button onClick={() => setShowQRScanner(true)} className="bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80 h-10 px-8 rounded-full max-w-sm w-full">
+              <GlassCard className="p-4 col-span-2 flex items-center justify-center gap-3 border-white/20">
+                <Button onClick={() => setShowQRScanner(true)} className="bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80 h-10 px-6 rounded-full flex-1 max-w-[220px]">
                   <Camera className="w-4 h-4 mr-2" /> Live QR Scan
+                </Button>
+                <Button onClick={downloadCheckedInCSV} variant="outline" className="h-10 px-4 text-[10px] font-mono border-white/20 text-white/60 hover:text-white gap-1.5">
+                  <Download className="w-3.5 h-3.5" /> Export CSV
                 </Button>
               </GlassCard>
             </div>
@@ -810,7 +869,6 @@ export default function EventDetailPage() {
                       ) : (
                         <Button onClick={() => checkInParticipant(event.id, reg.id)} className="h-8 bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80">Check In</Button>
                       )}
-                      <Download className="w-4 h-4 text-white/10 hover:text-white/30 cursor-pointer" />
                     </div>
                   </div>
                 )

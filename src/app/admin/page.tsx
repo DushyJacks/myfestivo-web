@@ -10,6 +10,7 @@ import { PageTransition, pageItem } from "@/components/animation/PageTransition"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import Image from "next/image"
 import {
   LogOut, BarChart3, Users, Calendar, TrendingUp,
   Ticket, DollarSign, Activity, ChevronRight,
@@ -235,10 +236,10 @@ export default function AdminPage() {
       <aside className="w-[72px] lg:w-[260px] border-r border-white/[0.06] bg-black/60 backdrop-blur-md flex flex-col justify-between py-6 fixed h-screen z-40">
         <div>
           <Link href="/" className="hidden lg:block px-5 mb-2">
-            <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto" loading="lazy" decoding="async" />
+            <Image src="/logo.png" alt="MyFestivo" width={100} height={32} className="h-8 w-auto" priority />
           </Link>
           <Link href="/" className="block lg:hidden px-5 mb-2 text-lg font-semibold tracking-tight text-white text-center">
-            <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto mx-auto" loading="lazy" decoding="async" />
+            <Image src="/logo.png" alt="MyFestivo" width={100} height={32} className="h-8 w-auto mx-auto" />
           </Link>
           <p className="hidden lg:block px-5 mb-8 text-[10px] font-mono text-white/30 tracking-widest uppercase">Admin Panel</p>
 

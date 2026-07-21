@@ -13,7 +13,19 @@ const nextConfig: NextConfig = {
 
   images: {
     formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 86400, // 1 day
+    minimumCacheTTL: 604800, // 7 days
+    remotePatterns: [
+      {
+        // Google account profile photos (used when signing in with Google)
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      {
+        // Google user content (alternate Google avatar CDN)
+        protocol: "https",
+        hostname: "*.googleusercontent.com",
+      },
+    ],
   },
 
   async headers() {

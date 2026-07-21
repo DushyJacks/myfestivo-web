@@ -1,7 +1,25 @@
 import type { Metadata, Viewport } from "next";
+import { Poppins, JetBrains_Mono } from "next/font/google";
 import { BackgroundWrapper } from "@/components/three/BackgroundWrapper";
 import { Providers } from "./providers";
 import "./globals.css";
+
+// ─── Fonts (self-hosted by next/font — no external network request at runtime) ─
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap",
+  preload: true,
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-jetbrains",
+  display: "swap",
+  preload: false, // monospace font — not critical for FCP
+});
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://myfestivo.live"
 
@@ -88,7 +106,7 @@ export default function RootLayout({
 }>) {
   return (
     /* Dark mode is permanent — class is hardcoded, no script flash needed */
-    <html lang="en" className="h-full antialiased dark" style={{ colorScheme: "dark", backgroundColor: "#000000" }} suppressHydrationWarning>
+    <html lang="en" className={`h-full antialiased dark ${poppins.variable} ${jetbrainsMono.variable}`} style={{ colorScheme: "dark", backgroundColor: "#000000" }} suppressHydrationWarning>
       <head>
         {/* Force dark color scheme — prevents white flash on mobile Chrome/Safari */}
         <meta name="color-scheme" content="dark" />
@@ -96,17 +114,17 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.jpg" type="image/jpeg" />
         <link rel="shortcut icon" href="/favicon.jpg" type="image/jpeg" />
 
-        {/* Fonts */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-          rel="stylesheet"
-        />
+        {/* Fonts are self-hosted via next/font/google — no external link needed */}
 
-        {/* DNS prefetch for external services */}
+        {/* Preconnect: Firebase Auth iframe — saves ~340ms on LCP path */}
+        <link rel="preconnect" href="https://myfestivo.firebaseapp.com" />
+        {/* Preconnect: Google APIs (gapi) — saves ~300ms on LCP path */}
+        <link rel="preconnect" href="https://apis.google.com" />
+
+        {/* DNS prefetch for remaining Firebase services */}
         <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
         <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com" />
+        <link rel="dns-prefetch" href="https://www.googleapis.com" />
 
         {/* JSON-LD — Organization + WebSite structured data */}
         <script

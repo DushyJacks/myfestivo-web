@@ -16,6 +16,8 @@ import { doc, setDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore"
 
 const SESSION_KEY = "mf_session_start"
 const SESSION_MAX_MS = 3 * 24 * 60 * 60 * 1000 // 3 days in milliseconds
+/** Key shared with TermsModal — must match STORAGE_KEY in TermsModal.tsx */
+const LEGAL_STORAGE_KEY = "myfestivo_legal_accepted_v1"
 
 function recordSessionStart() {
   try { localStorage.setItem(SESSION_KEY, Date.now().toString()) } catch {}
@@ -65,6 +67,8 @@ export interface User {
   registeredEvents: string[]
   hostedEvents: string[]
   coordinatingEvents: string[]
+  /** True once the user has accepted Privacy Policy + T&C (persisted in Firestore for cross-device sync) */
+  termsAccepted?: boolean
 }
 
 interface AuthContextType {
@@ -82,6 +86,8 @@ interface AuthContextType {
   sendFriendRequest: (email: string) => Promise<boolean>
   acceptFriendRequest: (email: string) => Promise<void>
   declineFriendRequest: (email: string) => Promise<void>
+  /** Writes termsAccepted: true to the user's Firestore doc + local state (cross-device sync) */
+  acceptTerms: () => Promise<void>
 }
 
 interface SignupData {
@@ -172,6 +178,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const profile = await fetchUserProfile(cred.user.uid)
       if (profile) {
         recordSessionStart()
+        // Sync termsAccepted to Firestore if user accepted on this device but it's not in their profile yet
+        if (!profile.termsAccepted) {
+          try {
+            const db = getDb()
+            const locallyAccepted = typeof window !== 'undefined' && localStorage.getItem(LEGAL_STORAGE_KEY) === '1'
+            if (locallyAccepted && db) {
+              await updateDoc(doc(db, 'users', cred.user.uid), { termsAccepted: true })
+              profile.termsAccepted = true
+            }
+          } catch {}
+        }
         setUser(profile)
         return true
       }
@@ -188,7 +205,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!db) throw new Error("Firebase Firestore not configured. Check your .env.local file.")
     try {
       const cred = await createUserWithEmailAndPassword(authInstance, data.email, data.password)
-
+      // Include termsAccepted: true since the modal enforces acceptance before signup
+      const locallyAccepted = typeof window !== 'undefined' && localStorage.getItem(LEGAL_STORAGE_KEY) === '1'
       const newUser: User = {
         id: cred.user.uid,
         name: data.name,
@@ -210,6 +228,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         registeredEvents: [],
         hostedEvents: [],
         coordinatingEvents: [],
+        termsAccepted: locallyAccepted || true, // always true — modal was accepted to reach here
       }
 
       await setDoc(doc(db, "users", cred.user.uid), newUser)
@@ -239,6 +258,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
   }
 
+  /** Persist terms acceptance to Firestore so it syncs across all devices */
+  const acceptTerms = async (): Promise<void> => {
+    const db = getDb()
+    if (!db || !user) return
+    try {
+      await updateDoc(doc(db, "users", user.id), { termsAccepted: true })
+      setUser({ ...user, termsAccepted: true })
+    } catch {}
+  }
+
   const signInWithGoogle = async (): Promise<boolean> => {
     const authInstance = getAuthInstance()
     if (!authInstance) throw new Error("Firebase not configured. Check your .env.local file.")
@@ -249,10 +278,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const existing = await fetchUserProfile(cred.user.uid)
       if (existing) {
         recordSessionStart()
+        // Sync termsAccepted to Firestore if accepted locally but not yet in profile
+        if (!existing.termsAccepted) {
+          try {
+            const locallyAccepted = typeof window !== 'undefined' && localStorage.getItem(LEGAL_STORAGE_KEY) === '1'
+            if (locallyAccepted) {
+              await updateDoc(doc(db, 'users', cred.user.uid), { termsAccepted: true })
+              existing.termsAccepted = true
+            }
+          } catch {}
+        }
         setUser(existing)
         return true
       }
       // First-time Google sign-in — create profile
+      const locallyAccepted = typeof window !== 'undefined' && localStorage.getItem(LEGAL_STORAGE_KEY) === '1'
       const newUser: User = {
         id: cred.user.uid,
         name: cred.user.displayName || "User",
@@ -274,6 +314,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         registeredEvents: [],
         hostedEvents: [],
         coordinatingEvents: [],
+        termsAccepted: locallyAccepted || true, // modal was accepted before Google sign-in
       }
       await setDoc(doc(db, "users", cred.user.uid), newUser)
       recordSessionStart()
@@ -378,7 +419,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, login, signup, logout, deleteAccount, addFriend, removeFriend, updateProfile, linkCollegeEmail, signInWithGoogle, sendFriendRequest, acceptFriendRequest, declineFriendRequest }}
+      value={{ user, isLoading, login, signup, logout, deleteAccount, addFriend, removeFriend, updateProfile, linkCollegeEmail, signInWithGoogle, sendFriendRequest, acceptFriendRequest, declineFriendRequest, acceptTerms }}
     >
       {children}
     </AuthContext.Provider>

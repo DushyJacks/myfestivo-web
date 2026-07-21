@@ -1,7 +1,7 @@
 "use client"
 
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useState, useEffect } from 'react'
 import * as THREE from 'three'
 
 function FloatingShapes() {
@@ -87,9 +87,21 @@ function Particles({ count }: { count: number }) {
 }
 
 export function Background3D() {
-  // Reduce particle count and disable antialiasing on mobile for performance
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768
+  // ── isMobile must live in state (useEffect) to avoid SSR/hydration mismatch ──
+  const [isMobile, setIsMobile] = useState(false)
+  // ── Gracefully degrade when WebGL context is lost (mobile GPU pressure / desktop reload) ──
+  const [webGLFailed, setWebGLFailed] = useState(false)
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768)
+  }, [])
+
   const particleCount = isMobile ? 300 : 800
+
+  // Fallback: solid black background — identical visually, zero GPU cost
+  if (webGLFailed) {
+    return <div className="fixed inset-0 z-0 bg-black" />
+  }
 
   return (
     <div className="fixed inset-0 z-0 pointer-events-none bg-black">
@@ -103,6 +115,11 @@ export function Background3D() {
         style={{ background: "#000000" }}
         onCreated={({ gl }) => {
           gl.setClearColor(0x000000, 1)
+          // Listen for WebGL context loss (common on mobile mid-session or forced reload)
+          gl.domElement.addEventListener('webglcontextlost', (e) => {
+            e.preventDefault()
+            setWebGLFailed(true)
+          }, { once: true })
         }}
       >
         <ambientLight intensity={0.2} />

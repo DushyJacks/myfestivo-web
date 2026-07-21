@@ -49,10 +49,10 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  /* Fonts */
+  /* Fonts — variables injected by next/font/google at build time */
   --font-sans:    'Inter', sans-serif;
-  --font-heading: "Poppins", system-ui, sans-serif;
-  --font-mono:    'JetBrains Mono', monospace;
+  --font-heading: var(--font-poppins, "Poppins", system-ui, sans-serif);
+  --font-mono:    var(--font-jetbrains, "JetBrains Mono", monospace);
   --font-serif:   'Lora', serif;
 
   /* Letter spacing */

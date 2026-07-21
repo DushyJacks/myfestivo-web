@@ -3,6 +3,7 @@
 import { useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
+import Image from "next/image"
 import { useAuth } from "@/lib/auth-context"
 import {
   Zap, Building2, MessageSquare, Users, Shield, ArrowRight,
@@ -51,7 +52,7 @@ export default function LandingPage() {
       {/* ═══ NAVBAR ═══ */}
       <header className="fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-6 md:px-10 z-50 bg-black/60 backdrop-blur-xl border-b border-white/[0.06]">
         <Link href="/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="MyFestivo" className="h-10 w-auto" width={120} height={40} loading="eager" decoding="async" />
+          <Image src="/logo.png" alt="MyFestivo" width={120} height={40} className="h-10 w-auto" priority />
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 text-[11px] font-mono tracking-widest text-white/60">
@@ -65,7 +66,7 @@ export default function LandingPage() {
           {user ? (
             <Link href="/dashboard" className="flex items-center gap-3">
               {user.avatarUrl ? (
-                <img src={user.avatarUrl} alt={user.name} width={32} height={32} className="w-8 h-8 rounded-full object-cover border border-white/20" loading="lazy" decoding="async" />
+                <Image src={user.avatarUrl} alt={user.name} width={32} height={32} className="w-8 h-8 rounded-full object-cover border border-white/20" />
               ) : (
                 <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
                   style={{ backgroundColor: user.avatarColor || "#3B82F6" }}>
@@ -184,7 +185,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8">
           <div>
             <div className="mb-3">
-              <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto" width={100} height={32} loading="lazy" decoding="async" />
+              <Image src="/logo.png" alt="MyFestivo" width={100} height={32} className="h-8 w-auto" />
             </div>
             <p className="text-xs text-white/70 max-w-xs">The event operating system for colleges. Built with care in Chennai, India.</p>
             <a href="mailto:myfestivo@gmail.com" className="mt-3 flex items-center gap-2 text-xs text-white/70 hover:text-white transition-colors font-mono">

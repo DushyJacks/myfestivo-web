@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import Image from "next/image"
 
 export const metadata: Metadata = {
   title: "Site Map — MyFestivo",
@@ -45,8 +46,7 @@ export default function SitemapPage() {
       {/* Header */}
       <header className="mb-16">
         <Link href="/" className="inline-block mb-10" aria-label="Go to MyFestivo home">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="MyFestivo" width={120} height={40} className="h-10 w-auto" loading="lazy" decoding="async" />
+          <Image src="/logo.png" alt="MyFestivo" width={120} height={40} className="h-10 w-auto" />
         </Link>
         <p className="text-[10px] font-mono tracking-[0.3em] uppercase text-white/30 mb-3">
           Navigation

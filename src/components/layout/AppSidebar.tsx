@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/lib/auth-context"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Compass, Calendar, PlusCircle, LogOut, User, Users, House } from "lucide-react"
 
@@ -60,10 +61,10 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
         <div>
           {/* Logo */}
           <Link href="/" className="hidden lg:block px-5 mb-8">
-            <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto" width={100} height={32} loading="lazy" decoding="async" />
+            <Image src="/logo.png" alt="MyFestivo" width={100} height={32} className="h-8 w-auto" priority />
           </Link>
           <Link href="/" className="block lg:hidden px-5 mb-8 text-center">
-            <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto mx-auto" width={100} height={32} loading="lazy" decoding="async" />
+            <Image src="/logo.png" alt="MyFestivo" width={100} height={32} className="h-8 w-auto mx-auto" />
           </Link>
 
           {/* Nav items */}
