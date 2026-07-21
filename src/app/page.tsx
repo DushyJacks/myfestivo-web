@@ -52,7 +52,8 @@ export default function LandingPage() {
       {/* ═══ NAVBAR ═══ */}
       <header className="fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-6 md:px-10 z-50 bg-black/60 backdrop-blur-xl border-b border-white/[0.06]">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="MyFestivo" width={120} height={40} className="h-10 w-auto" priority />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="MyFestivo" className="h-10 w-auto" width={120} height={40} loading="eager" decoding="async" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 text-[11px] font-mono tracking-widest text-white/60">
@@ -185,7 +186,8 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8">
           <div>
             <div className="mb-3">
-              <Image src="/logo.png" alt="MyFestivo" width={100} height={32} className="h-8 w-auto" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto" width={100} height={32} loading="lazy" decoding="async" />
             </div>
             <p className="text-xs text-white/70 max-w-xs">The event operating system for colleges. Built with care in Chennai, India.</p>
             <a href="mailto:myfestivo@gmail.com" className="mt-3 flex items-center gap-2 text-xs text-white/70 hover:text-white transition-colors font-mono">

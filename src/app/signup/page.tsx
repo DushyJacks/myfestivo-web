@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
 import { motion, AnimatePresence } from "framer-motion"
 import { UserPlus, AlertCircle, Phone } from "lucide-react"
-import Image from "next/image"
 import { TermsModal, useLegalAccepted } from "@/components/ui/TermsModal"
 
 export default function SignupPage() {
@@ -103,13 +102,15 @@ export default function SignupPage() {
       <motion.div variants={pageItem} className="w-full max-w-lg">
         <div className="mb-12">
           <Link href="/" className="block mb-8">
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src="/logo.png"
               alt="MyFestivo"
+              className="h-10 w-auto"
               width={120}
               height={40}
-              className="h-10 w-auto"
-              priority
+              loading="lazy"
+              decoding="async"
             />
           </Link>
           <MicroLabel>Create Account</MicroLabel>
