@@ -355,12 +355,35 @@ export default function EventDetailPage() {
               </Link>
             </>
           )}
+          {/* Share Event — visible to all users */}
+          <button
+            onClick={() => {
+              const url = `${window.location.origin}/events/${event.id}`
+              if (navigator.share) {
+                navigator.share({ title: event.title, url })
+              } else {
+                navigator.clipboard.writeText(url).then(() => {
+                  const btn = document.getElementById('share-event-btn')
+                  if (btn) {
+                    const span = btn.querySelector('span.share-label')
+                    if (span) { span.textContent = 'Copied!'; setTimeout(() => { span.textContent = 'Share' }, 2000) }
+                  }
+                })
+              }
+            }}
+            id="share-event-btn"
+            className="text-[10px] font-mono tracking-widest uppercase px-2 sm:px-3 py-1.5 rounded border border-white/20 text-white/60 hover:bg-white/10 transition-colors flex items-center gap-1"
+          >
+            <LinkIcon className="w-3 h-3" />
+            <span className="share-label hidden sm:inline">Share</span>
+          </button>
           {user?.role === "admin" && (
             <Link href="/admin">
               <Button variant="outline" className="border-white/20 text-white text-[10px] h-8 px-3 font-mono tracking-widest hover:bg-white/10 uppercase">Admin Hub</Button>
             </Link>
           )}
         </div>
+
       </header>
 
       <div className="pt-24 pb-24 md:pb-16 px-4 md:px-8 max-w-6xl mx-auto">
@@ -526,9 +549,12 @@ export default function EventDetailPage() {
                 <GlassCard className="p-5">
                   <p className="text-white/80 font-medium mb-1">{event.organizer}</p>
                   <p className="text-xs text-white/40 font-mono mb-4">{event.organizerEmail}</p>
-                  <div className="flex items-center gap-2 pt-4 border-t border-white/[0.06]">
-                    <Button variant="ghost" className="text-[10px] h-8 px-3 border border-white/10 text-white/60 hover:text-white flex items-center gap-1 uppercase tracking-widest"><Phone className="w-3 h-3" /> Contact</Button>
-                  </div>
+                  {event.organizerPhone && (
+                    <div className="flex items-center gap-2 pt-4 border-t border-white/[0.06]">
+                      <Phone className="w-3 h-3 text-white/40" />
+                      <span className="text-sm text-white/70 font-mono">+91 {event.organizerPhone}</span>
+                    </div>
+                  )}
                 </GlassCard>
               </section>
 

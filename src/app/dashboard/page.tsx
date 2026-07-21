@@ -16,7 +16,7 @@ import { QRCodeSVG } from "qrcode.react"
 import { TaskBoard } from "@/components/event/TaskBoard"
 import {
   ChevronRight, Ticket, BarChart3,
-  ListTodo, QrCode, CheckSquare, Clock, DollarSign, Megaphone,
+  ListTodo, QrCode, CheckSquare, Clock, DollarSign,
   Pencil, PlusCircle, CalendarDays, Users
 } from "lucide-react"
 
@@ -49,9 +49,6 @@ export default function DashboardPage() {
   )
   const pendingTasks = myTasks.filter(t => t.status !== "DONE")
 
-  const myAnnouncements = events.filter(e => e.registrations.some(r => r.userEmail === user.email)).flatMap(e =>
-    e.announcements.slice(0, 3).map(a => ({ ...a, eventTitle: e.title, eventId: e.id }))
-  ).slice(0, 5)
 
   const tabs = [
     { id: "overview" as const, label: "Overview", icon: BarChart3 },
@@ -129,30 +126,6 @@ export default function DashboardPage() {
                 </Link>
               </motion.div>
 
-              {myAnnouncements.length > 0 && (
-                <motion.div variants={pageItem} className="mb-10">
-                  <MicroLabel>Latest Announcements</MicroLabel>
-                  <div className="space-y-2">
-                    {myAnnouncements.map(a => (
-                      <Link key={a.id} href={`/events/${a.eventId}`}>
-                        <GlassCard className="p-4 hover:bg-white/[0.04] transition-colors cursor-pointer">
-                          <div className="flex items-start gap-3">
-                            <Megaphone className="w-4 h-4 text-white/30 mt-0.5 shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-0.5">
-                                <span className="text-sm font-medium">{a.title}</span>
-                                <span className="text-[9px] font-mono text-white/30 border border-white/10 px-1 rounded">{a.eventTitle}</span>
-                              </div>
-                              <p className="text-xs text-white/50 line-clamp-1">{a.message}</p>
-                              <p className="text-[9px] font-mono text-white/20 mt-1">{a.timestamp}</p>
-                            </div>
-                          </div>
-                        </GlassCard>
-                      </Link>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
 
               {pendingTasks.length > 0 && (
                 <motion.div variants={pageItem} className="mb-10">

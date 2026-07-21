@@ -18,7 +18,7 @@ import {
   LogOut, Trash2, AlertTriangle
 } from "lucide-react"
 
-const DEPARTMENTS = ["Computer Science", "Cyber Security", "AI/ML", "BCA"]
+const DEPARTMENTS = ["Computer Science", "Cyber Security", "AI/ML", "BCA", "BCA Gen AI", "BCA DS"]
 const YEAR_OPTIONS = ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "Postgraduate", "PhD", "Faculty/Staff"]
 
 /** Confirmation modal used for both sign-out and delete account */
@@ -341,14 +341,17 @@ export default function ProfilePage() {
                     <label className={labelCls}><Phone className="w-3 h-3 inline mr-1" />Phone <span className="text-red-400">*</span></label>
                     {isEditing ? (
                       <div>
-                        <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="9876543210" type="tel" maxLength={10}
-                          className={`${inputCls} ${phone && !isPhoneValid ? "border-red-500/50" : ""}`} />
+                        <div className="flex">
+                          <span className="inline-flex items-center h-11 px-3 rounded-l-md border border-r-0 border-white/[0.08] bg-white/[0.05] text-white/50 text-sm font-mono">+91</span>
+                          <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="9876543210" type="tel" maxLength={10}
+                            className={`${inputCls} h-11 rounded-l-none flex-1 ${phone && !isPhoneValid ? "border-red-500/50" : ""}`} />
+                        </div>
                         {phone && !isPhoneValid && (
                           <p className="text-[10px] text-red-400 mt-1">Phone number must be exactly 10 digits</p>
                         )}
                       </div>
                     ) : (
-                      <div className={readonlyCls}>{user.phone || <span className="text-white/30">Not set</span>}</div>
+                      <div className={readonlyCls}>{user.phone ? `+91 ${user.phone}` : <span className="text-white/30">Not set</span>}</div>
                     )}
                   </div>
                 </div>

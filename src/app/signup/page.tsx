@@ -172,7 +172,7 @@ export default function SignupPage() {
                       className="w-full h-11 px-3 rounded-md bg-white/[0.03] border border-white/[0.08] text-white text-sm focus:outline-none focus:border-white/30 transition-colors"
                     >
                       <option value="" className="bg-black text-white/50">Select department...</option>
-                      {["Computer Science", "Cyber Security", "AI/ML", "BCA"].map(dept => (
+                      {["Computer Science", "Cyber Security", "AI/ML", "BCA", "BCA Gen AI", "BCA DS"].map(dept => (
                         <option key={dept} value={dept} className="bg-black text-white">{dept}</option>
                       ))}
                     </select>
@@ -196,18 +196,21 @@ export default function SignupPage() {
                   <label htmlFor="phone" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 flex items-center gap-1.5">
                     <Phone className="w-3 h-3" /> Phone Number
                   </label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) => update("phone", e.target.value)}
-                    placeholder="9876543210"
-                    maxLength={10}
-                    className={`bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11 ${
-                      form.phone && form.phone.replace(/\D/g, "").length !== 10 ? "border-red-500/50" : ""
-                    }`}
-                    required
-                  />
+                  <div className="flex">
+                    <span className="inline-flex items-center h-11 px-3 rounded-l-md border border-r-0 border-white/[0.08] bg-white/[0.05] text-white/50 text-sm font-mono">+91</span>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={form.phone}
+                      onChange={(e) => update("phone", e.target.value)}
+                      placeholder="9876543210"
+                      maxLength={10}
+                      className={`bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11 rounded-l-none flex-1 ${
+                        form.phone && form.phone.replace(/\D/g, "").length !== 10 ? "border-red-500/50" : ""
+                      }`}
+                      required
+                    />
+                  </div>
                   {form.phone && form.phone.replace(/\D/g, "").length !== 10 && (
                     <p className="text-[11px] text-red-400 mt-1">Must be exactly 10 digits</p>
                   )}
