@@ -32,8 +32,10 @@ type TabId = "overview" | "chat" | "announcements" | "tasks" | "checkin" | "auto
 export default function EventDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const { user } = useAuth()
-  const { events, updateEvent, registerForSubEvent, addChatMessage, addAnnouncement, addTask, updateTaskStatus, approvePayment, rejectPayment, checkInParticipant, toggleAutomation, addAutomationLog, isLoading } = useEvents()
+  const { user, isLoading: authLoading } = useAuth()
+  const { events, updateEvent, registerForSubEvent, addChatMessage, addAnnouncement, addTask, updateTaskStatus, approvePayment, rejectPayment, checkInParticipant, toggleAutomation, addAutomationLog, isLoading: eventsLoading } = useEvents()
+  // Show spinner while either auth OR events are still loading
+  const isLoading = authLoading || eventsLoading
 
   const [activeTab, setActiveTab] = useState<TabId>("overview")
   const [selectedSubEvent, setSelectedSubEvent] = useState<string | null>(null)
@@ -94,10 +96,12 @@ export default function EventDetailPage() {
     URL.revokeObjectURL(url)
   }
 
-  // ── 8-second loading timeout — show a friendly error instead of infinite spinner ──
+  // ── 30-second loading timeout — show a friendly error instead of infinite spinner ──
+  // 30 s is generous enough for slow mobile connections while still providing
+  // feedback if Firestore is genuinely unreachable (e.g. offline / blocked).
   useEffect(() => {
     if (!isLoading) return
-    const timer = setTimeout(() => setLoadTimedOut(true), 8000)
+    const timer = setTimeout(() => setLoadTimedOut(true), 30000)
     return () => clearTimeout(timer)
   }, [isLoading])
 
@@ -124,7 +128,13 @@ export default function EventDetailPage() {
             <p className="text-white/30 text-sm font-mono">Check your connection and try again.</p>
           </div>
           <div className="flex gap-3">
-            <Button onClick={() => window.location.reload()} className="bg-white text-black text-xs h-9 px-5 hover:bg-white/80">
+            <Button
+              onClick={() => {
+                setLoadTimedOut(false)
+                router.refresh()
+              }}
+              className="bg-white text-black text-xs h-9 px-5 hover:bg-white/80"
+            >
               Reload
             </Button>
             <Button onClick={() => router.back()} variant="outline" className="border-white/20 text-white/60 text-xs h-9 px-5">

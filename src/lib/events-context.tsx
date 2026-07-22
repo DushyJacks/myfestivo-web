@@ -177,6 +177,16 @@ interface EventsContextType {
   addAutomationLog: (eventId: string, log: AutomationLog) => void
 }
 
+// Props for EventsProvider — requires auth state so we only open the Firestore
+// listener once auth is resolved (avoids PERMISSION_DENIED before session restores).
+export interface EventsProviderProps {
+  children: ReactNode
+  /** Set to true once Firebase Auth has finished restoring the session. */
+  authReady: boolean
+  /** The authenticated user's UID, or null if signed out. */
+  authUid: string | null
+}
+
 const EventsContext = createContext<EventsContextType | null>(null)
 
 // Helper: get events collection (lazy) — returns null if Firebase not initialized
@@ -193,37 +203,46 @@ function getEventRef(eventId: string) {
   return doc(db, "events", eventId)
 }
 
-// ─── SessionStorage cache helpers ───
+// ─── localStorage cache helpers ───
+// We use localStorage (not sessionStorage) so the cache persists across new
+// browser tabs — this is critical for shared event links to load instantly.
 const EVENTS_CACHE_KEY = 'mf_events_cache_v1'
 
-/** Strip poster_base64 (large base64 string) before caching to stay under the ~5MB sessionStorage limit. */
+/** Strip poster_base64 (large base64 string) before caching to stay under the ~5MB localStorage limit. */
 function eventsForCache(evts: MainEvent[]): object[] {
   return evts.map(({ poster_base64: _p, ...rest }) => rest)
 }
 
 // ─── Provider ───
-export function EventsProvider({ children }: { children: ReactNode }) {
+export function EventsProvider({ children, authReady, authUid }: EventsProviderProps) {
   const [events, setEvents] = useState<MainEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  // Real-time listener for all events + sessionStorage read-through cache
+  // ── 1. Serve stale cache immediately so pages don't flash a spinner on reload ──
+  // This runs once on mount — localStorage persists across tabs and refreshes.
   useEffect(() => {
-    // ── 1. Serve stale cache immediately so pages don't show a spinner on reload ──
     try {
-      const raw = sessionStorage.getItem(EVENTS_CACHE_KEY)
+      const raw = localStorage.getItem(EVENTS_CACHE_KEY)
       if (raw) {
         setEvents(JSON.parse(raw))
         setIsLoading(false) // unblock page render with cached data right away
       }
     } catch {}
+  }, [])
 
-    // ── 2. Set up live Firestore listener (updates over the cached data) ──
+  // ── 2. Set up live Firestore listener — only once auth state is known ──
+  // We gate on authReady to avoid PERMISSION_DENIED errors that happen when
+  // onSnapshot fires before Firebase Auth has restored the session from IndexedDB.
+  useEffect(() => {
+    if (!authReady) return // wait until auth resolves (signed-in or signed-out)
+
     const col = getEventsCol()
     if (!col) {
       console.warn("[EventsProvider] Firebase not initialized — skipping onSnapshot. Check your .env.local")
       setIsLoading(false)
       return
     }
+
     const unsub = onSnapshot(
       col,
       (snapshot) => {
@@ -249,9 +268,9 @@ export function EventsProvider({ children }: { children: ReactNode }) {
         })
         setEvents(fetched)
         setIsLoading(false)
-        // Persist fresh data to sessionStorage for the next reload
+        // Persist fresh data to localStorage for the next load (any tab)
         try {
-          sessionStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify(eventsForCache(fetched)))
+          localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify(eventsForCache(fetched)))
         } catch {}
       },
       (error) => {
@@ -261,7 +280,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
       }
     )
     return () => unsub()
-  }, [])
+  }, [authReady, authUid]) // re-subscribe if the user signs in/out
 
   const addEvent = async (event: MainEvent) => {
     const { id, ...data } = event

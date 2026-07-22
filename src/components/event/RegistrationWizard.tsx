@@ -56,7 +56,8 @@ export function RegistrationWizard({ event, onClose }: Props) {
     const regId = `reg-${Date.now()}`
     
     // Determine if payment is required
-    const requiresPayment = event.price && event.price > 0
+    const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || ''
+    const requiresPayment = event.price && event.price > 0 && razorpayKey.trim() !== ''
     
     const reg: any = {
       id: regId,
@@ -90,7 +91,7 @@ export function RegistrationWizard({ event, onClose }: Props) {
         const { verifyPayment } = await import("@/lib/razorpay")
         
         const paymentOptions = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY || '',
+          key: razorpayKey,
           amount: event.price * 100, // Convert to paise
           currency: 'INR',
           name: 'MyFestivo',
