@@ -143,9 +143,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false)
       return
     }
+
+    // Safety net: if onAuthStateChanged hasn't fired within 5 s (e.g. Firebase
+    // Auth iframe is blocked or very slow), unblock the app and treat as signed-out.
+    // This prevents the entire loading chain from hanging indefinitely.
+    const fallbackTimer = setTimeout(() => setIsLoading(false), 5000)
+
     const unsub = onAuthStateChanged(authInstance, async (firebaseUser) => {
+      clearTimeout(fallbackTimer) // auth resolved — cancel the fallback
       if (firebaseUser) {
-        // ── 3-day absolute session timeout ──────────────────────────
+        // ── 3-day absolute session timeout ────────────────────
         if (isSessionExpired()) {
           clearSessionStart()
           await signOut(authInstance)
@@ -160,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       setIsLoading(false)
     })
-    return () => unsub()
+    return () => { unsub(); clearTimeout(fallbackTimer) }
   }, [])
 
 

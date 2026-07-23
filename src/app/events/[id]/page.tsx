@@ -96,12 +96,15 @@ export default function EventDetailPage() {
     URL.revokeObjectURL(url)
   }
 
-  // ── 30-second loading timeout — show a friendly error instead of infinite spinner ──
-  // 30 s is generous enough for slow mobile connections while still providing
+  // ── 10-second loading timeout — show a friendly error instead of infinite spinner ──
+  // 10 s is enough for slow mobile connections while still providing
   // feedback if Firestore is genuinely unreachable (e.g. offline / blocked).
   useEffect(() => {
-    if (!isLoading) return
-    const timer = setTimeout(() => setLoadTimedOut(true), 30000)
+    if (!isLoading) {
+      setLoadTimedOut(false) // reset if loading resolves (race condition guard)
+      return
+    }
+    const timer = setTimeout(() => setLoadTimedOut(true), 10000)
     return () => clearTimeout(timer)
   }, [isLoading])
 
@@ -129,10 +132,7 @@ export default function EventDetailPage() {
           </div>
           <div className="flex gap-3">
             <Button
-              onClick={() => {
-                setLoadTimedOut(false)
-                router.refresh()
-              }}
+              onClick={() => window.location.reload()}
               className="bg-white text-black text-xs h-9 px-5 hover:bg-white/80"
             >
               Reload
@@ -467,10 +467,13 @@ export default function EventDetailPage() {
                             <span className="text-[10px] font-mono bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-full">Closed</span>
                           ) : (
                             <Button
-                              onClick={() => setShowRegWizard(true)}
+                              onClick={() => {
+                                if (!user) { router.push("/login"); return }
+                                setShowRegWizard(true)
+                              }}
                               disabled={isRestricted || event.restricted_registrations?.includes(user?.email || "")}
                               variant="outline" className="h-8 px-4 text-[10px] font-mono border-white/20 hover:bg-white text-white bg-white/5 transition-all">
-                              {event.restricted_registrations?.includes(user?.email || "") ? "Staff Restricted" : "Register"}
+                              {!user ? "Login to Register" : event.restricted_registrations?.includes(user?.email || "") ? "Staff Restricted" : "Register"}
                             </Button>
                           )}
                         </div>
