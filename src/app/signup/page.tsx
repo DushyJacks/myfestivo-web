@@ -115,7 +115,7 @@ export default function SignupPage() {
           </Link>
           <MicroLabel>Create Account</MicroLabel>
           <h1 className="text-4xl font-light tracking-tight mb-2">Join the platform.</h1>
-          <p className="text-[13px] text-white/60">
+          <p className="text-[13px] text-white/70">
             Sign up with any Gmail. Link your college email from your Profile to access intra-college events.
           </p>
         </div>
@@ -137,7 +137,7 @@ export default function SignupPage() {
             <div>
               <label htmlFor="signup-email" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">Email Address</label>
               <Input id="signup-email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="you@gmail.com" autoComplete="email" spellCheck={false} className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required aria-describedby="email-hint" />
-              <p id="email-hint" className="text-[13px] text-white/60 mt-1">You can link your college email from your Profile later for intra-college events.</p>
+              <p id="email-hint" className="text-[13px] text-white/70 mt-1">You can link your college email from your Profile later for intra-college events.</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -155,7 +155,18 @@ export default function SignupPage() {
               <>
                 <div>
                   <label htmlFor="college" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">College / University</label>
-                  <Input id="college" value={form.college} onChange={(e) => update("college", e.target.value)} placeholder="e.g. SRM Institute of Science and Technology" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
+                  <select
+                    id="college"
+                    value={form.college}
+                    onChange={(e) => update("college", e.target.value)}
+                    required
+                    className="w-full h-11 px-3 rounded-md bg-white/[0.03] border border-white/[0.08] text-white text-sm focus:outline-none focus:border-white/30 transition-colors"
+                  >
+                    <option value="" className="bg-black text-white/50">Select your campus...</option>
+                    {["SRMIST, Ramapuram", "SRMIST, Kattankulathur", "SRMIST, Vadapalani", "SRMIST, Tiruchirappalli"].map(c => (
+                      <option key={c} value={c} className="bg-black text-white">{c}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>

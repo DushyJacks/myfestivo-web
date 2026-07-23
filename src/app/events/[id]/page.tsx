@@ -410,7 +410,7 @@ export default function EventDetailPage() {
             {event.registrationDeadline && !deadlinePassed && <span className="font-mono text-[10px] px-2 py-0.5 border border-white/20 text-white/50">Deadline: {event.registrationDeadline}</span>}
           </div>
           <h1 className="text-3xl md:text-5xl font-light leading-tight tracking-tight mb-4">{event.title}</h1>
-          <div className="flex flex-wrap gap-5 font-mono text-sm text-white/50">
+          <div className="flex flex-wrap gap-5 font-mono text-sm text-white/60">
             <span className="flex items-center gap-2"><MapPin className="w-4 h-4" />{event.venue}</span>
             <span className="flex items-center gap-2"><Clock className="w-4 h-4" />{event.date}</span>
             <span className="flex items-center gap-2"><Users className="w-4 h-4" />{event.registeredCount}{event.seats !== 9999 ? ` / ${event.seats}` : ""} registered</span>
@@ -442,7 +442,7 @@ export default function EventDetailPage() {
             <motion.div variants={pageItem} className="lg:col-span-8 space-y-12">
               <section>
                 <MicroLabel>About Event</MicroLabel>
-                <p className="text-white/60 leading-relaxed text-[15px]">{event.description}</p>
+                <p className="text-white/70 leading-relaxed text-[15px]">{event.description}</p>
               </section>
 
               <section>
@@ -478,7 +478,7 @@ export default function EventDetailPage() {
                           )}
                         </div>
 
-                        <p className="text-sm text-white/50 mb-4">{se.description}</p>
+                        <p className="text-sm text-white/60 mb-4">{se.description}</p>
 
   {/* Prize badges — only show when showPrize is enabled */}
                         <div className="flex flex-wrap gap-2 mb-3">
@@ -525,7 +525,7 @@ export default function EventDetailPage() {
                   {event.rules.map((rule, i) => (
                     <li key={i} className="flex items-start gap-3 group">
                       <div className="mt-1 w-1.5 h-1.5 rounded-full bg-white/20 group-hover:bg-white transition-colors" />
-                      <span className="text-white/50 text-sm group-hover:text-white/70 transition-colors">{rule}</span>
+                      <span className="text-white/60 text-sm group-hover:text-white/80 transition-colors">{rule}</span>
                     </li>
                   ))}
                 </ul>
@@ -560,8 +560,8 @@ export default function EventDetailPage() {
               <section>
                 <MicroLabel>Organizer Info</MicroLabel>
                 <GlassCard className="p-5">
-                  <p className="text-white/80 font-medium mb-1">{event.organizer}</p>
-                  <p className="text-xs text-white/40 font-mono mb-4">{event.organizerEmail}</p>
+                  <p className="text-white/90 font-medium mb-1">{event.organizer}</p>
+                  <p className="text-xs text-white/60 font-mono mb-4">{event.organizerEmail}</p>
                   {event.organizerPhone && (
                     <div className="flex items-center gap-2 pt-4 border-t border-white/[0.06]">
                       <Phone className="w-3 h-3 text-white/40" />
@@ -849,18 +849,18 @@ export default function EventDetailPage() {
             <MicroLabel>Participant Check-In</MicroLabel>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <GlassCard className="p-4 text-center">
-                <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Checked In</p>
+                <p className="text-[10px] font-mono text-white/50 tracking-widest uppercase mb-1">Checked In</p>
                 <p className="text-2xl font-light">{event.registrations.filter(r => r.checkedIn).length}</p>
               </GlassCard>
               <GlassCard className="p-4 text-center">
-                <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Total Registered</p>
+                <p className="text-[10px] font-mono text-white/50 tracking-widest uppercase mb-1">Total Registered</p>
                 <p className="text-2xl font-light text-green-400">{event.registrations.length}</p>
               </GlassCard>
               <GlassCard className="p-4 col-span-2 flex items-center justify-center gap-3 border-white/20">
                 <Button onClick={() => setShowQRScanner(true)} className="bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80 h-10 px-6 rounded-full flex-1 max-w-[220px]">
                   <Camera className="w-4 h-4 mr-2" /> Live QR Scan
                 </Button>
-                <Button onClick={downloadCheckedInCSV} variant="outline" className="h-10 px-4 text-[10px] font-mono border-white/20 text-white/60 hover:text-white gap-1.5">
+                <Button onClick={downloadCheckedInCSV} variant="outline" className="h-10 px-4 text-[10px] font-mono border-white/20 text-white/70 hover:text-white gap-1.5">
                   <Download className="w-3.5 h-3.5" /> Export CSV
                 </Button>
               </GlassCard>
@@ -886,32 +886,96 @@ export default function EventDetailPage() {
               )}
             </AnimatePresence>
 
-            <div className="overflow-x-auto">
-              {event.registrations.filter(r => r.status === "PAID").map(reg => {
-                const se = event.subEvents.find(s => s.id === reg.subEventId)
+            {/* Sub-event-wise grouped check-in list */}
+            <div className="space-y-8">
+              {event.subEvents.map(se => {
+                const seRegs = event.registrations.filter(r => r.subEventId === se.id && r.status === "PAID")
+                const checkedCount = seRegs.filter(r => r.checkedIn).length
+                if (seRegs.length === 0) return null
                 return (
-                  <div key={reg.id} className="flex items-center justify-between p-3 rounded-md bg-white/[0.02] border border-white/[0.06]">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs ${reg.checkedIn ? 'bg-green-500/10 text-green-400' : 'bg-white/[0.05] text-white/30'}`}>
-                        {reg.checkedIn ? <Check className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-                      </div>
+                  <div key={se.id}>
+                    {/* Sub-event section header */}
+                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/[0.08]">
                       <div>
-                        <p className="text-sm font-medium">{reg.userName}</p>
-                        <p className="text-[10px] font-mono text-white/30">{se?.name}</p>
+                        <h3 className="text-sm font-medium text-white">{se.name}</h3>
+                        <p className="text-[10px] font-mono text-white/50 uppercase tracking-widest mt-0.5">{se.type}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-mono px-3 py-1 rounded-full border ${
+                          checkedCount === seRegs.length
+                            ? 'bg-green-500/10 border-green-500/20 text-green-400'
+                            : 'bg-white/[0.04] border-white/10 text-white/70'
+                        }`}>
+                          {checkedCount} / {seRegs.length} checked in
+                        </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      {reg.checkedIn ? (
-                        <span className="text-[10px] font-mono text-white/20 uppercase tracking-widest">
-                          Arrived @ {reg.checkInTime ? new Date(reg.checkInTime.includes('T') ? reg.checkInTime : reg.checkInTime.replace(' ', 'T') + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'UNKNOWN'}
-                        </span>
-                      ) : (
-                        <Button onClick={() => checkInParticipant(event.id, reg.id)} className="h-8 bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80">Check In</Button>
-                      )}
+                    {/* Participants for this sub-event */}
+                    <div className="space-y-2">
+                      {seRegs.map(reg => (
+                        <div key={reg.id} className="flex items-center justify-between p-3 rounded-md bg-white/[0.02] border border-white/[0.06]">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs ${
+                              reg.checkedIn ? 'bg-green-500/10 text-green-400' : 'bg-white/[0.05] text-white/40'
+                            }`}>
+                              {reg.checkedIn ? <Check className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">{reg.userName}</p>
+                              <p className="text-[10px] font-mono text-white/50">{reg.userEmail}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            {reg.checkedIn ? (
+                              <span className="text-[10px] font-mono text-white/50 uppercase tracking-widest">
+                                Arrived @ {reg.checkInTime ? new Date(reg.checkInTime.includes('T') ? reg.checkInTime : reg.checkInTime.replace(' ', 'T') + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'UNKNOWN'}
+                              </span>
+                            ) : (
+                              <Button onClick={() => checkInParticipant(event.id, reg.id)} className="h-8 bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80">Check In</Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )
               })}
+              {/* Registrations with no matching sub-event (edge case) */}
+              {(() => {
+                const orphanRegs = event.registrations.filter(r => r.status === "PAID" && !event.subEvents.find(se => se.id === r.subEventId))
+                if (orphanRegs.length === 0) return null
+                return (
+                  <div>
+                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/[0.08]">
+                      <h3 className="text-sm font-medium text-white/70">General / Uncategorised</h3>
+                      <span className="text-xs font-mono px-3 py-1 rounded-full border bg-white/[0.04] border-white/10 text-white/60">
+                        {orphanRegs.filter(r => r.checkedIn).length} / {orphanRegs.length} checked in
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {orphanRegs.map(reg => (
+                        <div key={reg.id} className="flex items-center justify-between p-3 rounded-md bg-white/[0.02] border border-white/[0.06]">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs ${
+                              reg.checkedIn ? 'bg-green-500/10 text-green-400' : 'bg-white/[0.05] text-white/40'
+                            }`}>
+                              {reg.checkedIn ? <Check className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+                            </div>
+                            <p className="text-sm font-medium">{reg.userName}</p>
+                          </div>
+                          {reg.checkedIn ? (
+                            <span className="text-[10px] font-mono text-white/50 uppercase tracking-widest">
+                              Arrived @ {reg.checkInTime ? new Date(reg.checkInTime.includes('T') ? reg.checkInTime : reg.checkInTime.replace(' ', 'T') + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'UNKNOWN'}
+                            </span>
+                          ) : (
+                            <Button onClick={() => checkInParticipant(event.id, reg.id)} className="h-8 bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80">Check In</Button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
             </div>
           </motion.div>
         )}

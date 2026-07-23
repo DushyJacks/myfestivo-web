@@ -109,21 +109,25 @@ export function ProfileCompleteModal() {
 
                 {/* College */}
                 <div>
-                  <label className="text-[10px] font-mono tracking-widest uppercase text-white/50 mb-1.5 flex items-center gap-1.5 block">
+                  <label className="text-[10px] font-mono tracking-widest uppercase text-white/60 mb-1.5 flex items-center gap-1.5 block">
                     <GraduationCap className="w-3 h-3" /> College / University <span className="text-red-400">*</span>
                   </label>
-                  <Input
+                  <select
                     value={college}
                     onChange={e => setCollege(e.target.value)}
-                    placeholder="e.g. SRM Institute of Science and Technology"
-                    className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 h-10"
+                    className="w-full h-10 bg-white/[0.03] border border-white/[0.08] text-white text-sm rounded-md px-3 outline-none focus:border-[rgba(179,136,255,0.4)] transition-colors"
                     required
-                  />
+                  >
+                    <option value="" disabled className="bg-black text-white/50">Select your campus...</option>
+                    {["SRMIST, Ramapuram", "SRMIST, Kattankulathur", "SRMIST, Vadapalani", "SRMIST, Tiruchirappalli"].map(c => (
+                      <option key={c} value={c} className="bg-black text-white">{c}</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Department */}
                 <div>
-                  <label className="text-[10px] font-mono tracking-widest uppercase text-white/50 mb-1.5 flex items-center gap-1.5 block">
+                  <label className="text-[10px] font-mono tracking-widest uppercase text-white/60 mb-1.5 flex items-center gap-1.5 block">
                     <BookOpen className="w-3 h-3" /> Department <span className="text-red-400">*</span>
                   </label>
                   <select
@@ -143,7 +147,7 @@ export function ProfileCompleteModal() {
 
                 {/* Year */}
                 <div>
-                  <label className="text-[10px] font-mono tracking-widest uppercase text-white/50 mb-1.5 block">
+                  <label className="text-[10px] font-mono tracking-widest uppercase text-white/60 mb-1.5 block">
                     Year of Study <span className="text-red-400">*</span>
                   </label>
                   <select
@@ -165,7 +169,7 @@ export function ProfileCompleteModal() {
 
                 {/* Phone (required) */}
                 <div>
-                  <label className="text-[10px] font-mono tracking-widest uppercase text-white/50 mb-1.5 flex items-center gap-1.5 block">
+                  <label className="text-[10px] font-mono tracking-widest uppercase text-white/60 mb-1.5 flex items-center gap-1.5 block">
                     <Phone className="w-3 h-3" /> Phone <span className="text-red-400">*</span>
                   </label>
                   <div className="flex">
@@ -185,7 +189,7 @@ export function ProfileCompleteModal() {
                   )}
                 </div>
 
-                <p className="text-[11px] text-white/25 font-mono">
+                <p className="text-[11px] text-white/40 font-mono">
                   You can update these details anytime from your Profile page.
                 </p>
               </div>

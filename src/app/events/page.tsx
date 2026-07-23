@@ -36,10 +36,10 @@ export default function EventsFeed() {
       const isPending = evt.status === "pending_review"
       if (isPending && evt.organizerEmail !== user?.email) return false
 
-      // Hide expired events (unless user is the host)
+      // Hide expired events from Browse Events — hosts view past events via Dashboard → Hosted
       const eventDate = new Date(evt.date)
       const expired = eventDate.getTime() + 86400000 < Date.now()
-      if (expired && evt.organizerEmail !== user?.email) return false
+      if (expired) return false
 
       const q = search.toLowerCase()
       const matchesSearch = !search || evt.title.toLowerCase().includes(q) ||
@@ -153,7 +153,7 @@ export default function EventsFeed() {
 
       {/* Results count */}
       <motion.div variants={pageItem} className="mb-4 flex items-center justify-between">
-        <p className="text-xs font-mono text-white/30">{filtered.length} event{filtered.length !== 1 ? 's' : ''} found</p>
+        <p className="text-xs font-mono text-white/50">{filtered.length} event{filtered.length !== 1 ? 's' : ''} found</p>
         {(search || categoryFilter !== "All" || priceFilter !== "all" || typeFilter !== "all") && (
           <button onClick={() => { setSearch(""); setCategoryFilter("All"); setPriceFilter("all"); setTypeFilter("all"); setSortBy("date") }}
             className="text-[10px] text-white/30 hover:text-white/60 transition-colors">Clear all filters</button>
@@ -214,8 +214,8 @@ export default function EventsFeed() {
                     </div>
 
                   <h3 className="font-semibold text-xl mb-1 flex-1 group-hover:text-white/90">{evt.title}</h3>
-                  <p className="font-light text-white/40 text-sm mb-2">{evt.organizer}</p>
-                  <p className="text-xs text-white/30 mb-4 line-clamp-2">{evt.description}</p>
+                  <p className="font-light text-white/60 text-sm mb-2">{evt.organizer}</p>
+                  <p className="text-xs text-white/50 mb-4 line-clamp-2">{evt.description}</p>
 
                   {/* Prize pool highlight */}
                   {evt.prizePool && (
@@ -226,7 +226,7 @@ export default function EventsFeed() {
                   )}
 
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 font-mono text-[11px] text-white/50">
+                    <div className="flex items-center gap-3 font-mono text-[11px] text-white/70">
                       <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{evt.date}</span>
                       <span className="flex items-center gap-1 text-[#B388FF]/80"><Users className="w-3 h-3" />{evt.registeredCount} registered</span>
                     </div>
@@ -244,7 +244,7 @@ export default function EventsFeed() {
                   {evt.subEvents.length > 0 && (
                     <div className="mt-3 pt-3 border-t border-white/[0.06] flex gap-2 flex-wrap">
                       {evt.subEvents.map(se => (
-                        <span key={se.id} className="text-[10px] bg-white/[0.04] border border-white/[0.06] px-2 py-0.5 rounded text-white/40">{se.name}</span>
+                        <span key={se.id} className="text-[10px] bg-white/[0.04] border border-white/[0.08] px-2 py-0.5 rounded text-white/60">{se.name}</span>
                       ))}
                     </div>
                   )}
