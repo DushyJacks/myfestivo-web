@@ -254,7 +254,16 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
             ...data,
             id: d.id,
             // Ensure arrays exist even if missing in Firestore
-            subEvents: data.subEvents || [],
+            subEvents: (data.subEvents || []).map((se: any) => ({
+              ...se,
+              prize: {
+                first: se.prize?.first ?? "TBD",
+                second: se.prize?.second ?? "TBD",
+                third: se.prize?.third ?? "TBD",
+              },
+              coordinators: se.coordinators ?? [],
+              rules: se.rules ?? [],
+            })),
             registrations: data.registrations || [],
             chatMessages: data.chatMessages || [],
             announcements: data.announcements || [],

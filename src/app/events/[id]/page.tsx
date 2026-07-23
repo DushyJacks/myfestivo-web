@@ -70,31 +70,31 @@ export default function EventDetailPage() {
 
   const event = events.find(e => e.id === params.id)
 
-  // Set up automatic event reminders
-  useEventReminders(event || null as any)
+  // Safe defaults so hooks below don't need `event` to be defined
+  const subEvents = event?.subEvents ?? []
+  const registrations = event?.registrations ?? []
 
-  // ── Check-In CSV export (checked-in participants only) ──
-  const downloadCheckedInCSV = () => {
-    if (!event) return
-    const checkedInRegs = event.registrations.filter(r => r.checkedIn)
-    const headers = ["Name", "Email", "Sub-Event", "Check-In Time"]
-    const rows = checkedInRegs.map(r => {
-      const se = event.subEvents.find(s => s.id === r.subEventId)
-      const rawTime = r.checkInTime || ""
-      const time = rawTime
-        ? new Date(rawTime.includes('T') ? rawTime : rawTime.replace(' ', 'T') + 'Z').toLocaleString()
-        : "Unknown"
-      return [r.userName, r.userEmail, se?.name || "", time]
-    })
-    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(",")).join("\n")
-    const blob = new Blob([csv], { type: "text/csv" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `${event.title.replace(/\s+/g, "_")}_checkedin.csv`
-    a.click()
-    URL.revokeObjectURL(url)
-  }
+  const isHost = user?.email === event?.organizerEmail
+  const isCoordinator = subEvents.some(se => se.coordinators.some(c => c.email === user?.email))
+  const isRegistered = user ? registrations.some(r => r.userEmail === user.email) : false
+
+  // Chat channel access by role (computed before hooks so the useEffect below can use it)
+  const myRegisteredSubEventIds = user
+    ? registrations.filter(r => r.userEmail === user.email).map(r => r.subEventId)
+    : []
+  const myCoordinatingSubEventIds = user
+    ? subEvents.filter(se => se.coordinators.some(c => c.email === user.email)).map(se => se.id)
+    : []
+  const accessibleChannels: string[] = isHost
+    ? ["general", ...subEvents.map(se => se.id)]
+    : isCoordinator
+    ? ["general", ...myCoordinatingSubEventIds]
+    : isRegistered
+    ? ["general", ...myRegisteredSubEventIds]
+    : []
+
+  // Set up automatic event reminders
+  useEventReminders(event ?? null)
 
   // ── 10-second loading timeout — show a friendly error instead of infinite spinner ──
   // 10 s is enough for slow mobile connections while still providing
@@ -107,6 +107,16 @@ export default function EventDetailPage() {
     const timer = setTimeout(() => setLoadTimedOut(true), 10000)
     return () => clearTimeout(timer)
   }, [isLoading])
+
+  // Keep chatChannel in sync with accessible channels (must be before any return)
+  useEffect(() => {
+    if (
+      accessibleChannels.length > 0 &&
+      !accessibleChannels.includes(chatChannel)
+    ) {
+      setChatChannel(accessibleChannels[0])
+    }
+  }, [chatChannel, accessibleChannels.join(",")])
 
   if (isLoading && !loadTimedOut) {
     return (
@@ -154,28 +164,32 @@ export default function EventDetailPage() {
     )
   }
 
-  const isHost = user?.email === event.organizerEmail
-  const isCoordinator = event.subEvents.some(se => se.coordinators.some(c => c.email === user?.email))
-  const isRegistered = user ? event.registrations.some(r => r.userEmail === user.email) : false
   // Loosened: college email verification no longer required — any user can participate
   const canAccessIntra = !event.collegeDomain || !!user
   const isRestricted = !!(event.collegeDomain && !canAccessIntra)
 
-  // Chat channel access by role
-  const myRegisteredSubEventIds = user
-    ? event.registrations.filter(r => r.userEmail === user.email).map(r => r.subEventId)
-    : []
-  const myCoordinatingSubEventIds = user
-    ? event.subEvents.filter(se => se.coordinators.some(c => c.email === user.email)).map(se => se.id)
-    : []
-  // Accessible chat channels: host → all; in-charge → general + own sub-events; participant → general + registered sub-events
-  const accessibleChannels: string[] = isHost
-    ? ["general", ...event.subEvents.map(se => se.id)]
-    : isCoordinator
-    ? ["general", ...myCoordinatingSubEventIds]
-    : isRegistered
-    ? ["general", ...myRegisteredSubEventIds]
-    : []
+  // ── Check-In CSV export (checked-in participants only) ──
+  const downloadCheckedInCSV = () => {
+    const checkedInRegs = event.registrations.filter(r => r.checkedIn)
+    const headers = ["Name", "Email", "Sub-Event", "Check-In Time"]
+    const rows = checkedInRegs.map(r => {
+      const se = event.subEvents.find(s => s.id === r.subEventId)
+      const rawTime = r.checkInTime || ""
+      const time = rawTime
+        ? new Date(rawTime.includes('T') ? rawTime : rawTime.replace(' ', 'T') + 'Z').toLocaleString()
+        : "Unknown"
+      return [r.userName, r.userEmail, se?.name || "", time]
+    })
+    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(",")).join("\n")
+    const blob = new Blob([csv], { type: "text/csv" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${event.title.replace(/\s+/g, "_")}_checkedin.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const now = new Date()
   const eventDate = new Date(event.date)
   const eventExpired = eventDate.getTime() + 86400000 < now.getTime() // event day has ended
@@ -250,12 +264,6 @@ export default function EventDetailPage() {
     setPushBody("")
     setPushRecipient("")
   }
-  // Guard: ensure chatChannel is always in accessibleChannels
-  useEffect(() => {
-    if (accessibleChannels.length > 0 && !accessibleChannels.includes(chatChannel)) {
-      setChatChannel(accessibleChannels[0])
-    }
-  }, [chatChannel, accessibleChannels.join(",")])
 
   const handleQRScan = (data: string) => {
     if (!event) return

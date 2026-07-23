@@ -239,7 +239,12 @@ export function RegistrationWizard({ event, onClose }: Props) {
                     <p className="text-xs text-white/40 mb-2 line-clamp-2">{se.description}</p>
                     <div className="flex items-center gap-3 text-[10px] font-mono">
                       <span className="text-white/30">{regCount}/{se.maxParticipants} spots</span>
-                      {se.prize.first !== "TBD" && <span className="text-yellow-400/60 flex items-center gap-1"><Trophy className="w-3 h-3" />{se.prize.first}</span>}
+                      {se.prize?.first && se.prize.first !== "TBD" && (
+                        <span className="text-yellow-400/60 flex items-center gap-1">
+                          <Trophy className="w-3 h-3" />
+                          {se.prize.first}
+                        </span>
+                      )}
                       {already && <span className="text-green-400">Already registered</span>}
                       {isFull && !already && <span className="text-red-400">Full</span>}
                       {isStaffRestricted && !already && !isFull && <span className="text-red-400">Staff Restricted</span>}
