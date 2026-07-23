@@ -1,6 +1,5 @@
 [build]
   command = "npm run build"
-  functions = "netlify/functions"
   publish = ".next"
 
 # Next.js with Netlify configuration
@@ -8,8 +7,14 @@
   NODE_VERSION = "20"
   NPM_VERSION = "10"
 
-# ─── Redirects ───────────────────────────────────────────────────────────────
-# SPA fallback for client-side routing (Next.js handles this, but kept as safety net)
+# ─── Next.js Plugin ──────────────────────────────────────────────────────────
+# Required for proper SSR, dynamic routes, and page reloads in Next.js apps.
+# Without this, direct URL access / reloads on dynamic routes (e.g. /events/:id)
+# will fail with "This page couldn't load" because Netlify would try to serve
+# a non-existent /index.html instead of letting Next.js handle the request.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
 
 # ─── Compression ─────────────────────────────────────────────────────────────
 # Netlify automatically applies Brotli and GZIP compression to all text-based
