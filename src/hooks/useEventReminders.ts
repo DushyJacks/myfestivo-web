@@ -6,7 +6,7 @@ import { sendEventReminder } from "@/lib/notifications"
  * Custom hook to set up automatic event reminders
  * Schedules notifications for 24h and 1h before event time
  */
-export function useEventReminders(event: MainEvent) {
+export function useEventReminders(event: MainEvent | null) {
   useEffect(() => {
     if (!event || !event.date) return
 
