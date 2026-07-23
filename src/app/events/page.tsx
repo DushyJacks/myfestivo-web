@@ -30,6 +30,12 @@ export default function EventsFeed() {
 
   const filtered = useMemo(() => {
     let result = events.filter(evt => {
+      // Hide pending-review events from the public feed.
+      // Legacy events (no status field) are treated as published.
+      // The organizer can still see their own pending event.
+      const isPending = evt.status === "pending_review"
+      if (isPending && evt.organizerEmail !== user?.email) return false
+
       // Hide expired events (unless user is the host)
       const eventDate = new Date(evt.date)
       const expired = eventDate.getTime() + 86400000 < Date.now()
@@ -168,7 +174,7 @@ export default function EventsFeed() {
                 <GlassCard className={`p-0 hover:scale-[1.01] transition-transform duration-150 ease-out cursor-pointer relative overflow-hidden group h-full flex flex-col ${evt.isInter ? '' : 'border-l-yellow-500/50 border-l-[3px]'}`}>
                   
                   {/* Poster section - 16:9 compact aspect ratio */}
-                  <div className="w-full aspect-[16/9] overflow-hidden border-b border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] flex items-center justify-center">
+                  <div className="w-full aspect-[16/9] overflow-hidden border-b border-white/[0.06] bg-gradient-to-br from-white/[0.05] to-white/[0.02] flex items-center justify-center relative">
                     {evt.poster_base64 ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={evt.poster_base64} alt={evt.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" />
@@ -176,6 +182,16 @@ export default function EventsFeed() {
                       <div className="flex flex-col items-center justify-center gap-2">
                         <div className="w-10 h-10 rounded-xl border border-white/20 flex items-center justify-center text-white/30 text-lg bg-[rgba(179,136,255,0.08)]">🎉</div>
                         <span className="text-[10px] text-white/20">No poster</span>
+                      </div>
+                    )}
+                    {/* Pending review overlay — visible only to organizer */}
+                    {evt.status === "pending_review" && (
+                      <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2 backdrop-blur-[2px]">
+                        <div className="w-8 h-8 rounded-full border border-yellow-500/40 bg-yellow-500/10 flex items-center justify-center">
+                          <span className="text-yellow-400 text-base">⏳</span>
+                        </div>
+                        <span className="text-[10px] font-mono tracking-widest text-yellow-400 uppercase">Pending Review</span>
+                        <span className="text-[9px] text-white/30 px-4 text-center">Awaiting admin approval — not visible to others</span>
                       </div>
                     )}
                   </div>

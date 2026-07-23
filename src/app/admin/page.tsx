@@ -130,6 +130,8 @@ export default function AdminPage() {
 
   // ─── Filtered Events ───
   const filteredEvents = events.filter(evt => {
+    // Pending events are shown separately in the review queue above, not in the main table
+    if (evt.status === "pending_review") return false
     const matchSearch = evt.title.toLowerCase().includes(eventSearch.toLowerCase()) ||
       evt.organizer.toLowerCase().includes(eventSearch.toLowerCase())
     const matchCategory = eventCategoryFilter === "all" || evt.category === eventCategoryFilter
@@ -262,9 +264,9 @@ export default function AdminPage() {
                 {tab.id === "events" && (
                   <span className="hidden lg:inline ml-auto text-[10px] font-mono text-white/30 bg-white/[0.06] px-1.5 py-0.5 rounded">{events.length}</span>
                 )}
-                {tab.id === "events" && events.filter((e: any) => e.status === "pending_review").length > 0 && (
+                {tab.id === "events" && events.filter(e => e.status === "pending_review").length > 0 && (
                   <span className="hidden lg:inline ml-1 text-[10px] font-mono bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-1.5 py-0.5 rounded animate-pulse">
-                    {events.filter((e: any) => e.status === "pending_review").length} pending
+                    {events.filter(e => e.status === "pending_review").length} pending
                   </span>
                 )}
               </button>
@@ -414,14 +416,14 @@ export default function AdminPage() {
               </div>
 
               {/* ── Pending Review Queue ── */}
-              {events.filter((e: any) => e.status === "pending_review").length > 0 && (
+              {events.filter(e => e.status === "pending_review").length > 0 && (
                 <div className="mb-8">
                   <div className="flex items-center gap-2 mb-3">
                     <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
-                    <MicroLabel className="mb-0 text-yellow-400/80">Pending Review ({events.filter((e: any) => e.status === "pending_review").length})</MicroLabel>
+                    <MicroLabel className="mb-0 text-yellow-400/80">Pending Review ({events.filter(e => e.status === "pending_review").length})</MicroLabel>
                   </div>
                   <div className="space-y-3">
-                    {events.filter((e: any) => e.status === "pending_review").map(evt => (
+                    {events.filter(e => e.status === "pending_review").map(evt => (
                       <GlassCard key={evt.id} className="p-5 border-yellow-500/10">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1 min-w-0">

@@ -213,8 +213,7 @@ export default function CreateEventPage() {
       registrationOpen: false,  // Starts closed — opened after admin approval
       registrationDeadline: form.registrationDeadline || "",
       eventCoordinators: [],
-      // @ts-ignore — status field for admin review workflow
-      status: "pending_review",
+      status: "pending_review" as const,
       subEvents: subEvents.filter((se) => se.name).map((se, i) => {
         const sub: SubEvent = {
           id: `sub-${Date.now()}-${i}`,

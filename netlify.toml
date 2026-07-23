@@ -10,11 +10,6 @@
 
 # ─── Redirects ───────────────────────────────────────────────────────────────
 # SPA fallback for client-side routing (Next.js handles this, but kept as safety net)
-#[[redirects]]
-#  from = "/*"
-#  to = "/index.html"
-#  status = 200
-#  force = false
 
 # ─── Compression ─────────────────────────────────────────────────────────────
 # Netlify automatically applies Brotli and GZIP compression to all text-based

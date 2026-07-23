@@ -134,6 +134,8 @@ export interface MainEvent {
   collegeDomain: string
   registrationOpen: boolean
   registrationDeadline: string  // ISO date string, "" means no deadline
+  /** Admin review workflow. Undefined = legacy event (treated as published). */
+  status?: "pending_review" | "published"
   subEvents: SubEvent[]
   eventCoordinators: SubEventCoordinator[]  // Event-level coordinators (overall, event leads, etc.)
   registrations: Registration[]
