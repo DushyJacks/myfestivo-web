@@ -6,7 +6,7 @@ Date: April 4, 2026
 ========================================
 FIREBASE CONFIGURATION
 ========================================
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyCFG1SNWfez77o-KoWOkYnn6D1D86d_BPI
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyAWXlk_uq532P-NDv_l2qCYT7lYTJ9unKo
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=myfestivo-main.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=myfestivo-main
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=myfestivo-main.firebasestorage.app

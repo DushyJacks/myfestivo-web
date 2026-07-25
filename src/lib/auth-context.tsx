@@ -180,7 +180,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     const authInstance = getAuthInstance()
-    if (!authInstance) throw new Error("Firebase not configured. Check your .env.local file.")
+    if (!authInstance) throw new Error("Firebase is not configured. Ensure NEXT_PUBLIC_FIREBASE_* environment variables are added to Netlify Site Settings and trigger a new deploy.")
     try {
       const cred = await signInWithEmailAndPassword(authInstance, email, password)
       const profile = await fetchUserProfile(cred.user.uid)
@@ -208,9 +208,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = async (data: SignupData): Promise<boolean> => {
     const authInstance = getAuthInstance()
-    if (!authInstance) throw new Error("Firebase not configured. Check your .env.local file.")
+    if (!authInstance) throw new Error("Firebase is not configured. Ensure NEXT_PUBLIC_FIREBASE_* environment variables are added to Netlify Site Settings and trigger a new deploy.")
     const db = getDb()
-    if (!db) throw new Error("Firebase Firestore not configured. Check your .env.local file.")
+    if (!db) throw new Error("Firebase Firestore is not configured. Ensure NEXT_PUBLIC_FIREBASE_* environment variables are added to Netlify Site Settings and trigger a new deploy.")
     try {
       const cred = await createUserWithEmailAndPassword(authInstance, data.email, data.password)
       // Include termsAccepted: true since the modal enforces acceptance before signup
@@ -278,9 +278,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async (): Promise<boolean> => {
     const authInstance = getAuthInstance()
-    if (!authInstance) throw new Error("Firebase not configured. Check your .env.local file.")
+    if (!authInstance) throw new Error("Firebase is not configured. Ensure NEXT_PUBLIC_FIREBASE_* environment variables are added to Netlify Site Settings and trigger a new deploy.")
     const db = getDb()
-    if (!db) throw new Error("Firebase Firestore not configured. Check your .env.local file.")
+    if (!db) throw new Error("Firebase Firestore is not configured. Ensure NEXT_PUBLIC_FIREBASE_* environment variables are added to Netlify Site Settings and trigger a new deploy.")
     try {
       const cred = await signInWithPopup(authInstance, googleProvider)
       const existing = await fetchUserProfile(cred.user.uid)
