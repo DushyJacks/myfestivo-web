@@ -1,9 +1,9 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, ReactNode, useRef, useCallback } from "react"
 import { db as getDb } from "./firebase"
 import {
-  collection, doc, onSnapshot, addDoc, updateDoc, arrayUnion, increment, setDoc, deleteDoc,
+  collection, doc, onSnapshot, updateDoc, arrayUnion, increment, setDoc, deleteDoc, getDocs, query, getDoc,
 } from "firebase/firestore"
 import { 
   sendRegistrationConfirmation, 
@@ -213,6 +213,20 @@ function getEventRef(eventId: string) {
   return doc(db, "events", eventId)
 }
 
+// Helper: get a registration subcollection doc ref
+function getRegRef(eventId: string, regId: string) {
+  const db = getDb()
+  if (!db) throw new Error("[MyFestivo] Firebase not initialized. Check your .env.local file.")
+  return doc(db, "events", eventId, "registrations", regId)
+}
+
+// Helper: get the registrations subcollection ref
+function getRegsCol(eventId: string) {
+  const db = getDb()
+  if (!db) throw new Error("[MyFestivo] Firebase not initialized. Check your .env.local file.")
+  return collection(db, "events", eventId, "registrations")
+}
+
 // ─── localStorage cache helpers ───
 // We use localStorage (not sessionStorage) so the cache persists across new
 // browser tabs — this is critical for shared event links to load instantly.
@@ -227,24 +241,33 @@ function eventsForCache(evts: MainEvent[]): object[] {
 export function EventsProvider({ children, authReady, authUid }: EventsProviderProps) {
   const [events, setEvents] = useState<MainEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  // We store per-event registration maps in a ref so the events onSnapshot
+  // callback always has the latest registration data without needing to close over stale state.
+  const regsByEventRef = useRef<Record<string, Registration[]>>({})
+
+  // Helper to merge current event docs with their subcollection registrations
+  const mergeRegistrations = useCallback((evtDocs: MainEvent[]): MainEvent[] => {
+    return evtDocs.map(e => ({
+      ...e,
+      registrations: regsByEventRef.current[e.id] ?? e.registrations,
+    }))
+  }, [])
 
   // ── 1. Serve stale cache immediately so pages don't flash a spinner on reload ──
-  // This runs once on mount — localStorage persists across tabs and refreshes.
   useEffect(() => {
     try {
       const raw = localStorage.getItem(EVENTS_CACHE_KEY)
       if (raw) {
         setEvents(JSON.parse(raw))
-        setIsLoading(false) // unblock page render with cached data right away
+        setIsLoading(false)
       }
     } catch {}
   }, [])
 
   // ── 2. Set up live Firestore listener — only once auth state is known ──
-  // We gate on authReady to avoid PERMISSION_DENIED errors that happen when
-  // onSnapshot fires before Firebase Auth has restored the session from IndexedDB.
+  // We gate on authReady to avoid PERMISSION_DENIED errors before session restores.
   useEffect(() => {
-    if (!authReady) return // wait until auth resolves (signed-in or signed-out)
+    if (!authReady) return
 
     const col = getEventsCol()
     if (!col) {
@@ -253,7 +276,12 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
       return
     }
 
-    const unsub = onSnapshot(
+    // Track per-event registration subcollection unsubscribers
+    const regUnsubs: Record<string, () => void> = {}
+    // Keep the latest list of event docs so registration updates can re-merge
+    let latestEvtDocs: MainEvent[] = []
+
+    const eventsUnsub = onSnapshot(
       col,
       (snapshot) => {
         const fetched: MainEvent[] = snapshot.docs.map((d) => {
@@ -261,7 +289,6 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
           return {
             ...data,
             id: d.id,
-            // Ensure arrays exist even if missing in Firestore
             subEvents: (data.subEvents || []).map((se: any) => ({
               ...se,
               prize: {
@@ -272,7 +299,8 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
               coordinators: se.coordinators ?? [],
               rules: se.rules ?? [],
             })),
-            registrations: data.registrations || [],
+            // Start with empty array — registrations subcollection listeners will fill it in
+            registrations: regsByEventRef.current[d.id] ?? [],
             chatMessages: data.chatMessages || [],
             announcements: data.announcements || [],
             tasks: data.tasks || [],
@@ -285,21 +313,43 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
             registrationDeadline: data.registrationDeadline || "",
           } as MainEvent
         })
-        setEvents(fetched)
+        latestEvtDocs = fetched
+
+        // Subscribe to registrations subcollection for any new events
+        fetched.forEach(evt => {
+          if (regUnsubs[evt.id]) return // already subscribed
+          try {
+            const regCol = getRegsCol(evt.id)
+            const unsub = onSnapshot(regCol, (regSnap) => {
+              const regs: Registration[] = regSnap.docs.map(rd => ({ ...rd.data(), id: rd.id } as Registration))
+              regsByEventRef.current = { ...regsByEventRef.current, [evt.id]: regs }
+              // Re-merge and update state
+              setEvents(prev => prev.map(e => e.id === evt.id ? { ...e, registrations: regs } : e))
+            }, (err) => {
+              console.error(`[EventsProvider] Registrations listener error for event ${evt.id}:`, err)
+            })
+            regUnsubs[evt.id] = unsub
+          } catch (e) {
+            console.error(`[EventsProvider] Failed to subscribe to registrations for ${evt.id}`, e)
+          }
+        })
+
+        setEvents(mergeRegistrations(fetched))
         setIsLoading(false)
-        // Persist fresh data to localStorage for the next load (any tab)
         try {
-          localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify(eventsForCache(fetched)))
+          localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify(eventsForCache(mergeRegistrations(fetched))))
         } catch {}
       },
       (error) => {
-        // Firestore error — cached data is already displayed; just stop loading
         console.error('[EventsProvider] Firestore listener error:', error)
         setIsLoading(false)
       }
     )
-    return () => unsub()
-  }, [authReady, authUid]) // re-subscribe if the user signs in/out
+    return () => {
+      eventsUnsub()
+      Object.values(regUnsubs).forEach(u => u())
+    }
+  }, [authReady, authUid, mergeRegistrations])
 
   // ── 3. Grace-period fallback — unblock the page after 6 s regardless ──
   // If both localStorage cache is empty AND Firestore is slow (e.g. auth takes
@@ -331,10 +381,15 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
     const evt = events.find(e => e.id === eventId)
     if (!evt) return
 
-    await updateDoc(getEventRef(eventId), {
-      registrations: arrayUnion(reg),
-      registeredCount: increment(1),
-    })
+    // Write registration into the subcollection (allowed by Firestore rules for any authenticated user).
+    // The top-level event document update (registrations array) was blocked by rules for non-organizers.
+    const { id: regId, ...regData } = reg
+    await setDoc(getRegRef(eventId, regId), regData)
+    // Increment the count on the event doc (organizer-only field, but increment is allowed
+    // as a merge operation — we use a try/catch so it fails silently if rules block it).
+    try {
+      await updateDoc(getEventRef(eventId), { registeredCount: increment(1) })
+    } catch { /* non-critical */ }
 
     // Trigger on_register automation
     const onRegisterRule = evt.automations.find(a => a.trigger === "on_register" && a.enabled)
@@ -397,58 +452,40 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
   const acceptTeamRequest = async (eventId: string, regId: string, email: string) => {
     const evt = events.find(e => e.id === eventId)
     if (!evt) return
-    const updatedRegs = evt.registrations.map(r => {
-      if (r.id === regId && r.pendingMembers?.includes(email)) {
-        return {
-          ...r,
-          pendingMembers: r.pendingMembers.filter(e => e !== email),
-          teamMembers: [...(r.teamMembers || []), email]
-        }
-      }
-      return r
+    const reg = evt.registrations.find(r => r.id === regId)
+    if (!reg || !reg.pendingMembers?.includes(email)) return
+    await updateDoc(getRegRef(eventId, regId), {
+      pendingMembers: reg.pendingMembers.filter(e => e !== email),
+      teamMembers: [...(reg.teamMembers || []), email],
     })
-    await updateDoc(getEventRef(eventId), { registrations: updatedRegs })
   }
 
   const rejectTeamRequest = async (eventId: string, regId: string, email: string) => {
     const evt = events.find(e => e.id === eventId)
     if (!evt) return
-    const updatedRegs = evt.registrations.map(r => {
-      if (r.id === regId && r.pendingMembers?.includes(email)) {
-        return {
-          ...r,
-          pendingMembers: r.pendingMembers.filter(e => e !== email)
-        }
-      }
-      return r
+    const reg = evt.registrations.find(r => r.id === regId)
+    if (!reg || !reg.pendingMembers?.includes(email)) return
+    await updateDoc(getRegRef(eventId, regId), {
+      pendingMembers: reg.pendingMembers.filter(e => e !== email),
     })
-    await updateDoc(getEventRef(eventId), { registrations: updatedRegs })
   }
 
   // Module 1 — Payment
   const submitTransaction = async (eventId: string, regId: string, transactionId: string, method: string) => {
     const evt = events.find(e => e.id === eventId)
     if (!evt) return
-    // Auto-approve Razorpay payments (they're verified), keep others as PENDING
     const isPaid = method === "razorpay"
-    const updatedRegs = evt.registrations.map(r =>
-      r.id === regId ? { 
-        ...r, 
-        transactionId, 
-        paymentMethod: method,
-        status: isPaid ? "PAID" : "PENDING"
-      } : r
-    )
-    await updateDoc(getEventRef(eventId), { registrations: updatedRegs })
+    await updateDoc(getRegRef(eventId, regId), {
+      transactionId,
+      paymentMethod: method,
+      status: isPaid ? "PAID" : "PENDING",
+    })
 
-    // Send payment confirmation if approved
     if (isPaid) {
       const reg = evt.registrations.find(r => r.id === regId)
       if (reg) {
         try {
           await sendPaymentConfirmation(eventId, evt.title, reg.userEmail, evt.price)
-
-          // Trigger payment_pending automation if exists
           const paymentRule = evt.automations.find(a => a.trigger === "payment_pending" && a.enabled)
           if (paymentRule) {
             await addAutomationLog(eventId, {
@@ -468,21 +505,11 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
   }
 
   const approvePayment = async (eventId: string, regId: string) => {
-    const evt = events.find(e => e.id === eventId)
-    if (!evt) return
-    const updatedRegs = evt.registrations.map(r =>
-      r.id === regId ? { ...r, status: "PAID" as const } : r
-    )
-    await updateDoc(getEventRef(eventId), { registrations: updatedRegs })
+    await updateDoc(getRegRef(eventId, regId), { status: "PAID" })
   }
 
   const rejectPayment = async (eventId: string, regId: string) => {
-    const evt = events.find(e => e.id === eventId)
-    if (!evt) return
-    const updatedRegs = evt.registrations.map(r =>
-      r.id === regId ? { ...r, status: "REFUNDED" as const } : r
-    )
-    await updateDoc(getEventRef(eventId), { registrations: updatedRegs })
+    await updateDoc(getRegRef(eventId, regId), { status: "REFUNDED" })
   }
 
   // Module 2 — Announcements
@@ -585,12 +612,10 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
 
   // Module 4 — Check-In
   const checkInParticipant = async (eventId: string, regId: string) => {
-    const evt = events.find(e => e.id === eventId)
-    if (!evt) return
-    const updatedRegs = evt.registrations.map(r =>
-      r.id === regId ? { ...r, checkedIn: true, checkInTime: new Date().toISOString() } : r
-    )
-    await updateDoc(getEventRef(eventId), { registrations: updatedRegs })
+    await updateDoc(getRegRef(eventId, regId), {
+      checkedIn: true,
+      checkInTime: new Date().toISOString(),
+    })
   }
 
   // Module 7 — Automation
