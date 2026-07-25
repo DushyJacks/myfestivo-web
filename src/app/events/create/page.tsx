@@ -39,12 +39,19 @@ export default function CreateEventPage() {
   const { addEvent } = useEvents()
   const router = useRouter()
 
-  // Compute date constraints
+  // Compute date constraints using local time, not UTC (toISOString)
+  const getLocalDateString = (d: Date) => {
+    const y = d.getFullYear()
+    const m = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${y}-${m}-${day}`
+  }
+
   const today = new Date()
   const minEventDate = new Date(today)
   minEventDate.setDate(today.getDate() + 2)
-  const minEventDateStr = minEventDate.toISOString().slice(0, 10)
-  const todayStr = today.toISOString().slice(0, 10)
+  const minEventDateStr = getLocalDateString(minEventDate)
+  const todayStr = getLocalDateString(today)
 
   const [form, setForm] = useState({
     title: "",
@@ -373,7 +380,7 @@ export default function CreateEventPage() {
               </div>
               <div>
                 <label className={labelCls}>Price (₹)</label>
-                <Input type="number" value={form.price} onChange={(e) => update("price", parseInt(e.target.value) || 0)} className={`${inputCls} h-11`} />
+                <Input type="number" min={0} value={form.price} onChange={(e) => update("price", Math.max(0, parseInt(e.target.value) || 0))} className={`${inputCls} h-11`} />
               </div>
             </div>
             <div>
@@ -523,18 +530,18 @@ export default function CreateEventPage() {
                 {/* Max Participants / Teams */}
                 <div>
                   <label className={labelCls}>{se.type === "team" ? "Max Teams" : "Max Participants"}</label>
-                  <Input type="number" value={se.maxParticipants} onChange={(e) => updateSubEvent(idx, "maxParticipants", parseInt(e.target.value) || 0)} className={inputCls} />
+                  <Input type="number" min={1} value={se.maxParticipants} onChange={(e) => updateSubEvent(idx, "maxParticipants", Math.max(1, parseInt(e.target.value) || 1))} className={inputCls} />
                 </div>
 
                 {se.type === "team" && (
                   <div className="grid grid-cols-2 gap-3 p-3 rounded-md bg-white/[0.02] border border-white/[0.06]">
                     <div>
                       <label className={labelCls}>Min Team Size</label>
-                      <Input type="number" min={2} value={se.minTeamSize} onChange={(e) => updateSubEvent(idx, "minTeamSize", parseInt(e.target.value) || 2)} className={inputCls} />
+                      <Input type="number" min={2} value={se.minTeamSize} onChange={(e) => updateSubEvent(idx, "minTeamSize", Math.max(2, parseInt(e.target.value) || 2))} className={inputCls} />
                     </div>
                     <div>
                       <label className={labelCls}>Max Team Size</label>
-                      <Input type="number" min={2} value={se.maxTeamSize} onChange={(e) => updateSubEvent(idx, "maxTeamSize", parseInt(e.target.value) || 4)} className={inputCls} />
+                      <Input type="number" min={2} value={se.maxTeamSize} onChange={(e) => updateSubEvent(idx, "maxTeamSize", Math.max(se.minTeamSize || 2, parseInt(e.target.value) || 2))} className={inputCls} />
                     </div>
                   </div>
                 )}

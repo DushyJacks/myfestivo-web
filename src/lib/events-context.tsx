@@ -58,6 +58,7 @@ export interface Registration {
   timestamp: string
   teamName?: string
   teamMembers?: string[]
+  pendingMembers?: string[]
   transactionId?: string
   paymentMethod?: string
   checkedIn: boolean
@@ -179,6 +180,8 @@ interface EventsContextType {
   updateTaskStatus: (eventId: string, taskId: string, status: TaskStatus) => void
   updateTaskOrder: (eventId: string, tasks: Task[]) => void
   checkInParticipant: (eventId: string, regId: string) => void
+  acceptTeamRequest: (eventId: string, regId: string, email: string) => Promise<void>
+  rejectTeamRequest: (eventId: string, regId: string, email: string) => Promise<void>
   addAutomation: (eventId: string, rule: AutomationRule) => void
   toggleAutomation: (eventId: string, ruleId: string) => void
   addAutomationLog: (eventId: string, log: AutomationLog) => void
@@ -391,6 +394,37 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
     })
   }
 
+  const acceptTeamRequest = async (eventId: string, regId: string, email: string) => {
+    const evt = events.find(e => e.id === eventId)
+    if (!evt) return
+    const updatedRegs = evt.registrations.map(r => {
+      if (r.id === regId && r.pendingMembers?.includes(email)) {
+        return {
+          ...r,
+          pendingMembers: r.pendingMembers.filter(e => e !== email),
+          teamMembers: [...(r.teamMembers || []), email]
+        }
+      }
+      return r
+    })
+    await updateDoc(getEventRef(eventId), { registrations: updatedRegs })
+  }
+
+  const rejectTeamRequest = async (eventId: string, regId: string, email: string) => {
+    const evt = events.find(e => e.id === eventId)
+    if (!evt) return
+    const updatedRegs = evt.registrations.map(r => {
+      if (r.id === regId && r.pendingMembers?.includes(email)) {
+        return {
+          ...r,
+          pendingMembers: r.pendingMembers.filter(e => e !== email)
+        }
+      }
+      return r
+    })
+    await updateDoc(getEventRef(eventId), { registrations: updatedRegs })
+  }
+
   // Module 1 — Payment
   const submitTransaction = async (eventId: string, regId: string, transactionId: string, method: string) => {
     const evt = events.find(e => e.id === eventId)
@@ -581,7 +615,10 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
     <EventsContext.Provider value={{
       events, isLoading, addEvent, deleteEvent, updateEvent, registerForSubEvent, addChatMessage, addCoordinator,
       submitTransaction, approvePayment, rejectPayment,
-      addAnnouncement, addTask, updateTaskStatus, updateTaskOrder, checkInParticipant,
+      addAnnouncement, addTask, updateTaskStatus, updateTaskOrder,
+      checkInParticipant,
+      acceptTeamRequest,
+      rejectTeamRequest,
       addAutomation, toggleAutomation, addAutomationLog
     }}>
       {children}

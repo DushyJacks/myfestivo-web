@@ -76,11 +76,11 @@ export default function EventDetailPage() {
 
   const isHost = user?.email === event?.organizerEmail
   const isCoordinator = subEvents.some(se => se.coordinators.some(c => c.email === user?.email))
-  const isRegistered = user ? registrations.some(r => r.userEmail === user.email) : false
+  const isRegistered = user ? registrations.some(r => r.userEmail === user.email || r.teamMembers?.includes(user.email)) : false
 
   // Chat channel access by role (computed before hooks so the useEffect below can use it)
   const myRegisteredSubEventIds = user
-    ? registrations.filter(r => r.userEmail === user.email).map(r => r.subEventId)
+    ? registrations.filter(r => r.userEmail === user.email || r.teamMembers?.includes(user.email)).map(r => r.subEventId)
     : []
   const myCoordinatingSubEventIds = user
     ? subEvents.filter(se => se.coordinators.some(c => c.email === user.email)).map(se => se.id)
@@ -457,7 +457,7 @@ export default function EventDetailPage() {
                 <MicroLabel>Sub-Events & Competitions</MicroLabel>
                 <div className="space-y-4">
                   {event.subEvents.map(se => {
-                    const isUserRegistered = event.registrations.some(r => r.subEventId === se.id && r.userEmail === user?.email)
+                    const isUserRegistered = event.registrations.some(r => r.subEventId === se.id && (r.userEmail === user?.email || r.teamMembers?.includes(user?.email || "")))
                     return (
                       <GlassCard key={se.id} className="p-6 transition-all hover:bg-white/[0.04] scroll-mt-24" id={se.id}>
                         <div className="flex justify-between items-start mb-4">
@@ -480,7 +480,7 @@ export default function EventDetailPage() {
                                 setShowRegWizard(true)
                               }}
                               disabled={isRestricted || event.restricted_registrations?.includes(user?.email || "")}
-                              variant="outline" className="h-8 px-4 text-[10px] font-mono border-white/20 hover:bg-white text-white bg-white/5 transition-all">
+                              variant="outline" className="h-8 px-4 text-[10px] font-mono border-white/20 hover:bg-[#B388FF] hover:text-black hover:border-[#B388FF] text-white bg-white/5 transition-all">
                               {!user ? "Login to Register" : event.restricted_registrations?.includes(user?.email || "") ? "Staff Restricted" : "Register"}
                             </Button>
                           )}

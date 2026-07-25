@@ -22,7 +22,7 @@ import {
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth()
-  const { events, updateTaskStatus } = useEvents()
+  const { events, updateTaskStatus, acceptTeamRequest, rejectTeamRequest } = useEvents()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<"overview" | "hosted" | "registered" | "tasks">("overview")
   const [showQR, setShowQR] = useState<string | null>(null)
@@ -40,7 +40,7 @@ export default function DashboardPage() {
 
   if (!user) return null
 
-  const registeredEvents = events.filter(e => e.registrations.some(r => r.userEmail === user.email))
+  const registeredEvents = events.filter(e => e.registrations.some(r => r.userEmail === user.email || r.teamMembers?.includes(user.email)))
   const hostedEvents = events.filter(e => e.organizerEmail === user.email)
   const coordinatingEvents = events.filter(e => e.subEvents.some(se => se.coordinators.some(c => c.email === user.email)))
 
@@ -48,6 +48,12 @@ export default function DashboardPage() {
     e.tasks.filter(t => t.assignedTo === user.email || t.assignedTo === user.collegeEmail).map(t => ({ ...t, eventTitle: e.title, eventId: e.id }))
   )
   const pendingTasks = myTasks.filter(t => t.status !== "DONE")
+
+  const teamRequests = events.flatMap(e => 
+    e.registrations
+      .filter(r => r.pendingMembers?.includes(user.email))
+      .map(r => ({ event: e, registration: r }))
+  )
 
 
   const tabs = [
@@ -125,7 +131,28 @@ export default function DashboardPage() {
                   </GlassCard>
                 </Link>
               </motion.div>
-
+              {teamRequests.length > 0 && (
+                <motion.div variants={pageItem} className="mb-10">
+                  <MicroLabel>Team Invitations</MicroLabel>
+                  <div className="space-y-2">
+                    {teamRequests.map(({ event, registration: r }) => {
+                      const se = event.subEvents.find(s => s.id === r.subEventId)
+                      return (
+                        <GlassCard key={r.id} className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                          <div>
+                            <h3 className="font-medium text-sm">{event.title} - {se?.name}</h3>
+                            <p className="text-xs text-white/50 mt-1">Invited by {r.userName} ({r.teamName})</p>
+                          </div>
+                          <div className="flex gap-2 w-full sm:w-auto">
+                            <Button size="sm" variant="outline" className="flex-1 sm:flex-none h-8 border-white/20 hover:bg-white/10" onClick={() => rejectTeamRequest(event.id, r.id, user.email)}>Decline</Button>
+                            <Button size="sm" className="flex-1 sm:flex-none h-8 bg-[#B388FF] text-black hover:bg-[#B388FF]/90" onClick={() => acceptTeamRequest(event.id, r.id, user.email)}>Accept</Button>
+                          </div>
+                        </GlassCard>
+                      )
+                    })}
+                  </div>
+                </motion.div>
+              )}
 
               {pendingTasks.length > 0 && (
                 <motion.div variants={pageItem} className="mb-10">
@@ -166,7 +193,7 @@ export default function DashboardPage() {
               ) : (
                 <div className="space-y-4">
                   {registeredEvents.map(evt => {
-                    const myRegs = evt.registrations.filter(r => r.userEmail === user.email)
+                    const myRegs = evt.registrations.filter(r => r.userEmail === user.email || r.teamMembers?.includes(user.email))
                     return (
                       <GlassCard key={evt.id} className="p-6">
                         <div className="flex justify-between items-start mb-4">

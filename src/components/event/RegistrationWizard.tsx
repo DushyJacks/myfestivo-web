@@ -86,13 +86,14 @@ export function RegistrationWizard({ event, onClose }: Props) {
       status: requiresPayment ? "PENDING" : "PAID",
       timestamp: new Date().toLocaleString("sv-SE", { timeZone: "Asia/Kolkata" }).slice(0, 16),
       checkedIn: false,
-      transactionId: requiresPayment ? undefined : `FREE-${regId}`,
+      ...(requiresPayment ? {} : { transactionId: `FREE-${regId}` }),
       paymentMethod: requiresPayment ? "pending" : "free",
     }
     
     if (selectedSe.type === "team") {
       reg.teamName = teamName || `${user.name}'s Team`
-      reg.teamMembers = [user.email, ...teamMembers]
+      reg.teamMembers = [user.email]
+      reg.pendingMembers = teamMembers
     }
     
     try {
