@@ -382,11 +382,22 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
     if (!evt) return
 
     // Write registration into the subcollection (allowed by Firestore rules for any authenticated user).
-    // The top-level event document update (registrations array) was blocked by rules for non-organizers.
     const { id: regId, ...regData } = reg
     await setDoc(getRegRef(eventId, regId), regData)
-    // Increment the count on the event doc (organizer-only field, but increment is allowed
-    // as a merge operation — we use a try/catch so it fails silently if rules block it).
+
+    // Optimistic update: immediately inject the registration into local state so
+    // the UI reflects "Registered" without waiting for the subcollection listener to fire.
+    regsByEventRef.current = {
+      ...regsByEventRef.current,
+      [eventId]: [...(regsByEventRef.current[eventId] ?? []), reg],
+    }
+    setEvents(prev => prev.map(e =>
+      e.id === eventId
+        ? { ...e, registrations: [...e.registrations.filter(r => r.id !== reg.id), reg] }
+        : e
+    ))
+
+    // Increment the count on the event doc (non-critical, may fail if rules block it)
     try {
       await updateDoc(getEventRef(eventId), { registeredCount: increment(1) })
     } catch { /* non-critical */ }

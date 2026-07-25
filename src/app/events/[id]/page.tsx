@@ -41,6 +41,9 @@ export default function EventDetailPage() {
   const [selectedSubEvent, setSelectedSubEvent] = useState<string | null>(null)
   const [showRegWizard, setShowRegWizard] = useState(false)
   const [showQRScanner, setShowQRScanner] = useState(false)
+  // Optimistic local registrations — immediately reflects a new registration
+  // before the Firestore subcollection listener fires (avoids stale "Register" button).
+  const [localRegistrations, setLocalRegistrations] = useState<any[]>([])
   const [chatChannel, setChatChannel] = useState("general")
   const [scanStatus, setScanStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null)
   // Timeout flag — set to true after 8s if Firestore is still loading (offline / slow network)
@@ -72,7 +75,12 @@ export default function EventDetailPage() {
 
   // Safe defaults so hooks below don't need `event` to be defined
   const subEvents = event?.subEvents ?? []
-  const registrations = event?.registrations ?? []
+  // Merge Firestore registrations with any optimistic local ones
+  const registrations = [
+    ...(event?.registrations ?? []),
+    // Only include local regs not yet reflected in Firestore data
+    ...localRegistrations.filter(lr => !(event?.registrations ?? []).some((r: any) => r.id === lr.id))
+  ]
 
   const isHost = user?.email === event?.organizerEmail
   const isCoordinator = subEvents.some(se => se.coordinators.some(c => c.email === user?.email))
@@ -1118,7 +1126,7 @@ export default function EventDetailPage() {
       </div>
 
       {/* Registration Wizard Modal */}
-      {showRegWizard && <RegistrationWizard event={event} onClose={() => setShowRegWizard(false)} />}
+      {showRegWizard && <RegistrationWizard event={event} onClose={() => setShowRegWizard(false)} onSuccess={(reg) => { setLocalRegistrations(prev => [...prev, reg]); setShowRegWizard(false) }} />}
 
       {/* QR Scanner Modal */}
       {showQRScanner && (

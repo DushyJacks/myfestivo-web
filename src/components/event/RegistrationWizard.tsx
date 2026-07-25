@@ -11,11 +11,12 @@ import { Check, ChevronRight, Users, User, X, Plus, Trophy, UserPlus } from "luc
 interface Props {
   event: MainEvent
   onClose: () => void
+  onSuccess?: (reg: any) => void
 }
 
 type Step = "select" | "team" | "confirm"
 
-export function RegistrationWizard({ event, onClose }: Props) {
+export function RegistrationWizard({ event, onClose, onSuccess }: Props) {
   const { user } = useAuth()
   const { registerForSubEvent } = useEvents()
   const [step, setStep] = useState<Step>("select")
@@ -165,6 +166,7 @@ export function RegistrationWizard({ event, onClose }: Props) {
       } else {
         // No payment required - mark as complete
         setDone(true)
+        onSuccess?.(reg)
       }
     } catch (err) {
       console.error('Registration error:', err)
