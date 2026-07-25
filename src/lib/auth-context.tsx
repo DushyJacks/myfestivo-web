@@ -143,9 +143,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false)
       return
     }
+
+    // Safety net: if onAuthStateChanged hasn't fired within 5 s (e.g. Firebase
+    // Auth iframe is blocked or very slow), unblock the app and treat as signed-out.
+    // This prevents the entire loading chain from hanging indefinitely.
+    const fallbackTimer = setTimeout(() => setIsLoading(false), 5000)
+
     const unsub = onAuthStateChanged(authInstance, async (firebaseUser) => {
+      clearTimeout(fallbackTimer) // auth resolved — cancel the fallback
       if (firebaseUser) {
-        // ── 3-day absolute session timeout ──────────────────────────
+        // ── 3-day absolute session timeout ────────────────────
         if (isSessionExpired()) {
           clearSessionStart()
           await signOut(authInstance)
@@ -160,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       setIsLoading(false)
     })
-    return () => unsub()
+    return () => { unsub(); clearTimeout(fallbackTimer) }
   }, [])
 
 
@@ -173,7 +180,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     const authInstance = getAuthInstance()
-    if (!authInstance) throw new Error("Firebase not configured. Check your .env.local file.")
+    if (!authInstance) throw new Error("Firebase is not configured. Ensure NEXT_PUBLIC_FIREBASE_* environment variables are added to Netlify Site Settings and trigger a new deploy.")
     try {
       const cred = await signInWithEmailAndPassword(authInstance, email, password)
       const profile = await fetchUserProfile(cred.user.uid)
@@ -201,9 +208,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = async (data: SignupData): Promise<boolean> => {
     const authInstance = getAuthInstance()
-    if (!authInstance) throw new Error("Firebase not configured. Check your .env.local file.")
+    if (!authInstance) throw new Error("Firebase is not configured. Ensure NEXT_PUBLIC_FIREBASE_* environment variables are added to Netlify Site Settings and trigger a new deploy.")
     const db = getDb()
-    if (!db) throw new Error("Firebase Firestore not configured. Check your .env.local file.")
+    if (!db) throw new Error("Firebase Firestore is not configured. Ensure NEXT_PUBLIC_FIREBASE_* environment variables are added to Netlify Site Settings and trigger a new deploy.")
     try {
       const cred = await createUserWithEmailAndPassword(authInstance, data.email, data.password)
       // Include termsAccepted: true since the modal enforces acceptance before signup
@@ -271,9 +278,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async (): Promise<boolean> => {
     const authInstance = getAuthInstance()
-    if (!authInstance) throw new Error("Firebase not configured. Check your .env.local file.")
+    if (!authInstance) throw new Error("Firebase is not configured. Ensure NEXT_PUBLIC_FIREBASE_* environment variables are added to Netlify Site Settings and trigger a new deploy.")
     const db = getDb()
-    if (!db) throw new Error("Firebase Firestore not configured. Check your .env.local file.")
+    if (!db) throw new Error("Firebase Firestore is not configured. Ensure NEXT_PUBLIC_FIREBASE_* environment variables are added to Netlify Site Settings and trigger a new deploy.")
     try {
       const cred = await signInWithPopup(authInstance, googleProvider)
       const existing = await fetchUserProfile(cred.user.uid)

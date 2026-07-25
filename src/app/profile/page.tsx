@@ -235,7 +235,7 @@ export default function ProfilePage() {
 
   const inputCls = "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11"
   const readonlyCls = "h-11 px-3 flex items-center text-sm text-white/80 bg-white/[0.02] border border-white/[0.06] rounded-md"
-  const labelCls = "text-[11px] font-mono tracking-widest uppercase text-white/40 mb-2 block"
+  const labelCls = "text-[11px] font-mono tracking-widest uppercase text-white/60 mb-2 block"
 
   return (
     <div className="flex min-h-screen">
@@ -289,7 +289,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex-1">
                   <h2 className="text-xl font-medium">{user.name}</h2>
-                  <p className="text-sm text-white/40 font-mono">{user.email}</p>
+                  <p className="text-sm text-white/60 font-mono">{user.email}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-[10px] font-mono border border-white/20 text-white/40 px-2 py-0.5 rounded uppercase">{user.role}</span>
                     {user.collegeEmailVerified && (
@@ -372,8 +372,19 @@ export default function ProfilePage() {
                   <div>
                     <label className={labelCls}><School className="w-3 h-3 inline mr-1" />College <span className="text-red-400">*</span></label>
                     {isEditing
-                      ? <Input value={college} onChange={e => setCollege(e.target.value)} className={inputCls} />
-                      : <div className={readonlyCls}>{user.college || <span className="text-white/30">Not set</span>}</div>}
+                      ? (
+                        <select
+                          value={college}
+                          onChange={e => setCollege(e.target.value)}
+                          className="w-full h-11 bg-white/[0.03] border border-white/[0.08] text-white rounded-md px-3 text-sm"
+                        >
+                          <option value="" className="bg-black text-white/50">Select your campus...</option>
+                          {["SRMIST, Ramapuram", "SRMIST, Kattankulathur", "SRMIST, Vadapalani", "SRMIST, Tiruchirappalli"].map(c => (
+                            <option key={c} value={c} className="bg-black text-white">{c}</option>
+                          ))}
+                        </select>
+                      )
+                      : <div className={readonlyCls}>{user.college || <span className="text-white/50">Not set</span>}</div>}
                   </div>
                   <div>
                     <label className={labelCls}><BookOpen className="w-3 h-3 inline mr-1" />Department <span className="text-red-400">*</span></label>
@@ -431,8 +442,8 @@ export default function ProfilePage() {
           <motion.div variants={pageItem} className="mb-8">
             <GlassCard className="p-6 sm:p-8">
               <MicroLabel>02 — College Email Verification</MicroLabel>
-              <p className="text-sm text-white/40 mb-2">Link your college email to access intra-college events.</p>
-              <p className="text-[11px] text-white/30 mb-6 font-mono">This step is optional — you can participate in events without verification.</p>
+              <p className="text-sm text-white/60 mb-2">Link your college email to access intra-college events.</p>
+              <p className="text-[11px] text-white/50 mb-6 font-mono">This step is optional — you can participate in events without verification.</p>
 
               {user.collegeEmailVerified ? (
                 <div className="flex items-center gap-3 p-4 rounded-md bg-green-500/10 border border-green-500/20">
@@ -466,7 +477,7 @@ export default function ProfilePage() {
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 p-3 rounded-md bg-white/[0.03] border border-white/[0.06]">
                         <Mail className="w-4 h-4 text-white/40" />
-                        <span className="text-xs text-white/50">Check {collegePrefix}@{collegeDomain} for the code. Valid 10 min.</span>
+                        <span className="text-xs text-white/70">Check {collegePrefix}@{collegeDomain} for the code. Valid 10 min.</span>
                       </div>
                       <div className="flex gap-3">
                         <Input value={otp} onChange={e => setOtp(e.target.value)} placeholder="Enter 6-digit OTP" maxLength={6}
@@ -486,7 +497,7 @@ export default function ProfilePage() {
           <motion.div variants={pageItem} className="mb-8">
             <GlassCard className="p-6 sm:p-8">
               <MicroLabel>03 — Account</MicroLabel>
-              <p className="text-sm text-white/40 mb-6">Manage your session and account data.</p>
+              <p className="text-sm text-white/60 mb-6">Manage your session and account data.</p>
 
               <div className="space-y-3">
                 {/* Sign Out */}
@@ -497,7 +508,7 @@ export default function ProfilePage() {
                   <LogOut className="w-4 h-4 shrink-0" />
                   <div className="text-left">
                     <p className="font-medium">Sign Out</p>
-                    <p className="text-xs text-white/30">End your current session</p>
+                    <p className="text-xs text-white/50">End your current session</p>
                   </div>
                 </button>
 

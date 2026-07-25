@@ -259,7 +259,16 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
             ...data,
             id: d.id,
             // Ensure arrays exist even if missing in Firestore
-            subEvents: data.subEvents || [],
+            subEvents: (data.subEvents || []).map((se: any) => ({
+              ...se,
+              prize: {
+                first: se.prize?.first ?? "TBD",
+                second: se.prize?.second ?? "TBD",
+                third: se.prize?.third ?? "TBD",
+              },
+              coordinators: se.coordinators ?? [],
+              rules: se.rules ?? [],
+            })),
             registrations: data.registrations || [],
             chatMessages: data.chatMessages || [],
             announcements: data.announcements || [],
@@ -288,6 +297,18 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
     )
     return () => unsub()
   }, [authReady, authUid]) // re-subscribe if the user signs in/out
+
+  // ── 3. Grace-period fallback — unblock the page after 6 s regardless ──
+  // If both localStorage cache is empty AND Firestore is slow (e.g. auth takes
+  // 4 s + Firestore round-trip takes 2 s = 6 s total), isLoading would stay
+  // true and the page-level 10 s timeout would fire. This timer acts as a
+  // safety net: after 6 s, we stop blocking so the page renders with whatever
+  // data is available (even if it’s empty). Firestore will still populate when
+  // it responds — the listener remains active.
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 6000)
+    return () => clearTimeout(timer)
+  }, [])
 
   const addEvent = async (event: MainEvent) => {
     const { id, ...data } = event

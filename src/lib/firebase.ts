@@ -7,7 +7,7 @@ let firebaseAuth: any = null
 let firebaseDb: any = null
 
 function ensureFirebaseInitialized() {
-  if (firebaseApp) return
+  if (firebaseApp && firebaseAuth && firebaseDb) return
 
   // Skip if env vars not available (development/staging without proper config)
   if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {

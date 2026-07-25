@@ -87,23 +87,23 @@ export default function DashboardPage() {
               <motion.div variants={pageItem} className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
                 <GlassCard className="p-5">
                   <div className="text-3xl font-light mb-1">{registeredEvents.length}</div>
-                  <div className="text-[11px] font-mono tracking-widest uppercase text-white/40">Registered</div>
+                  <div className="text-[11px] font-mono tracking-widest uppercase text-white/60">Registered</div>
                 </GlassCard>
                 <GlassCard className="p-5">
                   <div className="text-3xl font-light mb-1">{hostedEvents.length}</div>
-                  <div className="text-[11px] font-mono tracking-widest uppercase text-white/40">Hosted</div>
+                  <div className="text-[11px] font-mono tracking-widest uppercase text-white/60">Hosted</div>
                 </GlassCard>
                 <GlassCard className="p-5">
                   <div className="text-3xl font-light mb-1">{coordinatingEvents.length}</div>
-                  <div className="text-[11px] font-mono tracking-widest uppercase text-white/40">Coordinating</div>
+                  <div className="text-[11px] font-mono tracking-widest uppercase text-white/60">Coordinating</div>
                 </GlassCard>
                 <GlassCard className="p-5">
                   <div className="text-3xl font-light mb-1 text-yellow-400">{pendingTasks.length}</div>
-                  <div className="text-[11px] font-mono tracking-widest uppercase text-white/40">Pending Tasks</div>
+                  <div className="text-[11px] font-mono tracking-widest uppercase text-white/60">Pending Tasks</div>
                 </GlassCard>
                 <GlassCard className="p-5">
                   <div className="text-3xl font-light mb-1">{user.friends.length}</div>
-                  <div className="text-[11px] font-mono tracking-widest uppercase text-white/40">Friends</div>
+                  <div className="text-[11px] font-mono tracking-widest uppercase text-white/60">Friends</div>
                 </GlassCard>
               </motion.div>
 
@@ -111,7 +111,7 @@ export default function DashboardPage() {
                 <Link href="/events">
                   <GlassCard className="p-6 hover:scale-[1.01] transition-transform cursor-pointer group">
                     <div className="flex items-center justify-between">
-                      <div><h3 className="font-medium mb-1">Browse Events</h3><p className="text-sm text-white/40">Find and register for upcoming events</p></div>
+                      <div><h3 className="font-medium mb-1">Browse Events</h3><p className="text-sm text-white/60">Find and register for upcoming events</p></div>
                       <ChevronRight className="w-5 h-5 text-white/20 group-hover:text-white/60 transition-colors" />
                     </div>
                   </GlassCard>
@@ -119,7 +119,7 @@ export default function DashboardPage() {
                 <Link href="/events/create">
                   <GlassCard className="p-6 hover:scale-[1.01] transition-transform cursor-pointer group">
                     <div className="flex items-center justify-between">
-                      <div><h3 className="font-medium mb-1">Host New Event</h3><p className="text-sm text-white/40">Create and manage your own event</p></div>
+                      <div><h3 className="font-medium mb-1">Host New Event</h3><p className="text-sm text-white/60">Create and manage your own event</p></div>
                       <ChevronRight className="w-5 h-5 text-white/20 group-hover:text-white/60 transition-colors" />
                     </div>
                   </GlassCard>
@@ -140,8 +140,8 @@ export default function DashboardPage() {
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium">{t.title}</p>
                             <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-mono text-white/30">{t.eventTitle}</span>
-                              {t.deadline && <span className={`text-[10px] font-mono flex items-center gap-0.5 ${new Date(t.deadline) < new Date() ? 'text-red-400' : 'text-white/30'}`}><CalendarDays className="w-3 h-3" /> {t.deadline}</span>}
+                              <span className="text-[10px] font-mono text-white/50">{t.eventTitle}</span>
+                              {t.deadline && <span className={`text-[10px] font-mono flex items-center gap-0.5 ${new Date(t.deadline) < new Date() ? 'text-red-400' : 'text-white/50'}`}><CalendarDays className="w-3 h-3" /> {t.deadline}</span>}
                             </div>
                           </div>
                           <span className={`text-[9px] font-mono px-2 py-0.5 rounded border ${t.status === "IN_PROGRESS" ? "border-yellow-500/30 text-yellow-400" : "border-white/20 text-white/40"}`}>{t.status.replace("_", " ")}</span>
@@ -160,7 +160,7 @@ export default function DashboardPage() {
               <MicroLabel>My Tickets & QR Passes</MicroLabel>
               {registeredEvents.length === 0 ? (
                 <GlassCard className="p-8 text-center">
-                  <p className="font-mono text-white/20 text-lg mb-4">No tickets yet</p>
+                  <p className="font-mono text-white/40 text-lg mb-4">No tickets yet</p>
                   <Link href="/events"><Button className="bg-white text-black hover:bg-[#B388FF]">Browse Events</Button></Link>
                 </GlassCard>
               ) : (
@@ -172,7 +172,7 @@ export default function DashboardPage() {
                         <div className="flex justify-between items-start mb-4">
                           <div>
                             <h3 className="text-lg font-medium mb-1">{evt.title}</h3>
-                            <p className="text-xs font-mono text-white/40">{evt.date} &mdash; {evt.venue}</p>
+                            <p className="text-xs font-mono text-white/60">{evt.date} &mdash; {evt.venue}</p>
                           </div>
                           <Link href={`/events/${evt.id}`}>
                             <Button variant="outline" className="border-white/20 text-white text-xs">View Event</Button>
@@ -205,8 +205,8 @@ export default function DashboardPage() {
                                   <div className="p-4 bg-white rounded-lg mb-3">
                                     <QRCodeSVG value={`MYFESTIVO:${evt.id}:${reg.subEventId}:${reg.id}`} size={160} />
                                   </div>
-                                  <p className="text-[10px] font-mono text-white/40">{reg.id}</p>
-                                  <p className="text-[10px] font-mono text-white/30">Show this at check-in</p>
+                                  <p className="text-[10px] font-mono text-white/50">{reg.id}</p>
+                                  <p className="text-[10px] font-mono text-white/50">Show this at check-in</p>
                                 </div>
                               )}
                             </div>
@@ -229,7 +229,7 @@ export default function DashboardPage() {
               </div>
               {hostedEvents.length === 0 ? (
                 <GlassCard className="p-8 text-center">
-                  <p className="font-mono text-white/20 text-lg mb-4">No events hosted yet</p>
+                  <p className="font-mono text-white/40 text-lg mb-4">No events hosted yet</p>
                   <Link href="/events/create"><Button className="bg-white text-black hover:bg-[#B388FF]">Host Your First Event</Button></Link>
                 </GlassCard>
               ) : (
@@ -239,11 +239,11 @@ export default function DashboardPage() {
                       {/* Top row: title + date */}
                       <div className="mb-3">
                         <h3 className="text-base font-semibold truncate mb-0.5">{evt.title}</h3>
-                        <p className="text-[11px] font-mono text-white/40">{evt.date}</p>
+                        <p className="text-[11px] font-mono text-white/60">{evt.date}</p>
                       </div>
 
                       {/* Stats — 2×2 grid on mobile, single row on sm+ */}
-                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-4 gap-y-2 text-xs text-white/50 mb-4">
+                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-4 gap-y-2 text-xs text-white/70 mb-4">
                         <span className="flex items-center gap-1">
                           <Users className="w-3 h-3 shrink-0" />
                           <span>{evt.registeredCount} registrations</span>
@@ -288,8 +288,8 @@ export default function DashboardPage() {
               <MicroLabel>My Assigned Tasks</MicroLabel>
               {myTasks.length === 0 ? (
                 <GlassCard className="p-8 text-center">
-                  <p className="font-mono text-white/20 text-lg mb-4">No tasks assigned</p>
-                  <p className="text-sm text-white/30">Tasks assigned to you by event organizers will appear here.</p>
+                  <p className="font-mono text-white/40 text-lg mb-4">No tasks assigned</p>
+                  <p className="text-sm text-white/50">Tasks assigned to you by event organizers will appear here.</p>
                 </GlassCard>
               ) : (
                 <TaskBoard

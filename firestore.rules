@@ -33,8 +33,8 @@ service cloud.firestore {
 
     // Events collection - SECURE WITH OWNERSHIP CHECKS
     match /events/{eventId} {
-      // Read: Any authenticated user can view events
-      allow read: if request.auth != null;
+      // Read: Allow public reads so browse pages work for unauthenticated users
+      allow read: if true;
       
       // Create: Any authenticated user can create an event (they become organizer)
       allow create: if request.auth != null;
