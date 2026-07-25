@@ -32,7 +32,7 @@ Complete SEO infrastructure initialized. Features extracted from full codebase a
 ## BASELINE STATISTICS
 
 - **Project:** MyFestivo (Next.js 16.2.1)
-- **Author:** DushyJacks (dushyanthjp2@gmail.com)
+- **Author:** DushyJacks (myfestivo@gmail.com)
 - **Blog Directory:** Will create at root as `blog/`
 - **Competitors Tracked:** 6 (iCommunify, DoorList, TheCollegeFever, Unstop, Eventbrite, MeraEvents)
 - **Features Registered:** 70+ across 12 categories
