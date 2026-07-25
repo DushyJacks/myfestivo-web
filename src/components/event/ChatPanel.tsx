@@ -214,7 +214,7 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
           <Button 
             onClick={send} 
             disabled={!msg.trim()} 
-            className="h-10 px-4 bg-white text-black hover:bg-white/90 rounded-lg font-medium"
+            className="h-10 px-4 bg-white text-black hover:bg-[#B388FF] rounded-lg font-medium"
           >
             <Send className="w-4 h-4" />
           </Button>

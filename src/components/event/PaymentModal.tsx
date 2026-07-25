@@ -134,7 +134,7 @@ export function PaymentModal({
               </div>
               <Button
                 onClick={() => setState("ready")}
-                className="w-full bg-white text-black hover:bg-white/90 h-10"
+                className="w-full bg-white text-black hover:bg-[#B388FF] h-10"
               >
                 Try Again
               </Button>
@@ -193,7 +193,7 @@ export function PaymentModal({
             </Button>
             <Button
               onClick={handlePayment}
-              className="flex-1 bg-white text-black hover:bg-white/90 h-10 font-medium"
+              className="flex-1 bg-white text-black hover:bg-[#B388FF] h-10 font-medium"
             >
               Pay ₹{amount}
             </Button>
@@ -204,7 +204,7 @@ export function PaymentModal({
           <div className="px-6 py-4 border-t border-white/[0.06]">
             <Button
               onClick={onCancel}
-              className="w-full bg-white text-black hover:bg-white/90 h-10"
+              className="w-full bg-white text-black hover:bg-[#B388FF] h-10"
             >
               Continue
             </Button>

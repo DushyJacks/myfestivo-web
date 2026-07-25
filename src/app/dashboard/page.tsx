@@ -161,7 +161,7 @@ export default function DashboardPage() {
               {registeredEvents.length === 0 ? (
                 <GlassCard className="p-8 text-center">
                   <p className="font-mono text-white/20 text-lg mb-4">No tickets yet</p>
-                  <Link href="/events"><Button className="bg-white text-black hover:bg-white/90">Browse Events</Button></Link>
+                  <Link href="/events"><Button className="bg-white text-black hover:bg-[#B388FF]">Browse Events</Button></Link>
                 </GlassCard>
               ) : (
                 <div className="space-y-4">
@@ -225,12 +225,12 @@ export default function DashboardPage() {
             <motion.div variants={pageItem}>
               <div className="flex justify-between items-center mb-6">
                 <MicroLabel className="mb-0">Events You Hosted</MicroLabel>
-                <Link href="/events/create"><Button className="bg-white text-black hover:bg-white/90 text-sm"><PlusCircle className="w-4 h-4 mr-2" />New Event</Button></Link>
+                <Link href="/events/create"><Button className="bg-white text-black hover:bg-[#B388FF] text-sm"><PlusCircle className="w-4 h-4 mr-2" />New Event</Button></Link>
               </div>
               {hostedEvents.length === 0 ? (
                 <GlassCard className="p-8 text-center">
                   <p className="font-mono text-white/20 text-lg mb-4">No events hosted yet</p>
-                  <Link href="/events/create"><Button className="bg-white text-black hover:bg-white/90">Host Your First Event</Button></Link>
+                  <Link href="/events/create"><Button className="bg-white text-black hover:bg-[#B388FF]">Host Your First Event</Button></Link>
                 </GlassCard>
               ) : (
                 <div className="space-y-4">

@@ -636,7 +636,7 @@ export default function EventDetailPage() {
                     <input type="checkbox" id="pin" checked={annPinned} onChange={e => setAnnPinned(e.target.checked)} className="accent-white" />
                     <label htmlFor="pin" className="text-[10px] font-mono text-white/40 uppercase cursor-pointer">Pin</label>
                   </div>
-                  <Button onClick={handleAddAnnouncement} className="bg-white text-black text-[10px] h-8 px-4 font-mono tracking-widest uppercase hover:bg-white/90">
+                  <Button onClick={handleAddAnnouncement} className="bg-white text-black text-[10px] h-8 px-4 font-mono tracking-widest uppercase hover:bg-[#B388FF]">
                     <Send className="w-3 h-3 mr-1" /> Post
                   </Button>
                 </div>

@@ -86,7 +86,7 @@ export default function LandingPage() {
               </Link>
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center bg-white text-black hover:bg-white/90 text-sm font-medium h-9 px-5 rounded-md transition-colors"
+                className="inline-flex items-center justify-center bg-white text-black hover:bg-[#B388FF] text-sm font-medium h-9 px-5 rounded-md transition-colors"
               >
                 Get Started
               </Link>
@@ -125,7 +125,7 @@ export default function LandingPage() {
             <motion.div variants={fadeUp} className="flex flex-wrap gap-4">
               <Link
                 href={user ? "/events" : "/signup"}
-                className="inline-flex items-center justify-center gap-2 bg-white text-black hover:bg-white/90 font-medium h-12 px-8 text-sm rounded-md transition-colors"
+                className="inline-flex items-center justify-center gap-2 bg-white text-black hover:bg-[#B388FF] font-medium h-12 px-8 text-sm rounded-md transition-colors"
               >
                 {user ? "Go to Events" : "Create Account"} <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </Link>
@@ -170,7 +170,7 @@ export default function LandingPage() {
           <motion.div variants={fadeUp} className="flex flex-wrap justify-center gap-4">
             <Link
               href={user ? "/events/create" : "/signup"}
-              className="inline-flex items-center justify-center gap-2 bg-white text-black hover:bg-white/90 font-medium h-12 px-10 text-sm rounded-md transition-colors"
+              className="inline-flex items-center justify-center gap-2 bg-white text-black hover:bg-[#B388FF] font-medium h-12 px-10 text-sm rounded-md transition-colors"
             >
               {user ? "Create Event" : "Get Started Free"} <ArrowRight className="w-4 h-4" aria-hidden="true" />
             </Link>

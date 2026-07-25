@@ -124,7 +124,7 @@ export default function LoginPage() {
                 type="submit"
                 disabled={loading || accepted === false}
                 aria-label={loading ? "Signing in..." : "Sign in"}
-                className="w-full bg-white text-black hover:bg-white/90 font-medium h-12 transition-colors disabled:opacity-50"
+                className="w-full bg-white text-black hover:bg-[#B388FF] font-medium h-12 transition-colors disabled:opacity-50"
               >
                 {loading ? (
                   <span className="inline-flex items-center gap-2">

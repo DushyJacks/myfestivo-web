@@ -490,9 +490,11 @@ export default function EditEventPage() {
                     </div>
                     <div><label className={labelCls}>Description</label><Input value={se.description} onChange={(e) => updateSubEvent(idx, "description", e.target.value)} placeholder="Brief description" className={inputCls} /></div>
                     <div className="flex gap-2">
-                      <button type="button" onClick={() => updateSubEvent(idx, "type", "solo")} className={`flex-1 py-2 rounded-md text-xs transition-colors border ${se.type === "solo" ? "bg-white text-black border-white" : "bg-white/[0.03] text-white/50 border-white/[0.08]"}`}>Solo</button>
-                      <button type="button" onClick={() => updateSubEvent(idx, "type", "team")} className={`flex-1 py-2 rounded-md text-xs transition-colors border ${se.type === "team" ? "bg-white text-black border-white" : "bg-white/[0.03] text-white/50 border-white/[0.08]"}`}>Team</button>
+                      <div className={`flex-1 py-2 rounded-md text-xs text-center border cursor-not-allowed select-none ${se.type === "solo" ? "bg-white/10 text-white border-white/30" : "bg-white/[0.02] text-white/20 border-white/[0.05]"}`}>Solo</div>
+                      <div className={`flex-1 py-2 rounded-md text-xs text-center border cursor-not-allowed select-none ${se.type === "team" ? "bg-white/10 text-white border-white/30" : "bg-white/[0.02] text-white/20 border-white/[0.05]"}`}>Team</div>
                     </div>
+                    <p className="text-[10px] text-white/30 font-mono mt-1.5">🔒 Participation type is locked and cannot be changed after creation.</p>
+
                     {se.type === "team" && (
                       <div className="grid grid-cols-2 gap-3 p-3 rounded-md bg-white/[0.02] border border-white/[0.06]">
                         <div>
@@ -734,7 +736,7 @@ export default function EditEventPage() {
 
           {/* ─── Save Button ─── */}
           <div className="flex gap-3">
-            <Button type="submit" disabled={saving} className="flex-1 bg-white text-black hover:bg-white/90 font-medium h-12 text-base disabled:opacity-50">
+            <Button type="submit" disabled={saving} className="flex-1 bg-white text-black hover:bg-[#B388FF] font-medium h-12 text-base disabled:opacity-50">
               {saving ? (
                 <span className="flex items-center gap-2">
                   <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full" />

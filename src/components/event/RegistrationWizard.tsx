@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { useEvents, SubEvent, MainEvent } from "@/lib/events-context"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Check, ChevronRight, Users, User, X, Plus, Trophy } from "lucide-react"
+import { Check, ChevronRight, Users, User, X, Plus, Trophy, UserPlus } from "lucide-react"
 
 interface Props {
   event: MainEvent
@@ -25,6 +25,8 @@ export function RegistrationWizard({ event, onClose }: Props) {
   const [teamMembers, setTeamMembers] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
+  const [friendSuggestions, setFriendSuggestions] = useState<string[]>([])
+  const suggestionsRef = useRef<HTMLDivElement>(null)
 
   // Handle Escape key
   useEffect(() => {
@@ -42,12 +44,25 @@ export function RegistrationWizard({ event, onClose }: Props) {
 
   const isStaffRestricted = event.restricted_registrations?.includes(user?.email || "")
 
-  const addMember = () => {
-    const email = memberEmail.trim().toLowerCase()
-    if (!email || teamMembers.includes(email) || email === user.email) return
+  const addMemberByEmail = (email: string) => {
+    const normalized = email.trim().toLowerCase()
+    if (!normalized || teamMembers.includes(normalized) || normalized === user.email) return
     if (selectedSe?.maxTeamSize && teamMembers.length + 1 >= selectedSe.maxTeamSize) return
-    setTeamMembers(prev => [...prev, email])
+    setTeamMembers(prev => [...prev, normalized])
     setMemberEmail("")
+    setFriendSuggestions([])
+  }
+
+  const addMember = () => addMemberByEmail(memberEmail)
+
+  const handleMemberInput = (val: string) => {
+    setMemberEmail(val)
+    if (!val.trim() || !user?.friends?.length) { setFriendSuggestions([]); return }
+    const q = val.toLowerCase()
+    const matches = user.friends.filter(
+      f => f.toLowerCase().includes(q) && f !== user.email && !teamMembers.includes(f)
+    )
+    setFriendSuggestions(matches.slice(0, 6))
   }
 
   const handleConfirm = async () => {
@@ -174,7 +189,7 @@ export function RegistrationWizard({ event, onClose }: Props) {
           <p className="text-sm text-white/50 mb-6">
             You&apos;re in for <span className="text-white">{selectedSe?.name}</span>. Check your dashboard for your QR pass.
           </p>
-          <Button onClick={onClose} className="bg-white text-black hover:bg-white/90 h-10 px-6">Done</Button>
+          <Button onClick={onClose} className="bg-white text-black hover:bg-[#B388FF] h-10 px-6">Done</Button>
         </GlassCard>
       </div>
     )
@@ -282,14 +297,40 @@ export function RegistrationWizard({ event, onClose }: Props) {
                   </div>
                 ))}
 
-                <div className="flex gap-2 mt-3">
-                  <Input value={memberEmail} onChange={e => setMemberEmail(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && addMember()}
-                    placeholder="teammate@gmail.com"
-                    className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-9 flex-1 text-sm" />
-                  <Button onClick={addMember} variant="outline" className="h-9 px-3 border-white/20 text-white/60 hover:text-white">
+                <div className="flex gap-2 mt-3 relative">
+                  <div className="flex-1 relative">
+                    <Input value={memberEmail} onChange={e => handleMemberInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addMember() } if (e.key === "Escape") setFriendSuggestions([]) }}
+                      placeholder="teammate@gmail.com"
+                      className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-9 text-sm w-full" />
+                    {/* Friend autocomplete dropdown */}
+                    {friendSuggestions.length > 0 && (
+                      <div ref={suggestionsRef} className="absolute top-full left-0 right-0 mt-1 bg-black/95 border border-white/[0.1] rounded-lg z-20 overflow-hidden shadow-xl">
+                        {friendSuggestions.map(email => (
+                          <button
+                            key={email}
+                            type="button"
+                            onMouseDown={e => { e.preventDefault(); addMemberByEmail(email) }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left hover:bg-[#B388FF]/10 transition-colors"
+                          >
+                            <div className="w-6 h-6 rounded-full bg-[#B388FF]/20 flex items-center justify-center text-[10px] font-bold text-[#B388FF] shrink-0">
+                              {email[0].toUpperCase()}
+                            </div>
+                            <span className="text-sm text-white/80 truncate">{email}</span>
+                            <span className="ml-auto text-[9px] font-mono text-[#B388FF]/60">Friend</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <Button onClick={addMember} variant="outline" className="h-9 px-3 border-white/20 text-white/60 hover:text-white shrink-0">
                     <Plus className="w-3.5 h-3.5" />
                   </Button>
+                </div>
+                {/* Friend hint */}
+                <div className="flex items-center gap-1.5 mt-2">
+                  <UserPlus className="w-3 h-3 text-white/25 shrink-0" />
+                  <p className="text-[10px] text-white/30 font-mono">Only friends appear as suggestions — add teammates as friends first.</p>
                 </div>
                 {selectedSe.minTeamSize && (teamMembers.length + 1) < selectedSe.minTeamSize && (
                   <p className="text-[10px] text-yellow-400/80 mt-2 font-mono">Need at least {selectedSe.minTeamSize - teamMembers.length - 1} more member(s)</p>
@@ -301,7 +342,7 @@ export function RegistrationWizard({ event, onClose }: Props) {
                 <Button
                   onClick={() => setStep("confirm")}
                   disabled={!!(selectedSe.minTeamSize && (teamMembers.length + 1) < selectedSe.minTeamSize)}
-                  className="flex-1 h-10 bg-white text-black hover:bg-white/90"
+                  className="flex-1 h-10 bg-white text-black hover:bg-[#B388FF]"
                 >Continue</Button>
               </div>
             </div>
@@ -338,7 +379,7 @@ export function RegistrationWizard({ event, onClose }: Props) {
 
               <div className="flex gap-3">
                 <Button onClick={() => setStep(selectedSe.type === "team" ? "team" : "select")} variant="ghost" className="flex-1 h-10 border border-white/[0.1] text-white/60">Back</Button>
-                <Button onClick={handleConfirm} disabled={submitting} className="flex-1 h-10 bg-white text-black hover:bg-white/90">
+                <Button onClick={handleConfirm} disabled={submitting} className="flex-1 h-10 bg-white text-black hover:bg-[#B388FF]">
                   {submitting ? "Registering..." : "Confirm Registration"}
                 </Button>
               </div>

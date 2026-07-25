@@ -91,7 +91,7 @@ function ConfirmModal({
               className={`px-4 py-2 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50 ${
                 isDelete
                   ? "bg-red-500 hover:bg-red-600 text-white"
-                  : "bg-white hover:bg-white/90 text-black"
+                  : "bg-white hover:bg-[#B388FF] text-black"
               }`}
             >
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
@@ -105,7 +105,7 @@ function ConfirmModal({
 }
 
 export default function ProfilePage() {
-  const { user, updateProfile, linkCollegeEmail, sendFriendRequest, logout, deleteAccount } = useAuth()
+  const { user, isLoading: authLoading, updateProfile, linkCollegeEmail, sendFriendRequest, logout, deleteAccount } = useAuth()
   const { events, isLoading: eventsLoading } = useEvents()
   const router = useRouter()
 
@@ -132,6 +132,7 @@ export default function ProfilePage() {
   const [deleteError, setDeleteError] = useState("")
 
   useEffect(() => {
+    if (authLoading) return // wait for Firebase session to restore
     if (!user) { router.push("/login"); return }
     setName(user.name)
     setPhone(user.phone || "")
@@ -140,7 +141,13 @@ export default function ProfilePage() {
     setDepartment(user.department || "")
     setRollNo(user.rollNo || "")
     setYear(user.year || "")
-  }, [user, router])
+  }, [user, authLoading, router])
+
+  if (authLoading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+    </div>
+  )
 
   if (!user) return null
 
@@ -411,7 +418,7 @@ export default function ProfilePage() {
 
               {isEditing && (
                 <div className="mt-6 flex items-center gap-3">
-                  <Button onClick={handleSave} disabled={!canSave} className="bg-white text-black hover:bg-white/90 font-medium h-11 px-8 disabled:opacity-50">
+                  <Button onClick={handleSave} disabled={!canSave} className="bg-white text-black hover:bg-[#B388FF] font-medium h-11 px-8 disabled:opacity-50">
                     <Save className="w-4 h-4 mr-2" />Save Changes
                   </Button>
                   {saved && <span className="text-sm text-green-400 flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> Saved!</span>}
@@ -452,7 +459,7 @@ export default function ProfilePage() {
                   </div>
                   {verifyError && <div className="flex items-center gap-2 text-xs text-red-400"><AlertCircle className="w-3 h-3" /> {verifyError}</div>}
                   {!otpSent ? (
-                    <Button onClick={handleSendOtp} disabled={!collegePrefix.trim() || verifying} className="bg-white text-black hover:bg-white/90 h-10">
+                    <Button onClick={handleSendOtp} disabled={!collegePrefix.trim() || verifying} className="bg-white text-black hover:bg-[#B388FF] h-10">
                       {verifying ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending...</> : <><Mail className="w-4 h-4 mr-2" /> Send Verification OTP</>}
                     </Button>
                   ) : (
@@ -464,7 +471,7 @@ export default function ProfilePage() {
                       <div className="flex gap-3">
                         <Input value={otp} onChange={e => setOtp(e.target.value)} placeholder="Enter 6-digit OTP" maxLength={6}
                           className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11 font-mono text-center tracking-[0.5em] max-w-[200px]" />
-                        <Button onClick={handleVerifyOtp} disabled={verifying} className="bg-white text-black hover:bg-white/90 h-11 px-6">
+                        <Button onClick={handleVerifyOtp} disabled={verifying} className="bg-white text-black hover:bg-[#B388FF] h-11 px-6">
                           {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify"}
                         </Button>
                       </div>

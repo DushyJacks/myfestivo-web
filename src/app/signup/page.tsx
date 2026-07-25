@@ -218,7 +218,7 @@ export default function SignupPage() {
               </>
             )}
 
-            <Button type="submit" disabled={loading || accepted === false} aria-label={loading ? "Creating account..." : "Create account"} className="w-full bg-white text-black hover:bg-white/90 font-medium h-12 transition-colors mt-2 disabled:opacity-50">
+            <Button type="submit" disabled={loading || accepted === false} aria-label={loading ? "Creating account..." : "Create account"} className="w-full bg-white text-black hover:bg-[#B388FF] font-medium h-12 transition-colors mt-2 disabled:opacity-50">
               {loading ? (
                 <span className="inline-flex items-center gap-2">
                   <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" aria-hidden="true" />

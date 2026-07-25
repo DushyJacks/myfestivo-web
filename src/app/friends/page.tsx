@@ -16,7 +16,7 @@ import { collection, query, where, getDocs, limit } from "firebase/firestore"
 import { Search, UserPlus, Check, X, Loader2 } from "lucide-react"
 
 export default function FriendsPage() {
-  const { user, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend } = useAuth()
+  const { user, isLoading, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend } = useAuth()
   const router = useRouter()
 
   const [searchQuery, setSearchQuery] = useState("")
@@ -27,8 +27,14 @@ export default function FriendsPage() {
   const [friendMsg, setFriendMsg] = useState("")
 
   useEffect(() => {
-    if (!user) router.push("/login")
-  }, [user, router])
+    if (!isLoading && !user) router.push("/login")
+  }, [user, isLoading, router])
+
+  if (isLoading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+    </div>
+  )
 
   if (!user) return null
 
@@ -148,7 +154,7 @@ export default function FriendsPage() {
                       placeholder="friend@gmail.com"
                       className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-10 flex-1 text-sm"
                     />
-                    <Button onClick={handleSendByEmail} disabled={friendSending} className="bg-white text-black hover:bg-white/90 h-10 px-4">
+                    <Button onClick={handleSendByEmail} disabled={friendSending} className="bg-white text-black hover:bg-[#B388FF] h-10 px-4">
                       {friendSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
                     </Button>
                   </div>

@@ -305,7 +305,7 @@ export default function CreateEventPage() {
           </GlassCard>
           <div className="flex gap-3 justify-center">
             <Link href="/dashboard">
-              <Button className="bg-white text-black hover:bg-white/90 font-medium">
+              <Button className="bg-white text-black hover:bg-[#B388FF] font-medium">
                 Go to Dashboard
               </Button>
             </Link>
@@ -388,7 +388,7 @@ export default function CreateEventPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}><Phone className="w-3 h-3 inline mr-1" />Organizer Phone</label>
-                <Input value={form.organizerPhone} onChange={(e) => update("organizerPhone", e.target.value)} placeholder="+91 98765 43210" className={`${inputCls} h-11`} />
+                <Input value={form.organizerPhone} onChange={(e) => update("organizerPhone", e.target.value)} placeholder="+91 98765 43210" className={`${inputCls} h-11`} required />
               </div>
               {/* Total Prize Pool with toggle */}
               <div>
@@ -513,6 +513,7 @@ export default function CreateEventPage() {
                 {/* Solo / Team Toggle */}
                 <div>
                   <label className={labelCls}>Participation Type</label>
+                  <p className="text-[10px] text-amber-400/70 mb-2 font-mono">⚠ This cannot be changed after the event is created.</p>
                   <div className="flex gap-2">
                     <button type="button" onClick={() => updateSubEvent(idx, "type", "solo")} className={`flex-1 py-2 rounded-md text-xs transition-colors border ${se.type === "solo" ? "bg-white text-black border-white" : "bg-white/[0.03] text-white/50 border-white/[0.08]"}`}>Solo</button>
                     <button type="button" onClick={() => updateSubEvent(idx, "type", "team")} className={`flex-1 py-2 rounded-md text-xs transition-colors border ${se.type === "team" ? "bg-white text-black border-white" : "bg-white/[0.03] text-white/50 border-white/[0.08]"}`}>Team</button>
@@ -667,7 +668,7 @@ export default function CreateEventPage() {
             )}
           </GlassCard>
 
-          <Button type="submit" disabled={submitting} className="w-full bg-white text-black hover:bg-white/90 font-medium h-12 text-base disabled:opacity-50">
+          <Button type="submit" disabled={submitting} className="w-full bg-white text-black hover:bg-[#B388FF] font-medium h-12 text-base disabled:opacity-50">
             {submitting ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />

@@ -12,6 +12,11 @@ import {
   sendAnnouncementNotification,
   sendTaskAssignment,
 } from "./notifications"
+import {
+  emailRegistrationConfirmation,
+  emailAnnouncementNotification,
+  emailTaskAssignment,
+} from "./emailApi"
 
 // ─── Sub-Event Types ───
 export interface SubEventCoordinator {
@@ -311,7 +316,7 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
     const onRegisterRule = evt.automations.find(a => a.trigger === "on_register" && a.enabled)
     if (onRegisterRule) {
       try {
-        // Send notification
+        // Send browser push notification
         const subEvent = evt.subEvents.find(se => se.id === _subEventId)
         await sendRegistrationConfirmation(
           eventId,
@@ -319,6 +324,17 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
           reg.userEmail,
           subEvent?.name || "Event"
         )
+
+        // Send Gmail confirmation email (fire-and-forget)
+        emailRegistrationConfirmation({
+          toEmail: reg.userEmail,
+          userName: reg.userName,
+          eventTitle: evt.title,
+          subEventName: subEvent?.name || "Event",
+          eventDate: evt.date,
+          eventVenue: evt.venue,
+          eventId,
+        })
 
         // Log automation
         await addAutomationLog(eventId, {
@@ -431,6 +447,7 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
     try {
       const registeredEmails = [...new Set(evt.registrations.map(r => r.userEmail))]
       if (registeredEmails.length > 0) {
+        // Browser push notification
         await sendAnnouncementNotification(
           eventId,
           evt.title,
@@ -438,6 +455,18 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
           a.title,
           a.message
         )
+
+        // Gmail emails — build recipient list with names (fire-and-forget)
+        const recipients = [...new Map(
+          evt.registrations.map(r => [r.userEmail, { email: r.userEmail, name: r.userName }])
+        ).values()]
+        emailAnnouncementNotification({
+          recipients,
+          eventTitle: evt.title,
+          announcementTitle: a.title,
+          announcementMessage: a.message,
+          eventId,
+        })
       }
     } catch (error) {
       console.error("Error sending announcement notification:", error)
@@ -458,6 +487,7 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
 
       // Send task assignment notification
       try {
+        // Browser push notification
         await sendTaskAssignment(
           eventId,
           evt.title,
@@ -465,6 +495,18 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
           task.title,
           task.deadline
         )
+
+        // Gmail email (fire-and-forget)
+        emailTaskAssignment({
+          toEmail: task.assignedTo,
+          assigneeName: task.assignedTo, // email used as name fallback
+          taskTitle: task.title,
+          taskDescription: task.description,
+          eventTitle: evt.title,
+          deadline: task.deadline,
+          assignedBy: task.assignedBy,
+          eventId,
+        })
       } catch (error) {
         console.error("Error sending task notification:", error)
       }
