@@ -59,6 +59,7 @@ export default function CreateEventPage() {
     venue: "",
     category: "Technical" as "Technical" | "Cultural" | "Sports" | "Workshop",
     isInter: true,
+    isPaid: false,
     price: 0,
     description: "",
     collegeDomain: "",
@@ -379,8 +380,41 @@ export default function CreateEventPage() {
                 <p className="text-[10px] text-white/30 mt-1">Between today and the event date</p>
               </div>
               <div>
-                <label className={labelCls}>Price (₹)</label>
-                <Input type="number" min={0} value={form.price} onChange={(e) => update("price", Math.max(0, parseInt(e.target.value) || 0))} className={`${inputCls} h-11`} />
+                <div className="flex items-center justify-between mb-1">
+                  <label className={labelCls}>Registration Fee</label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = !form.isPaid
+                      setForm(prev => ({ ...prev, isPaid: next, price: next ? prev.price || 0 : 0 }))
+                    }}
+                    aria-label={form.isPaid ? "Switch to free event" : "Switch to paid event"}
+                    className={`relative w-9 h-5 rounded-full transition-colors ${form.isPaid ? "bg-green-500" : "bg-white/10"}`}
+                  >
+                    <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${form.isPaid ? "left-4" : "left-0.5"}`} />
+                  </button>
+                </div>
+                {form.isPaid ? (
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-sm font-mono">₹</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={form.price || ""}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value.replace(/\D/g, "")) || 0
+                        update("price", val)
+                      }}
+                      placeholder="0"
+                      className="w-full h-11 bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-white/30 rounded-md pl-7 pr-3 text-sm focus:outline-none focus:border-white/20"
+                    />
+                  </div>
+                ) : (
+                  <div className="h-11 bg-white/[0.01] border border-white/[0.04] rounded-md px-3 flex items-center gap-2">
+                    <span className="text-xs text-white/20 font-mono">Free Event</span>
+                  </div>
+                )}
               </div>
             </div>
             <div>

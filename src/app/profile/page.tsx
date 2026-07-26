@@ -132,20 +132,21 @@ export default function ProfilePage() {
   const [deleteError, setDeleteError] = useState("")
 
   useEffect(() => {
-    if (authLoading) return // wait for Firebase session to restore
-    if (!user) { router.push("/login"); return }
-    setName(user.name)
-    setPhone(user.phone || "")
-    setBio(user.bio || "")
-    setCollege(user.college || "")
-    setDepartment(user.department || "")
-    setRollNo(user.rollNo || "")
-    setYear(user.year || "")
+    if (!authLoading && !user) { router.push("/login"); return }
+    if (user) {
+      setName(user.name)
+      setPhone(user.phone || "")
+      setBio(user.bio || "")
+      setCollege(user.college || "")
+      setDepartment(user.department || "")
+      setRollNo(user.rollNo || "")
+      setYear(user.year || "")
+    }
   }, [user, authLoading, router])
 
   if (authLoading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+      <div className="w-6 h-6 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
     </div>
   )
 

@@ -44,6 +44,7 @@ export default function EventDetailPage() {
   // Optimistic local registrations — immediately reflects a new registration
   // before the Firestore subcollection listener fires (avoids stale "Register" button).
   const [localRegistrations, setLocalRegistrations] = useState<any[]>([])
+  const [showRegConfirm, setShowRegConfirm] = useState(false)
   const [chatChannel, setChatChannel] = useState("general")
   const [scanStatus, setScanStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null)
   // Timeout flag — set to true after 8s if Firestore is still loading (offline / slow network)
@@ -356,7 +357,7 @@ export default function EventDetailPage() {
             <>
               {/* Registration toggle — short text on mobile */}
               <button
-                onClick={() => updateEvent(event.id, { registrationOpen: !event.registrationOpen })}
+                onClick={() => setShowRegConfirm(true)}
                 className={`text-[10px] font-mono tracking-widest uppercase px-2 sm:px-3 py-1.5 rounded border transition-colors ${event.registrationOpen
                   ? "border-green-500/30 text-green-400 hover:bg-green-500/10"
                   : "border-red-500/30 text-red-400 hover:bg-red-500/10"
@@ -1135,6 +1136,61 @@ export default function EventDetailPage() {
           onClose={() => setShowQRScanner(false)}
         />
       )}
+
+      {/* Registration Open/Close Confirmation Modal */}
+      <AnimatePresence>
+        {showRegConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 16 }}
+              transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="bg-[#111] border border-white/[0.1] rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+            >
+              {/* Icon */}
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${event.registrationOpen ? 'bg-red-500/10' : 'bg-green-500/10'}`}>
+                <UserCheck className={`w-6 h-6 ${event.registrationOpen ? 'text-red-400' : 'text-green-400'}`} />
+              </div>
+
+              <h3 className="text-lg font-medium mb-1">
+                {event.registrationOpen ? 'Close Registration?' : 'Open Registration?'}
+              </h3>
+              <p className="text-sm text-white/50 mb-6 leading-relaxed">
+                {event.registrationOpen
+                  ? 'This will prevent new participants from registering for your event. Existing registrations will not be affected.'
+                  : 'This will allow participants to register for your event. You can close it again at any time.'}
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowRegConfirm(false)}
+                  className="flex-1 py-2.5 rounded-lg border border-white/10 text-white/60 text-sm hover:bg-white/[0.04] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    updateEvent(event.id, { registrationOpen: !event.registrationOpen })
+                    setShowRegConfirm(false)
+                  }}
+                  className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors ${event.registrationOpen
+                    ? 'bg-red-500/20 border border-red-500/30 text-red-300 hover:bg-red-500/30'
+                    : 'bg-green-500/20 border border-green-500/30 text-green-300 hover:bg-green-500/30'
+                  }`}
+                >
+                  {event.registrationOpen ? 'Yes, Close' : 'Yes, Open'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }

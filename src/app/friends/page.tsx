@@ -32,7 +32,7 @@ export default function FriendsPage() {
 
   if (isLoading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+      <div className="w-6 h-6 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
     </div>
   )
 
@@ -154,7 +154,7 @@ export default function FriendsPage() {
                       placeholder="friend@gmail.com"
                       className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-10 flex-1 text-sm"
                     />
-                    <Button onClick={handleSendByEmail} disabled={friendSending} className="bg-white text-black hover:bg-[#B388FF] h-10 px-4">
+                    <Button onClick={handleSendByEmail} disabled={friendSending} className="bg-white text-black hover:bg-white/90 h-10 px-4">
                       {friendSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
                     </Button>
                   </div>
