@@ -369,6 +369,42 @@
 ::-webkit-scrollbar-thumb { background: rgba(179, 136, 255, 0.25); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(179, 136, 255, 0.50); }
 
+/* ─── NATIVE DATE / TIME INPUT FIXES ────────────────────────── */
+/* The global * { font-family } rule can corrupt the browser's internal
+   date picker calendar grid (causing repeated/overlapping dates across
+   month boundaries). Resetting to "inherit" on the input itself lets
+   the browser use its own system font for the popup UI, which it fully
+   controls via shadow DOM. We also ensure a stable line-height & box-sizing
+   so cell widths compute correctly. */
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"],
+input[type="month"],
+input[type="week"] {
+  font-family: inherit;
+  line-height: normal;
+  box-sizing: border-box;
+  /* Prevent the 9999px autofill box-shadow from overflowing into
+     the picker popup — scope it only to non-picker pseudo-elements */
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+/* Restore the dark calendar icon in WebKit / Blink */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) opacity(0.6);
+  cursor: pointer;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  filter: invert(1) opacity(1);
+}
+
+
+
 /* Hide scrollbar utility */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar {

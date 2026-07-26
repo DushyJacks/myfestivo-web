@@ -8,6 +8,7 @@ import { GlassCard } from "@/components/ui/GlassCard"
 import { MicroLabel } from "@/components/ui/MicroLabel"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { NativeDateInput } from "@/components/ui/NativeDateInput"
 import { pageItem } from "@/components/animation/PageTransition"
 import { motion } from "framer-motion"
 import {
@@ -348,9 +349,9 @@ export default function EditEventPage() {
                 <Input value={form.title} onChange={(e) => update("title", e.target.value)} placeholder="TechFest '26" className={`${inputCls} h-11`} required />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                              <div><label className={labelCls}>Event Date</label><Input type="date" value={form.date} onChange={(e) => update("date", e.target.value)} className={`${inputCls} h-11`} required /></div>
+                <div><label className={labelCls}>Event Date</label><NativeDateInput value={form.date} onChange={(e) => update("date", e.target.value)} className="h-11" required /></div>
                 <div><label className={labelCls}>Venue</label><Input value={form.venue} onChange={(e) => update("venue", e.target.value)} placeholder="Main Auditorium" className={`${inputCls} h-11`} required /></div>
-                <div><label className={labelCls}>Registration Deadline</label><Input type="date" value={form.registrationDeadline} onChange={(e) => update("registrationDeadline", e.target.value)} className={`${inputCls} h-11`} /></div>
+                <div><label className={labelCls}>Registration Deadline</label><NativeDateInput value={form.registrationDeadline} onChange={(e) => update("registrationDeadline", e.target.value)} className="h-11" /></div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><label className={labelCls}>Price (₹)</label><Input type="number" value={form.price} onChange={(e) => update("price", parseInt(e.target.value) || 0)} className={`${inputCls} h-11`} /></div>

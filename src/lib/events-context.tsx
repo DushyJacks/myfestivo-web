@@ -254,11 +254,19 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
   }, [])
 
   // ── 1. Serve stale cache immediately so pages don't flash a spinner on reload ──
+  // Also seed regsByEventRef from the cache so the merge works immediately.
   useEffect(() => {
     try {
       const raw = localStorage.getItem(EVENTS_CACHE_KEY)
       if (raw) {
-        setEvents(JSON.parse(raw))
+        const cached: MainEvent[] = JSON.parse(raw)
+        // Seed the ref so mergeRegistrations has data before Firestore responds
+        cached.forEach(evt => {
+          if (evt.registrations?.length) {
+            regsByEventRef.current[evt.id] = evt.registrations
+          }
+        })
+        setEvents(cached)
         setIsLoading(false)
       }
     } catch {}
@@ -323,8 +331,14 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
             const unsub = onSnapshot(regCol, (regSnap) => {
               const regs: Registration[] = regSnap.docs.map(rd => ({ ...rd.data(), id: rd.id } as Registration))
               regsByEventRef.current = { ...regsByEventRef.current, [evt.id]: regs }
-              // Re-merge and update state
-              setEvents(prev => prev.map(e => e.id === evt.id ? { ...e, registrations: regs } : e))
+              // Re-merge, update state, AND persist to cache so reloads see registrations
+              setEvents(prev => {
+                const next = prev.map(e => e.id === evt.id ? { ...e, registrations: regs } : e)
+                try {
+                  localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify(eventsForCache(next)))
+                } catch {}
+                return next
+              })
             }, (err) => {
               console.error(`[EventsProvider] Registrations listener error for event ${evt.id}:`, err)
             })
@@ -336,9 +350,8 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
 
         setEvents(mergeRegistrations(fetched))
         setIsLoading(false)
-        try {
-          localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify(eventsForCache(mergeRegistrations(fetched))))
-        } catch {}
+        // Note: localStorage is updated by the registration subcollection listeners
+        // (above) so it always contains the full registration data, not an empty snapshot.
       },
       (error) => {
         console.error('[EventsProvider] Firestore listener error:', error)
@@ -380,6 +393,37 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
   const registerForSubEvent = async (eventId: string, _subEventId: string, reg: Registration) => {
     const evt = events.find(e => e.id === eventId)
     if (!evt) return
+
+    // ── Duplicate-registration guard ──────────────────────────────────────────
+    // Check both in-memory state (fast) and Firestore (authoritative) before
+    // writing.  This prevents repeated email sends when the local cache was
+    // stale and the user clicked Register a second time.
+    const alreadyInMemory = (regsByEventRef.current[eventId] ?? []).some(
+      r => r.userId === reg.userId && r.subEventId === reg.subEventId
+    )
+    if (!alreadyInMemory) {
+      try {
+        const regsCol = getRegsCol(eventId)
+        const existingSnap = await getDocs(query(regsCol))
+        const alreadyInFirestore = existingSnap.docs.some(d => {
+          const data = d.data()
+          return data.userId === reg.userId && data.subEventId === reg.subEventId
+        })
+        if (alreadyInFirestore) {
+          // Sync local state with Firestore data and bail out — no email should fire
+          const regs: Registration[] = existingSnap.docs.map(d => ({ ...d.data(), id: d.id } as Registration))
+          regsByEventRef.current = { ...regsByEventRef.current, [eventId]: regs }
+          setEvents(prev => prev.map(e => e.id === eventId ? { ...e, registrations: regs } : e))
+          return
+        }
+      } catch (e) {
+        console.warn("[registerForSubEvent] Could not verify duplicate in Firestore:", e)
+      }
+    } else {
+      // Already registered in memory — skip silently
+      return
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     // Write registration into the subcollection (allowed by Firestore rules for any authenticated user).
     const { id: regId, ...regData } = reg

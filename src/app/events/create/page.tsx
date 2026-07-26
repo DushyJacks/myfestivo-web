@@ -8,6 +8,7 @@ import { GlassCard } from "@/components/ui/GlassCard"
 import { MicroLabel } from "@/components/ui/MicroLabel"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { NativeDateInput } from "@/components/ui/NativeDateInput"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
 import { motion } from "framer-motion"
 import { PlusCircle, X, Trophy, Phone, LinkIcon, Users, Search, Clock } from "lucide-react"
@@ -351,12 +352,11 @@ export default function CreateEventPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>Event Date</label>
-                <Input
-                  type="date"
+                <NativeDateInput
                   value={form.date}
                   min={minEventDateStr}
                   onChange={(e) => update("date", e.target.value)}
-                  className={`${inputCls} h-11`}
+                  className="h-11"
                   required
                 />
                 <p className="text-[10px] text-white/30 mt-1">Must be at least 2 days from today</p>
@@ -369,13 +369,12 @@ export default function CreateEventPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>Registration Deadline</label>
-                <Input
-                  type="date"
+                <NativeDateInput
                   value={form.registrationDeadline}
                   min={todayStr}
                   max={form.date || undefined}
                   onChange={(e) => update("registrationDeadline", e.target.value)}
-                  className={`${inputCls} h-11`}
+                  className="h-11"
                 />
                 <p className="text-[10px] text-white/30 mt-1">Between today and the event date</p>
               </div>
