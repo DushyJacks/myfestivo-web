@@ -10,13 +10,14 @@ import { Check, ChevronRight, Users, User, X, Plus, Trophy, UserPlus } from "luc
 
 interface Props {
   event: MainEvent
+  localRegistrations?: any[]
   onClose: () => void
   onSuccess?: (reg: any) => void
 }
 
 type Step = "select" | "team" | "confirm"
 
-export function RegistrationWizard({ event, onClose, onSuccess }: Props) {
+export function RegistrationWizard({ event, localRegistrations = [], onClose, onSuccess }: Props) {
   const { user } = useAuth()
   const { registerForSubEvent } = useEvents()
   const [step, setStep] = useState<Step>("select")
@@ -40,8 +41,14 @@ export function RegistrationWizard({ event, onClose, onSuccess }: Props) {
 
   if (!user) return null
 
+  // Merge Firestore registrations with optimistic local ones to avoid stale "Register" button
+  const allRegistrations = [
+    ...event.registrations,
+    ...localRegistrations.filter(lr => !event.registrations.some((r: any) => r.id === lr.id))
+  ]
+
   const alreadyRegistered = (seId: string) =>
-    event.registrations.some(r => r.subEventId === seId && r.userEmail === user.email)
+    allRegistrations.some(r => r.subEventId === seId && r.userEmail === user.email)
 
   const isStaffRestricted = event.restricted_registrations?.includes(user?.email || "")
 
@@ -235,7 +242,7 @@ export function RegistrationWizard({ event, onClose, onSuccess }: Props) {
                 </div>
               )}
               {event.subEvents.map(se => {
-                const regCount = event.registrations.filter(r => r.subEventId === se.id).length
+                const regCount = allRegistrations.filter(r => r.subEventId === se.id).length
                 const isFull = regCount >= se.maxParticipants
                 const already = alreadyRegistered(se.id)
                 return (

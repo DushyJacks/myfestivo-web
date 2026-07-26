@@ -179,7 +179,7 @@ export default function EventDetailPage() {
 
   // ── Check-In CSV export (checked-in participants only) ──
   const downloadCheckedInCSV = () => {
-    const checkedInRegs = event.registrations.filter(r => r.checkedIn)
+    const checkedInRegs = registrations.filter(r => r.checkedIn)
     const headers = ["Name", "Email", "Sub-Event", "Check-In Time"]
     const rows = checkedInRegs.map(r => {
       const se = event.subEvents.find(s => s.id === r.subEventId)
@@ -291,7 +291,7 @@ export default function EventDetailPage() {
       return
     }
 
-    const registration = event.registrations.find(r => r.id === scanRegId)
+    const registration = registrations.find(r => r.id === scanRegId)
     if (!registration) {
       setScanStatus({ type: 'error', msg: 'Registration not found' })
       return
@@ -466,7 +466,7 @@ export default function EventDetailPage() {
                 <MicroLabel>Sub-Events & Competitions</MicroLabel>
                 <div className="space-y-4">
                   {event.subEvents.map(se => {
-                    const isUserRegistered = event.registrations.some(r => r.subEventId === se.id && (r.userEmail === user?.email || r.teamMembers?.includes(user?.email || "")))
+                    const isUserRegistered = registrations.some(r => r.subEventId === se.id && (r.userEmail === user?.email || r.teamMembers?.includes(user?.email || "")))
                     return (
                       <GlassCard key={se.id} className="p-6 transition-all hover:bg-white/[0.04] scroll-mt-24" id={se.id}>
                         <div className="flex justify-between items-start mb-4">
@@ -867,11 +867,11 @@ export default function EventDetailPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <GlassCard className="p-4 text-center">
                 <p className="text-[10px] font-mono text-white/50 tracking-widest uppercase mb-1">Checked In</p>
-                <p className="text-2xl font-light">{event.registrations.filter(r => r.checkedIn).length}</p>
+                <p className="text-2xl font-light">{registrations.filter(r => r.checkedIn).length}</p>
               </GlassCard>
               <GlassCard className="p-4 text-center">
                 <p className="text-[10px] font-mono text-white/50 tracking-widest uppercase mb-1">Total Registered</p>
-                <p className="text-2xl font-light text-green-400">{event.registrations.length}</p>
+                <p className="text-2xl font-light text-green-400">{registrations.length}</p>
               </GlassCard>
               <GlassCard className="p-4 col-span-2 flex items-center justify-center gap-3 border-white/20">
                 <Button onClick={() => setShowQRScanner(true)} className="bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80 h-10 px-6 rounded-full flex-1 max-w-[220px]">
@@ -906,7 +906,7 @@ export default function EventDetailPage() {
             {/* Sub-event-wise grouped check-in list */}
             <div className="space-y-8">
               {event.subEvents.map(se => {
-                const seRegs = event.registrations.filter(r => r.subEventId === se.id && r.status === "PAID")
+                const seRegs = registrations.filter(r => r.subEventId === se.id && r.status === "PAID")
                 const checkedCount = seRegs.filter(r => r.checkedIn).length
                 if (seRegs.length === 0) return null
                 return (
@@ -959,7 +959,7 @@ export default function EventDetailPage() {
               })}
               {/* Registrations with no matching sub-event (edge case) */}
               {(() => {
-                const orphanRegs = event.registrations.filter(r => r.status === "PAID" && !event.subEvents.find(se => se.id === r.subEventId))
+                const orphanRegs = registrations.filter(r => r.status === "PAID" && !event.subEvents.find(se => se.id === r.subEventId))
                 if (orphanRegs.length === 0) return null
                 return (
                   <div>
@@ -1064,7 +1064,7 @@ export default function EventDetailPage() {
           <motion.div variants={pageItem}>
             <MicroLabel>My Registration Pass</MicroLabel>
             <div className="space-y-4">
-              {event.registrations.filter(r => r.userEmail === user?.email).map(reg => {
+              {registrations.filter(r => r.userEmail === user?.email).map(reg => {
                 const se = event.subEvents.find(s => s.id === reg.subEventId)
                 return (
                   <GlassCard key={reg.id} className="p-6 flex flex-col items-center">
@@ -1127,7 +1127,7 @@ export default function EventDetailPage() {
       </div>
 
       {/* Registration Wizard Modal */}
-      {showRegWizard && <RegistrationWizard event={event} onClose={() => setShowRegWizard(false)} onSuccess={(reg) => { setLocalRegistrations(prev => [...prev, reg]); setShowRegWizard(false) }} />}
+      {showRegWizard && <RegistrationWizard event={event} localRegistrations={localRegistrations} onClose={() => setShowRegWizard(false)} onSuccess={(reg) => { setLocalRegistrations(prev => [...prev, reg]); setShowRegWizard(false) }} />}
 
       {/* QR Scanner Modal */}
       {showQRScanner && (
