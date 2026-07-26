@@ -84,10 +84,26 @@ export default function EventDetailPage() {
   ]
 
   const isHost = user?.email === event?.organizerEmail
-  const isCoordinator = subEvents.some(se => se.coordinators.some(c => c.email === user?.email))
-  const isRegistered = user ? registrations.some(r => r.userEmail === user.email || r.teamMembers?.includes(user.email)) : false
+    // Sub-event coordinators assigned the "Host" role get the same full access as the event organizer
+    || (!!user?.email && subEvents.some(se =>
+        se.coordinators.some(c => c.email === user!.email && c.role === "Host")
+      ))
 
-  // Chat channel access by role (computed before hooks so the useEffect below can use it)
+  // "Coordinator" role — can see overview, chat, announcements, tasks
+  const isCoordinator = !isHost && !!user?.email && subEvents.some(se =>
+    se.coordinators.some(c => c.email === user!.email && c.role !== "Host")
+  )
+
+  // "Volunteer" coordinators can register and use participant-level features
+  const isVolunteer = !isHost && !!user?.email && subEvents.some(se =>
+    se.coordinators.some(c => c.email === user!.email && c.role === "Volunteer")
+  )
+
+  const isRegistered = user ? registrations.some(r =>
+    r.userEmail === user.email || r.teamMembers?.includes(user.email)
+  ) : false
+
+  // Chat channel access by role
   const myRegisteredSubEventIds = user
     ? registrations.filter(r => r.userEmail === user.email || r.teamMembers?.includes(user.email)).map(r => r.subEventId)
     : []
@@ -98,7 +114,7 @@ export default function EventDetailPage() {
     ? ["general", ...subEvents.map(se => se.id)]
     : isCoordinator
     ? ["general", ...myCoordinatingSubEventIds]
-    : isRegistered
+    : isRegistered || isVolunteer
     ? ["general", ...myRegisteredSubEventIds]
     : []
 
@@ -325,15 +341,15 @@ export default function EventDetailPage() {
     { id: "announcements" as TabId, label: "Announcements", icon: Megaphone },
     { id: "tasks" as TabId, label: "Tasks", icon: ListTodo },
     { id: "checkin" as TabId, label: "Check-In", icon: QrCode },
-    // Automation tab hidden for now
-    // { id: "automation" as TabId, label: "Automation", icon: Zap },
   ]
+  // Coordinator (non-Host roles): overview, chat, announcements, tasks
   const coordinatorTabs = [
     { id: "overview" as TabId, label: "Overview", icon: Eye },
     { id: "chat" as TabId, label: "Chat", icon: MessageSquare },
     { id: "announcements" as TabId, label: "Announcements", icon: Megaphone },
     { id: "tasks" as TabId, label: "Tasks", icon: ListTodo },
   ]
+  // Participants and volunteers: overview, chat, QR pass
   const participantTabs = [
     { id: "overview" as TabId, label: "Overview", icon: Eye },
     { id: "chat" as TabId, label: "Chat", icon: MessageSquare },
@@ -343,7 +359,7 @@ export default function EventDetailPage() {
   let tabs: typeof hostTabs = []
   if (isHost) tabs = hostTabs
   else if (isCoordinator) tabs = coordinatorTabs
-  else if (isRegistered) tabs = participantTabs
+  else if (isRegistered || isVolunteer) tabs = participantTabs
 
   return (
     <>
@@ -488,9 +504,9 @@ export default function EventDetailPage() {
                                 if (!user) { router.push("/login"); return }
                                 setShowRegWizard(true)
                               }}
-                              disabled={isRestricted || event.restricted_registrations?.includes(user?.email || "")}
+                              disabled={isRestricted || (!!user?.email && !isVolunteer && event.restricted_registrations?.includes(user.email))}
                               variant="outline" className="h-8 px-4 text-[10px] font-mono border-white/20 hover:bg-[#B388FF] hover:text-black hover:border-[#B388FF] text-white bg-white/5 transition-all">
-                              {!user ? "Login to Register" : event.restricted_registrations?.includes(user?.email || "") ? "Staff Restricted" : "Register"}
+                              {!user ? "Login to Register" : (!!user.email && !isVolunteer && event.restricted_registrations?.includes(user.email)) ? "Staff Restricted" : "Register"}
                             </Button>
                           )}
                         </div>
@@ -606,7 +622,7 @@ export default function EventDetailPage() {
                 </section>
               )}
 
-              {isRegistered && !isHost && (
+              {(isRegistered || isVolunteer) && !isHost && (
                 <section>
                   <MicroLabel>Event Chat</MicroLabel>
                   <Button onClick={() => setActiveTab("chat")} variant="ghost" className="w-full text-[10px] font-mono text-white/40 uppercase tracking-widest hover:text-white border border-white/[0.08] h-8 flex items-center gap-2">
@@ -842,7 +858,7 @@ export default function EventDetailPage() {
                     ))}
                   </div>
                   {/* Input */}
-                  {user && (isHost || isCoordinator || isRegistered) && (
+                  {user && (isHost || isCoordinator || isRegistered || isVolunteer) && (
                     <div className="p-2 border-t border-white/[0.06] flex gap-1">
                       <input
                         value={workUpdateText}
@@ -1085,7 +1101,7 @@ export default function EventDetailPage() {
         )}
 
         {/* ═══ CHAT TAB ═══ */}
-        {activeTab === "chat" && (user && (isHost || isCoordinator || isRegistered)) && (
+        {activeTab === "chat" && (user && (isHost || isCoordinator || isRegistered || isVolunteer)) && (
           <motion.div variants={pageItem} className="max-w-3xl">
             <MicroLabel>Event Chat</MicroLabel>
             <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
@@ -1127,7 +1143,7 @@ export default function EventDetailPage() {
       </div>
 
       {/* Registration Wizard Modal */}
-      {showRegWizard && <RegistrationWizard event={event} localRegistrations={localRegistrations} onClose={() => setShowRegWizard(false)} onSuccess={(reg) => { setLocalRegistrations(prev => [...prev, reg]); setShowRegWizard(false) }} />}
+      {showRegWizard && <RegistrationWizard event={event} localRegistrations={localRegistrations} isVolunteer={isVolunteer} onClose={() => setShowRegWizard(false)} onSuccess={(reg) => { setLocalRegistrations(prev => [...prev, reg]); setShowRegWizard(false) }} />}
 
       {/* QR Scanner Modal */}
       {showQRScanner && (

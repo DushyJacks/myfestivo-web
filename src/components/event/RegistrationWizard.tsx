@@ -11,13 +11,15 @@ import { Check, ChevronRight, Users, User, X, Plus, Trophy, UserPlus } from "luc
 interface Props {
   event: MainEvent
   localRegistrations?: any[]
+  /** If true the user is a Volunteer coordinator — they CAN register despite being in restricted_registrations */
+  isVolunteer?: boolean
   onClose: () => void
   onSuccess?: (reg: any) => void
 }
 
 type Step = "select" | "team" | "confirm"
 
-export function RegistrationWizard({ event, localRegistrations = [], onClose, onSuccess }: Props) {
+export function RegistrationWizard({ event, localRegistrations = [], isVolunteer = false, onClose, onSuccess }: Props) {
   const { user } = useAuth()
   const { registerForSubEvent } = useEvents()
   const [step, setStep] = useState<Step>("select")
@@ -50,7 +52,8 @@ export function RegistrationWizard({ event, localRegistrations = [], onClose, on
   const alreadyRegistered = (seId: string) =>
     allRegistrations.some(r => r.subEventId === seId && r.userEmail === user.email)
 
-  const isStaffRestricted = event.restricted_registrations?.includes(user?.email || "")
+  // Staff restriction: block organizers/coordinators UNLESS they are Volunteers (who can register)
+  const isStaffRestricted = !!user?.email && !isVolunteer && (event.restricted_registrations ?? []).includes(user.email)
 
   const addMemberByEmail = (email: string) => {
     const normalized = email.trim().toLowerCase()

@@ -11,16 +11,19 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/events/$(eventId)).data.organizerEmail == request.auth.token.email;
     }
 
-    // Users collection - SECURE ACCESS CONTROL
+    // Users collection
     match /users/{userId} {
-      // Read: Only own profile (with limited exceptions for friend systems)
-      allow read: if request.auth.uid == userId;
+      // Read: own profile OR any authenticated user (needed for peer search + friend requests)
+      allow read: if request.auth != null;
       
       // Create: Only authenticated users can create their own document
       allow create: if request.auth != null && request.auth.uid == userId;
       
-      // Update: Only own profile
-      allow update: if request.auth.uid == userId;
+      // Update: Own profile OR another authenticated user updating ONLY friend-related fields
+      allow update: if request.auth.uid == userId
+        || (request.auth != null
+            && request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(['friendRequestsIn', 'friendRequestsOut', 'friends']));
       
       // Delete: Only own profile
       allow delete: if request.auth.uid == userId;
@@ -39,24 +42,26 @@ service cloud.firestore {
       // Create: Any authenticated user can create an event (they become organizer)
       allow create: if request.auth != null;
       
-      // Update: Only organizer can update
-      allow update: if isEventOrganizer(eventId) || isAdmin();
+      // Update:
+      // - Organizer or admin: full update access
+      // - Any authenticated user: may ONLY touch chatMessages (chat send) or registeredCount (registration increment)
+      allow update: if isEventOrganizer(eventId) || isAdmin()
+        || (request.auth != null
+            && request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(['chatMessages', 'registeredCount']));
       
-      // Delete: Only organizer or admin can delete
+      // Delete: Only organizer or admin
       allow delete: if isEventOrganizer(eventId) || isAdmin();
       
       // Subcollection: registrations
       match /registrations/{regId} {
-        // Read: Organizer, registrant, or participant
-        allow read: if 
-          isEventOrganizer(eventId) || 
-          request.auth.uid == resource.data.userId ||
-          isAdmin();
+        // Read: Any authenticated user (needed for "Registered" badges, counts, check-in)
+        allow read: if request.auth != null;
         
         // Create: Authenticated users can only register themselves
         allow create: if request.auth.uid == request.resource.data.userId;
         
-        // Update: Only organizer or registrant can update
+        // Update: Only organizer, registrant, or admin
         allow update: if 
           isEventOrganizer(eventId) || 
           request.auth.uid == resource.data.userId ||
@@ -69,7 +74,7 @@ service cloud.firestore {
           isAdmin();
       }
       
-      // Subcollection: chat
+      // Subcollection: chat (legacy path — kept for compatibility)
       match /chat/{messageId} {
         allow read: if request.auth != null;
         allow create: if request.auth != null;
@@ -89,16 +94,13 @@ service cloud.firestore {
       allow read: if request.auth.uid == resource.data.userId || isAdmin();
       
       // Only admin can create/update (via backend)
-      allow write: if false; // All writes must go through backend API
+      allow write: if false;
     }
 
     // College Email OTPs - TEMPORARY STORAGE FOR EMAIL VERIFICATION
-    // Security model: OTPs are temporary (10 min), random (6-digit), and tied to email address
-    // Backend verifies the OTP matches before updating user document
     match /collegeOtps/{userId} {
-      // Allow reads only from backend (no client-side access)
-      // Allow writes from backend only for OTP generation and cleanup
       allow read, write: if true;
     }
   }
 }
+
