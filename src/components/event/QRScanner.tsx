@@ -23,11 +23,21 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
       streamRef.current = null
     }
     cancelAnimationFrame(animFrameRef.current)
+    // Clear srcObject so the video element fully releases the camera
+    if (videoRef.current) videoRef.current.srcObject = null
   }, [])
 
   const startCamera = useCallback(async () => {
     setError(null)
     stopCamera()
+
+    // Guard: camera API requires a secure context (HTTPS) and a modern browser
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setError(
+        "Camera API is not available. Please ensure you are accessing the site over HTTPS and using a supported browser."
+      )
+      return
+    }
 
     // Check permission state first (supported in modern browsers)
     if (navigator.permissions) {
@@ -44,16 +54,14 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
     }
 
     try {
-      // Try environment (back) camera first, fall back to any camera
-      let stream: MediaStream | null = null
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { exact: "environment" } }
-        })
-      } catch {
-        // exact environment failed — fall back to any available camera
-        stream = await navigator.mediaDevices.getUserMedia({ video: true })
-      }
+      // Use facingMode preference (not exact) so:
+      // — On mobile: back camera is preferred without requiring it
+      // — On desktop/laptop: gracefully falls back to the front/webcam
+      // This avoids a double getUserMedia call that triggers two permission prompts
+      // which causes browsers to hard-block camera access.
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" }
+      })
 
       streamRef.current = stream
       setPermState("granted")
@@ -73,7 +81,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
       } else if (err?.name === "NotFoundError") {
         setError("No camera found on this device.")
       } else {
-        setError("Could not start camera. Make sure no other app is using it and try again.")
+        setError(`Could not start camera: ${err?.message || "Unknown error"}. Make sure no other app is using it and try again.`)
       }
     }
   }, [stopCamera])
@@ -141,7 +149,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
           </div>
         ) : (
           <div className="relative rounded-lg overflow-hidden border border-white/10 w-full aspect-square bg-black mb-4">
-            <video ref={videoRef} playsInline muted className="w-full h-full object-cover" />
+            <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
             <canvas ref={canvasRef} className="hidden" />
             <div className="absolute inset-0 pointer-events-none border-[3px] border-green-500/30 m-8 rounded-xl" />
           </div>
