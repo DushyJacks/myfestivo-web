@@ -46,8 +46,9 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
       // This avoids a double getUserMedia call that triggers two permission prompts
       // which causes browsers to hard-block camera access.
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" }
-      })
+        video: true,
+        audio: false,
+      });
 
       streamRef.current = stream
       setPermState("granted")
@@ -60,7 +61,12 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
         }
       }
     } catch (err: any) {
-      console.error("Camera error:", err)
+      console.error({
+        name: err.name,
+        message: err.message,
+        constraint: err.constraint,
+        stack: err.stack,
+      });
       if (err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError") {
         setPermState("denied")
         setError("Camera access was denied. Please allow camera access in your browser/device settings and try again.")
