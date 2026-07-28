@@ -39,20 +39,6 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
       return
     }
 
-    // Check permission state first (supported in modern browsers)
-    if (navigator.permissions) {
-      try {
-        const perm = await navigator.permissions.query({ name: "camera" as PermissionName })
-        setPermState(perm.state as "granted" | "denied" | "prompt")
-        if (perm.state === "denied") {
-          setError("Camera permission is blocked. Please allow camera access in your browser settings and reload the page.")
-          return
-        }
-      } catch {
-        // permissions API not supported — proceed anyway
-      }
-    }
-
     try {
       // Use facingMode preference (not exact) so:
       // — On mobile: back camera is preferred without requiring it
