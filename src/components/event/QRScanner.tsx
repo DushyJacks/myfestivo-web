@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react"
 import jsQR from "jsqr"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { Button } from "@/components/ui/button"
-import { X, Camera, RefreshCw, ShieldAlert } from "lucide-react"
+import { X, Camera, RefreshCw, ShieldAlert, SwitchCamera } from "lucide-react"
 
 interface QRScannerProps {
   onScan: (data: string) => void
@@ -16,6 +16,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
   const animFrameRef = useRef<number>(0)
   const [error, setError] = useState<string | null>(null)
   const [permState, setPermState] = useState<"checking" | "granted" | "denied" | "prompt">("checking")
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("environment")
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
@@ -40,15 +41,19 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
     }
 
     try {
-      // Use facingMode preference (not exact) so:
-      // — On mobile: back camera is preferred without requiring it
-      // — On desktop/laptop: gracefully falls back to the front/webcam
-      // This avoids a double getUserMedia call that triggers two permission prompts
-      // which causes browsers to hard-block camera access.
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: false,
-      });
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+
+      const constraints = {
+        video: isMobile
+          ? {
+              facingMode: { ideal: facingMode }, // Prefer selected camera on mobile
+            }
+          : {
+              facingMode: facingMode === "environment" ? "user" : facingMode, // Front camera on desktop/laptop
+            },
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints)
 
       streamRef.current = stream
       setPermState("granted")
@@ -66,7 +71,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
         message: err.message,
         constraint: err.constraint,
         stack: err.stack,
-      });
+      })
       if (err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError") {
         setPermState("denied")
         setError("Camera access was denied. Please allow camera access in your browser/device settings and try again.")
@@ -76,7 +81,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
         setError(`Could not start camera: ${err?.message || "Unknown error"}. Make sure no other app is using it and try again.`)
       }
     }
-  }, [stopCamera])
+  }, [stopCamera, facingMode])
 
   const tick = useCallback(() => {
     if (
@@ -104,16 +109,21 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
     animFrameRef.current = requestAnimationFrame(tick)
   }, [onScan])
 
+  // Restart camera on mount and whenever facingMode changes
   useEffect(() => {
     startCamera()
     return () => stopCamera()
-  }, [startCamera, stopCamera])
+  }, [facingMode]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const switchCamera = () => {
+    setFacingMode(prev => (prev === "environment" ? "user" : "environment"))
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
       <GlassCard className="w-full max-w-md p-6 relative flex flex-col items-center">
         <Button onClick={onClose} variant="ghost" className="absolute top-4 right-4 text-white/50 hover:text-white" size="icon">
-          <X className="w-5 h-5"/>
+          <X className="w-5 h-5" />
         </Button>
         <h2 className="text-xl font-light mb-4 flex items-center gap-2">
           <Camera className="w-5 h-5" /> Scan QR Code
@@ -144,6 +154,16 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
             <canvas ref={canvasRef} className="hidden" />
             <div className="absolute inset-0 pointer-events-none border-[3px] border-green-500/30 m-8 rounded-xl" />
+            {/* Switch Camera button — overlaid bottom-right of the video */}
+            <Button
+              onClick={switchCamera}
+              variant="ghost"
+              size="icon"
+              title={facingMode === "environment" ? "Switch to front camera" : "Switch to rear camera"}
+              className="absolute bottom-3 right-3 bg-black/50 text-white hover:bg-black/70 rounded-full w-10 h-10 backdrop-blur-sm border border-white/10"
+            >
+              <SwitchCamera className="w-5 h-5" />
+            </Button>
           </div>
         )}
         <p className="text-xs text-white/40 font-mono text-center mt-2">Position the QR code within the frame.</p>
