@@ -10,8 +10,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
 import { motion, AnimatePresence } from "framer-motion"
-import { UserPlus, AlertCircle, Phone } from "lucide-react"
+import { UserPlus, AlertCircle, Phone, Mail, RefreshCw, CheckCircle2 } from "lucide-react"
 import { TermsModal, useLegalAccepted } from "@/components/ui/TermsModal"
+import { emailSignupOTP } from "@/lib/emailApi"
+
+function generateOTP(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString()
+}
 
 export default function SignupPage() {
   const { signup, signInWithGoogle } = useAuth()
@@ -32,10 +37,33 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
 
+  // OTP state
+  const [showOtpStep, setShowOtpStep] = useState(false)
+  const [generatedOtp, setGeneratedOtp] = useState("")
+  const [enteredOtp, setEnteredOtp] = useState("")
+  const [otpError, setOtpError] = useState("")
+  const [otpLoading, setOtpLoading] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [resendCooldown, setResendCooldown] = useState(0)
+
   const { accepted, accept } = useLegalAccepted()
 
   const update = (key: string, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }))
+
+  const startResendCooldown = () => {
+    setResendCooldown(60)
+    const interval = setInterval(() => {
+      setResendCooldown((prev) => {
+        if (prev <= 1) { clearInterval(interval); return 0 }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  const sendOtp = async (otp: string) => {
+    await emailSignupOTP({ email: form.email, otp, userName: form.name })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -64,6 +92,42 @@ export default function SignupPage() {
 
     setLoading(true)
     try {
+      const otp = generateOTP()
+      setGeneratedOtp(otp)
+      await sendOtp(otp)
+      setShowOtpStep(true)
+      startResendCooldown()
+    } catch {
+      setError("Failed to send OTP. Please check your email and try again.")
+    }
+    setLoading(false)
+  }
+
+  const handleResendOtp = async () => {
+    if (resendCooldown > 0 || resending) return
+    setResending(true)
+    setOtpError("")
+    try {
+      const otp = generateOTP()
+      setGeneratedOtp(otp)
+      setEnteredOtp("")
+      await sendOtp(otp)
+      startResendCooldown()
+    } catch {
+      setOtpError("Failed to resend OTP. Please try again.")
+    }
+    setResending(false)
+  }
+
+  const handleVerifyOtp = async () => {
+    setOtpError("")
+    if (enteredOtp.trim() !== generatedOtp) {
+      setOtpError("Incorrect code. Please check your email and try again.")
+      return
+    }
+
+    setOtpLoading(true)
+    try {
       const success = await signup({
         name: form.name,
         email: form.email,
@@ -78,20 +142,142 @@ export default function SignupPage() {
       if (success) {
         router.push("/dashboard")
       } else {
-        setError("Signup failed. Please try again.")
+        setOtpError("Account creation failed. Please try again.")
       }
     } catch (err: any) {
       const code = err?.code || ""
-      if (code === "auth/email-already-in-use") setError("An account with this email already exists.")
-      else if (code === "auth/invalid-email") setError("Invalid email address.")
-      else if (code === "auth/weak-password") setError("Password is too weak. Use at least 6 characters.")
-      else setError(err?.message || "Signup failed. Please try again.")
+      if (code === "auth/email-already-in-use") setOtpError("An account with this email already exists.")
+      else if (code === "auth/invalid-email") setOtpError("Invalid email address.")
+      else if (code === "auth/weak-password") setOtpError("Password is too weak. Use at least 6 characters.")
+      else setOtpError(err?.message || "Signup failed. Please try again.")
     }
-    setLoading(false)
+    setOtpLoading(false)
   }
 
   const showTerms = accepted === false
 
+  // ── OTP Verification Screen ────────────────────────────────────────────────
+  if (showOtpStep) {
+    return (
+      <>
+        <AnimatePresence>
+          {showTerms && <TermsModal onAccept={accept} />}
+        </AnimatePresence>
+
+        <PageTransition className="min-h-screen flex items-center justify-center px-4 py-16">
+          <motion.div variants={pageItem} className="w-full max-w-md">
+            <div className="mb-12">
+              <Link href="/" className="block mb-8">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/logo.png"
+                  alt="MyFestivo"
+                  className="h-10 w-auto"
+                  width={120}
+                  height={40}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </Link>
+              <MicroLabel>Verify your email</MicroLabel>
+              <h1 className="text-4xl font-light tracking-tight mb-2">Check your inbox.</h1>
+              <p className="text-[13px] text-white/70">
+                We sent a 6-digit code to{" "}
+                <span className="text-white font-medium">{form.email}</span>.
+                Check your primary inbox or spam folder.
+              </p>
+            </div>
+
+            <GlassCard className="p-8">
+              {/* Icon */}
+              <div className="flex justify-center mb-6">
+                <div className="w-14 h-14 rounded-full bg-[rgba(179,136,255,0.1)] border border-[rgba(179,136,255,0.2)] flex items-center justify-center">
+                  <Mail className="w-6 h-6 text-[#B388FF]" />
+                </div>
+              </div>
+
+              {otpError && (
+                <div role="alert" className="flex items-start gap-3 p-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-5">
+                  <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" aria-hidden="true" />
+                  <span>{otpError}</span>
+                </div>
+              )}
+
+              <div className="space-y-5">
+                <div>
+                  <label htmlFor="otp-input" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">
+                    Verification Code
+                  </label>
+                  <Input
+                    id="otp-input"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={6}
+                    value={enteredOtp}
+                    onChange={(e) => {
+                      setEnteredOtp(e.target.value.replace(/\D/g, ""))
+                      setOtpError("")
+                    }}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleVerifyOtp() }}
+                    placeholder="000000"
+                    className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 h-14 text-center text-2xl font-mono tracking-[0.4em]"
+                    autoFocus
+                  />
+                </div>
+
+                <Button
+                  onClick={handleVerifyOtp}
+                  disabled={enteredOtp.length !== 6 || otpLoading}
+                  className="w-full bg-white text-black hover:bg-[#B388FF] font-medium h-12 transition-colors disabled:opacity-50"
+                >
+                  {otpLoading ? (
+                    <span className="inline-flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" aria-hidden="true" />
+                      <span>Verifying…</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
+                      <span>Verify &amp; Create Account</span>
+                    </span>
+                  )}
+                </Button>
+
+                {/* Resend */}
+                <div className="text-center">
+                  <p className="text-sm text-white/40 mb-2">Didn&apos;t receive it?</p>
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={resendCooldown > 0 || resending}
+                    className="inline-flex items-center gap-1.5 text-sm text-[#B388FF] hover:text-[#c9a9ff] disabled:text-white/20 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${resending ? "animate-spin" : ""}`} />
+                    {resendCooldown > 0
+                      ? `Resend in ${resendCooldown}s`
+                      : resending
+                      ? "Sending…"
+                      : "Resend code"}
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => { setShowOtpStep(false); setOtpError(""); setEnteredOtp("") }}
+                  className="w-full text-center text-sm text-white/30 hover:text-white/60 transition-colors"
+                >
+                  ← Back to sign up
+                </button>
+              </div>
+            </GlassCard>
+          </motion.div>
+        </PageTransition>
+      </>
+    )
+  }
+
+  // ── Signup Form ────────────────────────────────────────────────────────────
   return (
     <>
       <AnimatePresence>
@@ -229,11 +415,11 @@ export default function SignupPage() {
               </>
             )}
 
-            <Button type="submit" disabled={loading || accepted === false} aria-label={loading ? "Creating account..." : "Create account"} className="w-full bg-white text-black hover:bg-[#B388FF] font-medium h-12 transition-colors mt-2 disabled:opacity-50">
+            <Button type="submit" disabled={loading || accepted === false} aria-label={loading ? "Sending OTP..." : "Continue with email verification"} className="w-full bg-white text-black hover:bg-[#B388FF] font-medium h-12 transition-colors mt-2 disabled:opacity-50">
               {loading ? (
                 <span className="inline-flex items-center gap-2">
                   <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" aria-hidden="true" />
-                  <span>Creating account…</span>
+                  <span>Sending OTP…</span>
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-2">

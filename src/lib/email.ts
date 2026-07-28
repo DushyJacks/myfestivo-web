@@ -402,6 +402,42 @@ export async function sendCollegeOTP(
   }
 }
 
+// ─── 8. Signup OTP Verification ───────────────────────────────────────────────
+
+export async function sendSignupOTP(
+  toEmail: string,
+  otp: string,
+  userName: string
+): Promise<boolean> {
+  try {
+    const html = wrapHtml(`
+      ${badge('Account Verification')}
+      <div style="margin-top:16px;">
+        ${h2('Verify your email address')}
+        ${p(`Hi <strong style="color:#fff;">${userName}</strong>, thanks for signing up! Use the code below to verify your account and complete registration.`)}
+      </div>
+      ${divider()}
+      <div style="background:rgba(179,136,255,0.08);border:2px solid rgba(179,136,255,0.3);border-radius:10px;padding:28px;text-align:center;margin:20px 0;">
+        <p style="margin:0 0 10px;font-size:11px;font-family:monospace;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;">Your verification code</p>
+        <div style="font-size:42px;font-weight:700;color:#B388FF;letter-spacing:10px;font-family:monospace;">${otp}</div>
+      </div>
+      ${p('This code expires in <strong>10 minutes</strong>. If you didn\'t create an account, you can safely ignore this email.', 'font-size:13px;color:rgba(255,255,255,0.35);')}
+    `)
+
+    await getTransporter().sendMail({
+      from: FROM,
+      to: toEmail,
+      subject: 'MyFestivo — Verify your account',
+      html,
+    })
+    console.log(`[Email] Signup OTP sent → ${toEmail}`)
+    return true
+  } catch (error) {
+    console.error('[Email] sendSignupOTP failed:', error)
+    return false
+  }
+}
+
 // ─── Test connection ──────────────────────────────────────────────────────────
 
 export async function testEmailConnection(): Promise<boolean> {

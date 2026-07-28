@@ -195,14 +195,7 @@ export function ProfileCompleteModal() {
               </div>
 
               {/* Footer */}
-              <div className="px-4 sm:px-8 py-4 sm:py-5 border-t border-white/[0.06] bg-black/20 flex items-center justify-between gap-3">
-                <Button
-                  variant="ghost"
-                  onClick={() => setOpen(false)}
-                  className="text-white/30 hover:text-white/60 text-sm h-10 px-4"
-                >
-                  Skip for now
-                </Button>
+              <div className="px-4 sm:px-8 py-4 sm:py-5 border-t border-white/[0.06] bg-black/20 flex items-center justify-end gap-3">
                 <Button
                   onClick={handleSave}
                   disabled={!canSave || saving}

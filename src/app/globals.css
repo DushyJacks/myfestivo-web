@@ -278,9 +278,6 @@
 
 /* ─── BASE STYLES ────────────────────────────────────────────── */
 @layer base {
-  * {
-    font-family: "Poppins", system-ui, sans-serif;
-  }
 
   html {
     scroll-behavior: smooth;

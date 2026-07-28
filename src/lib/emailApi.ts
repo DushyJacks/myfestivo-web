@@ -90,3 +90,27 @@ export async function emailTaskAssignment(params: {
     console.error('[emailApi] emailTaskAssignment error:', error)
   }
 }
+
+// ─── Signup OTP ───────────────────────────────────────────────────────────────
+
+export async function emailSignupOTP(params: {
+  email: string
+  otp: string
+  userName: string
+}): Promise<void> {
+  try {
+    const res = await fetch('/api/email/signup-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    })
+    const data = await res.json()
+    if (!data.success) {
+      console.warn('[emailApi] Signup OTP email failed:', data.message)
+    } else {
+      console.log('[emailApi] Signup OTP email sent →', params.email)
+    }
+  } catch (error) {
+    console.error('[emailApi] emailSignupOTP error:', error)
+  }
+}
