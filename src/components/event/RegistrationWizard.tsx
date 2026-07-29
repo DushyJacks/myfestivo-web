@@ -2,14 +2,17 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useAuth } from "@/lib/auth-context"
-import { useEvents, SubEvent, MainEvent } from "@/lib/events-context"
+import { useEvents, SubEvent, MainEvent, Registration } from "@/lib/events-context"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Check, ChevronRight, Users, User, X, Plus, Trophy, UserPlus } from "lucide-react"
+import { Check, ChevronRight, Users, X, Plus, Trophy, UserPlus, Clock, Send, Loader2 } from "lucide-react"
+import { emailTeamInvitation } from "@/lib/emailApi"
 
 interface Props {
   event: MainEvent
+  /** The sub-event the user clicked Register on — skips the "Select Sub-Event" step */
+  initialSubEvent: SubEvent
   localRegistrations?: any[]
   /** If true the user is a Volunteer coordinator — they CAN register despite being in restricted_registrations */
   isVolunteer?: boolean
@@ -17,19 +20,26 @@ interface Props {
   onSuccess?: (reg: any) => void
 }
 
-type Step = "select" | "team" | "confirm"
+type Step = "team" | "confirm"
 
-export function RegistrationWizard({ event, localRegistrations = [], isVolunteer = false, onClose, onSuccess }: Props) {
+export function RegistrationWizard({ event, initialSubEvent, localRegistrations = [], isVolunteer = false, onClose, onSuccess }: Props) {
   const { user } = useAuth()
   const { registerForSubEvent } = useEvents()
-  const [step, setStep] = useState<Step>("select")
-  const [selectedSe, setSelectedSe] = useState<SubEvent | null>(null)
+
+  const selectedSe = initialSubEvent
+
+  const [step, setStep] = useState<Step>(selectedSe.type === "team" ? "team" : "confirm")
   const [teamName, setTeamName] = useState("")
   const [memberEmail, setMemberEmail] = useState("")
+  // Accepted team members (confirmed via dashboard)
   const [teamMembers, setTeamMembers] = useState<string[]>([])
+  // Pending invitations (awaiting accept/decline)
+  const [pendingMembers, setPendingMembers] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
+  const [sendingRequest, setSendingRequest] = useState(false)
   const [done, setDone] = useState(false)
   const [friendSuggestions, setFriendSuggestions] = useState<string[]>([])
+  const [draftRegId, setDraftRegId] = useState<string | null>(null)
   const suggestionsRef = useRef<HTMLDivElement>(null)
 
   // Handle Escape key
@@ -41,50 +51,119 @@ export function RegistrationWizard({ event, localRegistrations = [], isVolunteer
     return () => window.removeEventListener("keydown", handleEsc)
   }, [onClose])
 
+  // ── Load existing DRAFT registration if one already exists ──
+  // This allows the wizard to resume state across closes/re-opens.
+  useEffect(() => {
+    if (!user || selectedSe.type !== "team") return
+    const allRegs = [...event.registrations, ...localRegistrations.filter(lr => !event.registrations.some((r: any) => r.id === lr.id))]
+    const draft = allRegs.find(
+      (r: any) => r.subEventId === selectedSe.id && r.userEmail === user.email && r.status === "DRAFT"
+    ) as Registration | undefined
+    if (draft) {
+      setDraftRegId(draft.id)
+      setTeamName(draft.teamName || "")
+      // teamMembers in DB = confirmed; filter out the captain's own email
+      setTeamMembers((draft.teamMembers || []).filter((e: string) => e !== user.email))
+      setPendingMembers(draft.pendingMembers || [])
+    }
+  }, []) // Run only on mount
+
+  // ── Re-sync accepted/rejected status from live Firestore data ──
+  useEffect(() => {
+    if (!user || !draftRegId) return
+    const allRegs = [...event.registrations, ...localRegistrations.filter(lr => !event.registrations.some((r: any) => r.id === lr.id))]
+    const draft = allRegs.find((r: any) => r.id === draftRegId) as Registration | undefined
+    if (draft) {
+      setTeamMembers((draft.teamMembers || []).filter((e: string) => e !== user.email))
+      setPendingMembers(draft.pendingMembers || [])
+    }
+  }, [event.registrations, draftRegId])
+
   if (!user) return null
 
-  // Merge Firestore registrations with optimistic local ones to avoid stale "Register" button
   const allRegistrations = [
     ...event.registrations,
     ...localRegistrations.filter(lr => !event.registrations.some((r: any) => r.id === lr.id))
   ]
 
-  const alreadyRegistered = (seId: string) =>
-    allRegistrations.some(r => r.subEventId === seId && r.userEmail === user.email)
-
-  // Staff restriction: block organizers/coordinators UNLESS they are Volunteers (who can register)
+  // Staff restriction: block organizers/coordinators UNLESS they are Volunteers
   const isStaffRestricted = !!user?.email && !isVolunteer && (event.restricted_registrations ?? []).includes(user.email)
 
   const addMemberByEmail = (email: string) => {
     const normalized = email.trim().toLowerCase()
-    if (!normalized || teamMembers.includes(normalized) || normalized === user.email) return
-    if (selectedSe?.maxTeamSize && teamMembers.length + 1 >= selectedSe.maxTeamSize) return
-    setTeamMembers(prev => [...prev, normalized])
+    if (!normalized || teamMembers.includes(normalized) || pendingMembers.includes(normalized) || normalized === user.email) return
+    if (selectedSe?.maxTeamSize && (teamMembers.length + pendingMembers.length + 1) >= selectedSe.maxTeamSize) return
+    setPendingMembers(prev => [...prev, normalized])
     setMemberEmail("")
     setFriendSuggestions([])
   }
 
   const addMember = () => addMemberByEmail(memberEmail)
 
+  const removePending = (email: string) => {
+    setPendingMembers(prev => prev.filter(e => e !== email))
+  }
+
   const handleMemberInput = (val: string) => {
     setMemberEmail(val)
     if (!val.trim() || !user?.friends?.length) { setFriendSuggestions([]); return }
     const q = val.toLowerCase()
     const matches = user.friends.filter(
-      f => f.toLowerCase().includes(q) && f !== user.email && !teamMembers.includes(f)
+      f => f.toLowerCase().includes(q) && f !== user.email && !teamMembers.includes(f) && !pendingMembers.includes(f)
     )
     setFriendSuggestions(matches.slice(0, 6))
   }
 
+  // ── Send Request: create/update DRAFT and email pending members ──
+  const handleSendRequest = async () => {
+    if (pendingMembers.length === 0) return
+    setSendingRequest(true)
+    try {
+      const regId = draftRegId || `reg-${Date.now()}`
+      const draft: any = {
+        id: regId,
+        userId: user.id,
+        userName: user.name,
+        userEmail: user.email,
+        userPhone: user.phone || "",
+        eventId: event.id,
+        subEventId: selectedSe.id,
+        status: "DRAFT",
+        timestamp: new Date().toLocaleString("sv-SE", { timeZone: "Asia/Kolkata" }).slice(0, 16),
+        checkedIn: false,
+        teamName: teamName || `${user.name}'s Team`,
+        teamMembers: [user.email, ...teamMembers],
+        pendingMembers,
+      }
+
+      await registerForSubEvent(event.id, selectedSe.id, draft)
+      setDraftRegId(regId)
+
+      // Send invitation emails to all currently pending members (fire-and-forget)
+      for (const email of pendingMembers) {
+        emailTeamInvitation({
+          toEmail: email,
+          captainName: user.name,
+          teamName: teamName || `${user.name}'s Team`,
+          eventTitle: event.title,
+          subEventName: selectedSe.name,
+          eventId: event.id,
+        })
+      }
+    } catch (err) {
+      console.error("Send request error:", err)
+      alert("Failed to send requests. Please try again.")
+    }
+    setSendingRequest(false)
+  }
+
+  // ── Confirm Registration: update DRAFT → PAID / FREE / PENDING ──
   const handleConfirm = async () => {
-    if (!selectedSe) return
     setSubmitting(true)
-    const regId = `reg-${Date.now()}`
-    
-    // Determine if payment is required
     const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || ''
     const requiresPayment = event.price && event.price > 0 && razorpayKey.trim() !== ''
-    
+    const regId = draftRegId || `reg-${Date.now()}`
+
     const reg: any = {
       id: regId,
       userId: user.id,
@@ -93,33 +172,29 @@ export function RegistrationWizard({ event, localRegistrations = [], isVolunteer
       userPhone: user.phone || "",
       eventId: event.id,
       subEventId: selectedSe.id,
-      // If payment required, start as PENDING. Otherwise mark PAID immediately.
-      status: requiresPayment ? "PENDING" : "PAID",
+      status: requiresPayment ? "PENDING" : "FREE",
       timestamp: new Date().toLocaleString("sv-SE", { timeZone: "Asia/Kolkata" }).slice(0, 16),
       checkedIn: false,
       ...(requiresPayment ? {} : { transactionId: `FREE-${regId}` }),
       paymentMethod: requiresPayment ? "pending" : "free",
     }
-    
+
     if (selectedSe.type === "team") {
       reg.teamName = teamName || `${user.name}'s Team`
-      reg.teamMembers = [user.email]
-      reg.pendingMembers = teamMembers
+      reg.teamMembers = [user.email, ...teamMembers]
+      reg.pendingMembers = pendingMembers
     }
-    
+
     try {
-      // First, create the registration with PENDING or PAID status
       await registerForSubEvent(event.id, selectedSe.id, reg)
-      
-      // If payment required, initiate Razorpay flow
+
       if (requiresPayment) {
-        // Initiate Razorpay payment
         const { initiatePayment } = await import("@/lib/razorpay")
         const { verifyPayment } = await import("@/lib/razorpay")
-        
+
         const paymentOptions = {
           key: razorpayKey,
-          amount: event.price * 100, // Convert to paise
+          amount: event.price * 100,
           currency: 'INR',
           name: 'MyFestivo',
           description: `${event.title} - ${selectedSe.name}`,
@@ -138,16 +213,14 @@ export function RegistrationWizard({ event, localRegistrations = [], isVolunteer
             color: '#3B82F6',
           },
           handler: async (response: any) => {
-            // Verify payment signature on backend
             const verificationResult = await verifyPayment(
               regId,
               response.razorpay_payment_id,
               response.razorpay_signature,
               regId
             )
-            
+
             if (verificationResult.valid) {
-              // Update registration status to PAID
               const updatedReg = {
                 ...reg,
                 status: "PAID",
@@ -157,24 +230,19 @@ export function RegistrationWizard({ event, localRegistrations = [], isVolunteer
               await registerForSubEvent(event.id, selectedSe.id, updatedReg)
               setDone(true)
             } else {
-              // Payment verification failed
               console.error('Payment verification failed:', verificationResult.error)
               alert('Payment verification failed. Please try again.')
-              // Optionally refund the registration
             }
           },
           modal: {
             ondismiss: () => {
-              // User cancelled payment - keep registration as PENDING
               console.log('Payment cancelled by user. Registration is PENDING.')
-              // Optionally show message to user
             }
           }
         }
-        
+
         await initiatePayment(paymentOptions)
       } else {
-        // No payment required - mark as complete
         setDone(true)
         onSuccess?.(reg)
       }
@@ -185,10 +253,15 @@ export function RegistrationWizard({ event, localRegistrations = [], isVolunteer
     setSubmitting(false)
   }
 
-  const stepIndex = step === "select" ? 0 : step === "team" ? 1 : 2
-  const steps = selectedSe?.type === "team"
-    ? ["Select Sub-Event", "Team Details", "Confirm"]
-    : ["Select Sub-Event", "Confirm"]
+  const steps: Step[] = selectedSe.type === "team" ? ["team", "confirm"] : ["confirm"]
+  const stepLabels: Record<Step, string> = { team: "Team Details", confirm: "Confirm" }
+  const stepIndex = steps.indexOf(step)
+
+  const totalMembers = 1 + teamMembers.length + pendingMembers.length
+  const acceptedCount = 1 + teamMembers.length // captain + accepted
+  const meetsMinSize = !selectedSe.minTeamSize || acceptedCount >= selectedSe.minTeamSize
+  const atMaxSize = !!(selectedSe.maxTeamSize && totalMembers >= selectedSe.maxTeamSize)
+  const hasPendingOrAccepted = teamMembers.length > 0 || pendingMembers.length > 0
 
   // Done state
   if (done) {
@@ -219,7 +292,7 @@ export function RegistrationWizard({ event, localRegistrations = [], isVolunteer
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
           <div>
             <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase">Register for</p>
-            <p className="font-medium" id="registration-title">{event.title}</p>
+            <p className="font-medium" id="registration-title">{event.title} — {selectedSe.name}</p>
           </div>
           <button onClick={onClose} aria-label="Close registration wizard" className="text-white/30 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded"><X className="w-5 h-5" aria-hidden="true" /></button>
         </div>
@@ -231,7 +304,7 @@ export function RegistrationWizard({ event, localRegistrations = [], isVolunteer
               <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-mono ${i < stepIndex ? "bg-green-500/20 text-green-400" :
                 i === stepIndex ? "bg-white text-black" : "bg-white/[0.06] text-white/30"
                 }`}>{i < stepIndex ? <Check className="w-3 h-3" /> : i + 1}</div>
-              <span className={`text-[10px] font-mono tracking-widest uppercase ${i === stepIndex ? "text-white" : "text-white/30"}`}>{s}</span>
+              <span className={`text-[10px] font-mono tracking-widest uppercase ${i === stepIndex ? "text-white" : "text-white/30"}`}>{stepLabels[s]}</span>
               {i < steps.length - 1 && <ChevronRight className="w-3 h-3 text-white/20 mx-1" />}
             </div>
           ))}
@@ -239,56 +312,14 @@ export function RegistrationWizard({ event, localRegistrations = [], isVolunteer
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-5">
-          {/* STEP 1: Select Sub-Event */}
-          {step === "select" && (
-            <div className="space-y-3">
-              <p className="text-xs text-white/40 mb-4">Choose the competition you&apos;d like to participate in:</p>
-              {isStaffRestricted && (
-                <div className="p-3 mb-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-xs font-mono text-center">
-                  Restricted: Event Staff/Coordinators cannot register.
-                </div>
-              )}
-              {event.subEvents.map(se => {
-                const regCount = allRegistrations.filter(r => r.subEventId === se.id).length
-                const isFull = regCount >= se.maxParticipants
-                const already = alreadyRegistered(se.id)
-                return (
-                  <button
-                    key={se.id}
-                    disabled={isFull || already || isStaffRestricted}
-                    onClick={() => { setSelectedSe(se); setStep(se.type === "team" ? "team" : "confirm") }}
-                    className={`w-full text-left p-4 rounded-lg border transition-all ${isFull || already || isStaffRestricted ? "border-white/[0.04] bg-white/[0.01] opacity-50 cursor-not-allowed"
-                      : "border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 cursor-pointer"
-                      }`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium">{se.name}</span>
-                      <div className="flex items-center gap-2">
-                        {se.type === "team" ? <Users className="w-3.5 h-3.5 text-white/40" /> : <User className="w-3.5 h-3.5 text-white/40" />}
-                        <span className="text-[10px] font-mono text-white/40">{se.type.toUpperCase()}</span>
-                      </div>
-                    </div>
-                    <p className="text-xs text-white/40 mb-2 line-clamp-2">{se.description}</p>
-                    <div className="flex items-center gap-3 text-[10px] font-mono">
-                      <span className="text-white/30">{regCount}/{se.maxParticipants} spots</span>
-                      {se.prize?.first && se.prize.first !== "TBD" && (
-                        <span className="text-yellow-400/60 flex items-center gap-1">
-                          <Trophy className="w-3 h-3" />
-                          {se.prize.first}
-                        </span>
-                      )}
-                      {already && <span className="text-green-400">Already registered</span>}
-                      {isFull && !already && <span className="text-red-400">Full</span>}
-                      {isStaffRestricted && !already && !isFull && <span className="text-red-400">Staff Restricted</span>}
-                    </div>
-                  </button>
-                )
-              })}
+          {isStaffRestricted && (
+            <div className="p-3 mb-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg text-xs font-mono text-center">
+              Restricted: Event Staff/Coordinators cannot register.
             </div>
           )}
 
-          {/* STEP 2: Team Details */}
-          {step === "team" && selectedSe && (
+          {/* STEP: Team Details */}
+          {step === "team" && (
             <div className="space-y-5">
               <div>
                 <label className="text-[10px] font-mono text-white/40 mb-2 block tracking-widest uppercase">Team Name</label>
@@ -299,11 +330,12 @@ export function RegistrationWizard({ event, localRegistrations = [], isVolunteer
               <div>
                 <label className="text-[10px] font-mono text-white/40 mb-2 block tracking-widest uppercase">
                   Team Members {selectedSe.minTeamSize && selectedSe.maxTeamSize
-                    ? `(${selectedSe.minTeamSize} - ${selectedSe.maxTeamSize} including you)`
+                    ? `(${selectedSe.minTeamSize} – ${selectedSe.maxTeamSize} including you)`
                     : ""}
                 </label>
 
-                <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06] mb-3">
+                {/* Captain */}
+                <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06] mb-2">
                   <div className="flex items-center gap-2 text-sm">
                     <div className="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center"><Check className="w-3 h-3 text-green-400" /></div>
                     <span className="text-white/80">{user.name}</span>
@@ -311,67 +343,116 @@ export function RegistrationWizard({ event, localRegistrations = [], isVolunteer
                   </div>
                 </div>
 
+                {/* Accepted members */}
                 {teamMembers.map((email, i) => (
-                  <div key={email} className="flex items-center gap-2 p-3 rounded-lg bg-white/[0.02] border border-white/[0.06] mb-2">
-                    <div className="w-6 h-6 rounded-full bg-white/[0.06] flex items-center justify-center text-[10px] font-mono text-white/40">{i + 2}</div>
-                    <span className="text-sm text-white/70 flex-1">{email}</span>
-                    <button onClick={() => setTeamMembers(prev => prev.filter(e => e !== email))} className="text-white/20 hover:text-red-400"><X className="w-3.5 h-3.5" /></button>
+                  <div key={email} className="flex items-center gap-2 p-3 rounded-lg bg-green-500/[0.05] border border-green-500/20 mb-2">
+                    <div className="w-6 h-6 rounded-full bg-green-500/15 flex items-center justify-center">
+                      <Check className="w-3 h-3 text-green-400" />
+                    </div>
+                    <span className="text-sm text-white/80 flex-1">{email}</span>
+                    <span className="text-[9px] font-mono text-green-400/80 mr-1">ACCEPTED</span>
                   </div>
                 ))}
 
-                <div className="flex gap-2 mt-3 relative">
-                  <div className="flex-1 relative">
-                    <Input value={memberEmail} onChange={e => handleMemberInput(e.target.value)}
-                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addMember() } if (e.key === "Escape") setFriendSuggestions([]) }}
-                      placeholder="teammate@gmail.com"
-                      className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-9 text-sm w-full" />
-                    {/* Friend autocomplete dropdown */}
-                    {friendSuggestions.length > 0 && (
-                      <div ref={suggestionsRef} className="absolute top-full left-0 right-0 mt-1 bg-black/95 border border-white/[0.1] rounded-lg z-20 overflow-hidden shadow-xl">
-                        {friendSuggestions.map(email => (
-                          <button
-                            key={email}
-                            type="button"
-                            onMouseDown={e => { e.preventDefault(); addMemberByEmail(email) }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left hover:bg-[#B388FF]/10 transition-colors"
-                          >
-                            <div className="w-6 h-6 rounded-full bg-[#B388FF]/20 flex items-center justify-center text-[10px] font-bold text-[#B388FF] shrink-0">
-                              {email[0].toUpperCase()}
-                            </div>
-                            <span className="text-sm text-white/80 truncate">{email}</span>
-                            <span className="ml-auto text-[9px] font-mono text-[#B388FF]/60">Friend</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                {/* Pending members */}
+                {pendingMembers.map((email) => (
+                  <div key={email} className="flex items-center gap-2 p-3 rounded-lg bg-yellow-500/[0.05] border border-yellow-500/20 mb-2">
+                    <div className="w-6 h-6 rounded-full bg-yellow-500/10 flex items-center justify-center">
+                      <Clock className="w-3 h-3 text-yellow-400" />
+                    </div>
+                    <span className="text-sm text-white/60 flex-1">{email}</span>
+                    <span className="text-[9px] font-mono text-yellow-400/70 mr-1">PENDING</span>
+                    <button onClick={() => removePending(email)} className="text-white/20 hover:text-red-400 ml-1"><X className="w-3.5 h-3.5" /></button>
                   </div>
-                  <Button onClick={addMember} variant="outline" className="h-9 px-3 border-white/20 text-white/60 hover:text-white shrink-0">
-                    <Plus className="w-3.5 h-3.5" />
-                  </Button>
-                </div>
+                ))}
+
+                {/* Add member input */}
+                {!atMaxSize && (
+                  <div className="flex gap-2 mt-3 relative">
+                    <div className="flex-1 relative">
+                      <Input value={memberEmail} onChange={e => handleMemberInput(e.target.value)}
+                        onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addMember() } if (e.key === "Escape") setFriendSuggestions([]) }}
+                        placeholder="teammate@gmail.com"
+                        className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-9 text-sm w-full" />
+                      {/* Friend autocomplete dropdown */}
+                      {friendSuggestions.length > 0 && (
+                        <div ref={suggestionsRef} className="absolute top-full left-0 right-0 mt-1 bg-black/95 border border-white/[0.1] rounded-lg z-20 overflow-hidden shadow-xl">
+                          {friendSuggestions.map(email => (
+                            <button
+                              key={email}
+                              type="button"
+                              onMouseDown={e => { e.preventDefault(); addMemberByEmail(email) }}
+                              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left hover:bg-[#B388FF]/10 transition-colors"
+                            >
+                              <div className="w-6 h-6 rounded-full bg-[#B388FF]/20 flex items-center justify-center text-[10px] font-bold text-[#B388FF] shrink-0">
+                                {email[0].toUpperCase()}
+                              </div>
+                              <span className="text-sm text-white/80 truncate">{email}</span>
+                              <span className="ml-auto text-[9px] font-mono text-[#B388FF]/60">Friend</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <Button onClick={addMember} variant="outline" className="h-9 px-3 border-white/20 text-white/60 hover:text-white shrink-0">
+                      <Plus className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                )}
+
                 {/* Friend hint */}
                 <div className="flex items-center gap-1.5 mt-2">
                   <UserPlus className="w-3 h-3 text-white/25 shrink-0" />
                   <p className="text-[10px] text-white/30 font-mono">Only friends appear as suggestions — add teammates as friends first.</p>
                 </div>
-                {selectedSe.minTeamSize && (teamMembers.length + 1) < selectedSe.minTeamSize && (
-                  <p className="text-[10px] text-yellow-400/80 mt-2 font-mono">Need at least {selectedSe.minTeamSize - teamMembers.length - 1} more member(s)</p>
+
+                {selectedSe.minTeamSize && acceptedCount < selectedSe.minTeamSize && (
+                  <p className="text-[10px] text-yellow-400/80 mt-2 font-mono">
+                    Need at least {selectedSe.minTeamSize - acceptedCount} more accepted member(s) to continue
+                  </p>
+                )}
+
+                {draftRegId && (
+                  <p className="text-[10px] text-[#B388FF]/60 mt-2 font-mono flex items-center gap-1">
+                    <Check className="w-3 h-3" /> Invitations saved — your team state is preserved even if you close this.
+                  </p>
                 )}
               </div>
 
-              <div className="flex gap-3">
-                <Button onClick={() => setStep("select")} variant="ghost" className="flex-1 h-10 border border-white/[0.1] text-white/60">Back</Button>
+              {/* Buttons */}
+              <div className="space-y-2">
+                {/* Send Request */}
+                {pendingMembers.length > 0 && (
+                  <Button
+                    onClick={handleSendRequest}
+                    disabled={sendingRequest}
+                    className="w-full h-10 bg-[#B388FF]/20 text-[#B388FF] border border-[#B388FF]/30 hover:bg-[#B388FF]/30 hover:text-white"
+                    variant="outline"
+                  >
+                    {sendingRequest
+                      ? <><Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />Sending…</>
+                      : <><Send className="w-3.5 h-3.5 mr-2" />Send Request to {pendingMembers.length} member{pendingMembers.length > 1 ? "s" : ""}</>
+                    }
+                  </Button>
+                )}
+
+                {/* Continue */}
                 <Button
                   onClick={() => setStep("confirm")}
-                  disabled={!!(selectedSe.minTeamSize && (teamMembers.length + 1) < selectedSe.minTeamSize)}
-                  className="flex-1 h-10 bg-white text-black hover:bg-[#B388FF]"
-                >Continue</Button>
+                  disabled={!meetsMinSize || isStaffRestricted}
+                  className="w-full h-10 bg-white text-black hover:bg-[#B388FF]"
+                >
+                  {!meetsMinSize
+                    ? `Waiting for ${selectedSe.minTeamSize! - acceptedCount} more acceptance${selectedSe.minTeamSize! - acceptedCount > 1 ? "s" : ""}…`
+                    : "Continue →"
+                  }
+                </Button>
               </div>
             </div>
           )}
 
-          {/* STEP 3: Confirm */}
-          {step === "confirm" && selectedSe && (
+          {/* STEP: Confirm */}
+          {step === "confirm" && (
             <div className="space-y-5">
               <p className="text-xs text-white/40 mb-2">Review your registration:</p>
               <div className="p-4 rounded-lg bg-white/[0.02] border border-white/[0.06] space-y-3">
@@ -390,18 +471,26 @@ export function RegistrationWizard({ event, localRegistrations = [], isVolunteer
                       <span className="text-white/40">Team</span><span className="text-white/80">{teamName || `${user.name}'s Team`}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-white/40">Members</span><span className="text-white/80">{teamMembers.length + 1}</span>
+                      <span className="text-white/40">Members (confirmed)</span><span className="text-white/80">{acceptedCount}</span>
                     </div>
+                    {pendingMembers.length > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-yellow-400/60">Pending invitations</span><span className="text-yellow-400/80">{pendingMembers.length}</span>
+                      </div>
+                    )}
                   </>
                 )}
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/40">Fee</span><span className="text-white/80">{event.price > 0 ? `₹${event.price}` : "Free"}</span>
+                  <span className="text-white/40">Fee</span>
+                  <span className="text-white/80">{event.price > 0 ? `₹${event.price}` : "Free"}</span>
                 </div>
               </div>
 
               <div className="flex gap-3">
-                <Button onClick={() => setStep(selectedSe.type === "team" ? "team" : "select")} variant="ghost" className="flex-1 h-10 border border-white/[0.1] text-white/60">Back</Button>
-                <Button onClick={handleConfirm} disabled={submitting} className="flex-1 h-10 bg-white text-black hover:bg-[#B388FF]">
+                {selectedSe.type === "team" && (
+                  <Button onClick={() => setStep("team")} variant="ghost" className="flex-1 h-10 border border-white/[0.1] text-white/60">Back</Button>
+                )}
+                <Button onClick={handleConfirm} disabled={submitting || isStaffRestricted} className="flex-1 h-10 bg-white text-black hover:bg-[#B388FF]">
                   {submitting ? "Registering..." : "Confirm Registration"}
                 </Button>
               </div>

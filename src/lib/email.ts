@@ -438,6 +438,52 @@ export async function sendSignupOTP(
   }
 }
 
+// ─── 9. Team Invitation ───────────────────────────────────────────────────────
+
+export async function sendTeamInvitation(
+  toEmail: string,
+  captainName: string,
+  teamName: string,
+  eventTitle: string,
+  subEventName: string,
+  eventId: string
+): Promise<boolean> {
+  try {
+    const html = wrapHtml(`
+      ${badge('Team Invitation')}
+      <div style="margin-top:16px;">
+        ${h2(`You've been invited to a team! 🤝`)}
+        ${p(`<strong style="color:#B388FF;">${captainName}</strong> has invited you to join team <strong style="color:#fff;">${teamName}</strong> for <strong style="color:#B388FF;">${eventTitle}</strong>.`)}
+      </div>
+      ${divider()}
+      <table cellpadding="0" cellspacing="0" style="width:100%;">
+        ${infoRow('Event', eventTitle)}
+        ${infoRow('Sub-Event', subEventName)}
+        ${infoRow('Team', teamName)}
+        ${infoRow('Invited By', captainName)}
+      </table>
+      <div style="background:rgba(179,136,255,0.06);border:1px solid rgba(179,136,255,0.2);border-radius:10px;padding:20px 24px;margin:20px 0;">
+        <p style="margin:0 0 8px;font-size:13px;color:rgba(255,255,255,0.5);font-family:monospace;letter-spacing:0.06em;text-transform:uppercase;">Next Step</p>
+        <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.7);line-height:1.6;">Log in to your MyFestivo dashboard to <strong style="color:#fff;">Accept</strong> or <strong style="color:#fff;">Decline</strong> this team invitation.</p>
+      </div>
+      ${ctaButton('Go to Dashboard', `https://myfestivo.live/dashboard`)}
+      ${p('If you didn\'t expect this invite, you can safely ignore or decline it.', 'font-size:13px;color:rgba(255,255,255,0.35);')}
+    `)
+
+    await getTransporter().sendMail({
+      from: FROM,
+      to: toEmail,
+      subject: `🤝 ${captainName} invited you to join team "${teamName}" — ${eventTitle} | MyFestivo`,
+      html,
+    })
+    console.log(`[Email] Team invitation sent → ${toEmail}`)
+    return true
+  } catch (error) {
+    console.error('[Email] sendTeamInvitation failed:', error)
+    return false
+  }
+}
+
 // ─── Test connection ──────────────────────────────────────────────────────────
 
 export async function testEmailConnection(): Promise<boolean> {

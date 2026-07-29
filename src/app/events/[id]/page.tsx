@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuth } from "@/lib/auth-context"
-import { useEvents, TaskStatus } from "@/lib/events-context"
+import { useEvents, TaskStatus, SubEvent } from "@/lib/events-context"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { MicroLabel } from "@/components/ui/MicroLabel"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
@@ -39,7 +39,8 @@ export default function EventDetailPage() {
 
   const [activeTab, setActiveTab] = useState<TabId>("overview")
   const [selectedSubEvent, setSelectedSubEvent] = useState<string | null>(null)
-  const [showRegWizard, setShowRegWizard] = useState(false)
+  const [selectedSubEventForReg, setSelectedSubEventForReg] = useState<SubEvent | null>(null)
+  const showRegWizard = selectedSubEventForReg !== null
   const [showQRScanner, setShowQRScanner] = useState(false)
   // Optimistic local registrations — immediately reflects a new registration
   // before the Firestore subcollection listener fires (avoids stale "Register" button).
@@ -487,7 +488,8 @@ export default function EventDetailPage() {
                 <MicroLabel>Sub-Events & Competitions</MicroLabel>
                 <div className="space-y-4">
                   {event.subEvents.map(se => {
-                    const isUserRegistered = registrations.some(r => r.subEventId === se.id && (r.userEmail === user?.email || r.teamMembers?.includes(user?.email || "")))
+                    // A user is considered registered if they have a non-DRAFT registration for this sub-event
+                    const isUserRegistered = registrations.some(r => r.subEventId === se.id && r.status !== "DRAFT" && (r.userEmail === user?.email || r.teamMembers?.includes(user?.email || "")))
                     return (
                       <GlassCard key={se.id} className="p-6 transition-all hover:bg-white/[0.04] scroll-mt-24" id={se.id}>
                         <div className="flex justify-between items-start mb-4">
@@ -507,7 +509,7 @@ export default function EventDetailPage() {
                             <Button
                               onClick={() => {
                                 if (!user) { router.push("/login"); return }
-                                setShowRegWizard(true)
+                                setSelectedSubEventForReg(se)
                               }}
                               disabled={isRestricted || (!!user?.email && !isVolunteer && event.restricted_registrations?.includes(user.email))}
                               variant="outline" className="h-8 px-4 text-[10px] font-mono border-white/20 hover:bg-[#B388FF] hover:text-black hover:border-[#B388FF] text-white bg-white/5 transition-all">
@@ -1178,7 +1180,7 @@ export default function EventDetailPage() {
       </div>
 
       {/* Registration Wizard Modal */}
-      {showRegWizard && <RegistrationWizard event={event} localRegistrations={localRegistrations} isVolunteer={isVolunteer} onClose={() => setShowRegWizard(false)} onSuccess={(reg) => { setLocalRegistrations(prev => [...prev, reg]); setShowRegWizard(false) }} />}
+      {showRegWizard && selectedSubEventForReg && <RegistrationWizard event={event} initialSubEvent={selectedSubEventForReg} localRegistrations={localRegistrations} isVolunteer={isVolunteer} onClose={() => setSelectedSubEventForReg(null)} onSuccess={(reg) => { setLocalRegistrations(prev => [...prev, reg]); setSelectedSubEventForReg(null) }} />}
 
       {/* QR Scanner Modal */}
       {showQRScanner && (

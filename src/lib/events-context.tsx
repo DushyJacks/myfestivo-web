@@ -54,7 +54,7 @@ export interface Registration {
   userPhone?: string
   eventId: string
   subEventId: string
-  status: "PAID" | "PENDING" | "REFUNDED"
+  status: "PAID" | "FREE" | "PENDING" | "REFUNDED" | "DRAFT"
   timestamp: string
   teamName?: string
   teamMembers?: string[]
@@ -441,6 +441,9 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
         ? { ...e, registrations: [...e.registrations.filter(r => r.id !== reg.id), reg] }
         : e
     ))
+
+    // DRAFT registrations are placeholders for team invitations — skip count and automations
+    if (reg.status === "DRAFT") return
 
     // Increment the count on the event doc (non-critical, may fail if rules block it)
     try {

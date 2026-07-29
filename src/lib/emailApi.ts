@@ -114,3 +114,30 @@ export async function emailSignupOTP(params: {
     console.error('[emailApi] emailSignupOTP error:', error)
   }
 }
+
+// ─── Team Invitation ──────────────────────────────────────────────────────────
+
+export async function emailTeamInvitation(params: {
+  toEmail: string
+  captainName: string
+  teamName: string
+  eventTitle: string
+  subEventName: string
+  eventId: string
+}): Promise<void> {
+  try {
+    const res = await fetch('/api/email/team-invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    })
+    const data = await res.json()
+    if (!data.success) {
+      console.warn('[emailApi] Team invitation email failed:', data.message)
+    } else {
+      console.log('[emailApi] Team invitation email sent →', params.toEmail)
+    }
+  } catch (error) {
+    console.error('[emailApi] emailTeamInvitation error:', error)
+  }
+}

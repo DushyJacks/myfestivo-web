@@ -40,7 +40,7 @@ export default function DashboardPage() {
 
   if (!user) return null
 
-  const registeredEvents = events.filter(e => e.registrations.some(r => r.userEmail === user.email || r.teamMembers?.includes(user.email)))
+  const registeredEvents = events.filter(e => e.registrations.some(r => r.status !== "DRAFT" && (r.userEmail === user.email || r.teamMembers?.includes(user.email))))
   const hostedEvents = events.filter(e => e.organizerEmail === user.email)
   const coordinatingEvents = events.filter(e => e.subEvents.some(se => se.coordinators.some(c => c.email === user.email)))
 
@@ -193,7 +193,7 @@ export default function DashboardPage() {
               ) : (
                 <div className="space-y-4">
                   {registeredEvents.map(evt => {
-                    const myRegs = evt.registrations.filter(r => r.userEmail === user.email || r.teamMembers?.includes(user.email))
+                    const myRegs = evt.registrations.filter(r => r.status !== "DRAFT" && (r.userEmail === user.email || r.teamMembers?.includes(user.email)))
                     return (
                       <GlassCard key={evt.id} className="p-6">
                         <div className="flex justify-between items-start mb-4">

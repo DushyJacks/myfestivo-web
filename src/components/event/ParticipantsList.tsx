@@ -17,9 +17,12 @@ export function ParticipantsList({ event }: Props) {
   const [selectedReg, setSelectedReg] = useState<Registration | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
 
+  // Exclude DRAFT registrations — those are team invitation placeholders, not confirmed participants
+  const confirmedRegs = event.registrations.filter(r => r.status !== "DRAFT")
+
   const regs = filterSe
-    ? event.registrations.filter(r => r.subEventId === filterSe)
-    : event.registrations
+    ? confirmedRegs.filter(r => r.subEventId === filterSe)
+    : confirmedRegs
 
   const downloadCSV = () => {
     const headers = ["Name", "Email", "Phone", "Sub-Event", "Status", "Team Name", "Team Members", "Registered At", "Checked In"]
@@ -53,15 +56,15 @@ export function ParticipantsList({ event }: Props) {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         <GlassCard className="p-4 text-center">
           <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Total</p>
-          <p className="text-2xl font-light">{event.registrations.length}</p>
+          <p className="text-2xl font-light">{confirmedRegs.length}</p>
         </GlassCard>
         <GlassCard className="p-4 text-center">
           <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Pending</p>
-          <p className="text-2xl font-light text-yellow-400">{event.registrations.filter(r => r.status === "PENDING").length}</p>
+          <p className="text-2xl font-light text-yellow-400">{confirmedRegs.filter(r => r.status === "PENDING").length}</p>
         </GlassCard>
         <GlassCard className="p-4 text-center">
           <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Checked In</p>
-          <p className="text-2xl font-light">{event.registrations.filter(r => r.checkedIn).length}</p>
+          <p className="text-2xl font-light">{confirmedRegs.filter(r => r.checkedIn).length}</p>
         </GlassCard>
       </div>
 
