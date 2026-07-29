@@ -49,8 +49,10 @@ export function RegistrationWizard({ event, localRegistrations = [], isVolunteer
     ...localRegistrations.filter(lr => !event.registrations.some((r: any) => r.id === lr.id))
   ]
 
+  // Only treat PAID registrations as already registered.
+  // A PENDING registration (failed/cancelled payment) allows the user to retry.
   const alreadyRegistered = (seId: string) =>
-    allRegistrations.some(r => r.subEventId === seId && r.userEmail === user.email)
+    allRegistrations.some(r => r.subEventId === seId && r.userEmail === user.email && r.status === "PAID")
 
   // Staff restriction: block organizers/coordinators UNLESS they are Volunteers (who can register)
   const isStaffRestricted = !!user?.email && !isVolunteer && (event.restricted_registrations ?? []).includes(user.email)

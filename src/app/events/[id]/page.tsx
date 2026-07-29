@@ -451,7 +451,7 @@ export default function EventDetailPage() {
           <div className="flex flex-wrap gap-5 font-mono text-sm text-white/60">
             <span className="flex items-center gap-2"><MapPin className="w-4 h-4" />{event.venue}</span>
             <span className="flex items-center gap-2"><Clock className="w-4 h-4" />{event.date}</span>
-            <span className="flex items-center gap-2"><Users className="w-4 h-4" />{event.registeredCount}{event.seats !== 9999 ? ` / ${event.seats}` : ""} registered</span>
+            <span className="flex items-center gap-2"><Users className="w-4 h-4" />{registrations.filter(r => r.status === "PAID").length}{event.seats !== 9999 ? ` / ${event.seats}` : ""} registered</span>
           </div>
         </motion.div>
 
@@ -894,30 +894,29 @@ export default function EventDetailPage() {
                 <p className="text-[10px] font-mono text-white/50 tracking-widest uppercase mb-1">Total Registered</p>
                 <p className="text-2xl font-light text-green-400">{registrations.length}</p>
               </GlassCard>
-            <GlassCard className="p-4 col-span-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-white/20">
-                <div className="flex items-center gap-3 w-full sm:w-auto">
-                  <Button onClick={() => setShowQRScanner(true)} className="bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80 h-10 px-6 rounded-full flex-1 max-w-[220px]">
-                    <Camera className="w-4 h-4 mr-2" /> Live QR Scan
-                  </Button>
-                  <Button onClick={downloadCheckedInCSV} variant="outline" className="h-10 px-4 text-[10px] font-mono border-white/20 text-white/70 hover:text-white gap-1.5">
-                    <Download className="w-3.5 h-3.5" /> Export CSV
-                  </Button>
-                </div>
-                {/* Sub-event filter dropdown */}
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <label className="text-[10px] font-mono text-white/40 tracking-widest uppercase whitespace-nowrap">Filter:</label>
-                  <select
-                    value={checkInSubEventFilter}
-                    onChange={e => setCheckInSubEventFilter(e.target.value)}
-                    className="flex-1 sm:flex-none h-9 bg-white/[0.04] border border-white/[0.1] text-white text-xs rounded-lg px-3 focus:outline-none focus:border-white/30 transition-colors appearance-none cursor-pointer"
-                  >
-                    <option value="">All Sub-events</option>
-                    {event.subEvents.map(se => (
-                      <option key={se.id} value={se.id}>{se.name}</option>
-                    ))}
-                  </select>
-                </div>
+              <GlassCard className="p-4 col-span-2 flex items-center gap-3 border-white/20">
+                <Button onClick={() => setShowQRScanner(true)} className="bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80 h-10 px-6 rounded-full flex-1 max-w-[220px]">
+                  <Camera className="w-4 h-4 mr-2" /> Live QR Scan
+                </Button>
+                <Button onClick={downloadCheckedInCSV} variant="outline" className="h-10 px-4 text-[10px] font-mono border-white/20 text-white/70 hover:text-white gap-1.5">
+                  <Download className="w-3.5 h-3.5" /> Export CSV
+                </Button>
               </GlassCard>
+            </div>
+
+            {/* Sub-event filter dropdown — its own row below summary cards */}
+            <div className="flex items-center gap-3 mb-6 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+              <span className="text-[10px] font-mono text-white/40 tracking-widest uppercase whitespace-nowrap">Filter by Sub-event:</span>
+              <select
+                value={checkInSubEventFilter}
+                onChange={e => setCheckInSubEventFilter(e.target.value)}
+                className="flex-1 max-w-xs h-9 bg-white/[0.04] border border-white/[0.1] text-white text-xs rounded-lg px-3 focus:outline-none focus:border-white/30 transition-colors cursor-pointer"
+              >
+                <option value="">All Sub-events</option>
+                {event.subEvents.map(se => (
+                  <option key={se.id} value={se.id}>{se.name}</option>
+                ))}
+              </select>
             </div>
 
             {/* Scan Status Feedback */}

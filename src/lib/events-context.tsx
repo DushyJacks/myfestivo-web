@@ -395,97 +395,108 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
     const evt = events.find(e => e.id === eventId)
     if (!evt) return
 
-    // ── Duplicate-registration guard ──────────────────────────────────────────
-    // Check both in-memory state (fast) and Firestore (authoritative) before
-    // writing.  This prevents repeated email sends when the local cache was
-    // stale and the user clicked Register a second time.
-    const alreadyInMemory = (regsByEventRef.current[eventId] ?? []).some(
-      r => r.userId === reg.userId && r.subEventId === reg.subEventId
-    )
-    if (!alreadyInMemory) {
-      try {
-        const regsCol = getRegsCol(eventId)
-        const existingSnap = await getDocs(query(regsCol))
-        const alreadyInFirestore = existingSnap.docs.some(d => {
-          const data = d.data()
-          return data.userId === reg.userId && data.subEventId === reg.subEventId
-        })
-        if (alreadyInFirestore) {
-          // Sync local state with Firestore data and bail out — no email should fire
-          const regs: Registration[] = existingSnap.docs.map(d => ({ ...d.data(), id: d.id } as Registration))
-          regsByEventRef.current = { ...regsByEventRef.current, [eventId]: regs }
-          setEvents(prev => prev.map(e => e.id === eventId ? { ...e, registrations: regs } : e))
-          return
-        }
-      } catch (e) {
-        console.warn("[registerForSubEvent] Could not verify duplicate in Firestore:", e)
-      }
+    // ── Upsert Guard ─────────────────────────────────────────────────────────
+    // Check if a registration with the SAME ID already exists in Firestore.
+    // If it does, this is an UPDATE (e.g., PENDING → PAID after payment), so
+    // we update the doc and local state without incrementing the count.
+    // If it's a new registration (different user+subEvent combo), we check for
+    // a duplicate by userId+subEventId to prevent creating a second registration.
+    let isUpdate = false
+    const currentRegs = regsByEventRef.current[eventId] ?? []
+
+    // Does a reg with this exact ID already exist?
+    const existingById = currentRegs.find(r => r.id === reg.id)
+    if (existingById) {
+      isUpdate = true
     } else {
-      // Already registered in memory — skip silently
-      return
+      // Check for duplicate by userId + subEventId (any status)
+      const duplicateByUser = currentRegs.some(
+        r => r.userId === reg.userId && r.subEventId === reg.subEventId
+      )
+      if (!duplicateByUser) {
+        // Also check Firestore authoritatively to catch stale local state
+        try {
+          const regsCol = getRegsCol(eventId)
+          const existingSnap = await getDocs(query(regsCol))
+          const alreadyInFirestore = existingSnap.docs.some(d => {
+            const data = d.data()
+            return data.userId === reg.userId && data.subEventId === reg.subEventId && d.id !== reg.id
+          })
+          if (alreadyInFirestore) {
+            // Sync local state with Firestore and bail — it's truly a duplicate
+            const regs: Registration[] = existingSnap.docs.map(d => ({ ...d.data(), id: d.id } as Registration))
+            regsByEventRef.current = { ...regsByEventRef.current, [eventId]: regs }
+            setEvents(prev => prev.map(e => e.id === eventId ? { ...e, registrations: regs } : e))
+            return
+          }
+        } catch (e) {
+          console.warn("[registerForSubEvent] Could not verify duplicate in Firestore:", e)
+        }
+      } else {
+        // Same userId+subEventId exists locally but different ID — it's a duplicate, bail silently
+        return
+      }
     }
     // ─────────────────────────────────────────────────────────────────────────
 
-    // Write registration into the subcollection (allowed by Firestore rules for any authenticated user).
+    // Write or update the registration doc in the subcollection
     const { id: regId, ...regData } = reg
     await setDoc(getRegRef(eventId, regId), regData)
 
-    // Optimistic update: immediately inject the registration into local state so
-    // the UI reflects "Registered" without waiting for the subcollection listener to fire.
-    regsByEventRef.current = {
-      ...regsByEventRef.current,
-      [eventId]: [...(regsByEventRef.current[eventId] ?? []), reg],
-    }
+    // Optimistic local state update — upsert (replace if same ID, append if new)
+    const updatedRegs = isUpdate
+      ? currentRegs.map(r => r.id === reg.id ? reg : r)
+      : [...currentRegs, reg]
+    regsByEventRef.current = { ...regsByEventRef.current, [eventId]: updatedRegs }
     setEvents(prev => prev.map(e =>
       e.id === eventId
-        ? { ...e, registrations: [...e.registrations.filter(r => r.id !== reg.id), reg] }
+        ? { ...e, registrations: updatedRegs }
         : e
     ))
 
-    // Increment the count on the event doc (non-critical, may fail if rules block it)
-    try {
-      await updateDoc(getEventRef(eventId), { registeredCount: increment(1) })
-    } catch { /* non-critical */ }
+    // Only increment the registeredCount for genuinely new registrations
+    if (!isUpdate) {
+      try {
+        await updateDoc(getEventRef(eventId), { registeredCount: increment(1) })
+      } catch { /* non-critical */ }
+    }
 
     // Trigger on_register automation — fire-and-forget so UI doesn't wait on these
-    const onRegisterRule = evt.automations.find(a => a.trigger === "on_register" && a.enabled)
-    if (onRegisterRule) {
-      // Fire all notifications asynchronously — do NOT await so the UI unblocks immediately
-      ;(async () => {
-        try {
-          const subEvent = evt.subEvents.find(se => se.id === _subEventId)
-          // Browser push notification
-          sendRegistrationConfirmation(
-            eventId,
-            evt.title,
-            reg.userEmail,
-            subEvent?.name || "Event"
-          )
-
-          // Gmail confirmation email
-          emailRegistrationConfirmation({
-            toEmail: reg.userEmail,
-            userName: reg.userName,
-            eventTitle: evt.title,
-            subEventName: subEvent?.name || "Event",
-            eventDate: evt.date,
-            eventVenue: evt.venue,
-            eventId,
-          })
-
-          // Automation log
-          addAutomationLog(eventId, {
-            id: `log-${Date.now()}`,
-            ruleId: onRegisterRule.id,
-            ruleName: onRegisterRule.name,
-            recipientEmail: reg.userEmail,
-            message: onRegisterRule.message,
-            timestamp: new Date().toISOString(),
-          })
-        } catch (error) {
-          console.error("Error triggering on_register automation:", error)
-        }
-      })()
+    // Only fire for brand-new registrations, not updates (e.g., PENDING→PAID)
+    if (!isUpdate) {
+      const onRegisterRule = evt.automations.find(a => a.trigger === "on_register" && a.enabled)
+      if (onRegisterRule) {
+        ;(async () => {
+          try {
+            const subEvent = evt.subEvents.find(se => se.id === _subEventId)
+            sendRegistrationConfirmation(
+              eventId,
+              evt.title,
+              reg.userEmail,
+              subEvent?.name || "Event"
+            )
+            emailRegistrationConfirmation({
+              toEmail: reg.userEmail,
+              userName: reg.userName,
+              eventTitle: evt.title,
+              subEventName: subEvent?.name || "Event",
+              eventDate: evt.date,
+              eventVenue: evt.venue,
+              eventId,
+            })
+            addAutomationLog(eventId, {
+              id: `log-${Date.now()}`,
+              ruleId: onRegisterRule.id,
+              ruleName: onRegisterRule.name,
+              recipientEmail: reg.userEmail,
+              message: onRegisterRule.message,
+              timestamp: new Date().toISOString(),
+            })
+          } catch (error) {
+            console.error("Error triggering on_register automation:", error)
+          }
+        })()
+      }
     }
   }
 
