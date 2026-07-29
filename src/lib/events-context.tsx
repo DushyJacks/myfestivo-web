@@ -180,6 +180,7 @@ interface EventsContextType {
   updateTaskStatus: (eventId: string, taskId: string, status: TaskStatus) => void
   updateTaskOrder: (eventId: string, tasks: Task[]) => void
   checkInParticipant: (eventId: string, regId: string) => void
+  undoCheckInParticipant: (eventId: string, regId: string) => void
   acceptTeamRequest: (eventId: string, regId: string, email: string) => Promise<void>
   rejectTeamRequest: (eventId: string, regId: string, email: string) => Promise<void>
   addAutomation: (eventId: string, rule: AutomationRule) => void
@@ -446,42 +447,45 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
       await updateDoc(getEventRef(eventId), { registeredCount: increment(1) })
     } catch { /* non-critical */ }
 
-    // Trigger on_register automation
+    // Trigger on_register automation — fire-and-forget so UI doesn't wait on these
     const onRegisterRule = evt.automations.find(a => a.trigger === "on_register" && a.enabled)
     if (onRegisterRule) {
-      try {
-        // Send browser push notification
-        const subEvent = evt.subEvents.find(se => se.id === _subEventId)
-        await sendRegistrationConfirmation(
-          eventId,
-          evt.title,
-          reg.userEmail,
-          subEvent?.name || "Event"
-        )
+      // Fire all notifications asynchronously — do NOT await so the UI unblocks immediately
+      ;(async () => {
+        try {
+          const subEvent = evt.subEvents.find(se => se.id === _subEventId)
+          // Browser push notification
+          sendRegistrationConfirmation(
+            eventId,
+            evt.title,
+            reg.userEmail,
+            subEvent?.name || "Event"
+          )
 
-        // Send Gmail confirmation email (fire-and-forget)
-        emailRegistrationConfirmation({
-          toEmail: reg.userEmail,
-          userName: reg.userName,
-          eventTitle: evt.title,
-          subEventName: subEvent?.name || "Event",
-          eventDate: evt.date,
-          eventVenue: evt.venue,
-          eventId,
-        })
+          // Gmail confirmation email
+          emailRegistrationConfirmation({
+            toEmail: reg.userEmail,
+            userName: reg.userName,
+            eventTitle: evt.title,
+            subEventName: subEvent?.name || "Event",
+            eventDate: evt.date,
+            eventVenue: evt.venue,
+            eventId,
+          })
 
-        // Log automation
-        await addAutomationLog(eventId, {
-          id: `log-${Date.now()}`,
-          ruleId: onRegisterRule.id,
-          ruleName: onRegisterRule.name,
-          recipientEmail: reg.userEmail,
-          message: onRegisterRule.message,
-          timestamp: new Date().toISOString(),
-        })
-      } catch (error) {
-        console.error("Error triggering on_register automation:", error)
-      }
+          // Automation log
+          addAutomationLog(eventId, {
+            id: `log-${Date.now()}`,
+            ruleId: onRegisterRule.id,
+            ruleName: onRegisterRule.name,
+            recipientEmail: reg.userEmail,
+            message: onRegisterRule.message,
+            timestamp: new Date().toISOString(),
+          })
+        } catch (error) {
+          console.error("Error triggering on_register automation:", error)
+        }
+      })()
     }
   }
 
@@ -673,6 +677,13 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
     })
   }
 
+  const undoCheckInParticipant = async (eventId: string, regId: string) => {
+    await updateDoc(getRegRef(eventId, regId), {
+      checkedIn: false,
+      checkInTime: null,
+    })
+  }
+
   // Module 7 — Automation
   const addAutomation = async (eventId: string, rule: AutomationRule) => {
     await updateDoc(getEventRef(eventId), { automations: arrayUnion(rule) })
@@ -696,7 +707,7 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
       events, isLoading, addEvent, deleteEvent, updateEvent, registerForSubEvent, addChatMessage, addCoordinator,
       submitTransaction, approvePayment, rejectPayment,
       addAnnouncement, addTask, updateTaskStatus, updateTaskOrder,
-      checkInParticipant,
+      checkInParticipant, undoCheckInParticipant,
       acceptTeamRequest,
       rejectTeamRequest,
       addAutomation, toggleAutomation, addAutomationLog

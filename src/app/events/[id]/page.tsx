@@ -33,7 +33,7 @@ export default function EventDetailPage() {
   const params = useParams()
   const router = useRouter()
   const { user, isLoading: authLoading } = useAuth()
-  const { events, updateEvent, registerForSubEvent, addChatMessage, addAnnouncement, addTask, updateTaskStatus, approvePayment, rejectPayment, checkInParticipant, toggleAutomation, addAutomationLog, isLoading: eventsLoading } = useEvents()
+  const { events, updateEvent, registerForSubEvent, addChatMessage, addAnnouncement, addTask, updateTaskStatus, approvePayment, rejectPayment, checkInParticipant, undoCheckInParticipant, toggleAutomation, addAutomationLog, isLoading: eventsLoading } = useEvents()
   // Show spinner while either auth OR events are still loading
   const isLoading = authLoading || eventsLoading
 
@@ -47,6 +47,8 @@ export default function EventDetailPage() {
   const [showRegConfirm, setShowRegConfirm] = useState(false)
   const [chatChannel, setChatChannel] = useState("general")
   const [scanStatus, setScanStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null)
+  // Filter for Check-in tab — "" means show all sub-events
+  const [checkInSubEventFilter, setCheckInSubEventFilter] = useState<string>("")
   // Timeout flag — set to true after 8s if Firestore is still loading (offline / slow network)
   const [loadTimedOut, setLoadTimedOut] = useState(false)
 
@@ -297,6 +299,7 @@ export default function EventDetailPage() {
     const parts = data.split(':')
     if (parts.length !== 4 || parts[0] !== 'MYFESTIVO') {
       setScanStatus({ type: 'error', msg: 'Invalid QR Code Format' })
+      setTimeout(() => setScanStatus(null), 2500)
       return
     }
 
@@ -304,31 +307,33 @@ export default function EventDetailPage() {
 
     if (scanEventId !== event.id) {
       setScanStatus({ type: 'error', msg: 'QR Code is for a different event' })
+      setTimeout(() => setScanStatus(null), 2500)
       return
     }
 
     const registration = registrations.find(r => r.id === scanRegId)
     if (!registration) {
       setScanStatus({ type: 'error', msg: 'Registration not found' })
+      setTimeout(() => setScanStatus(null), 2500)
       return
     }
 
     if (registration.checkedIn) {
       setScanStatus({ type: 'error', msg: `${registration.userName} already checked in` })
+      setTimeout(() => setScanStatus(null), 2500)
       return
     }
 
     if (registration.status !== 'PAID') {
       setScanStatus({ type: 'error', msg: `Payment ${registration.status} for ${registration.userName}` })
+      setTimeout(() => setScanStatus(null), 2500)
       return
     }
 
-    // Success
+    // Success — close scanner after a short delay so the overlay is visible
     checkInParticipant(event.id, scanRegId)
-    setScanStatus({ type: 'success', msg: `Checked in ${registration.userName}!` })
-
-    // Clear status after 3 seconds
-    setTimeout(() => setScanStatus(null), 3000)
+    setScanStatus({ type: 'success', msg: `${registration.userName} checked in!` })
+    setTimeout(() => setScanStatus(null), 2500)
   }
 
   const inputCls = "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 text-sm"
@@ -889,13 +894,29 @@ export default function EventDetailPage() {
                 <p className="text-[10px] font-mono text-white/50 tracking-widest uppercase mb-1">Total Registered</p>
                 <p className="text-2xl font-light text-green-400">{registrations.length}</p>
               </GlassCard>
-              <GlassCard className="p-4 col-span-2 flex items-center justify-center gap-3 border-white/20">
-                <Button onClick={() => setShowQRScanner(true)} className="bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80 h-10 px-6 rounded-full flex-1 max-w-[220px]">
-                  <Camera className="w-4 h-4 mr-2" /> Live QR Scan
-                </Button>
-                <Button onClick={downloadCheckedInCSV} variant="outline" className="h-10 px-4 text-[10px] font-mono border-white/20 text-white/70 hover:text-white gap-1.5">
-                  <Download className="w-3.5 h-3.5" /> Export CSV
-                </Button>
+            <GlassCard className="p-4 col-span-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-white/20">
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <Button onClick={() => setShowQRScanner(true)} className="bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80 h-10 px-6 rounded-full flex-1 max-w-[220px]">
+                    <Camera className="w-4 h-4 mr-2" /> Live QR Scan
+                  </Button>
+                  <Button onClick={downloadCheckedInCSV} variant="outline" className="h-10 px-4 text-[10px] font-mono border-white/20 text-white/70 hover:text-white gap-1.5">
+                    <Download className="w-3.5 h-3.5" /> Export CSV
+                  </Button>
+                </div>
+                {/* Sub-event filter dropdown */}
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <label className="text-[10px] font-mono text-white/40 tracking-widest uppercase whitespace-nowrap">Filter:</label>
+                  <select
+                    value={checkInSubEventFilter}
+                    onChange={e => setCheckInSubEventFilter(e.target.value)}
+                    className="flex-1 sm:flex-none h-9 bg-white/[0.04] border border-white/[0.1] text-white text-xs rounded-lg px-3 focus:outline-none focus:border-white/30 transition-colors appearance-none cursor-pointer"
+                  >
+                    <option value="">All Sub-events</option>
+                    {event.subEvents.map(se => (
+                      <option key={se.id} value={se.id}>{se.name}</option>
+                    ))}
+                  </select>
+                </div>
               </GlassCard>
             </div>
 
@@ -921,7 +942,9 @@ export default function EventDetailPage() {
 
             {/* Sub-event-wise grouped check-in list */}
             <div className="space-y-8">
-              {event.subEvents.map(se => {
+              {event.subEvents
+                .filter(se => !checkInSubEventFilter || se.id === checkInSubEventFilter)
+                .map(se => {
                 const seRegs = registrations.filter(r => r.subEventId === se.id && r.status === "PAID")
                 const checkedCount = seRegs.filter(r => r.checkedIn).length
                 if (seRegs.length === 0) return null
@@ -958,11 +981,23 @@ export default function EventDetailPage() {
                               <p className="text-[10px] font-mono text-white/50">{reg.userEmail}</p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
                             {reg.checkedIn ? (
-                              <span className="text-[10px] font-mono text-white/50 uppercase tracking-widest">
-                                Arrived @ {reg.checkInTime ? new Date(reg.checkInTime.includes('T') ? reg.checkInTime : reg.checkInTime.replace(' ', 'T') + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'UNKNOWN'}
-                              </span>
+                              <>
+                                <span className="text-[10px] font-mono text-white/50 uppercase tracking-widest">
+                                  Arrived @ {reg.checkInTime ? new Date(reg.checkInTime.includes('T') ? reg.checkInTime : reg.checkInTime.replace(' ', 'T') + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'UNKNOWN'}
+                                </span>
+                                <button
+                                  onClick={() => {
+                                    if (window.confirm(`Undo check-in for ${reg.userName}?`)) {
+                                      undoCheckInParticipant(event.id, reg.id)
+                                    }
+                                  }}
+                                  className="text-[9px] font-mono text-white/30 hover:text-red-400 border border-white/10 hover:border-red-400/40 rounded px-2 py-0.5 transition-colors uppercase tracking-wider"
+                                >
+                                  Undo
+                                </button>
+                              </>
                             ) : (
                               <Button onClick={() => checkInParticipant(event.id, reg.id)} className="h-8 bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80">Check In</Button>
                             )}
@@ -1149,7 +1184,8 @@ export default function EventDetailPage() {
       {showQRScanner && (
         <QRScanner
           onScan={(data) => handleQRScan(data)}
-          onClose={() => setShowQRScanner(false)}
+          onClose={() => { setShowQRScanner(false); setScanStatus(null) }}
+          scanResult={scanStatus}
         />
       )}
 

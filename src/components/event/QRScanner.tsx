@@ -2,14 +2,21 @@ import { useEffect, useRef, useState, useCallback } from "react"
 import jsQR from "jsqr"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { Button } from "@/components/ui/button"
-import { X, Camera, RefreshCw, ShieldAlert, SwitchCamera } from "lucide-react"
+import { X, Camera, RefreshCw, ShieldAlert, SwitchCamera, Check, AlertCircle } from "lucide-react"
+
+interface ScanResult {
+  type: "success" | "error"
+  msg: string
+}
 
 interface QRScannerProps {
   onScan: (data: string) => void
   onClose: () => void
+  /** Optional external scan result to display as an overlay inside the camera view */
+  scanResult?: ScanResult | null
 }
 
-export function QRScanner({ onScan, onClose }: QRScannerProps) {
+export function QRScanner({ onScan, onClose, scanResult }: QRScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
@@ -17,6 +24,17 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
   const [error, setError] = useState<string | null>(null)
   const [permState, setPermState] = useState<"checking" | "granted" | "denied" | "prompt">("checking")
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment")
+  // Local overlay state — shows a brief result banner that fades out
+  const [overlayResult, setOverlayResult] = useState<ScanResult | null>(null)
+  const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Whenever the parent passes a new scanResult, show it in the overlay for 2.5s
+  useEffect(() => {
+    if (!scanResult) return
+    setOverlayResult(scanResult)
+    if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current)
+    overlayTimerRef.current = setTimeout(() => setOverlayResult(null), 2500)
+  }, [scanResult])
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
@@ -102,6 +120,10 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
         })
         if (code) {
           onScan(code.data)
+          // Pause scanning briefly after a successful read so the result overlay can show
+          setTimeout(() => {
+            animFrameRef.current = requestAnimationFrame(tick)
+          }, 2500)
           return
         }
       }
@@ -112,7 +134,10 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
   // Restart camera on mount and whenever facingMode changes
   useEffect(() => {
     startCamera()
-    return () => stopCamera()
+    return () => {
+      stopCamera()
+      if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current)
+    }
   }, [facingMode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const switchCamera = () => {
@@ -153,7 +178,10 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
           <div className="relative rounded-lg overflow-hidden border border-white/10 w-full aspect-square bg-black mb-4">
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
             <canvas ref={canvasRef} className="hidden" />
+
+            {/* Scanning frame guide */}
             <div className="absolute inset-0 pointer-events-none border-[3px] border-green-500/30 m-8 rounded-xl" />
+
             {/* Switch Camera button — overlaid bottom-right of the video */}
             <Button
               onClick={switchCamera}
@@ -164,6 +192,45 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
             >
               <SwitchCamera className="w-5 h-5" />
             </Button>
+
+            {/* ── Scan Result Overlay ── */}
+            {overlayResult && (
+              <div
+                className={`absolute inset-0 flex flex-col items-center justify-center gap-3 transition-all duration-300 ${
+                  overlayResult.type === "success"
+                    ? "bg-green-950/80 backdrop-blur-sm"
+                    : "bg-red-950/80 backdrop-blur-sm"
+                }`}
+              >
+                <div
+                  className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                    overlayResult.type === "success"
+                      ? "bg-green-500/20 border-2 border-green-400/50"
+                      : "bg-red-500/20 border-2 border-red-400/50"
+                  }`}
+                >
+                  {overlayResult.type === "success" ? (
+                    <Check className="w-8 h-8 text-green-400" />
+                  ) : (
+                    <AlertCircle className="w-8 h-8 text-red-400" />
+                  )}
+                </div>
+                <p
+                  className={`text-base font-semibold text-center px-4 ${
+                    overlayResult.type === "success" ? "text-green-300" : "text-red-300"
+                  }`}
+                >
+                  {overlayResult.type === "success" ? "Check-in Successful!" : "Scan Failed"}
+                </p>
+                <p
+                  className={`text-xs font-mono text-center px-6 ${
+                    overlayResult.type === "success" ? "text-green-400/70" : "text-red-400/70"
+                  }`}
+                >
+                  {overlayResult.msg}
+                </p>
+              </div>
+            )}
           </div>
         )}
         <p className="text-xs text-white/40 font-mono text-center mt-2">Position the QR code within the frame.</p>
