@@ -86,7 +86,7 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
     ...localRegistrations.filter(lr => !event.registrations.some((r: any) => r.id === lr.id))
   ]
 
-  // Staff restriction: block organizers/coordinators UNLESS they are Volunteers
+  // Staff restriction: block organizers/coordinators UNLESS they are Volunteers (who can register)
   const isStaffRestricted = !!user?.email && !isVolunteer && (event.restricted_registrations ?? []).includes(user.email)
 
   const addMemberByEmail = (email: string) => {
