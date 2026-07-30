@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useState, useMemo } from "react"
 import { Search, Lock, Users, TrendingUp, Trophy, SlidersHorizontal, ArrowUpDown, Calendar } from "lucide-react"
+import { formatDateDisplay, formatTimeDisplay } from "@/lib/utils"
 
 type SortOption = "date" | "popularity" | "price-low" | "price-high"
 type PriceFilter = "all" | "free" | "paid"
@@ -227,9 +228,13 @@ export default function EventsFeed() {
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 font-mono text-[11px] text-white/70">
-                      <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{evt.date}</span>
-                      <span className="flex items-center gap-1 text-[#B388FF]/80"><Users className="w-3 h-3" />{evt.registeredCount} registered</span>
-                    </div>
+                       <span className="flex items-center gap-1">
+                         <Calendar className="w-3 h-3" />
+                         {formatDateDisplay(evt.date)}
+                         {evt.hasTime && evt.time && <span className="text-white/40 ml-1">at {formatTimeDisplay(evt.time)}</span>}
+                       </span>
+                       <span className="flex items-center gap-1 text-[#B388FF]/80"><Users className="w-3 h-3" />{evt.registeredCount} registered</span>
+                     </div>
                     <span className={`font-mono text-[11px] font-medium ${ evt.price > 0 ? 'text-[#B388FF]' : 'text-green-400'}`}>
                       {evt.price > 0 ? `₹${evt.price}` : "FREE"}
                     </span>

@@ -43,6 +43,9 @@ export interface SubEvent {
   rules: string[]
   prize: SubEventPrize
   coordinators: SubEventCoordinator[]
+  /** Optional event time for this sub-event */
+  hasTime?: boolean
+  time?: string
 }
 
 // ─── Registration ───
@@ -128,6 +131,9 @@ export interface MainEvent {
   organizerEmail: string
   organizerPhone: string
   date: string
+  /** Optional specific time for the main event (HH:MM 24h) */
+  hasTime?: boolean
+  time?: string
   venue: string
   seats: number
   registeredCount: number

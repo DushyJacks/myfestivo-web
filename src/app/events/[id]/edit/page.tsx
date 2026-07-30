@@ -9,6 +9,7 @@ import { MicroLabel } from "@/components/ui/MicroLabel"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { NativeDateInput } from "@/components/ui/NativeDateInput"
+import { RichTextEditor } from "@/components/ui/RichTextEditor"
 import { pageItem } from "@/components/animation/PageTransition"
 import { motion } from "framer-motion"
 import {
@@ -34,6 +35,8 @@ interface SubEventForm {
   inchargeSearch: string
   coordRole: string
   coordinators: { name: string; email: string; phone: string; role: string }[]
+  hasTime: boolean
+  time: string
 }
 
 export default function EditEventPage() {
@@ -47,6 +50,8 @@ export default function EditEventPage() {
   const [form, setForm] = useState({
     title: "",
     date: "",
+    hasTime: false,
+    time: "",
     venue: "",
     seats: 100,
     category: "Technical" as "Technical" | "Cultural" | "Sports" | "Workshop",
@@ -83,6 +88,8 @@ export default function EditEventPage() {
       setForm({
         title: event.title,
         date: event.date,
+        hasTime: event.hasTime ?? false,
+        time: event.time ?? "",
         venue: event.venue,
         seats: event.seats,
         category: event.category,
@@ -118,6 +125,8 @@ export default function EditEventPage() {
           coordRole: "Head Coordinator",
           inchargeSearch: "",
           coordinators: se.coordinators || [],
+          hasTime: se.hasTime ?? false,
+          time: se.time ?? "",
         }
       }))
 
@@ -214,6 +223,7 @@ export default function EditEventPage() {
     rules: [""], showPrize: false, prizeFirst: "", prizeSecond: "", prizeThird: "",
     inchargeSearch: "", coordRole: "Head Coordinator",
     coordinators: [],
+    hasTime: false, time: "",
   })
 
   const addSubEvent = () => setSubEvents((prev) => [...prev, emptySubEvent()])
@@ -236,6 +246,8 @@ export default function EditEventPage() {
     const updates: Partial<MainEvent> = {
       title: form.title,
       date: form.date,
+      hasTime: form.hasTime,
+      time: form.hasTime ? form.time : "",
       venue: form.venue,
       seats: form.seats,
       category: form.category,
@@ -261,6 +273,8 @@ export default function EditEventPage() {
             ? { first: se.prizeFirst || "", second: se.prizeSecond || "", ...(se.prizeThird ? { third: se.prizeThird } : {}) }
             : null,
           coordinators: se.coordinators,
+          hasTime: se.hasTime,
+          time: se.hasTime ? se.time : "",
         }
         if (se.type === "team") {
           sub.minTeamSize = se.minTeamSize
@@ -348,8 +362,35 @@ export default function EditEventPage() {
                 <label className={labelCls}>Event Title</label>
                 <Input value={form.title} onChange={(e) => update("title", e.target.value)} placeholder="TechFest '26" className={`${inputCls} h-11`} required />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><label className={labelCls}>Event Date</label><NativeDateInput value={form.date} onChange={(e) => update("date", e.target.value)} className="h-11" required /></div>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className={labelCls}>Event Time <span className="text-white/20">(optional)</span></label>
+                    <button
+                      type="button"
+                      onClick={() => update("hasTime", !form.hasTime)}
+                      aria-label={form.hasTime ? "Disable event time" : "Enable event time"}
+                      className={`relative w-9 h-5 rounded-full transition-colors ${form.hasTime ? "bg-green-500" : "bg-white/10"}`}
+                    >
+                      <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${form.hasTime ? "left-4" : "left-0.5"}`} />
+                    </button>
+                  </div>
+                  {form.hasTime ? (
+                    <input
+                      type="time"
+                      value={form.time}
+                      onChange={(e) => update("time", e.target.value)}
+                      className="w-full h-11 bg-white/[0.03] border border-white/[0.08] text-white rounded-md px-3 text-sm focus:outline-none focus:border-white/20"
+                    />
+                  ) : (
+                    <div className="h-11 bg-white/[0.01] border border-white/[0.04] rounded-md px-3 flex items-center">
+                      <span className="text-xs text-white/20 font-mono">Toggle to add event time</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><label className={labelCls}>Venue</label><Input value={form.venue} onChange={(e) => update("venue", e.target.value)} placeholder="Main Auditorium" className={`${inputCls} h-11`} required /></div>
                 <div><label className={labelCls}>Registration Deadline</label><NativeDateInput value={form.registrationDeadline} onChange={(e) => update("registrationDeadline", e.target.value)} className="h-11" /></div>
               </div>
@@ -362,7 +403,13 @@ export default function EditEventPage() {
                 </div>
               </div>
               <div><label className={labelCls}>Description</label>
-                <textarea value={form.description} onChange={(e) => update("description", e.target.value)} placeholder="Describe your event..." rows={4} className="w-full bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-white/30 rounded-md px-3 py-3 text-sm resize-none" required />
+                <RichTextEditor
+                  value={form.description}
+                  onChange={(val) => update("description", val)}
+                  placeholder="Describe your event..."
+                  rows={4}
+                  required
+                />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -485,11 +532,43 @@ export default function EditEventPage() {
                       </motion.div>
                     )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div><label className={labelCls}>Name</label><Input value={se.name} onChange={(e) => updateSubEvent(idx, "name", e.target.value)} placeholder="Hackathon" className={inputCls} required /></div>
                       <div><label className={labelCls}>Max Participants</label><Input type="number" value={se.maxParticipants} onChange={(e) => updateSubEvent(idx, "maxParticipants", parseInt(e.target.value) || 0)} className={inputCls} /></div>
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className={labelCls}>Time <span className="text-white/20">(opt.)</span></label>
+                          <button
+                            type="button"
+                            onClick={() => updateSubEvent(idx, "hasTime", !se.hasTime)}
+                            aria-label={se.hasTime ? "Disable sub-event time" : "Enable sub-event time"}
+                            className={`relative w-9 h-5 rounded-full transition-colors ${se.hasTime ? "bg-green-500" : "bg-white/10"}`}
+                          >
+                            <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${se.hasTime ? "left-4" : "left-0.5"}`} />
+                          </button>
+                        </div>
+                        {se.hasTime ? (
+                          <input
+                            type="time"
+                            value={se.time}
+                            onChange={(e) => updateSubEvent(idx, "time", e.target.value)}
+                            className={`${inputCls} w-full h-10`}
+                          />
+                        ) : (
+                          <div className="h-10 bg-white/[0.01] border border-white/[0.04] rounded-md px-3 flex items-center">
+                            <span className="text-xs text-white/20 font-mono">Toggle to add</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div><label className={labelCls}>Description</label><Input value={se.description} onChange={(e) => updateSubEvent(idx, "description", e.target.value)} placeholder="Brief description" className={inputCls} /></div>
+                    <div><label className={labelCls}>Description</label>
+                      <RichTextEditor
+                        value={se.description}
+                        onChange={(val) => updateSubEvent(idx, "description", val)}
+                        placeholder="Brief description of this sub-event..."
+                        rows={3}
+                      />
+                    </div>
                     <div className="flex gap-2">
                       <div className={`flex-1 py-2 rounded-md text-xs text-center border cursor-not-allowed select-none ${se.type === "solo" ? "bg-white/10 text-white border-white/30" : "bg-white/[0.02] text-white/20 border-white/[0.05]"}`}>Solo</div>
                       <div className={`flex-1 py-2 rounded-md text-xs text-center border cursor-not-allowed select-none ${se.type === "team" ? "bg-white/10 text-white border-white/30" : "bg-white/[0.02] text-white/20 border-white/[0.05]"}`}>Team</div>

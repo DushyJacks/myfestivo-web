@@ -19,6 +19,7 @@ import {
   ListTodo, QrCode, CheckSquare, Clock, DollarSign,
   Pencil, PlusCircle, CalendarDays, Users
 } from "lucide-react"
+import { formatDateDisplay, formatTimeDisplay } from "@/lib/utils"
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth()
@@ -199,7 +200,7 @@ export default function DashboardPage() {
                         <div className="flex justify-between items-start mb-4">
                           <div>
                             <h3 className="text-lg font-medium mb-1">{evt.title}</h3>
-                            <p className="text-xs font-mono text-white/60">{evt.date} &mdash; {evt.venue}</p>
+                            <p className="text-xs font-mono text-white/60">{formatDateDisplay(evt.date)}{evt.hasTime && evt.time ? ` at ${formatTimeDisplay(evt.time)}` : ''} &mdash; {evt.venue}</p>
                           </div>
                           <Link href={`/events/${evt.id}`}>
                             <Button variant="outline" className="border-white/20 text-white text-xs">View Event</Button>
@@ -266,7 +267,7 @@ export default function DashboardPage() {
                       {/* Top row: title + date */}
                       <div className="mb-3">
                         <h3 className="text-base font-semibold truncate mb-0.5">{evt.title}</h3>
-                        <p className="text-[11px] font-mono text-white/60">{evt.date}</p>
+                        <p className="text-[11px] font-mono text-white/60">{formatDateDisplay(evt.date)}{(evt as any).hasTime && (evt as any).time ? ` at ${formatTimeDisplay((evt as any).time)}` : ''}</p>
                       </div>
 
                       {/* Stats — 2×2 grid on mobile, single row on sm+ */}

@@ -18,6 +18,8 @@ import { RegistrationWizard } from "@/components/event/RegistrationWizard"
 import { ParticipantsList } from "@/components/event/ParticipantsList"
 import { QRScanner } from "@/components/event/QRScanner"
 import { useEventReminders } from "@/hooks/useEventReminders"
+import { formatDateDisplay, formatTimeDisplay } from "@/lib/utils"
+import { RichTextDisplay } from "@/components/ui/RichTextDisplay"
 import {
   MapPin, Clock, UserCheck, Users, MessageSquare, ArrowLeft,
   Lock, Check, PlusCircle, Send, Trophy, Phone, FileText,
@@ -446,12 +448,16 @@ export default function EventDetailPage() {
             {event.prizePool && <span className="font-mono text-[10px] px-2 py-0.5 border border-yellow-500/20 text-yellow-400/80 flex items-center gap-1"><Trophy className="w-3 h-3" /> {event.prizePool}</span>}
             {registrationClosed && <span className="font-mono text-[10px] px-2 py-0.5 border border-red-500/30 text-red-400">REGISTRATION CLOSED</span>}
             {eventExpired && <span className="font-mono text-[10px] px-2 py-0.5 border border-red-500/30 text-red-400">EVENT ENDED</span>}
-            {event.registrationDeadline && !deadlinePassed && <span className="font-mono text-[10px] px-2 py-0.5 border border-white/20 text-white/50">Deadline: {event.registrationDeadline}</span>}
+            {event.registrationDeadline && !deadlinePassed && <span className="font-mono text-[10px] px-2 py-0.5 border border-white/20 text-white/50">Deadline: {formatDateDisplay(event.registrationDeadline)}</span>}
           </div>
           <h1 className="text-3xl md:text-5xl font-light leading-tight tracking-tight mb-4">{event.title}</h1>
           <div className="flex flex-wrap gap-5 font-mono text-sm text-white/60">
             <span className="flex items-center gap-2"><MapPin className="w-4 h-4" />{event.venue}</span>
-            <span className="flex items-center gap-2"><Clock className="w-4 h-4" />{event.date}</span>
+            <span className="flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              {formatDateDisplay(event.date)}
+              {event.hasTime && event.time && <span className="ml-1 text-white/40">at {formatTimeDisplay(event.time)}</span>}
+            </span>
             <span className="flex items-center gap-2"><Users className="w-4 h-4" />{registrations.filter(r => r.status === "PAID").length}{event.seats !== 9999 ? ` / ${event.seats}` : ""} registered</span>
           </div>
         </motion.div>
@@ -480,8 +486,8 @@ export default function EventDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             <motion.div variants={pageItem} className="lg:col-span-8 space-y-12">
               <section>
-                <MicroLabel>About Event</MicroLabel>
-                <p className="text-white/70 leading-relaxed text-[15px]">{event.description}</p>
+                <MicroLabel>About the Event</MicroLabel>
+                <RichTextDisplay content={event.description} />
               </section>
 
               <section>
@@ -499,6 +505,11 @@ export default function EventDetailPage() {
                               <span>{se.type}</span>
                               <span>•</span>
                               <span>Max: {se.maxParticipants}</span>
+                              {se.hasTime && se.time && (
+                                <span className="flex items-center gap-1 text-white/30">
+                                  <Clock className="w-3 h-3" />{formatTimeDisplay(se.time)}
+                                </span>
+                              )}
                             </div>
                           </div>
                           {isUserRegistered ? (
@@ -518,7 +529,9 @@ export default function EventDetailPage() {
                           )}
                         </div>
 
-                        <p className="text-sm text-white/60 mb-4">{se.description}</p>
+                        <p className="text-sm text-white/60 mb-4">
+                            <RichTextDisplay content={se.description} className="text-sm" />
+                          </p>
 
   {/* Prize badges — only show when showPrize is enabled */}
                         <div className="flex flex-wrap gap-2 mb-3">

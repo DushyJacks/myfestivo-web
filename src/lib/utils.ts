@@ -6,6 +6,34 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Convert internal yyyy-mm-dd date string to display format dd-mm-yyyy.
+ * Returns the original string unchanged if it can't be parsed.
+ */
+export function formatDateDisplay(dateStr?: string): string {
+  if (!dateStr) return ""
+  const parts = dateStr.split("-")
+  if (parts.length === 3 && parts[0].length === 4) {
+    // yyyy-mm-dd → dd-mm-yyyy
+    return `${parts[2]}-${parts[1]}-${parts[0]}`
+  }
+  return dateStr
+}
+
+/**
+ * Convert 24-hour time string (HH:MM) to 12-hour AM/PM format.
+ * Returns empty string if input is empty/undefined.
+ */
+export function formatTimeDisplay(timeStr?: string): string {
+  if (!timeStr) return ""
+  const [h, m] = timeStr.split(":")
+  if (!h || !m) return timeStr
+  const hour = parseInt(h, 10)
+  const ampm = hour >= 12 ? "PM" : "AM"
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12
+  return `${String(hour12).padStart(2, "0")}:${m} ${ampm}`
+}
+
+/**
  * Compress image file to reduce base64 size for Firebase storage
  * Resizes to max 800x600 and reduces quality to 0.7 (JPEG)
  */
