@@ -477,7 +477,25 @@ export default function CreateEventPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}><Phone className="w-3 h-3 inline mr-1" />Organizer Phone</label>
-                <Input value={form.organizerPhone} onChange={(e) => update("organizerPhone", e.target.value)} placeholder="+91 98765 43210" className={`${inputCls} h-11`} required />
+                <div className="flex h-11">
+                  <span className="flex items-center px-3 bg-white/[0.04] border border-r-0 border-white/[0.08] rounded-l-md text-sm text-white/50 font-mono shrink-0 select-none">+91</span>
+                  <input
+                    type="tel"
+                    value={form.organizerPhone}
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, "").slice(0, 10)
+                      update("organizerPhone", digits)
+                    }}
+                    placeholder="9876543210"
+                    maxLength={10}
+                    pattern="[0-9]{10}"
+                    required
+                    className="flex-1 bg-white/[0.03] border border-white/[0.08] rounded-r-md px-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 font-mono"
+                  />
+                </div>
+                {form.organizerPhone.length > 0 && form.organizerPhone.length < 10 && (
+                  <p className="text-[10px] text-red-400/70 mt-1">{10 - form.organizerPhone.length} more digits required</p>
+                )}
               </div>
               {/* Total Prize Pool with toggle */}
               <div>

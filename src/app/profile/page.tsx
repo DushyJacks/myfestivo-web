@@ -153,12 +153,21 @@ export default function ProfilePage() {
   if (!user) return null
 
   // Check if user has any active (non-expired) event registrations → lock editing.
+  // Covers both the captain (userEmail/userId) AND teammates (teamMembers array).
+  // DRAFT registrations (pending invite acceptance) do NOT lock the profile —
+  // only confirmed registrations (PAID, FREE, PENDING) do.
   // While events are still loading we conservatively treat it as locked to prevent
   // a flash where the edit button is enabled before data arrives from Firestore.
   const now = new Date()
   const hasActiveRegistration = eventsLoading || events.some(evt => {
     const isRegistered = evt.registrations.some(
-      r => r.userEmail === user.email || r.userId === user.id
+      r =>
+        r.status !== "DRAFT" &&
+        (
+          r.userEmail === user.email ||
+          r.userId === user.id ||
+          r.teamMembers?.includes(user.email)
+        )
     )
     if (!isRegistered) return false
     const eventDate = new Date(evt.date)

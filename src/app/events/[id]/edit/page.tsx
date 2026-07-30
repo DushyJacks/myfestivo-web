@@ -98,7 +98,7 @@ export default function EditEventPage() {
         price: event.price,
         description: event.description,
         collegeDomain: event.collegeDomain || "",
-        organizerPhone: event.organizerPhone || "",
+        organizerPhone: (event.organizerPhone || "").replace(/^\+?91[\s-]?/, "").replace(/\D/g, "").slice(0, 10),
         showPrizePool: !!(event.prizePool && event.prizePool.trim()),
         prizePool: event.prizePool || "",
         registrationDeadline: event.registrationDeadline || "",
@@ -107,11 +107,9 @@ export default function EditEventPage() {
       })
 
       setSubEvents(event.subEvents.map((se: any) => {
-        // showPrize: only true if the host explicitly toggled it on before (showPrize === true)
-        // OR legacy: prize values contain real text (not just empty strings/null/undefined)
-        const hasPrize = se.showPrize === true || (
-          typeof se.prize?.first === "string" && se.prize.first.trim().length > 0
-        )
+        // showPrize is STRICTLY off by default. It only turns on if the host
+        // explicitly toggled it on in a previous save (se.showPrize === true).
+        // No fallback logic — prevents the bug of auto-enabling for legacy events.
         return {
           id: se.id,
           name: se.name,
@@ -121,7 +119,7 @@ export default function EditEventPage() {
           minTeamSize: se.minTeamSize || 2,
           maxTeamSize: se.maxTeamSize || 4,
           rules: se.rules.length > 0 ? se.rules : [""],
-          showPrize: !!hasPrize,
+          showPrize: se.showPrize === true,
           prizeFirst: se.prize?.first || "",
           prizeSecond: se.prize?.second || "",
           prizeThird: se.prize?.third || "",
@@ -416,7 +414,24 @@ export default function EditEventPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className={labelCls}><Phone className="w-3 h-3 inline mr-1" />Organizer Phone</label>
-                  <Input value={form.organizerPhone} onChange={(e) => update("organizerPhone", e.target.value)} placeholder="+91 98765 43210" className={`${inputCls} h-11`} />
+                  <div className="flex h-11">
+                    <span className="flex items-center px-3 bg-white/[0.04] border border-r-0 border-white/[0.08] rounded-l-md text-sm text-white/50 font-mono shrink-0 select-none">+91</span>
+                    <input
+                      type="tel"
+                      value={form.organizerPhone}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, "").slice(0, 10)
+                        update("organizerPhone", digits)
+                      }}
+                      placeholder="9876543210"
+                      maxLength={10}
+                      pattern="[0-9]{10}"
+                      className="flex-1 bg-white/[0.03] border border-white/[0.08] rounded-r-md px-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 font-mono"
+                    />
+                  </div>
+                  {form.organizerPhone.length > 0 && form.organizerPhone.length < 10 && (
+                    <p className="text-[10px] text-red-400/70 mt-1">{10 - form.organizerPhone.length} more digits required</p>
+                  )}
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1">
