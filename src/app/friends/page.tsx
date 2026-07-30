@@ -12,7 +12,7 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { db as getDb } from "@/lib/firebase"
-import { collection, query, where, getDocs, limit } from "firebase/firestore"
+import { collection, query, where, getDocs } from "firebase/firestore"
 import { Search, UserPlus, Check, X, Loader2 } from "lucide-react"
 
 export default function FriendsPage() {
@@ -43,14 +43,18 @@ export default function FriendsPage() {
     if (!searchQuery.trim() || !user) return
     setIsSearching(true)
     try {
-      const q = query(collection(getDb(), "users"), where("email", "!=", user.email), limit(10))
+      // Fetch all users except self, then filter client-side by name/email
+      // (Firestore doesn't support full-text search natively, so we fetch all and filter locally)
+      const q = query(collection(getDb(), "users"), where("email", "!=", user.email))
       const snap = await getDocs(q)
+      const term = searchQuery.toLowerCase()
       const results = snap.docs
         .map(d => ({ ...d.data(), id: d.id }))
         .filter((u: any) =>
-          u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          u.email.toLowerCase().includes(searchQuery.toLowerCase())
+          u.name?.toLowerCase().includes(term) ||
+          u.email?.toLowerCase().includes(term)
         )
+        .slice(0, 15) // cap display at 15
       setSearchResults(results)
     } catch (err) {
       console.error("Search failed:", err)
@@ -91,7 +95,7 @@ export default function FriendsPage() {
             <div className="lg:col-span-1 space-y-6">
               {/* Search */}
               <motion.div variants={pageItem}>
-                <MicroLabel>Find Peers</MicroLabel>
+                <MicroLabel>Find your peers</MicroLabel>
                 <GlassCard className="p-4 mb-3">
                   <form onSubmit={handleSearchUsers} className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />

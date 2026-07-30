@@ -20,6 +20,8 @@ import {
 } from "lucide-react"
 import { db as getDb } from "@/lib/firebase"
 import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore"
+import { RichTextDisplay } from "@/components/ui/RichTextDisplay"
+import { formatDateDisplay, formatTimeDisplay } from "@/lib/utils"
 
 type AdminTab = "overview" | "events" | "users" | "registrations"
 
@@ -82,6 +84,9 @@ export default function AdminPage() {
   // ─── Editing Event inline ───
   const [editingEventId, setEditingEventId] = useState<string | null>(null)
   const [editFields, setEditFields] = useState<{ title: string; date: string; venue: string; seats: number; price: number }>({ title: "", date: "", venue: "", seats: 0, price: 0 })
+
+  // ─── Expanding pending review event details ───
+  const [expandedEventId, setExpandedEventId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) {
@@ -423,52 +428,155 @@ export default function AdminPage() {
                     <MicroLabel className="mb-0 text-yellow-400/80">Pending Review ({events.filter(e => e.status === "pending_review").length})</MicroLabel>
                   </div>
                   <div className="space-y-3">
-                    {events.filter(e => e.status === "pending_review").map(evt => (
-                      <GlassCard key={evt.id} className="p-5 border-yellow-500/10">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-[9px] font-mono bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">PENDING REVIEW</span>
-                              <span className="text-[10px] font-mono text-white/30">{evt.category}</span>
+                    {events.filter(e => e.status === "pending_review").map(evt => {
+                      const isExpanded = expandedEventId === evt.id
+                      return (
+                        <GlassCard key={evt.id} className="border-yellow-500/10 overflow-hidden">
+                          {/* ─ Header Row ─ */}
+                          <div className="p-5">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-[9px] font-mono bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">PENDING REVIEW</span>
+                                  <span className="text-[10px] font-mono text-white/30">{evt.category}</span>
+                                  {evt.isInter ? (
+                                    <span className="text-[9px] font-mono text-purple-400/60 border border-purple-500/20 px-2 py-0.5 rounded-full">INTER-COLLEGE</span>
+                                  ) : (
+                                    <span className="text-[9px] font-mono text-blue-400/60 border border-blue-500/20 px-2 py-0.5 rounded-full">INTRA-COLLEGE</span>
+                                  )}
+                                </div>
+                                <h3 className="font-medium text-white mb-0.5">{evt.title}</h3>
+                                <p className="text-xs text-white/40 font-mono">
+                                  by {evt.organizer} · {formatDateDisplay(evt.date)}{evt.hasTime && evt.time ? ` at ${formatTimeDisplay(evt.time)}` : ""} · {evt.venue}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                {/* Toggle details */}
+                                <button
+                                  onClick={() => setExpandedEventId(isExpanded ? null : evt.id)}
+                                  className={`flex items-center gap-1 text-[10px] font-mono px-2 py-1 rounded border transition-colors ${isExpanded ? "border-white/20 text-white/60 bg-white/5" : "border-white/10 text-white/30 hover:text-white/60 hover:border-white/20"}`}
+                                >
+                                  <ChevronRight className={`w-3 h-3 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
+                                  {isExpanded ? "Hide" : "View Details"}
+                                </button>
+                                <Button
+                                  onClick={() => setConfirmAction({
+                                    title: "Approve Event",
+                                    message: `Approve "${evt.title}"? This will publish it and open registration for participants.`,
+                                    variant: "warning",
+                                    action: async () => {
+                                      await updateEvent(evt.id, { registrationOpen: true, status: "published" } as any)
+                                      setConfirmAction(null)
+                                    }
+                                  })}
+                                  className="bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 text-xs h-8 px-3"
+                                >
+                                  <Check className="w-3 h-3 mr-1" /> Approve
+                                </Button>
+                                <Button
+                                  onClick={() => setConfirmAction({
+                                    title: "Reject Event",
+                                    message: `Reject and permanently delete "${evt.title}"? This cannot be undone.`,
+                                    variant: "danger",
+                                    action: async () => {
+                                      await deleteEvent(evt.id)
+                                      setConfirmAction(null)
+                                    }
+                                  })}
+                                  variant="ghost"
+                                  className="border border-red-500/30 text-red-400 text-xs h-8 px-3 hover:bg-red-500/10"
+                                >
+                                  <X className="w-3 h-3 mr-1" /> Reject
+                                </Button>
+                              </div>
                             </div>
-                            <h3 className="font-medium text-white mb-0.5">{evt.title}</h3>
-                            <p className="text-xs text-white/40 font-mono mb-2">by {evt.organizer} · {evt.date} · {evt.venue}</p>
-                            <p className="text-xs text-white/50 line-clamp-2">{evt.description}</p>
                           </div>
-                          <div className="flex gap-2 shrink-0">
-                            <Button
-                              onClick={() => setConfirmAction({
-                                title: "Approve Event",
-                                message: `Approve "${evt.title}"? This will publish it and open registration for participants.`,
-                                variant: "warning",
-                                action: async () => {
-                                  await updateEvent(evt.id, { registrationOpen: true, status: "published" } as any)
-                                  setConfirmAction(null)
-                                }
-                              })}
-                              className="bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 text-xs h-8 px-3"
-                            >
-                              <Check className="w-3 h-3 mr-1" /> Approve
-                            </Button>
-                            <Button
-                              onClick={() => setConfirmAction({
-                                title: "Reject Event",
-                                message: `Reject and permanently delete "${evt.title}"? This cannot be undone.`,
-                                variant: "danger",
-                                action: async () => {
-                                  await deleteEvent(evt.id)
-                                  setConfirmAction(null)
-                                }
-                              })}
-                              variant="ghost"
-                              className="border border-red-500/30 text-red-400 text-xs h-8 px-3 hover:bg-red-500/10"
-                            >
-                              <X className="w-3 h-3 mr-1" /> Reject
-                            </Button>
-                          </div>
-                        </div>
-                      </GlassCard>
-                    ))}
+
+                          {/* ─ Expanded Details Panel ─ */}
+                          {isExpanded && (
+                            <div className="border-t border-yellow-500/10 bg-white/[0.01] px-5 pb-5 pt-4 space-y-5">
+                              {/* Quick stat badges */}
+                              <div className="flex flex-wrap gap-2 text-[10px] font-mono">
+                                <span className="px-2 py-1 rounded border border-white/10 text-white/40">{evt.seats} seats</span>
+                                <span className="px-2 py-1 rounded border border-white/10 text-white/40">{evt.price > 0 ? `₹${evt.price} entry` : "Free entry"}</span>
+                                {evt.registrationDeadline && <span className="px-2 py-1 rounded border border-white/10 text-white/40">Deadline: {formatDateDisplay(evt.registrationDeadline)}</span>}
+                                {evt.organizerPhone && <span className="px-2 py-1 rounded border border-white/10 text-white/40">📞 {evt.organizerPhone}</span>}
+                                {evt.prizePool && <span className="px-2 py-1 rounded border border-yellow-500/20 text-yellow-400/60">🏆 {evt.prizePool}</span>}
+                              </div>
+
+                              {/* About */}
+                              <div>
+                                <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-2">About the Event</p>
+                                <div className="text-sm text-white/60 leading-relaxed">
+                                  <RichTextDisplay content={evt.description} />
+                                </div>
+                              </div>
+
+                              {/* Rules */}
+                              {evt.rules && evt.rules.filter(r => r.trim()).length > 0 && (
+                                <div>
+                                  <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-2">Rules</p>
+                                  <ul className="space-y-1">
+                                    {evt.rules.filter(r => r.trim()).map((rule, i) => (
+                                      <li key={i} className="flex items-start gap-2 text-xs text-white/50">
+                                        <span className="font-mono text-white/20 shrink-0 mt-0.5">{i + 1}.</span>
+                                        <span>{rule}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+
+                              {/* Sub-events */}
+                              {evt.subEvents && evt.subEvents.length > 0 && (
+                                <div>
+                                  <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-2">Sub-Events ({evt.subEvents.length})</p>
+                                  <div className="space-y-3">
+                                    {evt.subEvents.map((se, si) => (
+                                      <div key={si} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
+                                        <div className="flex items-center gap-2 mb-1">
+                                          <p className="text-sm font-medium text-white">{se.name}</p>
+                                          <span className="text-[9px] font-mono px-1.5 py-0.5 rounded border border-white/10 text-white/30">{se.type}</span>
+                                          {se.hasTime && se.time && (
+                                            <span className="text-[9px] font-mono text-white/30">🕐 {formatTimeDisplay(se.time)}</span>
+                                          )}
+                                        </div>
+                                        <div className="flex gap-3 text-[10px] font-mono text-white/30 mb-1">
+                                          <span>Max: {se.maxParticipants}</span>
+                                          {se.type === "team" && <span>Team: {se.minTeamSize}–{se.maxTeamSize}</span>}
+                                          {se.prize?.first && <span className="text-yellow-400/60">🥇 {se.prize.first}</span>}
+                                          {se.prize?.second && <span className="text-white/40">🥈 {se.prize.second}</span>}
+                                        </div>
+                                        {se.description && (
+                                          <div className="text-xs text-white/40 mt-1">
+                                            <RichTextDisplay content={se.description} />
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Important Links */}
+                              {evt.importantLinks && evt.importantLinks.filter(l => l.url).length > 0 && (
+                                <div>
+                                  <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-2">Important Links</p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {evt.importantLinks.filter(l => l.url).map((link, li) => (
+                                      <a key={li} href={link.url} target="_blank" rel="noopener noreferrer"
+                                        className="text-xs text-blue-400/70 hover:text-blue-400 border border-blue-500/20 px-2 py-1 rounded transition-colors">
+                                        {link.label || link.url}
+                                      </a>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </GlassCard>
+                      )
+                    })}
                   </div>
                 </div>
               )}

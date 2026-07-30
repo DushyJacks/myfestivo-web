@@ -107,9 +107,11 @@ export default function EditEventPage() {
       })
 
       setSubEvents(event.subEvents.map((se: any) => {
-        // showPrize: true if the sub-event was created with prize toggle on
-        // Detect: showPrize stored on sub-event OR prize fields are non-empty/non-null
-        const hasPrize = se.showPrize === true || (se.prize && se.prize !== null && (se.prize.first || se.prize.second))
+        // showPrize: only true if the host explicitly toggled it on before (showPrize === true)
+        // OR legacy: prize values contain real text (not just empty strings/null/undefined)
+        const hasPrize = se.showPrize === true || (
+          typeof se.prize?.first === "string" && se.prize.first.trim().length > 0
+        )
         return {
           id: se.id,
           name: se.name,
