@@ -529,9 +529,9 @@ export default function EventDetailPage() {
                           )}
                         </div>
 
-                        <p className="text-sm text-white/60 mb-4">
+                        <div className="text-sm text-white/60 mb-4">
                             <RichTextDisplay content={se.description} className="text-sm" />
-                          </p>
+                          </div>
 
   {/* Prize badges — only show when showPrize is enabled */}
                         <div className="flex flex-wrap gap-2 mb-3">

@@ -27,6 +27,15 @@ export default function DashboardPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<"overview" | "hosted" | "registered" | "tasks">("overview")
   const [showQR, setShowQR] = useState<string | null>(null)
+  const [confirmDialog, setConfirmDialog] = useState<{
+    action: "accept" | "decline"
+    eventId: string
+    regId: string
+    email: string
+    eventTitle: string
+    seName: string
+    teamName: string
+  } | null>(null)
 
   useEffect(() => {
     if (!isLoading && !user) router.push("/login")
@@ -136,7 +145,7 @@ export default function DashboardPage() {
                 <motion.div variants={pageItem} className="mb-10">
                   <MicroLabel>Team Invitations</MicroLabel>
                   <div className="space-y-2">
-                    {teamRequests.map(({ event, registration: r }) => {
+                      {teamRequests.map(({ event, registration: r }) => {
                       const se = event.subEvents.find(s => s.id === r.subEventId)
                       return (
                         <GlassCard key={r.id} className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -145,8 +154,8 @@ export default function DashboardPage() {
                             <p className="text-xs text-white/50 mt-1">Invited by {r.userName} ({r.teamName})</p>
                           </div>
                           <div className="flex gap-2 w-full sm:w-auto">
-                            <Button size="sm" variant="outline" className="flex-1 sm:flex-none h-8 border-white/20 hover:bg-white/10" onClick={() => rejectTeamRequest(event.id, r.id, user.email)}>Decline</Button>
-                            <Button size="sm" className="flex-1 sm:flex-none h-8 bg-[#B388FF] text-black hover:bg-[#B388FF]/90" onClick={() => acceptTeamRequest(event.id, r.id, user.email)}>Accept</Button>
+                            <Button size="sm" variant="outline" className="flex-1 sm:flex-none h-8 border-red-500/30 text-red-400 hover:bg-red-500/10" onClick={() => setConfirmDialog({ action: "decline", eventId: event.id, regId: r.id, email: user.email, eventTitle: event.title, seName: se?.name || "", teamName: r.teamName || "" })}>Decline</Button>
+                            <Button size="sm" className="flex-1 sm:flex-none h-8 bg-[#B388FF] text-black hover:bg-[#B388FF]/90" onClick={() => setConfirmDialog({ action: "accept", eventId: event.id, regId: r.id, email: user.email, eventTitle: event.title, seName: se?.name || "", teamName: r.teamName || "" })}>Accept</Button>
                           </div>
                         </GlassCard>
                       )
@@ -352,6 +361,52 @@ export default function DashboardPage() {
           {/* Friends moved to /friends \u2014 accessible via sidebar */}
         </PageTransition>
       </main>
+
+      {/* Confirmation Dialog for Team Invitations */}
+      {confirmDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-md bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden shadow-2xl"
+          >
+            <div className="p-6">
+              <h2 className="text-xl font-medium mb-2">Confirm {confirmDialog.action === "accept" ? "Acceptance" : "Decline"}</h2>
+              <p className="text-sm text-white/60 mb-6">
+                Are you sure you want to {confirmDialog.action} the invitation for <strong>{confirmDialog.eventTitle}</strong> ({confirmDialog.seName}) from team <strong>{confirmDialog.teamName}</strong>?
+              </p>
+              
+              <div className="flex gap-3 justify-end">
+                <Button variant="outline" className="border-white/20" onClick={() => setConfirmDialog(null)}>
+                  Cancel
+                </Button>
+                {confirmDialog.action === "accept" ? (
+                  <Button
+                    className="bg-[#B388FF] text-black hover:bg-[#B388FF]/90"
+                    onClick={() => {
+                      acceptTeamRequest(confirmDialog.eventId, confirmDialog.regId, confirmDialog.email)
+                      setConfirmDialog(null)
+                    }}
+                  >
+                    Accept Invitation
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                    onClick={() => {
+                      rejectTeamRequest(confirmDialog.eventId, confirmDialog.regId, confirmDialog.email)
+                      setConfirmDialog(null)
+                    }}
+                  >
+                    Decline Invitation
+                  </Button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   )
 }

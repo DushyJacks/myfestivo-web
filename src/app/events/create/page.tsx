@@ -13,7 +13,7 @@ import { RichTextEditor } from "@/components/ui/RichTextEditor"
 import { TimeInput } from "@/components/ui/TimeInput"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
 import { motion } from "framer-motion"
-import { PlusCircle, X, Trophy, Phone, LinkIcon, Users, Search, Clock } from "lucide-react"
+import { PlusCircle, X, Trophy, Phone, LinkIcon, Users, Search, Clock, CheckSquare } from "lucide-react"
 import Link from "next/link"
 import { compressImage } from "@/lib/utils"
 
@@ -82,6 +82,7 @@ export default function CreateEventPage() {
   // Submission state
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [showSubmitConfirm, setShowSubmitConfirm] = useState(false)
 
   const emptySubEvent = (): SubEventForm => ({
     name: "", description: "", type: "solo", maxParticipants: 50,
@@ -199,6 +200,11 @@ export default function CreateEventPage() {
       return
     }
 
+    setShowSubmitConfirm(true)
+  }
+
+  const confirmSubmit = async () => {
+    setShowSubmitConfirm(false)
     setSubmitting(true)
 
     const slug = form.title
@@ -645,7 +651,7 @@ export default function CreateEventPage() {
                   <div className="grid grid-cols-2 gap-3 p-3 rounded-md bg-white/[0.02] border border-white/[0.06]">
                     <div>
                       <label className={labelCls}>Min Team Size</label>
-                      <Input type="number" min={2} value={se.minTeamSize} onChange={(e) => updateSubEvent(idx, "minTeamSize", Math.max(2, parseInt(e.target.value) || 2))} className={inputCls} />
+                      <Input type="number" min={1} value={se.minTeamSize} onChange={(e) => updateSubEvent(idx, "minTeamSize", Math.max(1, parseInt(e.target.value) || 1))} className={inputCls} />
                     </div>
                     <div>
                       <label className={labelCls}>Max Team Size</label>
@@ -783,7 +789,7 @@ export default function CreateEventPage() {
             )}
           </GlassCard>
 
-          <Button type="submit" disabled={submitting} className="w-full bg-white text-black hover:bg-[#B388FF] font-medium h-12 text-base disabled:opacity-50">
+          <Button type="button" onClick={handleSubmit} disabled={submitting} className="w-full bg-white text-black hover:bg-[#B388FF] font-medium h-12 text-base disabled:opacity-50">
             {submitting ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
@@ -795,6 +801,40 @@ export default function CreateEventPage() {
           </Button>
         </form>
       </motion.div>
+
+      {/* Confirmation Dialog for Submission */}
+      {showSubmitConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-md bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden shadow-2xl"
+          >
+            <div className="p-6">
+              <h2 className="text-xl font-medium mb-4 flex items-center gap-2">
+                <CheckSquare className="w-6 h-6 text-[#B388FF]" /> Confirm Submission
+              </h2>
+              <div className="space-y-3 mb-6 text-sm text-white/80">
+                <p><strong>Title:</strong> {form.title || "Untitled"}</p>
+                <p><strong>Date:</strong> {form.date || "Not set"}</p>
+                <p><strong>Sub-Events:</strong> {subEvents.filter(s => s.name.trim() !== "").length}</p>
+              </div>
+              <p className="text-sm text-white/60 mb-6 bg-yellow-500/10 p-3 rounded-md border border-yellow-500/20">
+                Your event will be submitted to the admins for review. It will be published shortly after approval.
+              </p>
+              
+              <div className="flex gap-3 justify-end">
+                <Button variant="outline" className="border-white/20" onClick={() => setShowSubmitConfirm(false)}>
+                  Cancel
+                </Button>
+                <Button className="bg-white text-black hover:bg-[#B388FF]" onClick={confirmSubmit}>
+                  Yes, Submit
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
       </PageTransition>
     </div>
   )

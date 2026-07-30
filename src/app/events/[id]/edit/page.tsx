@@ -580,7 +580,7 @@ export default function EditEventPage() {
                       <div className="grid grid-cols-2 gap-3 p-3 rounded-md bg-white/[0.02] border border-white/[0.06]">
                         <div>
                           <label className={labelCls}>Min Team Size</label>
-                          <Input type="number" min={2} value={se.minTeamSize} onChange={(e) => updateSubEvent(idx, "minTeamSize", parseInt(e.target.value) || 2)} className={inputCls} />
+                          <Input type="number" min={1} value={se.minTeamSize} onChange={(e) => updateSubEvent(idx, "minTeamSize", Math.max(1, parseInt(e.target.value) || 1))} className={inputCls} />
                         </div>
                         <div>
                           <label className={labelCls}>Max Team Size</label>
