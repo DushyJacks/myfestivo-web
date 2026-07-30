@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { doc, getDoc } from "firebase/firestore"
+import { collection, query, where, getDocs } from "firebase/firestore"
 import { db as getDb } from "@/lib/firebase"
 import { Registration, MainEvent } from "@/lib/events-context"
 import { GlassCard } from "@/components/ui/GlassCard"
@@ -41,29 +41,32 @@ export function ParticipantDetailModal({ reg, event, isOpen, onClose }: Props) {
       return
     }
 
+    // Helper: fetch a user profile by email using a Firestore query
+    const fetchByEmail = async (email: string): Promise<ParticipantUser | null> => {
+      try {
+        const q = query(collection(getDb(), "users"), where("email", "==", email))
+        const snap = await getDocs(q)
+        if (!snap.empty) return snap.docs[0].data() as ParticipantUser
+        return null
+      } catch {
+        return null
+      }
+    }
+
     const fetchUserDetails = async () => {
       setLoading(true)
       try {
-        // Fetch captain profile
-        const userRef = doc(getDb(), "users", reg.userEmail)
-        const userSnap = await getDoc(userRef)
-        if (userSnap.exists()) {
-          setUserDetails(userSnap.data() as ParticipantUser)
-        }
+        // Fetch captain profile by email
+        const captainData = await fetchByEmail(reg.userEmail)
+        if (captainData) setUserDetails(captainData)
 
-        // Fetch all teammate profiles (skip captain — first element is captain's email)
+        // Fetch all teammate profiles (skip captain — index 0 is captain's email)
         if (reg.teamMembers && reg.teamMembers.length > 1) {
-          const teammateEmails = reg.teamMembers.slice(1) // index 0 = captain
+          const teammateEmails = reg.teamMembers.slice(1)
           const profiles = await Promise.all(
             teammateEmails.map(async (email) => {
-              try {
-                const snap = await getDoc(doc(getDb(), "users", email))
-                if (snap.exists()) return snap.data() as ParticipantUser
-                // Fallback if user doc not found
-                return { email, name: email.split("@")[0], college: "—", department: "—", year: "—", phone: "—" } as unknown as ParticipantUser
-              } catch {
-                return { email, name: email.split("@")[0], college: "—", department: "—", year: "—", phone: "—" } as unknown as ParticipantUser
-              }
+              const data = await fetchByEmail(email)
+              return data ?? ({ email, name: email.split("@")[0], college: "—", department: "—", year: "—", phone: "—" } as unknown as ParticipantUser)
             })
           )
           setTeammateDetails(profiles)
@@ -83,61 +86,7 @@ export function ParticipantDetailModal({ reg, event, isOpen, onClose }: Props) {
   const se = event.subEvents.find(s => s.id === reg.subEventId)
   const isTeam = !!(reg.teamName && reg.teamMembers && reg.teamMembers.length > 1)
 
-  const MemberCard = ({ member, isCapt = false }: { member: ParticipantUser; isCapt?: boolean }) => (
-    <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] space-y-3">
-      {/* Member header */}
-      <div className="flex items-center gap-3">
-        <div
-          className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium shrink-0"
-          style={{ backgroundColor: member.avatarColor || "#6366f1" }}
-        >
-          {(member.name || member.email)?.[0]?.toUpperCase() ?? "?"}
-        </div>
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-medium text-white/90 truncate">{member.name || member.email}</p>
-            {isCapt && (
-              <span className="flex items-center gap-1 text-[9px] font-mono text-amber-400 bg-amber-400/10 border border-amber-400/20 px-1.5 py-0.5 rounded-full shrink-0">
-                <Crown className="w-2.5 h-2.5" /> CAPTAIN
-              </span>
-            )}
-          </div>
-          <p className="text-[10px] font-mono text-white/30 truncate">{member.email}</p>
-        </div>
-      </div>
-      {/* Member details grid */}
-      <div className="grid grid-cols-2 gap-2">
-        <div className="flex items-start gap-2">
-          <Phone className="w-3.5 h-3.5 text-white/30 mt-0.5 shrink-0" />
-          <div>
-            <p className="text-[9px] font-mono text-white/30 uppercase tracking-wider">Phone</p>
-            <p className="text-xs text-white/70">{member.phone || "—"}</p>
-          </div>
-        </div>
-        <div className="flex items-start gap-2">
-          <School className="w-3.5 h-3.5 text-white/30 mt-0.5 shrink-0" />
-          <div>
-            <p className="text-[9px] font-mono text-white/30 uppercase tracking-wider">College</p>
-            <p className="text-xs text-white/70 break-words">{member.college || "—"}</p>
-          </div>
-        </div>
-        <div className="flex items-start gap-2">
-          <BookOpen className="w-3.5 h-3.5 text-white/30 mt-0.5 shrink-0" />
-          <div>
-            <p className="text-[9px] font-mono text-white/30 uppercase tracking-wider">Department</p>
-            <p className="text-xs text-white/70">{member.department || "—"}</p>
-          </div>
-        </div>
-        <div className="flex items-start gap-2">
-          <Calendar className="w-3.5 h-3.5 text-white/30 mt-0.5 shrink-0" />
-          <div>
-            <p className="text-[9px] font-mono text-white/30 uppercase tracking-wider">Year</p>
-            <p className="text-xs text-white/70">{member.year || "—"}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+
 
   return (
     <AnimatePresence>
@@ -267,13 +216,7 @@ export function ParticipantDetailModal({ reg, event, isOpen, onClose }: Props) {
                   <p className="text-[10px] font-mono text-white/40 tracking-widest uppercase mb-2">Sub-Event</p>
                   <p className="text-sm text-white/80">{se?.name || "—"}</p>
                 </GlassCard>
-                <GlassCard className="p-4">
-                  <p className="text-[10px] font-mono text-white/40 tracking-widest uppercase mb-2">Status</p>
-                  <span className={`inline-block text-[10px] font-mono px-2 py-1 rounded border ${reg.status === "PAID" ? "border-green-500/30 text-green-400 bg-green-500/5" :
-                    reg.status === "PENDING" ? "border-yellow-500/30 text-yellow-400 bg-yellow-500/5" :
-                      "border-white/20 text-white/40"
-                  }`}>{reg.status}</span>
-                </GlassCard>
+
                 <GlassCard className="p-4">
                   <p className="text-[10px] font-mono text-white/40 tracking-widest uppercase mb-2">Registered</p>
                   <p className="text-sm text-white/80 font-mono">{reg.timestamp}</p>
@@ -292,26 +235,36 @@ export function ParticipantDetailModal({ reg, event, isOpen, onClose }: Props) {
               </div>
             </div>
 
-            {/* Team Members — shown for team registrations */}
+            {/* Teammate's information */}
             {isTeam && (
               <div className="mt-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <MicroLabel className="mb-0">Team Members</MicroLabel>
-                  <span className="text-[10px] font-mono text-white/30 bg-white/[0.04] border border-white/[0.06] px-2 py-0.5 rounded-full">
-                    {reg.teamMembers!.length} members
-                  </span>
+                  <MicroLabel className="mb-0">Teammate&apos;s information</MicroLabel>
                 </div>
-                <div className="space-y-3">
-                  {/* Captain card — uses fetched userDetails */}
-                  {userDetails && (
-                    <MemberCard member={userDetails} isCapt />
-                  )}
-                  {/* Teammate cards */}
+                <div className="space-y-4">
                   {loading ? (
                     <p className="text-xs text-white/30 font-mono text-center py-4">Loading teammate details…</p>
                   ) : (
                     teammateDetails.map((tm, i) => (
-                      <MemberCard key={tm.email ?? i} member={tm} />
+                      <div key={tm.email ?? i} className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                        <p className="text-[10px] font-mono text-white/40 tracking-widest uppercase mb-3">
+                          Teammate {i + 1}
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider mb-1">Name</p>
+                            <p className="text-sm text-white/80">{tm.name || "—"}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider mb-1">Email</p>
+                            <p className="text-sm text-white/80">{tm.email}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider mb-1">Phone Number</p>
+                            <p className="text-sm text-white/80">{tm.phone || "—"}</p>
+                          </div>
+                        </div>
+                      </div>
                     ))
                   )}
                 </div>

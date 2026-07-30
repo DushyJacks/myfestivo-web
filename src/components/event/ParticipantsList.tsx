@@ -6,6 +6,8 @@ import { MicroLabel } from "@/components/ui/MicroLabel"
 import { Button } from "@/components/ui/button"
 import { Download, Users, BadgeCheck, Clock, ExternalLink, Phone } from "lucide-react"
 import { useState } from "react"
+import { collection, query, where, getDocs } from "firebase/firestore"
+import { db as getDb } from "@/lib/firebase"
 import { ParticipantDetailModal } from "./ParticipantDetailModal"
 
 interface Props {
@@ -16,6 +18,7 @@ export function ParticipantsList({ event }: Props) {
   const [filterSe, setFilterSe] = useState("")
   const [selectedReg, setSelectedReg] = useState<Registration | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
 
   // Exclude DRAFT registrations — those are team invitation placeholders, not confirmed participants
   const confirmedRegs = event.registrations.filter(r => r.status !== "DRAFT")
@@ -24,30 +27,66 @@ export function ParticipantsList({ event }: Props) {
     ? confirmedRegs.filter(r => r.subEventId === filterSe)
     : confirmedRegs
 
-  const downloadCSV = () => {
-    const headers = ["Name", "Email", "Phone", "Sub-Event", "Status", "Team Name", "Team Members", "Registered At", "Checked In"]
-    const rows = regs.map(r => {
-      const se = event.subEvents.find(s => s.id === r.subEventId)
-      return [
-        r.userName,
-        r.userEmail,
-        r.userPhone || "",
-        se?.name || "",
-        r.status,
-        r.teamName || "",
-        (r.teamMembers || []).join("; "),
-        r.timestamp,
-        r.checkedIn ? "Yes" : "No",
-      ]
-    })
-    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(",")).join("\n")
-    const blob = new Blob([csv], { type: "text/csv" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `${event.title.replace(/\s+/g, "_")}_participants.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+  const downloadCSV = async () => {
+    setIsExporting(true)
+    try {
+      const maxTeamMembers = Math.max(...regs.map(r => (r.teamMembers && r.teamMembers.length > 1 ? r.teamMembers.length - 1 : 0)), 0)
+      
+      const headers = ["Name", "Email", "Phone", "Sub-Event", "Status", "Team Name", "Registered At", "Checked In"]
+      for (let i = 1; i <= maxTeamMembers; i++) {
+        headers.push(`Teammate ${i} Name`, `Teammate ${i} Email`, `Teammate ${i} Phone`)
+      }
+
+      const rows = await Promise.all(regs.map(async r => {
+        const se = event.subEvents.find(s => s.id === r.subEventId)
+        
+        const row = [
+          r.userName,
+          r.userEmail,
+          r.userPhone || "",
+          se?.name || "",
+          r.status,
+          r.teamName || "",
+          r.timestamp,
+          r.checkedIn ? "Yes" : "No",
+        ]
+
+        if (maxTeamMembers > 0) {
+          const teammateEmails = r.teamMembers && r.teamMembers.length > 1 ? r.teamMembers.slice(1) : []
+          for (let i = 0; i < maxTeamMembers; i++) {
+            if (i < teammateEmails.length) {
+              const email = teammateEmails[i]
+              try {
+                const q = query(collection(getDb(), "users"), where("email", "==", email))
+                const snap = await getDocs(q)
+                if (!snap.empty) {
+                  const data = snap.docs[0].data()
+                  row.push(data.name || "—", email, data.phone || "—")
+                } else {
+                  row.push("—", email, "—")
+                }
+              } catch {
+                row.push("—", email, "—")
+              }
+            } else {
+              row.push("", "", "") // Empty columns for this row if team is smaller than max
+            }
+          }
+        }
+        return row
+      }))
+
+      const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(",")).join("\n")
+      const blob = new Blob([csv], { type: "text/csv" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `${event.title.replace(/\s+/g, "_")}_participants.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   return (
@@ -83,8 +122,8 @@ export function ParticipantsList({ event }: Props) {
             ))}
           </select>
         </div>
-        <Button onClick={downloadCSV} variant="outline" className="h-8 px-4 text-[10px] font-mono border-white/20 text-white/60 hover:text-white gap-1.5">
-          <Download className="w-3.5 h-3.5" /> Export CSV
+        <Button onClick={downloadCSV} disabled={isExporting} variant="outline" className="h-8 px-4 text-[10px] font-mono border-white/20 text-white/60 hover:text-white gap-1.5">
+          <Download className={`w-3.5 h-3.5 ${isExporting ? "animate-pulse" : ""}`} /> {isExporting ? "Exporting..." : "Export CSV"}
         </Button>
       </div>
 
