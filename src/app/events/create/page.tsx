@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { NativeDateInput } from "@/components/ui/NativeDateInput"
 import { RichTextEditor } from "@/components/ui/RichTextEditor"
+import { TimeInput } from "@/components/ui/TimeInput"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
 import { motion } from "framer-motion"
 import { PlusCircle, X, Trophy, Phone, LinkIcon, Users, Search, Clock } from "lucide-react"
@@ -384,11 +385,10 @@ export default function CreateEventPage() {
                   </button>
                 </div>
                 {form.hasTime ? (
-                  <input
-                    type="time"
+                  <TimeInput
                     value={form.time}
-                    onChange={(e) => update("time", e.target.value)}
-                    className="w-full h-11 bg-white/[0.03] border border-white/[0.08] text-white rounded-md px-3 text-sm focus:outline-none focus:border-white/20"
+                    onChange={(val) => update("time", val)}
+                    className="w-full"
                   />
                 ) : (
                   <div className="h-11 bg-white/[0.01] border border-white/[0.04] rounded-md px-3 flex items-center">
@@ -603,11 +603,10 @@ export default function CreateEventPage() {
                       </button>
                     </div>
                     {se.hasSubTime ? (
-                      <input
-                        type="time"
+                      <TimeInput
                         value={se.subTime}
-                        onChange={(e) => updateSubEvent(idx, "subTime", e.target.value)}
-                        className="w-full h-10 bg-white/[0.03] border border-white/[0.08] text-white rounded-md px-3 text-sm focus:outline-none focus:border-white/20"
+                        onChange={(val) => updateSubEvent(idx, "subTime", val)}
+                        className="w-full !h-10"
                       />
                     ) : (
                       <div className="h-10 bg-white/[0.01] border border-white/[0.04] rounded-md px-3 flex items-center">

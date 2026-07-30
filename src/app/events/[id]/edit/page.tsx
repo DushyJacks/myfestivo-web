@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { NativeDateInput } from "@/components/ui/NativeDateInput"
 import { RichTextEditor } from "@/components/ui/RichTextEditor"
+import { TimeInput } from "@/components/ui/TimeInput"
 import { pageItem } from "@/components/animation/PageTransition"
 import { motion } from "framer-motion"
 import {
@@ -377,11 +378,10 @@ export default function EditEventPage() {
                     </button>
                   </div>
                   {form.hasTime ? (
-                    <input
-                      type="time"
+                    <TimeInput
                       value={form.time}
-                      onChange={(e) => update("time", e.target.value)}
-                      className="w-full h-11 bg-white/[0.03] border border-white/[0.08] text-white rounded-md px-3 text-sm focus:outline-none focus:border-white/20"
+                      onChange={(val) => update("time", val)}
+                      className="w-full"
                     />
                   ) : (
                     <div className="h-11 bg-white/[0.01] border border-white/[0.04] rounded-md px-3 flex items-center">
@@ -548,11 +548,10 @@ export default function EditEventPage() {
                           </button>
                         </div>
                         {se.hasTime ? (
-                          <input
-                            type="time"
+                          <TimeInput
                             value={se.time}
-                            onChange={(e) => updateSubEvent(idx, "time", e.target.value)}
-                            className={`${inputCls} w-full h-10`}
+                            onChange={(val) => updateSubEvent(idx, "time", val)}
+                            className="w-full !h-10"
                           />
                         ) : (
                           <div className="h-10 bg-white/[0.01] border border-white/[0.04] rounded-md px-3 flex items-center">
