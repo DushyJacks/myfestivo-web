@@ -204,6 +204,7 @@ export default function CreateEventPage() {
   }
 
   const confirmSubmit = async () => {
+    if (!user) return
     setShowSubmitConfirm(false)
     setSubmitting(true)
 
