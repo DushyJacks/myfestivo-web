@@ -110,13 +110,17 @@ export default function EventDetailPage() {
     isHost || isCoordinator || event?.restricted_registrations?.includes(user.email)
   )
 
-  const isRegistered = user ? registrations.some(r =>
+  // Confirmed registrations — DRAFT registrations are pending team invites,
+  // not yet accepted. Exclude them from counts, access checks, and chat.
+  const confirmedRegistrations = registrations.filter(r => r.status !== "DRAFT")
+
+  const isRegistered = user ? confirmedRegistrations.some(r =>
     r.userEmail === user.email || r.teamMembers?.includes(user.email)
   ) : false
 
   // Chat channel access by role
   const myRegisteredSubEventIds = user
-    ? registrations.filter(r => r.userEmail === user.email || r.teamMembers?.includes(user.email)).map(r => r.subEventId)
+    ? confirmedRegistrations.filter(r => r.userEmail === user.email || r.teamMembers?.includes(user.email)).map(r => r.subEventId)
     : []
   const myCoordinatingSubEventIds = user
     ? subEvents.filter(se => se.coordinators.some(c => c.email === user.email)).map(se => se.id)
@@ -464,7 +468,7 @@ export default function EventDetailPage() {
               {formatDateDisplay(event.date)}
               {event.hasTime && event.time && <span className="ml-1 text-white/40">at {formatTimeDisplay(event.time)}</span>}
             </span>
-            <span className="flex items-center gap-2"><Users className="w-4 h-4" />{registrations.filter(r => r.status === "PAID").length}{event.seats !== 9999 ? ` / ${event.seats}` : ""} registered</span>
+            <span className="flex items-center gap-2"><Users className="w-4 h-4" />{confirmedRegistrations.filter(r => r.status === "PAID").length}{event.seats !== 9999 ? ` / ${event.seats}` : ""} registered</span>
           </div>
         </motion.div>
 
@@ -928,7 +932,7 @@ export default function EventDetailPage() {
               </GlassCard>
               <GlassCard className="p-4 text-center">
                 <p className="text-[10px] font-mono text-white/50 tracking-widest uppercase mb-1">Total Registered</p>
-                <p className="text-2xl font-light text-green-400">{registrations.length}</p>
+                <p className="text-2xl font-light text-green-400">{confirmedRegistrations.length}</p>
               </GlassCard>
               <GlassCard className="p-4 col-span-2 flex items-center gap-3 border-white/20">
                 <Button onClick={() => setShowQRScanner(true)} className="bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80 h-10 px-6 rounded-full flex-1 max-w-[220px]">
@@ -1150,7 +1154,7 @@ export default function EventDetailPage() {
           <motion.div variants={pageItem}>
             <MicroLabel>My Registration Pass</MicroLabel>
             <div className="space-y-4">
-              {registrations.filter(r => r.userEmail === user?.email).map(reg => {
+              {confirmedRegistrations.filter(r => r.userEmail === user?.email).map(reg => {
                 const se = event.subEvents.find(s => s.id === reg.subEventId)
                 return (
                   <GlassCard key={reg.id} className="p-6 flex flex-col items-center">

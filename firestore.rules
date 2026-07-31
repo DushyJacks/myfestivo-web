@@ -47,9 +47,12 @@ service cloud.firestore {
       // - Any authenticated user: may ONLY touch chatMessages (chat send) or registeredCount (registration increment)
       allow update: if isEventOrganizer(eventId) || isAdmin()
         || (request.auth != null && (
+             // Anyone may increment chat or registeredCount (existing rule)
              request.resource.data.diff(resource.data).affectedKeys().hasOnly(['chatMessages', 'registeredCount']) ||
-             (('restricted_registrations' in resource.data && request.auth.token.email in resource.data.restricted_registrations) && 
-              request.resource.data.diff(resource.data).affectedKeys().hasOnly(['tasks', 'chatMessages']))
+             // Any authenticated user may update ONLY the tasks array (assignee-enforced in UI)
+             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['tasks']) ||
+             // Any authenticated user may update tasks alongside chat (e.g. work-update + status)
+             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['tasks', 'chatMessages'])
            ));
       
       // Delete: Only organizer or admin
@@ -63,12 +66,15 @@ service cloud.firestore {
         // Create: Authenticated users can only register themselves
         allow create: if request.auth.uid == request.resource.data.userId;
         
-        // Update: Organizer, registrant, admin, or a pending team member accepting an invite
+        // Update: Organizer, registrant, admin, or any authenticated user making
+        // a narrow invite-accept/decline (only pendingMembers and/or teamMembers touched)
         allow update: if 
           isEventOrganizer(eventId) || 
           request.auth.uid == resource.data.userId ||
           isAdmin() ||
-          ('pendingMembers' in resource.data && request.auth.token.email in resource.data.pendingMembers);
+          (request.auth != null &&
+           request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['pendingMembers', 'teamMembers']));
         
         // Delete: Only organizer or registrant
         allow delete: if 

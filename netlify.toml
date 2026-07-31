@@ -7,6 +7,13 @@
   NODE_VERSION = "20"
   NPM_VERSION = "10"
 
+# ─── Rate Limiting (Edge Function) ───────────────────────────────────────────
+# Runs the rate-limiter edge function on every /api/* request.
+# Limits per endpoint group are defined in netlify/edge-functions/rate-limiter.ts
+[[edge_functions]]
+  path = "/api/*"
+  function = "rate-limiter"
+
 # ─── Next.js Plugin ──────────────────────────────────────────────────────────
 # Required for proper SSR, dynamic routes, and page reloads in Next.js apps.
 # Without this, direct URL access / reloads on dynamic routes (e.g. /events/:id)
