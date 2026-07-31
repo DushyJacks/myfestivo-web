@@ -66,15 +66,16 @@ service cloud.firestore {
         // Create: Authenticated users can only register themselves
         allow create: if request.auth.uid == request.resource.data.userId;
         
-        // Update: Organizer, registrant, admin, or any authenticated user making
-        // a narrow invite-accept/decline (only pendingMembers and/or teamMembers touched)
+        // Update: Organizer, registrant, admin, or invited team member
         allow update: if 
           isEventOrganizer(eventId) || 
           request.auth.uid == resource.data.userId ||
           isAdmin() ||
-          (request.auth != null &&
-           request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['pendingMembers', 'teamMembers']));
+          (
+            request.auth != null &&
+            request.auth.token.email in resource.data.pendingMembers &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pendingMembers', 'teamMembers'])
+          );
         
         // Delete: Only organizer or registrant
         allow delete: if 
@@ -94,6 +95,33 @@ service cloud.firestore {
       match /announcements/{announcementId} {
         allow read: if request.auth != null;
         allow create, update, delete: if isEventOrganizer(eventId) || isAdmin();
+      }
+
+      // Subcollection: tasks
+      match /tasks/{taskId} {
+        allow read: if request.auth != null;
+        
+        // Organizer/Admin can create tasks
+        allow create: if
+            isAdmin() ||
+            isEventOrganizer(eventId);
+            
+        // Organizer/Admin can edit everything
+        // Assigned user can ONLY change status
+        allow update: if
+            isAdmin() ||
+            isEventOrganizer(eventId) ||
+            (
+                request.auth != null &&
+                request.auth.token.email == resource.data.assignedTo &&
+                request.resource.data.diff(resource.data)
+                    .affectedKeys()
+                    .hasOnly(['status'])
+            );
+            
+        allow delete: if
+            isAdmin() ||
+            isEventOrganizer(eventId);
       }
     }
 
