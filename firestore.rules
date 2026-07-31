@@ -46,9 +46,11 @@ service cloud.firestore {
       // - Organizer or admin: full update access
       // - Any authenticated user: may ONLY touch chatMessages (chat send) or registeredCount (registration increment)
       allow update: if isEventOrganizer(eventId) || isAdmin()
-        || (request.auth != null
-            && request.resource.data.diff(resource.data).affectedKeys()
-                .hasOnly(['chatMessages', 'registeredCount']));
+        || (request.auth != null && (
+             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['chatMessages', 'registeredCount']) ||
+             (('restricted_registrations' in resource.data && request.auth.token.email in resource.data.restricted_registrations) && 
+              request.resource.data.diff(resource.data).affectedKeys().hasOnly(['tasks', 'chatMessages']))
+           ));
       
       // Delete: Only organizer or admin
       allow delete: if isEventOrganizer(eventId) || isAdmin();
@@ -61,11 +63,12 @@ service cloud.firestore {
         // Create: Authenticated users can only register themselves
         allow create: if request.auth.uid == request.resource.data.userId;
         
-        // Update: Only organizer, registrant, or admin
+        // Update: Organizer, registrant, admin, or a pending team member accepting an invite
         allow update: if 
           isEventOrganizer(eventId) || 
           request.auth.uid == resource.data.userId ||
-          isAdmin();
+          isAdmin() ||
+          ('pendingMembers' in resource.data && request.auth.token.email in resource.data.pendingMembers);
         
         // Delete: Only organizer or registrant
         allow delete: if 

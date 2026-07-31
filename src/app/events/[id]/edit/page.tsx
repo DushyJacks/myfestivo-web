@@ -15,7 +15,7 @@ import { pageItem } from "@/components/animation/PageTransition"
 import { motion } from "framer-motion"
 import {
   PlusCircle, X, ArrowLeft, Trophy, Phone, Save, AlertTriangle,
-  Trash2, ToggleLeft, ToggleRight, Settings, CalendarDays, Info, LinkIcon, Search, Users
+  Trash2, ToggleLeft, ToggleRight, Settings, CalendarDays, Info, LinkIcon, Search, Users, ImageIcon, Upload
 } from "lucide-react"
 import Link from "next/link"
 
@@ -70,6 +70,8 @@ export default function EditEventPage() {
 
   const [subEvents, setSubEvents] = useState<SubEventForm[]>([])
   const [saving, setSaving] = useState(false)
+  const [posterBase64, setPosterBase64] = useState<string | undefined>(undefined)
+  const [posterPreview, setPosterPreview] = useState<string | undefined>(undefined)
   const [activeSection, setActiveSection] = useState<"details" | "rules" | "subevents" | "links" | "settings">("details")
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
   const [showDeleteEventConfirm, setShowDeleteEventConfirm] = useState(false)
@@ -83,9 +85,49 @@ export default function EditEventPage() {
     setImportantLinks(prev => prev.map((l, i) => i === idx ? { ...l, [key]: val } : l))
   const removeLink = (idx: number) => setImportantLinks(prev => prev.filter((_, i) => i !== idx))
 
+  // Compress an image file via canvas and return it as base64
+  const compressImage = (file: File, maxW = 1200, quality = 0.82): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const img = new Image()
+        img.onload = () => {
+          const scale = Math.min(1, maxW / img.width)
+          const canvas = document.createElement("canvas")
+          canvas.width = img.width * scale
+          canvas.height = img.height * scale
+          const ctx = canvas.getContext("2d")
+          if (!ctx) { reject(new Error("Canvas unavailable")); return }
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+          resolve(canvas.toDataURL("image/jpeg", quality))
+        }
+        img.onerror = reject
+        img.src = e.target?.result as string
+      }
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+
+  const handlePosterChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      const compressed = await compressImage(file)
+      setPosterBase64(compressed)
+      setPosterPreview(compressed)
+    } catch (err) {
+      console.error("Poster compression failed:", err)
+    }
+  }
+
   // Pre-populate form when event data loads
   useEffect(() => {
     if (event) {
+      // Restore existing poster
+      if (event.poster_base64) {
+        setPosterBase64(event.poster_base64)
+        setPosterPreview(event.poster_base64)
+      }
       setForm({
         title: event.title,
         date: event.date,
@@ -283,6 +325,7 @@ export default function EditEventPage() {
         }
         return sub
       }),
+      poster_base64: posterBase64,
       importantLinks: importantLinks.filter(l => l.label.trim() && l.url.trim()).map(l => ({
         id: l.id,
         label: l.label,
@@ -359,6 +402,38 @@ export default function EditEventPage() {
           {activeSection === "details" && (
             <GlassCard className="p-6 space-y-5">
               <MicroLabel className="mb-0">01 — Event Details</MicroLabel>
+              {/* Event Poster */}
+              <div>
+                <label className={labelCls}><ImageIcon className="w-3 h-3 inline mr-1" />Event Poster <span className="text-white/20">(optional)</span></label>
+                <div className="flex gap-4 items-start">
+                  {posterPreview ? (
+                    <div className="relative w-24 h-24 shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={posterPreview} alt="Event poster preview" className="w-24 h-24 object-cover rounded-md border border-white/10" />
+                      <button
+                        type="button"
+                        onClick={() => { setPosterBase64(undefined); setPosterPreview(undefined) }}
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-black/80 border border-white/20 rounded-full flex items-center justify-center text-white/60 hover:text-red-400 transition-colors"
+                        aria-label="Remove poster"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-24 h-24 shrink-0 border border-dashed border-white/10 rounded-md flex flex-col items-center justify-center text-white/20 bg-white/[0.01]">
+                      <ImageIcon className="w-6 h-6 mb-1" />
+                      <span className="text-[9px] font-mono">No poster</span>
+                    </div>
+                  )}
+                  <label className="flex-1 flex flex-col items-center justify-center h-24 border border-dashed border-white/10 rounded-md cursor-pointer hover:border-white/20 hover:bg-white/[0.02] transition-colors bg-white/[0.01]">
+                    <Upload className="w-4 h-4 text-white/30 mb-1" />
+                    <span className="text-[10px] font-mono text-white/30">Click to {posterPreview ? "change" : "upload"}</span>
+                    <span className="text-[9px] font-mono text-white/20 mt-0.5">JPG, PNG, WebP</span>
+                    <input type="file" accept="image/*" className="sr-only" onChange={handlePosterChange} />
+                  </label>
+                </div>
+              </div>
+
               <div>
                 <label className={labelCls}>Event Title</label>
                 <Input value={form.title} onChange={(e) => update("title", e.target.value)} placeholder="TechFest '26" className={`${inputCls} h-11`} required />

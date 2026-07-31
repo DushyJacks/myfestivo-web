@@ -69,8 +69,9 @@ export default function EventDetailPage() {
   // Task state
   const [taskTitle, setTaskTitle] = useState("")
   const [taskDesc, setTaskDesc] = useState("")
-  const [taskAssignee, setTaskAssignee] = useState("")
-  const [taskAssigneeResults, setTaskAssigneeResults] = useState<{ email: string }[]>([])
+  const [taskAssignee, setTaskAssignee] = useState("")      // display: name shown in input
+  const [taskAssigneeEmail, setTaskAssigneeEmail] = useState("") // actual email to persist
+  const [taskAssigneeResults, setTaskAssigneeResults] = useState<{ email: string; name: string }[]>([])
   const [taskDeadline, setTaskDeadline] = useState("")
   const [taskSubEvent, setTaskSubEvent] = useState("")
 
@@ -102,6 +103,11 @@ export default function EventDetailPage() {
   // "Volunteer" coordinators can register and use participant-level features
   const isVolunteer = !isHost && !!user?.email && subEvents.some(se =>
     se.coordinators.some(c => c.email === user!.email && c.role === "Volunteer")
+  )
+
+  // Staff (Host, Coordinator, Volunteer) or any user who has been assigned a task
+  const isStaffRestricted = !!user?.email && (
+    isHost || isCoordinator || event?.restricted_registrations?.includes(user.email)
   )
 
   const isRegistered = user ? registrations.some(r =>
@@ -256,13 +262,13 @@ export default function EventDetailPage() {
 
   const handleAddTask = () => {
     // Description is required
-    if (!user || !taskTitle.trim() || !taskAssignee.trim() || !taskDesc.trim()) return
+    if (!user || !taskTitle.trim() || !taskAssigneeEmail.trim() || !taskDesc.trim()) return
     addTask(event.id, {
       id: `task-${Date.now()}`, title: taskTitle, description: taskDesc,
-      assignedTo: taskAssignee, assignedBy: user.email, deadline: taskDeadline,
+      assignedTo: taskAssigneeEmail, assignedBy: user.email, deadline: taskDeadline,
       status: "TODO", subEventId: taskSubEvent || "", createdAt: new Date().toISOString().slice(0, 10)
     })
-    setTaskTitle(""); setTaskDesc(""); setTaskAssignee(""); setTaskDeadline(""); setTaskSubEvent("")
+    setTaskTitle(""); setTaskDesc(""); setTaskAssignee(""); setTaskAssigneeEmail(""); setTaskDeadline(""); setTaskSubEvent("")
   }
 
   const handleAddWorkUpdate = () => {
@@ -522,9 +528,9 @@ export default function EventDetailPage() {
                                 if (!user) { router.push("/login"); return }
                                 setSelectedSubEventForReg(se)
                               }}
-                              disabled={isRestricted || (!!user?.email && !isVolunteer && event.restricted_registrations?.includes(user.email))}
+                              disabled={isRestricted || isStaffRestricted}
                               variant="outline" className="h-8 px-4 text-[10px] font-mono border-white/20 hover:bg-[#B388FF] hover:text-black hover:border-[#B388FF] text-white bg-white/5 transition-all">
-                              {!user ? "Login to Register" : (!!user.email && !isVolunteer && event.restricted_registrations?.includes(user.email)) ? "Staff Restricted" : "Register"}
+                              {!user ? "Login to Register" : isStaffRestricted ? "Restricted" : "Register"}
                             </Button>
                           )}
                         </div>
@@ -741,24 +747,28 @@ export default function EventDetailPage() {
                 <p className="text-xs font-mono text-white/40 tracking-widest uppercase">New Task</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Input value={taskTitle} onChange={e => setTaskTitle(e.target.value)} placeholder="Task title" className={`${inputCls} h-9`} />
-                  {/* Assignee with friends autofill */}
+                  {/* Assignee with friends name-based autofill */}
                   <div className="relative">
                     <Input
                       value={taskAssignee}
                       onChange={e => {
                         const val = e.target.value
                         setTaskAssignee(val)
+                        setTaskAssigneeEmail("") // clear confirmed email when user edits
                         if (user && val.trim()) {
                           const q = val.toLowerCase()
                           const matches = user.friends
-                            .filter(f => f.toLowerCase().includes(q))
-                            .map(email => ({ email }))
+                            .filter(email => {
+                              const name = email.split('@')[0].toLowerCase()
+                              return name.includes(q) || email.toLowerCase().includes(q)
+                            })
+                            .map(email => ({ email, name: email.split('@')[0] }))
                           setTaskAssigneeResults(matches)
                         } else {
                           setTaskAssigneeResults([])
                         }
                       }}
-                      placeholder="Assign to (email)"
+                      placeholder="Search friend by name"
                       className={`${inputCls} h-9`}
                     />
                     {taskAssigneeResults.length > 0 && (
@@ -767,14 +777,25 @@ export default function EventDetailPage() {
                           <button
                             key={f.email}
                             type="button"
-                            onClick={() => { setTaskAssignee(f.email); setTaskAssigneeResults([]) }}
+                            onClick={() => {
+                              setTaskAssignee(f.name)
+                              setTaskAssigneeEmail(f.email)
+                              setTaskAssigneeResults([])
+                            }}
                             className="w-full text-left px-3 py-2 text-xs text-white/70 hover:bg-white/[0.08] transition-colors flex items-center gap-2"
                           >
-                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[9px] font-bold">{f.email[0].toUpperCase()}</div>
-                            <span>{f.email}</span>
+                            <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold shrink-0">{f.name[0].toUpperCase()}</div>
+                            <div className="min-w-0">
+                              <p className="font-medium text-white/80">{f.name}</p>
+                              <p className="text-[10px] text-white/30 truncate">{f.email}</p>
+                            </div>
                           </button>
                         ))}
                       </div>
+                    )}
+                    {/* Indicate when a friend has been selected */}
+                    {taskAssigneeEmail && (
+                      <p className="text-[10px] font-mono text-green-400/70 mt-0.5 px-0.5 truncate">{taskAssigneeEmail}</p>
                     )}
                   </div>
                 </div>
@@ -795,7 +816,7 @@ export default function EventDetailPage() {
                     <option value="">General</option>
                     {event.subEvents.map(se => <option key={se.id} value={se.id}>{se.name}</option>)}
                   </select>
-                  <Button onClick={handleAddTask} disabled={!taskTitle.trim() || !taskAssignee.trim() || !taskDesc.trim()} className="bg-white text-black text-xs h-8 px-4"><PlusCircle className="w-3 h-3 mr-1" />Assign</Button>
+                  <Button onClick={handleAddTask} disabled={!taskTitle.trim() || !taskAssigneeEmail.trim() || !taskDesc.trim()} className="bg-white text-black text-xs h-8 px-4"><PlusCircle className="w-3 h-3 mr-1" />Assign</Button>
                 </div>
               </GlassCard>
             )}
