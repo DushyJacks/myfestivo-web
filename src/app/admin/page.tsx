@@ -58,7 +58,7 @@ function ConfirmModal({ title, message, onConfirm, onCancel, variant = "danger" 
 
 export default function AdminPage() {
   const { user, logout } = useAuth()
-  const { events, deleteEvent, updateEvent, approvePayment, rejectPayment } = useEvents()
+  const { events, deleteEvent, updateEvent, approvePayment, rejectPayment, deleteRegistration } = useEvents()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<AdminTab>("overview")
 
@@ -222,12 +222,9 @@ export default function AdminPage() {
     setEditingEventId(null)
   }
 
-  // ─── Remove a single registration ───
-  const removeRegistration = async (eventId: string, regId: string) => {
-    const evt = events.find(e => e.id === eventId)
-    if (!evt) return
-    const updatedRegs = evt.registrations.filter(r => r.id !== regId)
-    await updateEvent(eventId, { registrations: updatedRegs, registeredCount: updatedRegs.length })
+  // ─── Cancel a single registration ───
+  const cancelRegistration = async (eventId: string, regId: string) => {
+    await deleteRegistration(eventId, regId)
   }
 
   const tabs: { id: AdminTab; label: string; icon: typeof BarChart3 }[] = [
@@ -954,12 +951,12 @@ export default function AdminPage() {
                               )}
                               <button
                                 onClick={() => setConfirmAction({
-                                  title: "Remove Registration",
-                                  message: `Remove ${reg.userName}'s registration from ${reg.eventTitle}? This cannot be undone.`,
+                                  title: "Cancel Registration",
+                                  message: `Cancel ${reg.userName}'s registration from ${reg.eventTitle}? This cannot be undone.`,
                                   variant: "danger",
-                                  action: () => { removeRegistration(reg.eventId, reg.id); setConfirmAction(null) }
+                                  action: () => { cancelRegistration(reg.eventId, reg.id); setConfirmAction(null) }
                                 })}
-                                className="p-1.5 rounded hover:bg-red-500/10 text-white/30 hover:text-red-400" title="Remove Registration"
+                                className="p-1.5 rounded hover:bg-red-500/10 text-white/30 hover:text-red-400" title="Cancel Registration"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>

@@ -369,7 +369,7 @@ export default function SignupPage() {
                       className="w-full h-11 px-3 rounded-md bg-white/[0.03] border border-white/[0.08] text-white text-sm focus:outline-none focus:border-white/30 transition-colors"
                     >
                       <option value="" className="bg-black text-white/50">Select department...</option>
-                      {["Computer Science", "Cyber Security", "AI/ML", "BCA", "BCA Gen AI", "BCA DS"].map(dept => (
+                      {["BSc CS", "BSc Cyber Security", "BSc AI/ML", "BCA", "BCA Gen AI", "BCA DS"].map(dept => (
                         <option key={dept} value={dept} className="bg-black text-white">{dept}</option>
                       ))}
                     </select>

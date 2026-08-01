@@ -17,7 +17,7 @@ import { PlusCircle, X, Trophy, Phone, LinkIcon, Users, Search, Clock, CheckSqua
 import Link from "next/link"
 import { compressImage } from "@/lib/utils"
 
-const DEPARTMENTS = ["Computer Science", "Cyber Security", "AI/ML", "BCA", "BCA Gen AI", "BCA DS"]
+const DEPARTMENTS = ["BSc CS", "BSc Cyber Security", "BSc AI/ML", "BCA", "BCA Gen AI", "BCA DS"]
 const INCHARGE_ROLES = ["Host", "Coordinator", "Volunteer"]
 
 interface SubEventForm {

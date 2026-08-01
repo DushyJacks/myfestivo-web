@@ -66,7 +66,7 @@ export function ParticipantDetailModal({ reg, event, isOpen, onClose }: Props) {
           const profiles = await Promise.all(
             teammateEmails.map(async (email) => {
               const data = await fetchByEmail(email)
-              return data ?? ({ email, name: email.split("@")[0], college: "—", department: "—", year: "—", phone: "—" } as unknown as ParticipantUser)
+              return data ?? ({ email, name: email.split("@")[0], college: "—", department: "—", year: "—", phone: "—", rollNo: "—" } as unknown as ParticipantUser)
             })
           )
           setTeammateDetails(profiles)
@@ -250,7 +250,7 @@ export function ParticipantDetailModal({ reg, event, isOpen, onClose }: Props) {
                         <p className="text-[10px] font-mono text-white/40 tracking-widest uppercase mb-3">
                           Teammate {i + 1}
                         </p>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                           <div>
                             <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider mb-1">Name</p>
                             <p className="text-sm text-white/80">{tm.name || "—"}</p>
@@ -262,6 +262,10 @@ export function ParticipantDetailModal({ reg, event, isOpen, onClose }: Props) {
                           <div>
                             <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider mb-1">Phone Number</p>
                             <p className="text-sm text-white/80">{tm.phone || "—"}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider mb-1">Reg No</p>
+                            <p className="text-sm text-white/80">{tm.rollNo || "—"}</p>
                           </div>
                         </div>
                       </div>

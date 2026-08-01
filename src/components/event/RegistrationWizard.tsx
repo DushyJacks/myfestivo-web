@@ -89,6 +89,9 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
   // Staff restriction: block organizers/coordinators UNLESS they are Volunteers (who can register)
   const isStaffRestricted = !!user?.email && !isVolunteer && (event.restricted_registrations ?? []).includes(user.email)
 
+  // Department restriction for intra-college events
+  const isDeptRestricted = !event.isInter && (event.allowedDepartments ?? []).length > 0 && !!user?.department && !event.allowedDepartments!.includes(user.department)
+
   const addMemberByEmail = (email: string) => {
     const normalized = email.trim().toLowerCase()
     if (!normalized || teamMembers.includes(normalized) || pendingMembers.includes(normalized) || normalized === user.email) return
@@ -318,6 +321,12 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
             </div>
           )}
 
+          {isDeptRestricted && (
+            <div className="p-3 mb-4 bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 rounded-lg text-xs font-mono text-center">
+              Restricted: This event is only open to specific departments.
+            </div>
+          )}
+
           {/* STEP: Team Details */}
           {step === "team" && (
             <div className="space-y-5">
@@ -439,7 +448,7 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
                 {/* Continue */}
                 <Button
                   onClick={() => setStep("confirm")}
-                  disabled={!meetsMinSize || isStaffRestricted}
+                  disabled={!meetsMinSize || isStaffRestricted || isDeptRestricted}
                   className="w-full h-10 bg-white text-black hover:bg-[#B388FF]"
                 >
                   {!meetsMinSize
@@ -490,7 +499,7 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
                 {selectedSe.type === "team" && (
                   <Button onClick={() => setStep("team")} variant="ghost" className="flex-1 h-10 border border-white/[0.1] text-white/60">Back</Button>
                 )}
-                <Button onClick={handleConfirm} disabled={submitting || isStaffRestricted} className="flex-1 h-10 bg-white text-black hover:bg-[#B388FF]">
+                <Button onClick={handleConfirm} disabled={submitting || isStaffRestricted || isDeptRestricted} className="flex-1 h-10 bg-white text-black hover:bg-[#B388FF]">
                   {submitting ? "Registering..." : "Confirm Registration"}
                 </Button>
               </div>

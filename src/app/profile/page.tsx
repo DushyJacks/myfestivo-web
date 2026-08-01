@@ -18,7 +18,7 @@ import {
   LogOut, Trash2, AlertTriangle
 } from "lucide-react"
 
-const DEPARTMENTS = ["Computer Science", "Cyber Security", "AI/ML", "BCA", "BCA Gen AI", "BCA DS"]
+const DEPARTMENTS = ["BSc CS", "BSc Cyber Security", "BSc AI/ML", "BCA", "BCA Gen AI", "BCA DS"]
 const YEAR_OPTIONS = ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "Postgraduate", "PhD", "Faculty/Staff"]
 
 /** Confirmation modal used for both sign-out and delete account */

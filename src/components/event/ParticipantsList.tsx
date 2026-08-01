@@ -32,18 +32,28 @@ export function ParticipantsList({ event }: Props) {
     try {
       const maxTeamMembers = Math.max(...regs.map(r => (r.teamMembers && r.teamMembers.length > 1 ? r.teamMembers.length - 1 : 0)), 0)
       
-      const headers = ["Name", "Email", "Phone", "Sub-Event", "Status", "Team Name", "Registered At", "Checked In"]
+      const headers = ["Name", "Email", "Phone", "Reg No", "Sub-Event", "Status", "Team Name", "Registered At", "Checked In"]
       for (let i = 1; i <= maxTeamMembers; i++) {
-        headers.push(`Teammate ${i} Name`, `Teammate ${i} Email`, `Teammate ${i} Phone`)
+        headers.push(`Teammate ${i} Name`, `Teammate ${i} Email`, `Teammate ${i} Phone`, `Teammate ${i} Reg No`)
       }
 
       const rows = await Promise.all(regs.map(async r => {
         const se = event.subEvents.find(s => s.id === r.subEventId)
         
+        let captainRegNo = "—"
+        try {
+          const q = query(collection(getDb(), "users"), where("email", "==", r.userEmail))
+          const snap = await getDocs(q)
+          if (!snap.empty) {
+            captainRegNo = snap.docs[0].data().rollNo || "—"
+          }
+        } catch {}
+
         const row = [
           r.userName,
           r.userEmail,
           r.userPhone || "",
+          captainRegNo,
           se?.name || "",
           r.status,
           r.teamName || "",
@@ -61,15 +71,15 @@ export function ParticipantsList({ event }: Props) {
                 const snap = await getDocs(q)
                 if (!snap.empty) {
                   const data = snap.docs[0].data()
-                  row.push(data.name || "—", email, data.phone || "—")
+                  row.push(data.name || "—", email, data.phone || "—", data.rollNo || "—")
                 } else {
-                  row.push("—", email, "—")
+                  row.push("—", email, "—", "—")
                 }
               } catch {
-                row.push("—", email, "—")
+                row.push("—", email, "—", "—")
               }
             } else {
-              row.push("", "", "") // Empty columns for this row if team is smaller than max
+              row.push("", "", "", "") // Empty columns for this row if team is smaller than max
             }
           }
         }

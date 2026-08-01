@@ -159,6 +159,7 @@ export interface MainEvent {
   importantLinks: ImportantLink[]
   restricted_registrations: string[]
   poster_base64?: string
+  allowedDepartments?: string[]
 }
 
 // ─── Important Links ───
@@ -175,6 +176,7 @@ interface EventsContextType {
   addEvent: (event: MainEvent) => void
   deleteEvent: (id: string) => void
   updateEvent: (id: string, updates: Partial<MainEvent>) => void
+  deleteRegistration: (eventId: string, regId: string) => Promise<void>
   registerForSubEvent: (eventId: string, subEventId: string, reg: Registration) => void
   addChatMessage: (eventId: string, subEventId: string, msg: ChatMessage) => void
   addCoordinator: (eventId: string, subEventId: string, coordinator: SubEventCoordinator) => void
@@ -395,6 +397,11 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
 
   const deleteEvent = async (id: string) => {
     await deleteDoc(getEventRef(id))
+  }
+
+  const deleteRegistration = async (eventId: string, regId: string) => {
+    await deleteDoc(getRegRef(eventId, regId))
+    await updateDoc(getEventRef(eventId), { registeredCount: increment(-1) })
   }
 
   const registerForSubEvent = async (eventId: string, _subEventId: string, reg: Registration) => {
@@ -733,7 +740,7 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
 
   return (
     <EventsContext.Provider value={{
-      events, isLoading, addEvent, deleteEvent, updateEvent, registerForSubEvent, addChatMessage, addCoordinator,
+      events, isLoading, addEvent, deleteEvent, updateEvent, deleteRegistration, registerForSubEvent, addChatMessage, addCoordinator,
       submitTransaction, approvePayment, rejectPayment,
       addAnnouncement, addTask, updateTaskStatus, updateTaskOrder,
       checkInParticipant, undoCheckInParticipant,

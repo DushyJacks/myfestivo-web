@@ -1,7 +1,7 @@
 "use client"
 
 import { useAuth } from "@/lib/auth-context"
-import { useEvents, TaskStatus, SubEvent } from "@/lib/events-context"
+import { useEvents, TaskStatus, SubEvent, SubEventCoordinator } from "@/lib/events-context"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { MicroLabel } from "@/components/ui/MicroLabel"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useState, useEffect } from "react"
+import { collection, query, where, getDocs } from "firebase/firestore"
+import { db as getDb } from "@/lib/firebase"
 import { QRCodeSVG } from "qrcode.react"
 import { AppSidebar } from "@/components/layout/AppSidebar"
 import { ChatPanel } from "@/components/event/ChatPanel"
@@ -30,6 +32,28 @@ import {
 } from "lucide-react"
 
 type TabId = "overview" | "chat" | "announcements" | "tasks" | "checkin" | "automation" | "participant_qr" | "participants"
+
+function CoordinatorBadge({ c }: { c: SubEventCoordinator }) {
+  const [name, setName] = useState(c.name)
+  useEffect(() => {
+    const fetchName = async () => {
+      try {
+        const q = query(collection(getDb(), "users"), where("email", "==", c.email))
+        const snap = await getDocs(q)
+        if (!snap.empty) {
+          setName(snap.docs[0].data().name || c.name)
+        }
+      } catch {}
+    }
+    fetchName()
+  }, [c.email, c.name])
+
+  return (
+    <span className="text-[10px] font-mono bg-white/[0.05] border border-white/[0.08] px-2 py-1 rounded">
+      {name} — {c.role} {c.phone && <span className="text-white/30 ml-1 flex items-center gap-1 inline-flex"><Phone className="w-2.5 h-2.5" />{c.phone}</span>}
+    </span>
+  )
+}
 
 export default function EventDetailPage() {
   const params = useParams()
@@ -571,9 +595,7 @@ export default function EventDetailPage() {
 
                         {se.coordinators.length > 0 && (
                           <div className="mb-3 flex flex-wrap gap-2">{se.coordinators.map((c, i) => (
-                            <span key={i} className="text-[10px] font-mono bg-white/[0.05] border border-white/[0.08] px-2 py-1 rounded">
-                              {c.name} — {c.role} {c.phone && <span className="text-white/30 ml-1 flex items-center gap-1 inline-flex"><Phone className="w-2.5 h-2.5" />{c.phone}</span>}
-                            </span>
+                            <CoordinatorBadge key={i} c={c} />
                           ))}</div>
                         )}
                       </GlassCard>
