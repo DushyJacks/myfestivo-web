@@ -114,6 +114,12 @@ function pickColor(name: string) {
 
 const googleProvider = new GoogleAuthProvider()
 
+const legacyDeptMap: Record<string, string> = {
+  "Computer Science": "BSc CS",
+  "Cyber Security": "BSc Cyber Security",
+  "AI/ML": "BSc AI/ML",
+}
+
 async function fetchUserProfile(uid: string): Promise<User | null> {
   const db = getDb()
   if (!db) return null
@@ -122,6 +128,7 @@ async function fetchUserProfile(uid: string): Promise<User | null> {
     const data = snap.data()
     return {
       ...data,
+      department: data.department ? (legacyDeptMap[data.department] || data.department) : "",
       avatarUrl: data.avatarUrl || "",
       friendRequestsIn: data.friendRequestsIn || [],
       friendRequestsOut: data.friendRequestsOut || [],

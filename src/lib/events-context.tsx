@@ -247,6 +247,12 @@ function eventsForCache(evts: MainEvent[]): object[] {
 }
 
 // ─── Provider ───
+const legacyDeptMap: Record<string, string> = {
+  "Computer Science": "BSc CS",
+  "Cyber Security": "BSc Cyber Security",
+  "AI/ML": "BSc AI/ML",
+}
+
 export function EventsProvider({ children, authReady, authUid }: EventsProviderProps) {
   const [events, setEvents] = useState<MainEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -325,6 +331,7 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
             automationLogs: data.automationLogs || [],
             importantLinks: data.importantLinks || [],
             restricted_registrations: data.restricted_registrations || [],
+            allowedDepartments: (data.allowedDepartments || []).map((d: string) => legacyDeptMap[d] || d),
             rules: data.rules || [],
             registrationOpen: data.registrationOpen !== false,
             registrationDeadline: data.registrationDeadline || "",
