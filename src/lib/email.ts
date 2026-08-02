@@ -1,50 +1,13 @@
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend';
 
 /**
  * Email Automation Service — MyFestivo
- *
- * Sender: myfestivo@gmail.com
- *
- * Required environment variables:
- *   GMAIL_EMAIL         = myfestivo@gmail.com
- *   GMAIL_APP_PASSWORD  = <16-char Gmail App Password from Google Account settings>
- *
- * How to generate an App Password:
- *   1. Go to https://myaccount.google.com/security
- *   2. Enable 2-Step Verification
- *   3. Search "App passwords" → create one for "Mail"
- *   4. Paste the 16-character code as GMAIL_APP_PASSWORD
+ * Powered by Resend
  */
 
-const FROM_NAME = 'MyFestivo'
-const FROM_EMAIL = process.env.GMAIL_EMAIL || 'myfestivo@gmail.com'
-const FROM = `"${FROM_NAME}" <${FROM_EMAIL}>`
-
-// ─── Transporter (singleton) ──────────────────────────────────────────────────
-
-let transporter: nodemailer.Transporter | null = null
-
-function getTransporter() {
-  if (transporter) return transporter
-
-  if (!process.env.GMAIL_EMAIL || !process.env.GMAIL_APP_PASSWORD) {
-    console.error(
-      '[MyFestivo Email] Gmail credentials not configured.\n' +
-      'Set GMAIL_EMAIL=myfestivo@gmail.com and GMAIL_APP_PASSWORD in .env.local (and Netlify env vars).'
-    )
-    throw new Error('Email service not configured')
-  }
-
-  transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.GMAIL_EMAIL,
-      pass: process.env.GMAIL_APP_PASSWORD,
-    },
-  })
-
-  return transporter
-}
+const resend = new Resend(process.env.RESEND_API_KEY);
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'noreply@myfestivo.live';
+const FROM = `MyFestivo <${FROM_EMAIL}>`;
 
 // ─── Shared HTML wrapper ──────────────────────────────────────────────────────
 
@@ -55,70 +18,44 @@ function wrapHtml(bodyContent: string): string {
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>MyFestivo</title>
     </head>
-    <body style="margin:0;padding:0;background:#0a0a0a;font-family:'Inter',Arial,sans-serif;color:#ffffff;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:32px 16px;">
-        <tr><td align="center">
-          <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#111111;border-radius:12px;border:1px solid rgba(179,136,255,0.12);overflow:hidden;">
-            <!-- Header -->
-            <tr>
-              <td style="background:linear-gradient(135deg,#1a0a2e 0%,#0d0014 100%);padding:28px 36px;border-bottom:1px solid rgba(179,136,255,0.15);">
-                <span style="font-size:20px;font-weight:700;color:#B388FF;letter-spacing:0.05em;">MyFestivo</span>
-                <span style="font-size:11px;color:rgba(255,255,255,0.3);margin-left:10px;font-family:monospace;letter-spacing:0.1em;">COLLEGE EVENT PLATFORM</span>
-              </td>
-            </tr>
-            <!-- Body -->
-            <tr><td style="padding:32px 36px;">${bodyContent}</td></tr>
-            <!-- Footer -->
-            <tr>
-              <td style="padding:20px 36px;border-top:1px solid rgba(255,255,255,0.05);background:#0d0d0d;">
-                <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.2);font-family:monospace;">
-                  © ${new Date().getFullYear()} MyFestivo · <a href="https://myfestivo.live" style="color:rgba(179,136,255,0.6);text-decoration:none;">myfestivo.live</a>
-                  <br/>You're receiving this because you have an account on MyFestivo.
-                  <br/>If you didn't sign up, please ignore this email.
-                </p>
-              </td>
-            </tr>
-          </table>
-        </td></tr>
-      </table>
+    <body style="margin:0;padding:0;background-color:#f9f9f9;font-family:Arial,sans-serif;color:#333333;">
+      <div style="max-width:600px;margin:20px auto;background-color:#ffffff;padding:30px;border:1px solid #eaeaea;border-radius:8px;">
+        <div style="border-bottom:2px solid #B388FF;padding-bottom:15px;margin-bottom:20px;">
+          <h1 style="color:#222;margin:0;font-size:22px;letter-spacing:0.5px;">MyFestivo</h1>
+        </div>
+        <div style="line-height:1.6;font-size:15px;">
+          ${bodyContent}
+        </div>
+        <div style="margin-top:30px;padding-top:20px;border-top:1px solid #eaeaea;font-size:12px;color:#888888;">
+          <p>© ${new Date().getFullYear()} MyFestivo · <a href="https://myfestivo.live" style="color:#B388FF;">myfestivo.live</a></p>
+          <p>You're receiving this email regarding your activity on MyFestivo.</p>
+        </div>
+      </div>
     </body>
     </html>
-  `
+  `;
 }
 
 function h2(text: string) {
-  return `<h2 style="margin:0 0 8px;font-size:22px;font-weight:600;color:#ffffff;">${text}</h2>`
+  return `<h2 style="margin:0 0 10px;font-size:20px;font-weight:600;color:#111;">${text}</h2>`;
 }
 
-function p(text: string, style = '') {
-  return `<p style="margin:12px 0;font-size:15px;color:rgba(255,255,255,0.65);line-height:1.6;${style}">${text}</p>`
-}
-
-function badge(text: string, color = '#B388FF') {
-  return `<span style="display:inline-block;background:rgba(179,136,255,0.12);border:1px solid rgba(179,136,255,0.3);color:${color};font-size:11px;font-family:monospace;letter-spacing:0.08em;padding:3px 10px;border-radius:20px;">${text.toUpperCase()}</span>`
+function p(text: string) {
+  return `<p style="margin:0 0 15px;">${text}</p>`;
 }
 
 function ctaButton(label: string, url: string) {
   return `
-    <div style="margin:24px 0;">
-      <a href="${url}" style="display:inline-block;background:#B388FF;color:#000000;font-weight:700;font-size:13px;letter-spacing:0.06em;padding:12px 28px;border-radius:8px;text-decoration:none;">${label}</a>
+    <div style="margin:25px 0;">
+      <a href="${url}" style="background-color:#B388FF;color:#fff;font-weight:bold;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;">${label}</a>
     </div>
-  `
+  `;
 }
 
-function divider() {
-  return `<hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:24px 0;" />`
-}
-
-function infoRow(label: string, value: string) {
-  return `
-    <tr>
-      <td style="padding:8px 0;font-size:11px;font-family:monospace;color:rgba(255,255,255,0.3);letter-spacing:0.08em;text-transform:uppercase;width:120px;">${label}</td>
-      <td style="padding:8px 0;font-size:14px;color:rgba(255,255,255,0.75);">${value}</td>
-    </tr>
-  `
+function listBlock(items: { label: string; value: string }[]) {
+  const rows = items.map(item => `<li><strong>${item.label}:</strong> ${item.value}</li>`).join('');
+  return `<ul style="background-color:#f4f4f5;padding:15px 15px 15px 35px;border-radius:6px;">${rows}</ul>`;
 }
 
 // ─── 1. Registration Confirmation ─────────────────────────────────────────────
@@ -133,34 +70,39 @@ export async function sendRegistrationConfirmation(
   eventId: string
 ): Promise<boolean> {
   try {
+    const subject = `✅ You're registered for ${eventTitle} — MyFestivo`;
+    
     const html = wrapHtml(`
-      ${badge('Registration Confirmed')}
-      <div style="margin-top:16px;">
-        ${h2("You're registered! 🎉")}
-        ${p(`Hi <strong style="color:#fff;">${userName}</strong>, your spot is secured for <strong style="color:#B388FF;">${eventTitle}</strong>.`)}
-      </div>
-      ${divider()}
-      <table cellpadding="0" cellspacing="0" style="width:100%;">
-        ${infoRow('Event', eventTitle)}
-        ${infoRow('Sub-Event', subEventName)}
-        ${infoRow('Date', eventDate)}
-        ${infoRow('Venue', eventVenue)}
-      </table>
+      ${h2("You're registered! 🎉")}
+      ${p(`Hi <strong>${userName}</strong>, your spot is secured for <strong>${eventTitle}</strong>.`)}
+      
+      ${listBlock([
+        { label: 'Event', value: eventTitle },
+        { label: 'Sub-Event', value: subEventName },
+        { label: 'Date', value: eventDate },
+        { label: 'Venue', value: eventVenue },
+      ])}
+      
       ${ctaButton('View Event', `https://myfestivo.live/events/${eventId}`)}
-      ${p('Keep your registration pass handy — you\'ll need it for check-in.', 'font-size:13px;color:rgba(255,255,255,0.35);')}
-    `)
+      ${p('Keep your registration pass handy — you\'ll need it for check-in.')}
+    `);
 
-    await getTransporter().sendMail({
+    const text = `Hi ${userName},\n\nYou're registered for ${eventTitle}!\n\nEvent Details:\n- Sub-Event: ${subEventName}\n- Date: ${eventDate}\n- Venue: ${eventVenue}\n\nView Event: https://myfestivo.live/events/${eventId}\n\nKeep your registration pass handy — you'll need it for check-in.\n\nMyFestivo`;
+
+    const { error } = await resend.emails.send({
       from: FROM,
       to: toEmail,
-      subject: `✅ You're registered for ${eventTitle} — MyFestivo`,
+      subject,
       html,
-    })
-    console.log(`[Email] Registration confirmation sent → ${toEmail}`)
-    return true
+      text,
+    });
+
+    if (error) throw error;
+    console.log(`[Email] Registration confirmation sent → ${toEmail}`);
+    return true;
   } catch (error) {
-    console.error('[Email] sendRegistrationConfirmation failed:', error)
-    return false
+    console.error('[Email] sendRegistrationConfirmation failed:', error);
+    return false;
   }
 }
 
@@ -175,33 +117,38 @@ export async function sendPaymentConfirmation(
   eventId: string
 ): Promise<boolean> {
   try {
+    const subject = `💳 Payment confirmed for ${eventTitle} — MyFestivo`;
+    
     const html = wrapHtml(`
-      ${badge('Payment Confirmed', '#4ade80')}
-      <div style="margin-top:16px;">
-        ${h2('Payment received 💳')}
-        ${p(`Hi <strong style="color:#fff;">${userName}</strong>, your payment of <strong style="color:#4ade80;">₹${amount}</strong> for <strong style="color:#B388FF;">${eventTitle}</strong> has been confirmed.`)}
-      </div>
-      ${divider()}
-      <table cellpadding="0" cellspacing="0" style="width:100%;">
-        ${infoRow('Event', eventTitle)}
-        ${infoRow('Amount Paid', `₹${amount}`)}
-        ${infoRow('Transaction ID', transactionId)}
-        ${infoRow('Status', 'PAID')}
-      </table>
+      ${h2('Payment received 💳')}
+      ${p(`Hi <strong>${userName}</strong>, your payment of <strong>₹${amount}</strong> for <strong>${eventTitle}</strong> has been confirmed.`)}
+      
+      ${listBlock([
+        { label: 'Event', value: eventTitle },
+        { label: 'Amount Paid', value: `₹${amount}` },
+        { label: 'Transaction ID', value: transactionId },
+        { label: 'Status', value: 'PAID' },
+      ])}
+      
       ${ctaButton('View Registration', `https://myfestivo.live/events/${eventId}`)}
-    `)
+    `);
 
-    await getTransporter().sendMail({
+    const text = `Hi ${userName},\n\nYour payment of ₹${amount} for ${eventTitle} has been confirmed.\n\nPayment Details:\n- Transaction ID: ${transactionId}\n- Status: PAID\n\nView Registration: https://myfestivo.live/events/${eventId}\n\nMyFestivo`;
+
+    const { error } = await resend.emails.send({
       from: FROM,
       to: toEmail,
-      subject: `💳 Payment confirmed for ${eventTitle} — MyFestivo`,
+      subject,
       html,
-    })
-    console.log(`[Email] Payment confirmation sent → ${toEmail}`)
-    return true
+      text,
+    });
+
+    if (error) throw error;
+    console.log(`[Email] Payment confirmation sent → ${toEmail}`);
+    return true;
   } catch (error) {
-    console.error('[Email] sendPaymentConfirmation failed:', error)
-    return false
+    console.error('[Email] sendPaymentConfirmation failed:', error);
+    return false;
   }
 }
 
@@ -217,39 +164,39 @@ export async function sendEventReminder(
   eventId: string
 ): Promise<boolean> {
   try {
-    const timeLabel = hoursUntilEvent <= 1
-      ? '1 hour'
-      : hoursUntilEvent <= 24
-      ? `${hoursUntilEvent} hours`
-      : '24 hours'
-
+    const timeLabel = hoursUntilEvent <= 1 ? '1 hour' : hoursUntilEvent <= 24 ? `${hoursUntilEvent} hours` : '24 hours';
+    const subject = `⏰ Reminder: ${eventTitle} starts in ${timeLabel} — MyFestivo`;
+    
     const html = wrapHtml(`
-      ${badge(`Reminder: ${timeLabel} to go`, '#facc15')}
-      <div style="margin-top:16px;">
-        ${h2(`${eventTitle} starts soon ⏰`)}
-        ${p(`Hi <strong style="color:#fff;">${userName}</strong>, your event <strong style="color:#B388FF;">${eventTitle}</strong> is starting in <strong style="color:#facc15;">${timeLabel}</strong>.`)}
-      </div>
-      ${divider()}
-      <table cellpadding="0" cellspacing="0" style="width:100%;">
-        ${infoRow('Event', eventTitle)}
-        ${infoRow('Date & Time', eventDate)}
-        ${infoRow('Venue', eventVenue)}
-      </table>
+      ${h2(`${eventTitle} starts soon ⏰`)}
+      ${p(`Hi <strong>${userName}</strong>, your event <strong>${eventTitle}</strong> is starting in <strong>${timeLabel}</strong>.`)}
+      
+      ${listBlock([
+        { label: 'Event', value: eventTitle },
+        { label: 'Date & Time', value: eventDate },
+        { label: 'Venue', value: eventVenue },
+      ])}
+      
       ${ctaButton('View Event & Pass', `https://myfestivo.live/events/${eventId}`)}
-      ${p('Don\'t forget to bring your QR check-in pass!', 'font-size:13px;color:rgba(255,255,255,0.35);')}
-    `)
+      ${p('Don\'t forget to bring your QR check-in pass!')}
+    `);
 
-    await getTransporter().sendMail({
+    const text = `Hi ${userName},\n\nYour event ${eventTitle} is starting in ${timeLabel}.\n\nDetails:\n- Date & Time: ${eventDate}\n- Venue: ${eventVenue}\n\nView Event: https://myfestivo.live/events/${eventId}\n\nDon't forget to bring your QR check-in pass!\n\nMyFestivo`;
+
+    const { error } = await resend.emails.send({
       from: FROM,
       to: toEmail,
-      subject: `⏰ Reminder: ${eventTitle} starts in ${timeLabel} — MyFestivo`,
+      subject,
       html,
-    })
-    console.log(`[Email] Event reminder sent → ${toEmail}`)
-    return true
+      text,
+    });
+
+    if (error) throw error;
+    console.log(`[Email] Event reminder sent → ${toEmail}`);
+    return true;
   } catch (error) {
-    console.error('[Email] sendEventReminder failed:', error)
-    return false
+    console.error('[Email] sendEventReminder failed:', error);
+    return false;
   }
 }
 
@@ -264,30 +211,35 @@ export async function sendAnnouncementNotification(
   eventId: string
 ): Promise<boolean> {
   try {
+    const subject = `📢 ${announcementTitle} — ${eventTitle} | MyFestivo`;
+    
     const html = wrapHtml(`
-      ${badge('New Announcement')}
-      <div style="margin-top:16px;">
-        ${h2(announcementTitle)}
-        ${p(`Hi <strong style="color:#fff;">${userName}</strong>, there's a new announcement for <strong style="color:#B388FF;">${eventTitle}</strong>.`)}
+      ${h2(announcementTitle)}
+      ${p(`Hi <strong>${userName}</strong>, there's a new announcement for <strong>${eventTitle}</strong>.`)}
+      
+      <div style="background:#f4f4f5;padding:15px;border-radius:6px;border-left:4px solid #B388FF;">
+        <p style="margin:0;">${announcementMessage}</p>
       </div>
-      ${divider()}
-      <div style="background:rgba(179,136,255,0.06);border:1px solid rgba(179,136,255,0.15);border-radius:8px;padding:16px 20px;margin:16px 0;">
-        <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.7);line-height:1.6;">${announcementMessage}</p>
-      </div>
+      
       ${ctaButton('View Announcement', `https://myfestivo.live/events/${eventId}`)}
-    `)
+    `);
 
-    await getTransporter().sendMail({
+    const text = `Hi ${userName},\n\nThere's a new announcement for ${eventTitle}:\n\n${announcementTitle}\n\n${announcementMessage}\n\nView Details: https://myfestivo.live/events/${eventId}\n\nMyFestivo`;
+
+    const { error } = await resend.emails.send({
       from: FROM,
       to: toEmail,
-      subject: `📢 ${announcementTitle} — ${eventTitle} | MyFestivo`,
+      subject,
       html,
-    })
-    console.log(`[Email] Announcement notification sent → ${toEmail}`)
-    return true
+      text,
+    });
+
+    if (error) throw error;
+    console.log(`[Email] Announcement notification sent → ${toEmail}`);
+    return true;
   } catch (error) {
-    console.error('[Email] sendAnnouncementNotification failed:', error)
-    return false
+    console.error('[Email] sendAnnouncementNotification failed:', error);
+    return false;
   }
 }
 
@@ -304,33 +256,38 @@ export async function sendTaskAssignment(
   eventId: string
 ): Promise<boolean> {
   try {
+    const subject = `📋 Task assigned: ${taskTitle} — ${eventTitle} | MyFestivo`;
+    
     const html = wrapHtml(`
-      ${badge('Task Assigned')}
-      <div style="margin-top:16px;">
-        ${h2(`New task: ${taskTitle}`)}
-        ${p(`Hi <strong style="color:#fff;">${assigneeName}</strong>, <strong style="color:rgba(255,255,255,0.5);">${assignedBy}</strong> has assigned you a task for <strong style="color:#B388FF;">${eventTitle}</strong>.`)}
-      </div>
-      ${divider()}
-      <table cellpadding="0" cellspacing="0" style="width:100%;">
-        ${infoRow('Task', taskTitle)}
-        ${infoRow('Description', taskDescription)}
-        ${infoRow('Deadline', deadline || 'No deadline')}
-        ${infoRow('Assigned By', assignedBy)}
-      </table>
+      ${h2(`New task: ${taskTitle}`)}
+      ${p(`Hi <strong>${assigneeName}</strong>, <strong>${assignedBy}</strong> has assigned you a task for <strong>${eventTitle}</strong>.`)}
+      
+      ${listBlock([
+        { label: 'Task', value: taskTitle },
+        { label: 'Description', value: taskDescription },
+        { label: 'Deadline', value: deadline || 'No deadline' },
+        { label: 'Assigned By', value: assignedBy },
+      ])}
+      
       ${ctaButton('View Task Board', `https://myfestivo.live/events/${eventId}`)}
-    `)
+    `);
 
-    await getTransporter().sendMail({
+    const text = `Hi ${assigneeName},\n\n${assignedBy} has assigned you a task for ${eventTitle}.\n\nTask: ${taskTitle}\nDescription: ${taskDescription}\nDeadline: ${deadline || 'None'}\n\nView Task Board: https://myfestivo.live/events/${eventId}\n\nMyFestivo`;
+
+    const { error } = await resend.emails.send({
       from: FROM,
       to: toEmail,
-      subject: `📋 Task assigned: ${taskTitle} — ${eventTitle} | MyFestivo`,
+      subject,
       html,
-    })
-    console.log(`[Email] Task assignment sent → ${toEmail}`)
-    return true
+      text,
+    });
+
+    if (error) throw error;
+    console.log(`[Email] Task assignment sent → ${toEmail}`);
+    return true;
   } catch (error) {
-    console.error('[Email] sendTaskAssignment failed:', error)
-    return false
+    console.error('[Email] sendTaskAssignment failed:', error);
+    return false;
   }
 }
 
@@ -346,23 +303,30 @@ export async function sendCustomMessage(
   try {
     const html = wrapHtml(`
       ${h2(subject)}
-      <div style="margin-top:16px;">
-        ${p(messageBody.replace(/\n/g, '<br/>'))}
-      </div>
+      ${p(messageBody.replace(/\n/g, '<br/>'))}
       ${ctaLabel && ctaUrl ? ctaButton(ctaLabel, ctaUrl) : ''}
-    `)
+    `);
 
-    await getTransporter().sendMail({
+    let text = `${subject}\n\n${messageBody}\n`;
+    if (ctaLabel && ctaUrl) {
+      text += `\n${ctaLabel}: ${ctaUrl}\n`;
+    }
+    text += `\nMyFestivo`;
+
+    const { error } = await resend.emails.send({
       from: FROM,
       to: toEmail,
       subject: `${subject} — MyFestivo`,
       html,
-    })
-    console.log(`[Email] Custom message sent → ${toEmail}`)
-    return true
+      text,
+    });
+
+    if (error) throw error;
+    console.log(`[Email] Custom message sent → ${toEmail}`);
+    return true;
   } catch (error) {
-    console.error('[Email] sendCustomMessage failed:', error)
-    return false
+    console.error('[Email] sendCustomMessage failed:', error);
+    return false;
   }
 }
 
@@ -374,31 +338,36 @@ export async function sendCollegeOTP(
   collegeDomain: string
 ): Promise<boolean> {
   try {
+    const subject = 'MyFestivo — College Email Verification OTP';
+    
     const html = wrapHtml(`
-      ${badge('Email Verification')}
-      <div style="margin-top:16px;">
-        ${h2('Verify your college email')}
-        ${p(`You're verifying <strong style="color:#fff;">${toEmail}</strong> with domain <strong style="color:#B388FF;">@${collegeDomain}</strong>.`)}
+      ${h2('Verify your college email')}
+      ${p(`You're verifying <strong>${toEmail}</strong> with domain <strong>@${collegeDomain}</strong>.`)}
+      
+      <div style="background-color:#f4f4f5;padding:25px;text-align:center;border-radius:6px;margin:20px 0;">
+        <p style="margin:0 0 10px;font-size:12px;text-transform:uppercase;color:#555;">Your verification code</p>
+        <div style="font-size:36px;font-weight:bold;letter-spacing:5px;color:#B388FF;">${otp}</div>
       </div>
-      ${divider()}
-      <div style="background:rgba(179,136,255,0.08);border:2px solid rgba(179,136,255,0.3);border-radius:10px;padding:24px;text-align:center;margin:20px 0;">
-        <p style="margin:0 0 8px;font-size:11px;font-family:monospace;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;">Your verification code</p>
-        <div style="font-size:38px;font-weight:700;color:#B388FF;letter-spacing:8px;font-family:monospace;">${otp}</div>
-      </div>
-      ${p('This code expires in <strong>10 minutes</strong>. Do not share it with anyone.', 'font-size:13px;color:rgba(255,255,255,0.35);')}
-    `)
+      
+      ${p('This code expires in <strong>10 minutes</strong>. Do not share it with anyone.')}
+    `);
 
-    await getTransporter().sendMail({
+    const text = `Verify your college email\n\nYou're verifying ${toEmail} with domain @${collegeDomain}.\n\nYour verification code is:\n${otp}\n\nThis code expires in 10 minutes. Do not share it with anyone.\n\nMyFestivo`;
+
+    const { error } = await resend.emails.send({
       from: FROM,
       to: toEmail,
-      subject: 'MyFestivo — College Email Verification OTP',
+      subject,
       html,
-    })
-    console.log(`[Email] OTP sent → ${toEmail}`)
-    return true
+      text,
+    });
+
+    if (error) throw error;
+    console.log(`[Email] OTP sent → ${toEmail}`);
+    return true;
   } catch (error) {
-    console.error('[Email] sendCollegeOTP failed:', error)
-    return false
+    console.error('[Email] sendCollegeOTP failed:', error);
+    return false;
   }
 }
 
@@ -410,31 +379,36 @@ export async function sendSignupOTP(
   userName: string
 ): Promise<boolean> {
   try {
+    const subject = 'MyFestivo — Verify your account';
+    
     const html = wrapHtml(`
-      ${badge('Account Verification')}
-      <div style="margin-top:16px;">
-        ${h2('Verify your email address')}
-        ${p(`Hi <strong style="color:#fff;">${userName}</strong>, thanks for signing up! Use the code below to verify your account and complete registration.`)}
+      ${h2('Verify your email address')}
+      ${p(`Hi <strong>${userName}</strong>, thanks for signing up! Use the code below to verify your account and complete registration.`)}
+      
+      <div style="background-color:#f4f4f5;padding:25px;text-align:center;border-radius:6px;margin:20px 0;">
+        <p style="margin:0 0 10px;font-size:12px;text-transform:uppercase;color:#555;">Your verification code</p>
+        <div style="font-size:36px;font-weight:bold;letter-spacing:5px;color:#B388FF;">${otp}</div>
       </div>
-      ${divider()}
-      <div style="background:rgba(179,136,255,0.08);border:2px solid rgba(179,136,255,0.3);border-radius:10px;padding:28px;text-align:center;margin:20px 0;">
-        <p style="margin:0 0 10px;font-size:11px;font-family:monospace;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;">Your verification code</p>
-        <div style="font-size:42px;font-weight:700;color:#B388FF;letter-spacing:10px;font-family:monospace;">${otp}</div>
-      </div>
-      ${p('This code expires in <strong>10 minutes</strong>. If you didn\'t create an account, you can safely ignore this email.', 'font-size:13px;color:rgba(255,255,255,0.35);')}
-    `)
+      
+      ${p('This code expires in <strong>10 minutes</strong>. If you didn\'t create an account, you can safely ignore this email.')}
+    `);
 
-    await getTransporter().sendMail({
+    const text = `Verify your email address\n\nHi ${userName}, thanks for signing up! Use the code below to verify your account and complete registration.\n\nYour verification code is:\n${otp}\n\nThis code expires in 10 minutes. If you didn't create an account, you can safely ignore this email.\n\nMyFestivo`;
+
+    const { error } = await resend.emails.send({
       from: FROM,
       to: toEmail,
-      subject: 'MyFestivo — Verify your account',
+      subject,
       html,
-    })
-    console.log(`[Email] Signup OTP sent → ${toEmail}`)
-    return true
+      text,
+    });
+
+    if (error) throw error;
+    console.log(`[Email] Signup OTP sent → ${toEmail}`);
+    return true;
   } catch (error) {
-    console.error('[Email] sendSignupOTP failed:', error)
-    return false
+    console.error('[Email] sendSignupOTP failed:', error);
+    return false;
   }
 }
 
@@ -449,38 +423,43 @@ export async function sendTeamInvitation(
   eventId: string
 ): Promise<boolean> {
   try {
+    const subject = `🤝 ${captainName} invited you to join team "${teamName}" — ${eventTitle} | MyFestivo`;
+    
     const html = wrapHtml(`
-      ${badge('Team Invitation')}
-      <div style="margin-top:16px;">
-        ${h2(`You've been invited to a team! 🤝`)}
-        ${p(`<strong style="color:#B388FF;">${captainName}</strong> has invited you to join team <strong style="color:#fff;">${teamName}</strong> for <strong style="color:#B388FF;">${eventTitle}</strong>.`)}
+      ${h2(`You've been invited to a team! 🤝`)}
+      ${p(`<strong>${captainName}</strong> has invited you to join team <strong>${teamName}</strong> for <strong>${eventTitle}</strong>.`)}
+      
+      ${listBlock([
+        { label: 'Event', value: eventTitle },
+        { label: 'Sub-Event', value: subEventName },
+        { label: 'Team', value: teamName },
+        { label: 'Invited By', value: captainName },
+      ])}
+      
+      <div style="background-color:#f4f4f5;padding:15px;border-radius:6px;margin:20px 0;">
+        <p style="margin:0;">Log in to your MyFestivo dashboard to <strong>Accept</strong> or <strong>Decline</strong> this team invitation.</p>
       </div>
-      ${divider()}
-      <table cellpadding="0" cellspacing="0" style="width:100%;">
-        ${infoRow('Event', eventTitle)}
-        ${infoRow('Sub-Event', subEventName)}
-        ${infoRow('Team', teamName)}
-        ${infoRow('Invited By', captainName)}
-      </table>
-      <div style="background:rgba(179,136,255,0.06);border:1px solid rgba(179,136,255,0.2);border-radius:10px;padding:20px 24px;margin:20px 0;">
-        <p style="margin:0 0 8px;font-size:13px;color:rgba(255,255,255,0.5);font-family:monospace;letter-spacing:0.06em;text-transform:uppercase;">Next Step</p>
-        <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.7);line-height:1.6;">Log in to your MyFestivo dashboard to <strong style="color:#fff;">Accept</strong> or <strong style="color:#fff;">Decline</strong> this team invitation.</p>
-      </div>
+      
       ${ctaButton('Go to Dashboard', `https://myfestivo.live/dashboard`)}
-      ${p('If you didn\'t expect this invite, you can safely ignore or decline it.', 'font-size:13px;color:rgba(255,255,255,0.35);')}
-    `)
+      ${p('If you didn\'t expect this invite, you can safely ignore or decline it.')}
+    `);
 
-    await getTransporter().sendMail({
+    const text = `Hi,\n\n${captainName} has invited you to join team "${teamName}" for ${eventTitle}.\n\nDetails:\n- Sub-Event: ${subEventName}\n\nLog in to your MyFestivo dashboard to Accept or Decline this team invitation.\n\nDashboard: https://myfestivo.live/dashboard\n\nIf you didn't expect this invite, you can safely ignore or decline it.\n\nMyFestivo`;
+
+    const { error } = await resend.emails.send({
       from: FROM,
       to: toEmail,
-      subject: `🤝 ${captainName} invited you to join team "${teamName}" — ${eventTitle} | MyFestivo`,
+      subject,
       html,
-    })
-    console.log(`[Email] Team invitation sent → ${toEmail}`)
-    return true
+      text,
+    });
+
+    if (error) throw error;
+    console.log(`[Email] Team invitation sent → ${toEmail}`);
+    return true;
   } catch (error) {
-    console.error('[Email] sendTeamInvitation failed:', error)
-    return false
+    console.error('[Email] sendTeamInvitation failed:', error);
+    return false;
   }
 }
 
@@ -488,11 +467,13 @@ export async function sendTeamInvitation(
 
 export async function testEmailConnection(): Promise<boolean> {
   try {
-    await getTransporter().verify()
-    console.log('[Email] ✓ Gmail SMTP connected successfully (myfestivo@gmail.com)')
-    return true
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY is not set');
+    }
+    console.log('[Email] ✓ Resend configured successfully');
+    return true;
   } catch (error) {
-    console.error('[Email] ✗ Connection failed:', error)
-    return false
+    console.error('[Email] ✗ Resend configuration failed:', error);
+    return false;
   }
 }

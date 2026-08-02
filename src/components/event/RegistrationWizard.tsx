@@ -274,13 +274,13 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
           <div className="w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
             <Check className="w-7 h-7 text-green-400" />
           </div>
-          <h2 className="text-xl font-medium mb-2">Registered!</h2>
+          <h2 className="text-xl font-medium mb-2">Registration Successful!</h2>
           <p className="text-sm text-white/50 mb-2">
-            You&apos;re in for <span className="text-white">{selectedSe?.name}</span>. Check your dashboard for your QR pass.
+            You have been registered for <span className="text-white">{event.title} - {selectedSe?.name}</span>. Check your dashboard for your QR pass.
           </p>
           <p className="text-xs text-[#B388FF]/70 mb-6 flex items-center justify-center gap-1.5">
             <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            Check your Gmail primary inbox or spam folder for event details.
+            Please check your mail inbox or spam folder for event details.
           </p>
           <Button onClick={onClose} className="bg-white text-black hover:bg-[#B388FF] h-10 px-6">Done</Button>
         </GlassCard>
