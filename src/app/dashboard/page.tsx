@@ -228,8 +228,8 @@ export default function DashboardPage() {
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <span className={`font-mono text-[10px] px-2 py-0.5 border rounded ${reg.status === "PAID" ? "border-green-500/30 text-green-400" : reg.status === "PENDING" ? "border-yellow-500/30 text-yellow-400" : "border-white/20 text-white/40"}`}>
-                                    {reg.status === "PAID" ? "REGISTERED" : reg.status}
+                                  <span className={`font-mono text-[10px] px-2 py-0.5 border rounded ${reg.status === "PAID" || reg.status === "FREE" ? "border-green-500/30 text-green-400" : reg.status === "PENDING" ? "border-yellow-500/30 text-yellow-400" : "border-white/20 text-white/40"}`}>
+                                    {reg.status === "PAID" || reg.status === "FREE" ? "REGISTERED" : reg.status}
                                   </span>
                                   {reg.checkedIn && <span className="text-[10px] font-mono text-green-400 flex items-center gap-1"><CheckSquare className="w-3 h-3" />Checked In</span>}
                                   <button onClick={() => setShowQR(isOpen ? null : reg.id)} aria-label={isOpen ? "Hide QR pass" : "Show QR pass"} className="flex items-center gap-1 text-xs text-white/50 hover:text-white border border-white/20 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40">

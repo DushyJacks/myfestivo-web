@@ -9,9 +9,8 @@ import { MicroLabel } from "@/components/ui/MicroLabel"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { LogIn, AlertCircle } from "lucide-react"
-import { TermsModal, useLegalAccepted } from "@/components/ui/TermsModal"
 
 export default function LoginPage() {
   const { login, user, signInWithGoogle } = useAuth()
@@ -21,8 +20,6 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
-
-  const { accepted, accept } = useLegalAccepted()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,17 +45,8 @@ export default function LoginPage() {
     setLoading(false)
   }
 
-  // accepted === null means we haven't read localStorage yet (hydrating)
-  const showTerms = accepted === false
-
   return (
-    <>
-      {/* Terms & Privacy modal — shown until user accepts both */}
-      <AnimatePresence>
-        {showTerms && <TermsModal onAccept={accept} />}
-      </AnimatePresence>
-
-      <PageTransition className="min-h-screen flex items-center justify-center px-4 py-16">
+    <PageTransition className="min-h-screen flex items-center justify-center px-4 py-16">
         <motion.div variants={pageItem} className="w-full max-w-md">
           <div className="mb-12">
             <Link href="/" className="block mb-8">
@@ -122,7 +110,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                disabled={loading || accepted === false}
+                disabled={loading}
                 aria-label={loading ? "Signing in..." : "Sign in"}
                 className="w-full bg-white text-black hover:bg-[#B388FF] font-medium h-12 transition-colors disabled:opacity-50"
               >
@@ -148,7 +136,7 @@ export default function LoginPage() {
 
             <Button
               type="button"
-              disabled={googleLoading || accepted === false}
+              disabled={googleLoading}
               aria-label={googleLoading ? "Connecting to Google..." : "Continue with Google"}
               onClick={async () => {
                 setGoogleLoading(true)
@@ -192,13 +180,6 @@ export default function LoginPage() {
               )}
             </Button>
 
-            {/* Accepted notice */}
-            {accepted && (
-              <p className="mt-4 text-[11px] font-mono text-white/20 text-center">
-                ✓ Terms & Privacy accepted
-              </p>
-            )}
-
             <div className="mt-6 pt-6 border-t border-white/[0.06] text-center text-sm text-white/70">
               No account?{" "}
               <Link href="/signup" className="text-white hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/50">
@@ -208,6 +189,5 @@ export default function LoginPage() {
           </GlassCard>
         </motion.div>
       </PageTransition>
-    </>
   )
 }

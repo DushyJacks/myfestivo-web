@@ -58,7 +58,11 @@ export default function EventsFeed() {
     result.sort((a, b) => {
       switch (sortBy) {
         case "date": return new Date(a.date).getTime() - new Date(b.date).getTime()
-        case "popularity": return b.registeredCount - a.registeredCount
+        case "popularity": {
+          const aCount = a.registrations.filter(r => r.status === "PAID" || r.status === "FREE").length
+          const bCount = b.registrations.filter(r => r.status === "PAID" || r.status === "FREE").length
+          return bCount - aCount
+        }
         case "price-low": return a.price - b.price
         case "price-high": return b.price - a.price
         default: return 0
@@ -226,25 +230,32 @@ export default function EventsFeed() {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 font-mono text-[11px] text-white/70">
-                       <span className="flex items-center gap-1">
-                         <Calendar className="w-3 h-3" />
-                         {formatDateDisplay(evt.date)}
-                         {evt.hasTime && evt.time && <span className="text-white/40 ml-1">at {formatTimeDisplay(evt.time)}</span>}
-                       </span>
-                       <span className="flex items-center gap-1 text-[#B388FF]/80"><Users className="w-3 h-3" />{evt.registeredCount} registered</span>
-                     </div>
-                    <span className={`font-mono text-[11px] font-medium ${ evt.price > 0 ? 'text-[#B388FF]' : 'text-green-400'}`}>
-                      {evt.price > 0 ? `₹${evt.price}` : "FREE"}
-                    </span>
-                  </div>
+                  {(() => {
+                    const actualRegisteredCount = evt.registrations.filter(r => r.status === "PAID" || r.status === "FREE").length
+                    return (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 font-mono text-[11px] text-white/70">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {formatDateDisplay(evt.date)}
+                              {evt.hasTime && evt.time && <span className="text-white/40 ml-1">at {formatTimeDisplay(evt.time)}</span>}
+                            </span>
+                            <span className="flex items-center gap-1 text-[#B388FF]/80"><Users className="w-3 h-3" />{actualRegisteredCount} registered</span>
+                          </div>
+                          <span className={`font-mono text-[11px] font-medium ${ evt.price > 0 ? 'text-[#B388FF]' : 'text-green-400'}`}>
+                            {evt.price > 0 ? `₹${evt.price}` : "FREE"}
+                          </span>
+                        </div>
 
-                  {/* Capacity bar */}
-                  <div className="mt-3 h-1 bg-white/[0.06] rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full transition-all ${evt.registeredCount > evt.seats * 0.8 ? 'bg-red-500/60' : evt.registeredCount > evt.seats * 0.5 ? 'bg-yellow-500/40' : 'bg-white/20'}`}
-                      style={{ width: `${Math.min(100, (evt.registeredCount / evt.seats) * 100)}%` }} />
-                  </div>
+                        {/* Capacity bar */}
+                        <div className="mt-3 h-1 bg-white/[0.06] rounded-full overflow-hidden">
+                          <div className={`h-full rounded-full transition-all ${actualRegisteredCount > evt.seats * 0.8 ? 'bg-red-500/60' : actualRegisteredCount > evt.seats * 0.5 ? 'bg-yellow-500/40' : 'bg-white/20'}`}
+                            style={{ width: `${Math.min(100, (actualRegisteredCount / evt.seats) * 100)}%` }} />
+                        </div>
+                      </>
+                    )
+                  })()}
 
                   {evt.subEvents.length > 0 && (
                     <div className="mt-3 pt-3 border-t border-white/[0.06] flex gap-2 flex-wrap">

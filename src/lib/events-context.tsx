@@ -474,10 +474,12 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
         : e
     ))
 
-    // We increment count and fire automations if it's a completely NEW registration,
-    // OR if it's an update transitioning out of DRAFT status (completing registration).
-    const isTransitioningFromDraft = existingById?.status === "DRAFT" && reg.status !== "DRAFT"
-    const shouldTriggerRegisterEvents = !isUpdate || isTransitioningFromDraft
+    // We increment count and fire automations only when a user successfully registers (PAID or FREE),
+    // and ONLY if they weren't already successfully registered before.
+    const wasAlreadyRegistered = existingById?.status === "PAID" || existingById?.status === "FREE"
+    const isNowRegistered = reg.status === "PAID" || reg.status === "FREE"
+    
+    const shouldTriggerRegisterEvents = !wasAlreadyRegistered && isNowRegistered
 
     // DRAFT registrations are placeholders for team invitations — skip count and automations
     if (reg.status === "DRAFT") return

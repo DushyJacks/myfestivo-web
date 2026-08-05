@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
 import { motion, AnimatePresence } from "framer-motion"
 import { UserPlus, AlertCircle, Phone, Mail, RefreshCw, CheckCircle2 } from "lucide-react"
-import { TermsModal, useLegalAccepted } from "@/components/ui/TermsModal"
+import { InlineLegalCheckboxes } from "@/components/ui/TermsModal"
 import { emailSignupOTP } from "@/lib/emailApi"
 
 function generateOTP(): string {
@@ -46,7 +46,9 @@ export default function SignupPage() {
   const [resending, setResending] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
 
-  const { accepted, accept } = useLegalAccepted()
+  const [termsChecked, setTermsChecked] = useState(false)
+  const [privacyChecked, setPrivacyChecked] = useState(false)
+  const bothLegalChecked = termsChecked && privacyChecked
 
   const update = (key: string, value: string) =>
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -154,16 +156,9 @@ export default function SignupPage() {
     setOtpLoading(false)
   }
 
-  const showTerms = accepted === false
-
   // ── OTP Verification Screen ────────────────────────────────────────────────
   if (showOtpStep) {
     return (
-      <>
-        <AnimatePresence>
-          {showTerms && <TermsModal onAccept={accept} />}
-        </AnimatePresence>
-
         <PageTransition className="min-h-screen flex items-center justify-center px-4 py-16">
           <motion.div variants={pageItem} className="w-full max-w-md">
             <div className="mb-12">
@@ -273,17 +268,11 @@ export default function SignupPage() {
             </GlassCard>
           </motion.div>
         </PageTransition>
-      </>
     )
   }
 
   // ── Signup Form ────────────────────────────────────────────────────────────
   return (
-    <>
-      <AnimatePresence>
-        {showTerms && <TermsModal onAccept={accept} />}
-      </AnimatePresence>
-
       <PageTransition className="min-h-screen flex items-center justify-center px-4 py-16">
       <motion.div variants={pageItem} className="w-full max-w-lg">
         <div className="mb-12">
@@ -415,7 +404,15 @@ export default function SignupPage() {
               </>
             )}
 
-            <Button type="submit" disabled={loading || accepted === false} aria-label={loading ? "Sending OTP..." : "Continue with email verification"} className="w-full bg-white text-black hover:bg-[#B388FF] font-medium h-12 transition-colors mt-2 disabled:opacity-50">
+            {/* Legal Checkboxes */}
+            <InlineLegalCheckboxes
+              termsChecked={termsChecked}
+              privacyChecked={privacyChecked}
+              onTermsChange={setTermsChecked}
+              onPrivacyChange={setPrivacyChecked}
+            />
+
+            <Button type="submit" disabled={loading || !bothLegalChecked} aria-label={loading ? "Sending OTP..." : "Continue with email verification"} className="w-full bg-white text-black hover:bg-[#B388FF] font-medium h-12 transition-colors mt-2 disabled:opacity-50">
               {loading ? (
                 <span className="inline-flex items-center gap-2">
                   <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" aria-hidden="true" />
@@ -438,7 +435,7 @@ export default function SignupPage() {
 
           <Button
             type="button"
-            disabled={googleLoading || accepted === false}
+            disabled={googleLoading}
             aria-label={googleLoading ? "Connecting to Google..." : "Continue with Google"}
             onClick={async () => {
               setGoogleLoading(true)

@@ -361,7 +361,7 @@ export default function EventDetailPage() {
       return
     }
 
-    if (registration.status !== 'PAID') {
+    if (registration.status !== 'PAID' && registration.status !== 'FREE') {
       setScanStatus({ type: 'error', msg: `Payment ${registration.status} for ${registration.userName}` })
       setTimeout(() => setScanStatus(null), 2500)
       return
@@ -492,7 +492,7 @@ export default function EventDetailPage() {
               {formatDateDisplay(event.date)}
               {event.hasTime && event.time && <span className="ml-1 text-white/40">at {formatTimeDisplay(event.time)}</span>}
             </span>
-            <span className="flex items-center gap-2"><Users className="w-4 h-4" />{confirmedRegistrations.filter(r => r.status === "PAID").length}{event.seats !== 9999 ? ` / ${event.seats}` : ""} registered</span>
+            <span className="flex items-center gap-2"><Users className="w-4 h-4" />{confirmedRegistrations.filter(r => r.status === "PAID" || r.status === "FREE").length}{event.seats !== 9999 ? ` / ${event.seats}` : ""} registered</span>
           </div>
         </motion.div>
 
@@ -1006,7 +1006,7 @@ export default function EventDetailPage() {
               {event.subEvents
                 .filter(se => !checkInSubEventFilter || se.id === checkInSubEventFilter)
                 .map(se => {
-                const seRegs = registrations.filter(r => r.subEventId === se.id && r.status === "PAID")
+                const seRegs = registrations.filter(r => r.subEventId === se.id && (r.status === "PAID" || r.status === "FREE"))
                 const checkedCount = seRegs.filter(r => r.checkedIn).length
                 if (seRegs.length === 0) return null
                 return (
@@ -1071,7 +1071,7 @@ export default function EventDetailPage() {
               })}
               {/* Registrations with no matching sub-event (edge case) */}
               {(() => {
-                const orphanRegs = registrations.filter(r => r.status === "PAID" && !event.subEvents.find(se => se.id === r.subEventId))
+                const orphanRegs = registrations.filter(r => (r.status === "PAID" || r.status === "FREE") && !event.subEvents.find(se => se.id === r.subEventId))
                 if (orphanRegs.length === 0) return null
                 return (
                   <div>
@@ -1186,7 +1186,7 @@ export default function EventDetailPage() {
                     </div>
                     <p className="text-xs font-mono text-white/40 mb-1">REG-ID: {reg.id}</p>
                     <div className="flex items-center gap-2">
-                      <span className={`font-mono text-[10px] px-2 py-0.5 border rounded ${reg.status === "PAID" ? "border-green-500/30 text-green-400" : "border-yellow-500/30 text-yellow-400"}`}>{reg.status}</span>
+                      <span className={`font-mono text-[10px] px-2 py-0.5 border rounded ${reg.status === "PAID" || reg.status === "FREE" ? "border-green-500/30 text-green-400" : "border-yellow-500/30 text-yellow-400"}`}>{reg.status}</span>
                       {reg.checkedIn && <span className="text-[10px] font-mono text-green-400 flex items-center gap-1"><ClipboardCheck className="w-3 h-3" /> Checked In</span>}
                     </div>
                   </GlassCard>
