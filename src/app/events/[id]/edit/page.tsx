@@ -862,7 +862,7 @@ export default function EditEventPage() {
                 <MicroLabel className="mb-4">Event Stats</MicroLabel>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   <div className="p-3 rounded-md bg-white/[0.02] border border-white/[0.06] text-center">
-                    <p className="text-2xl font-light text-white">{event.registeredCount}</p>
+                    <p className="text-2xl font-light text-white">{event.registrations.filter(r => r.status !== "DRAFT").length}</p>
                     <p className="text-[9px] font-mono text-white/30 tracking-widest uppercase mt-1">Registered</p>
                   </div>
                   <div className="p-3 rounded-md bg-white/[0.02] border border-white/[0.06] text-center">
@@ -874,7 +874,7 @@ export default function EditEventPage() {
                     <p className="text-[9px] font-mono text-white/30 tracking-widest uppercase mt-1">Pending</p>
                   </div>
                   <div className="p-3 rounded-md bg-white/[0.02] border border-white/[0.06] text-center">
-                    <p className="text-2xl font-light text-white">{event.registrations.filter(r => r.checkedIn).length}</p>
+                    <p className="text-2xl font-light text-white">{event.registrations.filter(r => r.status !== "DRAFT" && r.checkedIn).length}</p>
                     <p className="text-[9px] font-mono text-white/30 tracking-widest uppercase mt-1">Checked In</p>
                   </div>
                 </div>

@@ -407,8 +407,11 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
   }
 
   const deleteRegistration = async (eventId: string, regId: string) => {
+    const existing = regsByEventRef.current[eventId]?.find(r => r.id === regId)
     await deleteDoc(getRegRef(eventId, regId))
-    await updateDoc(getEventRef(eventId), { registeredCount: increment(-1) })
+    if (existing?.status === "PAID" || existing?.status === "FREE") {
+      await updateDoc(getEventRef(eventId), { registeredCount: increment(-1) })
+    }
   }
 
   const registerForSubEvent = async (eventId: string, _subEventId: string, reg: Registration) => {
@@ -610,9 +613,14 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
 
   const approvePayment = async (eventId: string, regId: string) => {
     await updateDoc(getRegRef(eventId, regId), { status: "PAID" })
+    await updateDoc(getEventRef(eventId), { registeredCount: increment(1) })
   }
 
   const rejectPayment = async (eventId: string, regId: string) => {
+    const existing = regsByEventRef.current[eventId]?.find(r => r.id === regId)
+    if (existing?.status === "PAID" || existing?.status === "FREE") {
+      await updateDoc(getEventRef(eventId), { registeredCount: increment(-1) })
+    }
     await updateDoc(getRegRef(eventId, regId), { status: "REFUNDED" })
   }
 

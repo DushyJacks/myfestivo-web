@@ -59,8 +59,8 @@ export default function EventsFeed() {
       switch (sortBy) {
         case "date": return new Date(a.date).getTime() - new Date(b.date).getTime()
         case "popularity": {
-          const aCount = a.registrations.filter(r => r.status === "PAID" || r.status === "FREE").length
-          const bCount = b.registrations.filter(r => r.status === "PAID" || r.status === "FREE").length
+          const aCount = a.registrations.filter(r => r.status !== "DRAFT").length
+          const bCount = b.registrations.filter(r => r.status !== "DRAFT").length
           return bCount - aCount
         }
         case "price-low": return a.price - b.price
@@ -231,7 +231,7 @@ export default function EventsFeed() {
                   )}
 
                   {(() => {
-                    const actualRegisteredCount = evt.registrations.filter(r => r.status === "PAID" || r.status === "FREE").length
+                    const actualRegisteredCount = evt.registrations.filter(r => r.status !== "DRAFT").length
                     return (
                       <>
                         <div className="flex items-center justify-between">

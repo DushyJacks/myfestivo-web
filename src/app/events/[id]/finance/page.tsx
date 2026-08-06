@@ -45,8 +45,9 @@ export default function FinancePage() {
     )
   }
 
-  // Financial calculations
-  const totalRegs = event.registrations.length
+  // Financial calculations — exclude DRAFT registrations (team invite placeholders)
+  const confirmedRegs = event.registrations.filter(r => r.status !== "DRAFT")
+  const totalRegs = confirmedRegs.length
   const paidRegs = event.registrations.filter(r => r.status === "PAID")
   const pendingRegs = event.registrations.filter(r => r.status === "PENDING")
   const refundedRegs = event.registrations.filter(r => r.status === "REFUNDED")
@@ -57,9 +58,9 @@ export default function FinancePage() {
   const potentialRevenue = totalRegs * event.price
   const collectionRate = totalRegs > 0 ? Math.round((paidRegs.length / totalRegs) * 100) : 0
 
-  // Sub-event breakdown
+  // Sub-event breakdown — exclude DRAFTs
   const subEventFinance = event.subEvents.map(se => {
-    const seRegs = event.registrations.filter(r => r.subEventId === se.id)
+    const seRegs = confirmedRegs.filter(r => r.subEventId === se.id)
     const sePaid = seRegs.filter(r => r.status === "PAID")
     const sePending = seRegs.filter(r => r.status === "PENDING")
     return {

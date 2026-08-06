@@ -283,7 +283,7 @@ export default function DashboardPage() {
                       <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-4 gap-y-2 text-xs text-white/70 mb-4">
                         <span className="flex items-center gap-1">
                           <Users className="w-3 h-3 shrink-0" />
-                          <span>{evt.registeredCount} registrations</span>
+                          <span>{evt.registrations.filter(r => r.status !== "DRAFT").length} registrations</span>
                         </span>
                         <span className="flex items-center gap-1">
                           <CalendarDays className="w-3 h-3 shrink-0" />

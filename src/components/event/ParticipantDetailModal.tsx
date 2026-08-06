@@ -250,20 +250,21 @@ export function ParticipantDetailModal({ reg, event, isOpen, onClose }: Props) {
                         <p className="text-[10px] font-mono text-white/40 tracking-widest uppercase mb-3">
                           Teammate {i + 1}
                         </p>
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                          <div>
+                        {/* Use a 2-col grid on small, 4-col on md+, with email spanning wider */}
+                        <div className="grid grid-cols-2 md:grid-cols-[1fr_2fr_1fr_1fr] gap-x-4 gap-y-3">
+                          <div className="min-w-0">
                             <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider mb-1">Name</p>
-                            <p className="text-sm text-white/80">{tm.name || "—"}</p>
+                            <p className="text-sm text-white/80 truncate">{tm.name || "—"}</p>
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider mb-1">Email</p>
-                            <p className="text-sm text-white/80">{tm.email}</p>
+                            <p className="text-sm text-white/80 break-all leading-snug">{tm.email}</p>
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider mb-1">Phone Number</p>
                             <p className="text-sm text-white/80">{tm.phone || "—"}</p>
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <p className="text-[10px] font-mono text-white/30 uppercase tracking-wider mb-1">Reg No</p>
                             <p className="text-sm text-white/80">{tm.rollNo || "—"}</p>
                           </div>

@@ -119,7 +119,7 @@ export default function AdminPage() {
 
   // ─── Analytics ───
   const totalEvents = events.length
-  const totalRegistrations = events.reduce((sum, e) => sum + e.registrations.length, 0)
+  const totalRegistrations = events.reduce((sum, e) => sum + e.registrations.filter(r => r.status !== "DRAFT").length, 0)
   const totalRevenue = events.reduce((sum, e) =>
     sum + e.registrations.filter(r => r.status === "PAID").length * e.price, 0)
   const totalSubEvents = events.reduce((sum, e) => sum + e.subEvents.length, 0)
@@ -130,7 +130,7 @@ export default function AdminPage() {
   const categoryStats = ["Technical", "Cultural", "Sports", "Workshop"].map(cat => ({
     name: cat,
     count: events.filter(e => e.category === cat).length,
-    registrations: events.filter(e => e.category === cat).reduce((s, e) => s + e.registrations.length, 0),
+    registrations: events.filter(e => e.category === cat).reduce((s, e) => s + e.registrations.filter(r => r.status !== "DRAFT").length, 0),
   }))
 
   // ─── Filtered Events ───
@@ -630,7 +630,7 @@ export default function AdminPage() {
                                 className="bg-white/[0.06] border border-white/20 rounded px-2 py-1 text-sm text-white focus:outline-none" />
                             </td>
                             <td className="p-2 text-xs text-white/40">{evt.category}</td>
-                            <td className="p-2 text-center font-mono text-white/60">{evt.registeredCount}</td>
+                            <td className="p-2 text-center font-mono text-white/60">{evt.registrations.filter(r => r.status !== "DRAFT").length}</td>
                             <td className="p-2">
                               <input type="number" value={editFields.seats} onChange={e => setEditFields(f => ({ ...f, seats: +e.target.value }))}
                                 className="bg-white/[0.06] border border-white/20 rounded px-2 py-1 text-sm w-16 text-center text-white focus:outline-none" />
@@ -656,7 +656,7 @@ export default function AdminPage() {
                             </td>
                             <td className="p-3 font-mono text-white/50 text-xs">{evt.date}</td>
                             <td className="p-3"><span className="text-[10px] border border-white/20 text-white/50 px-2 py-0.5 rounded">{evt.category}</span></td>
-                            <td className="p-3 text-center font-mono text-white/60">{evt.registeredCount}</td>
+                            <td className="p-3 text-center font-mono text-white/60">{evt.registrations.filter(r => r.status !== "DRAFT").length}</td>
                             <td className="p-3 text-center font-mono text-white/40">{evt.seats}</td>
                             <td className="p-3 text-center font-mono text-white/40">₹{evt.price}</td>
                             <td className="p-3 text-center">

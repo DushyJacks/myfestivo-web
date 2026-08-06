@@ -32,6 +32,8 @@ export default function FinancePage() {
     return null 
   }
 
+  // Exclude DRAFT registrations (team invite placeholders) from all counts
+  const confirmedRegs = event.registrations.filter(r => r.status !== "DRAFT")
   const paidRegs = event.registrations.filter(r => r.status === "PAID")
   const pendingRegs = event.registrations.filter(r => r.status === "PENDING")
   const refundedRegs = event.registrations.filter(r => r.status === "REFUNDED")
@@ -39,9 +41,9 @@ export default function FinancePage() {
   const totalPending = pendingRegs.length * event.price
   const totalRefunded = refundedRegs.length * event.price
 
-  // Per-sub-event breakdown
+  // Per-sub-event breakdown — exclude DRAFTs
   const subEventBreakdown = event.subEvents.map(se => {
-    const seRegs = event.registrations.filter(r => r.subEventId === se.id)
+    const seRegs = confirmedRegs.filter(r => r.subEventId === se.id)
     const sePaid = seRegs.filter(r => r.status === "PAID")
     const sePending = seRegs.filter(r => r.status === "PENDING")
     return {
@@ -98,7 +100,7 @@ export default function FinancePage() {
             </GlassCard>
             <GlassCard className="p-6">
               <PieChart className="w-5 h-5 text-white/30 mb-2" />
-              <div className="text-3xl font-light mb-1 text-white">{event.registrations.length}</div>
+              <div className="text-3xl font-light mb-1 text-white">{confirmedRegs.length}</div>
               <div className="text-[10px] font-mono text-white/40 tracking-widest uppercase">Total Regs</div>
             </GlassCard>
           </motion.div>
@@ -131,11 +133,11 @@ export default function FinancePage() {
                   ))}
                   <tr className="bg-white/[0.03] font-medium">
                     <td className="p-3 text-white/60" colSpan={2}>TOTAL</td>
-                    <td className="p-3 text-right font-mono text-white">{event.registrations.length}</td>
+                    <td className="p-3 text-right font-mono text-white">{confirmedRegs.length}</td>
                     <td className="p-3 text-right font-mono text-green-400">{paidRegs.length}</td>
                     <td className="p-3 text-right font-mono text-yellow-400">{pendingRegs.length}</td>
                     <td className="p-3 text-right font-mono text-white">₹{totalCollected.toLocaleString()}</td>
-                    <td className="p-3 text-right font-mono text-white/40">{event.registrations.filter(r => r.checkedIn).length}</td>
+                    <td className="p-3 text-right font-mono text-white/40">{confirmedRegs.filter(r => r.checkedIn).length}</td>
                   </tr>
                 </tbody>
               </table>
@@ -150,14 +152,14 @@ export default function FinancePage() {
                 <div className="flex-1">
                   <div className="flex justify-between text-xs text-white/50 mb-2">
                     <span>Collection Progress</span>
-                    <span>{event.registrations.length > 0 ? Math.round(paidRegs.length / event.registrations.length * 100) : 0}%</span>
+                    <span>{confirmedRegs.length > 0 ? Math.round(paidRegs.length / confirmedRegs.length * 100) : 0}%</span>
                   </div>
                   <div className="h-3 bg-white/[0.06] rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all" style={{ width: `${event.registrations.length > 0 ? (paidRegs.length / event.registrations.length * 100) : 0}%` }} />
+                    <div className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all" style={{ width: `${confirmedRegs.length > 0 ? (paidRegs.length / confirmedRegs.length * 100) : 0}%` }} />
                   </div>
                   <div className="flex justify-between text-[10px] font-mono text-white/30 mt-2">
                     <span>₹0</span>
-                    <span>₹{(event.registrations.length * event.price).toLocaleString()}</span>
+                    <span>₹{(confirmedRegs.length * event.price).toLocaleString()}</span>
                   </div>
                 </div>
               </div>

@@ -492,7 +492,7 @@ export default function EventDetailPage() {
               {formatDateDisplay(event.date)}
               {event.hasTime && event.time && <span className="ml-1 text-white/40">at {formatTimeDisplay(event.time)}</span>}
             </span>
-            <span className="flex items-center gap-2"><Users className="w-4 h-4" />{confirmedRegistrations.filter(r => r.status === "PAID" || r.status === "FREE").length}{event.seats !== 9999 ? ` / ${event.seats}` : ""} registered</span>
+            <span className="flex items-center gap-2"><Users className="w-4 h-4" />{confirmedRegistrations.length}{event.seats !== 9999 ? ` / ${event.seats}` : ""} registered</span>
           </div>
         </motion.div>
 
