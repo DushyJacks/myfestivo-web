@@ -488,6 +488,5 @@ export default function SignupPage() {
         </GlassCard>
       </motion.div>
     </PageTransition>
-    </>
   )
 }
