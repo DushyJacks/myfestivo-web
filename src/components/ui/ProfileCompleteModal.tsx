@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { User, GraduationCap, Phone, BookOpen, X } from "lucide-react"
+import { InlineLegalCheckboxes } from "@/components/ui/TermsModal"
 
 /**
  * ProfileCompleteModal — shown once after a first-time Google sign-in
@@ -22,6 +23,8 @@ export function ProfileCompleteModal() {
   const [department, setDepartment] = useState("")
   const [year, setYear] = useState("")
   const [phone, setPhone] = useState("")
+  const [termsChecked, setTermsChecked] = useState(false)
+  const [privacyChecked, setPrivacyChecked] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
 
@@ -38,7 +41,7 @@ export function ProfileCompleteModal() {
 
   const phoneDigits = phone.replace(/\D/g, "")
   const isPhoneValid = phoneDigits.length === 10
-  const canSave = college.trim() && department.trim() && year.trim() && isPhoneValid
+  const canSave = college.trim() && department.trim() && year.trim() && isPhoneValid && termsChecked && privacyChecked
 
   const handleSave = async () => {
     if (!canSave) return
@@ -50,6 +53,7 @@ export function ProfileCompleteModal() {
         department: department.trim(),
         year: year.trim(),
         phone: phone.trim(),
+        termsAccepted: true,
       })
       setOpen(false)
     } catch {
@@ -192,6 +196,14 @@ export function ProfileCompleteModal() {
                 <p className="text-[11px] text-white/40 font-mono">
                   You can update these details anytime from your Profile page.
                 </p>
+
+                {/* Legal checkboxes — must be accepted before completing profile */}
+                <InlineLegalCheckboxes
+                  termsChecked={termsChecked}
+                  privacyChecked={privacyChecked}
+                  onTermsChange={setTermsChecked}
+                  onPrivacyChange={setPrivacyChecked}
+                />
               </div>
 
               {/* Footer */}

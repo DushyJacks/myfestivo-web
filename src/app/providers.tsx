@@ -4,7 +4,6 @@ import { useAuth, AuthProvider } from "@/lib/auth-context"
 import { EventsProvider } from "@/lib/events-context"
 import { ThemeProvider } from "@/lib/theme-context"
 import { ProfileCompleteModal } from "@/components/ui/ProfileCompleteModal"
-import { GlobalTermsModal } from "@/components/ui/TermsModal"
 
 /**
  * Inner wrapper that bridges AuthContext → EventsProvider.
@@ -32,8 +31,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
           {children}
           {/* Profile completion modal — appears when a new Google user has no college set */}
           <ProfileCompleteModal />
-          {/* Legal acceptance modal — appears for any logged-in user who hasn't accepted T&C + Privacy */}
-          <GlobalTermsModal />
         </EventsProviderWithAuth>
       </AuthProvider>
     </ThemeProvider>
