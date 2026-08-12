@@ -5,7 +5,7 @@ import { Resend } from 'resend';
  * Powered by Resend
  */
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'noreply@myfestivo.live';
 const FROM = `MyFestivo <${FROM_EMAIL}>`;
 
