@@ -231,7 +231,10 @@ export default function EventsFeed() {
                   )}
 
                   {(() => {
-                    const actualRegisteredCount = evt.registrations.filter(r => r.status !== "DRAFT").length
+                    const actualRegisteredCount = Math.max(
+                    evt.registeredCount || 0,
+                    evt.registrations.filter(r => r.status !== "DRAFT").length
+                  )
                     return (
                       <>
                         <div className="flex items-center justify-between">

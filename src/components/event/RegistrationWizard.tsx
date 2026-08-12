@@ -386,17 +386,35 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
                   </div>
                 ))}
 
-                {/* Pending members */}
-                {pendingMembers.map((email) => (
-                  <div key={email} className="flex items-center gap-2 p-3 rounded-lg bg-yellow-500/[0.05] border border-yellow-500/20 mb-2">
-                    <div className="w-6 h-6 rounded-full bg-yellow-500/10 flex items-center justify-center">
-                      <Clock className="w-3 h-3 text-yellow-400" />
+                {/* Pending members — those already invited cannot be removed or re-invited */}
+                {pendingMembers.map((email) => {
+                  const alreadyInvited = invitedMembers.includes(email)
+                  return (
+                    <div key={email} className={`flex items-center gap-2 p-3 rounded-lg mb-2 ${
+                      alreadyInvited
+                        ? 'bg-[#B388FF]/[0.05] border border-[#B388FF]/20'
+                        : 'bg-yellow-500/[0.05] border border-yellow-500/20'
+                    }`}>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                        alreadyInvited ? 'bg-[#B388FF]/10' : 'bg-yellow-500/10'
+                      }`}>
+                        {alreadyInvited
+                          ? <Send className="w-3 h-3 text-[#B388FF]" />
+                          : <Clock className="w-3 h-3 text-yellow-400" />}
+                      </div>
+                      <span className="text-sm text-white/60 flex-1">{email}</span>
+                      {alreadyInvited
+                        ? <span className="text-[9px] font-mono text-[#B388FF]/70 mr-1">INVITED</span>
+                        : (
+                          <>
+                            <span className="text-[9px] font-mono text-yellow-400/70 mr-1">PENDING</span>
+                            <button onClick={() => removePending(email)} className="text-white/20 hover:text-red-400 ml-1"><X className="w-3.5 h-3.5" /></button>
+                          </>
+                        )
+                      }
                     </div>
-                    <span className="text-sm text-white/60 flex-1">{email}</span>
-                    <span className="text-[9px] font-mono text-yellow-400/70 mr-1">PENDING</span>
-                    <button onClick={() => removePending(email)} className="text-white/20 hover:text-red-400 ml-1"><X className="w-3.5 h-3.5" /></button>
-                  </div>
-                ))}
+                  )
+                })}
 
                 {/* Add member input */}
                 {!atMaxSize && (
@@ -453,20 +471,23 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
 
               {/* Buttons */}
               <div className="space-y-2">
-                {/* Send Request */}
-                {pendingMembers.length > 0 && (
-                  <Button
-                    onClick={handleSendRequest}
-                    disabled={sendingRequest}
-                    className="w-full h-10 bg-[#B388FF]/20 text-[#B388FF] border border-[#B388FF]/30 hover:bg-[#B388FF]/30 hover:text-white"
-                    variant="outline"
-                  >
-                    {sendingRequest
-                      ? <><Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />Sending…</>
-                      : <><Send className="w-3.5 h-3.5 mr-2" />Send Request to {pendingMembers.length} member{pendingMembers.length > 1 ? "s" : ""}</>
-                    }
-                  </Button>
-                )}
+                {/* Send Request — only visible when there are members who haven't been invited yet */}
+                {(() => {
+                  const newlyToInvite = pendingMembers.filter(e => !invitedMembers.includes(e))
+                  return newlyToInvite.length > 0 ? (
+                    <Button
+                      onClick={handleSendRequest}
+                      disabled={sendingRequest}
+                      className="w-full h-10 bg-[#B388FF]/20 text-[#B388FF] border border-[#B388FF]/30 hover:bg-[#B388FF]/30 hover:text-white"
+                      variant="outline"
+                    >
+                      {sendingRequest
+                        ? <><Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />Sending…</>
+                        : <><Send className="w-3.5 h-3.5 mr-2" />Send Request to {newlyToInvite.length} member{newlyToInvite.length > 1 ? "s" : ""}</>
+                      }
+                    </Button>
+                  ) : null
+                })()}
 
                 {/* Continue */}
                 <Button
