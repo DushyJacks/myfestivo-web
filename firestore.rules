@@ -13,8 +13,8 @@ service cloud.firestore {
 
     // Users collection
     match /users/{userId} {
-      // Read: own profile OR any authenticated user (needed for peer search + friend requests)
-      allow read: if request.auth != null;
+      // Read: public (needed for coordinator name resolution on event pages for unauthenticated visitors)
+      allow read: if true;
       
       // Create: Only authenticated users can create their own document
       allow create: if request.auth != null && request.auth.uid == userId;

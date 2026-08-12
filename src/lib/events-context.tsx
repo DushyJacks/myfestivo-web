@@ -62,6 +62,10 @@ export interface Registration {
   teamName?: string
   teamMembers?: string[]
   pendingMembers?: string[]
+  /** Emails that have already been sent an invitation (to prevent spam re-invites). */
+  invitedMembers?: string[]
+  /** Emails that explicitly declined the invitation (captain can re-invite after decline). */
+  declinedMembers?: string[]
   transactionId?: string
   paymentMethod?: string
   checkedIn: boolean
@@ -572,8 +576,13 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
     if (!evt) return
     const reg = evt.registrations.find(r => r.id === regId)
     if (!reg || !reg.pendingMembers?.includes(email)) return
+    // Move to declinedMembers so the captain can re-invite this person
+    const currentDeclined = reg.declinedMembers || []
+    const currentInvited = reg.invitedMembers || []
     await updateDoc(getRegRef(eventId, regId), {
       pendingMembers: reg.pendingMembers.filter(e => e !== email),
+      invitedMembers: currentInvited.filter(e => e !== email),
+      declinedMembers: currentDeclined.includes(email) ? currentDeclined : [...currentDeclined, email],
     })
   }
 

@@ -36,7 +36,7 @@ function isSessionExpired(): boolean {
   }
 }
 
-export type UserRole = "student" | "admin"
+export type UserRole = "student" | "admin" | "faculty"
 
 export interface FriendRequest {
   from: string  // email
@@ -118,15 +118,35 @@ const legacyDeptMap: Record<string, string> = {
   "AI/ML": "BSc AI/ML",
 }
 
+// Standard college names — anything not in this list is treated as legacy and defaulted to the primary campus
+const STANDARD_COLLEGES = new Set([
+  "SRMIST, Ramapuram",
+  "SRMIST, Kattankulathur",
+  "SRMIST, Vadapalani",
+  "SRMIST, Tiruchirappalli",
+])
+const DEFAULT_COLLEGE = "SRMIST, Ramapuram"
+
+/** Normalise college string: legacy / free-text values → standard campus name. */
+function normalizeCollege(college: string | undefined): string {
+  if (!college || !college.trim()) return ""
+  return STANDARD_COLLEGES.has(college.trim()) ? college.trim() : DEFAULT_COLLEGE
+}
+
 async function fetchUserProfile(uid: string): Promise<User | null> {
   const db = getDb()
   if (!db) return null
   const snap = await getDoc(doc(db, "users", uid))
   if (snap.exists()) {
     const data = snap.data()
+    // Derive role: faculty detection from year field
+    const isFaculty = data.year === "Faculty/Staff" || data.year === "Faculty" || data.role === "faculty"
+    const role: UserRole = data.role === "admin" ? "admin" : isFaculty ? "faculty" : "student"
     return {
       ...data,
+      role,
       department: data.department ? (legacyDeptMap[data.department] || data.department) : "",
+      college: normalizeCollege(data.college),
       avatarUrl: data.avatarUrl || "",
       friendRequestsIn: data.friendRequestsIn || [],
       friendRequestsOut: data.friendRequestsOut || [],

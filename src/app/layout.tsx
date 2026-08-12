@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "MyFestivo",
+    title: "MyFestivo - Vizha",
   },
   openGraph: {
     title: "MyFestivo — College Event Management Platform",

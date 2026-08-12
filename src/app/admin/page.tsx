@@ -101,7 +101,25 @@ export default function AdminPage() {
     setUsersLoading(true)
     try {
       const snap = await getDocs(collection(getDb(), "users"))
-      const users = snap.docs.map(d => ({ ...d.data(), id: d.id } as AppUser))
+      const STANDARD_COLLEGES = new Set([
+        "SRMIST, Ramapuram",
+        "SRMIST, Kattankulathur",
+        "SRMIST, Vadapalani",
+        "SRMIST, Tiruchirappalli",
+      ])
+      const users = snap.docs.map(d => {
+        const data = { ...d.data(), id: d.id } as AppUser
+        // Normalise college
+        if (data.college && !STANDARD_COLLEGES.has(data.college.trim())) {
+          data.college = "SRMIST, Ramapuram"
+        }
+        // Derive faculty role from year field (non-destructive — doesn't write back to DB)
+        if (data.role !== "admin") {
+          const isFaculty = data.year === "Faculty/Staff" || data.year === "Faculty" || data.role === "faculty"
+          data.role = isFaculty ? "faculty" : "student"
+        }
+        return data
+      })
       setAllUsers(users)
     } catch (err) {
       console.error("Failed to fetch users:", err)
@@ -145,9 +163,10 @@ export default function AdminPage() {
 
   // ─── Filtered Users ───
   const filteredUsers = allUsers.filter(u => {
+    const college = u.college || ""
     const matchSearch = u.name.toLowerCase().includes(userSearch.toLowerCase()) ||
       u.email.toLowerCase().includes(userSearch.toLowerCase()) ||
-      u.college.toLowerCase().includes(userSearch.toLowerCase())
+      college.toLowerCase().includes(userSearch.toLowerCase())
     const matchRole = userRoleFilter === "all" || u.role === userRoleFilter
     return matchSearch && matchRole
   })
@@ -747,6 +766,7 @@ export default function AdminPage() {
                 >
                   <option value="all">All Roles</option>
                   <option value="student">Students</option>
+                  <option value="faculty">Faculty</option>
                   <option value="admin">Admins</option>
                 </select>
               </div>
@@ -791,14 +811,25 @@ export default function AdminPage() {
                             <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
                               u.role === "admin"
                                 ? "border-red-500/30 text-red-400 bg-red-500/5"
+                                : u.role === "faculty"
+                                ? "border-blue-500/30 text-blue-400 bg-blue-500/5"
                                 : "border-white/20 text-white/40"
                             }`}>{u.role.toUpperCase()}</span>
                           </td>
                           <td className="p-3 text-center">
-                            <div className="flex items-center justify-center gap-2 text-[10px] font-mono text-white/40">
-                              <span title="Hosted">{u.hostedEvents?.length || 0}H</span>
-                              <span title="Registered">{u.registeredEvents?.length || 0}R</span>
-                            </div>
+                            {(() => {
+                              // Compute live from the events collection — always accurate
+                              const hostedCount = events.filter(e => e.organizerEmail === u.email).length
+                              const registeredCount = events.filter(e =>
+                                e.registrations.some(r => r.userEmail === u.email && r.status !== "DRAFT")
+                              ).length
+                              return (
+                                <div className="text-[10px] font-mono text-white/40 space-y-0.5">
+                                  <div title="Events hosted by this user" className={hostedCount > 0 ? "text-[#B388FF]/80" : ""}>{hostedCount} Hosted</div>
+                                  <div title="Events registered for" className={registeredCount > 0 ? "text-white/60" : ""}>{registeredCount} Reg</div>
+                                </div>
+                              )
+                            })()}
                           </td>
                           <td className="p-3 text-center">
                             {u.collegeEmailVerified ? (

@@ -136,9 +136,9 @@ export function ProfileCompleteModal() {
                     className="w-full h-10 bg-white/[0.03] border border-white/[0.08] text-white text-sm rounded-md px-3 outline-none focus:border-[rgba(179,136,255,0.4)] transition-colors"
                   >
                     <option value="" disabled>Select department</option>
-                    <option value="Computer Science">Computer Science</option>
-                    <option value="Cyber Security">Cyber Security</option>
-                    <option value="AI/ML">AI/ML</option>
+                    <option value="BSc CS">BSc CS</option>
+                    <option value="BSc Cyber Security">BSc Cyber Security</option>
+                    <option value="BSc AI/ML">BSc AI/ML</option>
                     <option value="BCA">BCA</option>
                     <option value="BCA Gen AI">BCA Gen AI</option>
                     <option value="BCA DS">BCA DS</option>

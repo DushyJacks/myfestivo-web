@@ -13,7 +13,7 @@ import { RichTextEditor } from "@/components/ui/RichTextEditor"
 import { TimeInput } from "@/components/ui/TimeInput"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
 import { motion } from "framer-motion"
-import { PlusCircle, X, Trophy, Phone, LinkIcon, Users, Search, Clock, CheckSquare } from "lucide-react"
+import { PlusCircle, X, Trophy, Phone, LinkIcon, Users, Search, Clock, CheckSquare, Save, RotateCcw } from "lucide-react"
 import Link from "next/link"
 import { compressImage } from "@/lib/utils"
 
@@ -83,6 +83,50 @@ export default function CreateEventPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false)
+
+  // ── Draft state ──
+  const DRAFT_KEY = "mf_create_event_draft_v1"
+  const [hasDraft, setHasDraft] = useState(false)
+  const [draftSaved, setDraftSaved] = useState(false)
+
+  // Restore draft on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY)
+      if (raw) {
+        const saved = JSON.parse(raw)
+        if (saved.form) setForm(saved.form)
+        if (saved.subEvents) setSubEvents(saved.subEvents)
+        if (saved.importantLinks) setImportantLinks(saved.importantLinks)
+        setHasDraft(true)
+      }
+    } catch {}
+  }, [])
+
+  const handleSaveDraft = () => {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ form, subEvents, importantLinks }))
+      setDraftSaved(true)
+      setTimeout(() => setDraftSaved(false), 2500)
+    } catch {
+      alert("Could not save draft. Storage might be full.")
+    }
+  }
+
+  const handleClearDraft = () => {
+    localStorage.removeItem(DRAFT_KEY)
+    setHasDraft(false)
+    setForm({
+      title: "", date: "", hasTime: false, time: "", venue: "",
+      category: "Technical" as "Technical" | "Cultural" | "Sports" | "Workshop",
+      isInter: true, isPaid: false, price: 0, description: "",
+      collegeDomain: "", organizerPhone: "", showPrizePool: false,
+      prizePool: "", registrationDeadline: "", posterBase64: "",
+      rules: [""], allowedDepartments: [] as string[],
+    })
+    setSubEvents([emptySubEvent()])
+    setImportantLinks([])
+  }
 
   const emptySubEvent = (): SubEventForm => ({
     name: "", description: "", type: "solo", maxParticipants: 50,
@@ -284,6 +328,8 @@ export default function CreateEventPage() {
 
     try {
       await addEvent(newEvent)
+      // Clear draft on successful submit
+      localStorage.removeItem(DRAFT_KEY)
       setSubmitted(true)
       setSubmitting(false)
     } catch (err) {
@@ -359,6 +405,14 @@ export default function CreateEventPage() {
       </motion.div>
 
       <motion.div variants={pageItem}>
+        {/* Draft restored banner */}
+        {hasDraft && (
+          <div className="flex items-center gap-3 mb-6 p-3 rounded-lg bg-[#B388FF]/10 border border-[#B388FF]/20 text-sm">
+            <RotateCcw className="w-4 h-4 text-[#B388FF] shrink-0" />
+            <span className="text-[#B388FF]/90 flex-1">Draft restored. You can continue editing or clear it to start fresh.</span>
+            <button type="button" onClick={handleClearDraft} className="text-[10px] font-mono text-white/40 hover:text-red-400 transition-colors uppercase tracking-widest whitespace-nowrap">Clear Draft</button>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Info */}
           <GlassCard className="p-6 space-y-5">
@@ -808,16 +862,37 @@ export default function CreateEventPage() {
             )}
           </GlassCard>
 
-          <Button type="button" onClick={handleSubmit} disabled={submitting} className="w-full bg-white text-black hover:bg-[#B388FF] font-medium h-12 text-base disabled:opacity-50">
-            {submitting ? (
-              <span className="flex items-center gap-2">
-                <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
-                Submitting for Review...
-              </span>
-            ) : (
-              "Submit for Review"
-            )}
-          </Button>
+          {/* Draft & Submit actions */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              type="button"
+              onClick={handleSaveDraft}
+              variant="outline"
+              className="flex-1 border-white/20 text-white hover:bg-white/10 h-12 text-sm"
+            >
+              {draftSaved ? (
+                <span className="flex items-center gap-2 text-green-400">
+                  <span className="w-3 h-3 rounded-full bg-green-400 inline-block" />
+                  Draft Saved!
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Save className="w-4 h-4" />
+                  Save Draft
+                </span>
+              )}
+            </Button>
+            <Button type="button" onClick={handleSubmit} disabled={submitting} className="flex-1 bg-white text-black hover:bg-[#B388FF] font-medium h-12 text-base disabled:opacity-50">
+              {submitting ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                  Submitting for Review...
+                </span>
+              ) : (
+                "Submit for Review"
+              )}
+            </Button>
+          </div>
         </form>
       </motion.div>
 

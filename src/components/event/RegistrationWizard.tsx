@@ -35,6 +35,10 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
   const [teamMembers, setTeamMembers] = useState<string[]>([])
   // Pending invitations (awaiting accept/decline)
   const [pendingMembers, setPendingMembers] = useState<string[]>([])
+  // Emails already sent an invite (persisted to DB to prevent spam)
+  const [invitedMembers, setInvitedMembers] = useState<string[]>([])
+  // Emails that declined (captain can re-invite these)
+  const [declinedMembers, setDeclinedMembers] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [sendingRequest, setSendingRequest] = useState(false)
   const [done, setDone] = useState(false)
@@ -65,6 +69,8 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
       // teamMembers in DB = confirmed; filter out the captain's own email
       setTeamMembers((draft.teamMembers || []).filter((e: string) => e !== user.email))
       setPendingMembers(draft.pendingMembers || [])
+      setInvitedMembers(draft.invitedMembers || [])
+      setDeclinedMembers(draft.declinedMembers || [])
     }
   }, []) // Run only on mount
 
@@ -76,6 +82,8 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
     if (draft) {
       setTeamMembers((draft.teamMembers || []).filter((e: string) => e !== user.email))
       setPendingMembers(draft.pendingMembers || [])
+      setInvitedMembers(draft.invitedMembers || [])
+      setDeclinedMembers(draft.declinedMembers || [])
     }
   }, [event.registrations, draftRegId])
 
@@ -94,9 +102,17 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
 
   const addMemberByEmail = (email: string) => {
     const normalized = email.trim().toLowerCase()
-    if (!normalized || teamMembers.includes(normalized) || pendingMembers.includes(normalized) || normalized === user.email) return
+    if (!normalized || teamMembers.includes(normalized) || normalized === user.email) return
+    // Block adding if already pending (awaiting response)
+    if (pendingMembers.includes(normalized)) return
+    // Block adding if already invited & NOT declined (prevent spam)
+    if (invitedMembers.includes(normalized) && !declinedMembers.includes(normalized)) return
     if (selectedSe?.maxTeamSize && (teamMembers.length + pendingMembers.length + 1) >= selectedSe.maxTeamSize) return
     setPendingMembers(prev => [...prev, normalized])
+    // If they were previously declined, remove from declinedMembers on re-add
+    if (declinedMembers.includes(normalized)) {
+      setDeclinedMembers(prev => prev.filter(e => e !== normalized))
+    }
     setMemberEmail("")
     setFriendSuggestions([])
   }
@@ -123,6 +139,10 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
     setSendingRequest(true)
     try {
       const regId = draftRegId || `reg-${Date.now()}`
+      // Only send emails to members who haven't been invited yet
+      const newlyInvited = pendingMembers.filter(e => !invitedMembers.includes(e))
+      const updatedInvitedMembers = [...new Set([...invitedMembers, ...newlyInvited])]
+
       const draft: any = {
         id: regId,
         userId: user.id,
@@ -137,13 +157,16 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
         teamName: teamName || `${user.name}'s Team`,
         teamMembers: [user.email, ...teamMembers],
         pendingMembers,
+        invitedMembers: updatedInvitedMembers,
+        declinedMembers,
       }
 
       await registerForSubEvent(event.id, selectedSe.id, draft)
       setDraftRegId(regId)
+      setInvitedMembers(updatedInvitedMembers)
 
-      // Send invitation emails to all currently pending members (fire-and-forget)
-      for (const email of pendingMembers) {
+      // Send invitation emails only to newly added members (prevent spam re-sends)
+      for (const email of newlyInvited) {
         emailTeamInvitation({
           toEmail: email,
           captainName: user.name,
