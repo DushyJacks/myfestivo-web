@@ -24,7 +24,7 @@ type Step = "team" | "confirm"
 
 export function RegistrationWizard({ event, initialSubEvent, localRegistrations = [], isVolunteer = false, onClose, onSuccess }: Props) {
   const { user } = useAuth()
-  const { registerForSubEvent } = useEvents()
+  const { registerForSubEvent, removePendingMember } = useEvents()
 
   const selectedSe = initialSubEvent
 
@@ -42,6 +42,7 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
   const [submitting, setSubmitting] = useState(false)
   const [sendingRequest, setSendingRequest] = useState(false)
   const [done, setDone] = useState(false)
+  const [emailError, setEmailError] = useState<string | null>(null)
   const [friendSuggestions, setFriendSuggestions] = useState<string[]>([])
   const [draftRegId, setDraftRegId] = useState<string | null>(null)
   const suggestionsRef = useRef<HTMLDivElement>(null)
@@ -108,6 +109,14 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
     // Block adding if already invited & NOT declined (prevent spam)
     if (invitedMembers.includes(normalized) && !declinedMembers.includes(normalized)) return
     if (selectedSe?.maxTeamSize && (teamMembers.length + pendingMembers.length + 1) >= selectedSe.maxTeamSize) return
+
+    // Friends-only restriction: only users in the captain's friends list can be added
+    if (!user?.friends?.includes(normalized)) {
+      setEmailError("Only friends can be added as team members. Add them as a friend first.")
+      return
+    }
+
+    setEmailError(null)
     setPendingMembers(prev => [...prev, normalized])
     // If they were previously declined, remove from declinedMembers on re-add
     if (declinedMembers.includes(normalized)) {
@@ -119,12 +128,20 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
 
   const addMember = () => addMemberByEmail(memberEmail)
 
-  const removePending = (email: string) => {
+  const removePending = async (email: string) => {
+    // Optimistic local state update
     setPendingMembers(prev => prev.filter(e => e !== email))
+    // Remove from invitedMembers locally too (allows re-invite)
+    setInvitedMembers(prev => prev.filter(e => e !== email))
+    // Persist to Firestore so the invite vanishes from the invitee's dashboard
+    if (draftRegId) {
+      await removePendingMember(event.id, draftRegId, email)
+    }
   }
 
   const handleMemberInput = (val: string) => {
     setMemberEmail(val)
+    setEmailError(null)
     if (!val.trim() || !user?.friends?.length) { setFriendSuggestions([]); return }
     const q = val.toLowerCase()
     const matches = user.friends.filter(
@@ -386,7 +403,7 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
                   </div>
                 ))}
 
-                {/* Pending members — those already invited cannot be removed or re-invited */}
+                {/* Pending members — always show remove button, even if already invited */}
                 {pendingMembers.map((email) => {
                   const alreadyInvited = invitedMembers.includes(email)
                   return (
@@ -403,15 +420,16 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
                           : <Clock className="w-3 h-3 text-yellow-400" />}
                       </div>
                       <span className="text-sm text-white/60 flex-1">{email}</span>
-                      {alreadyInvited
-                        ? <span className="text-[9px] font-mono text-[#B388FF]/70 mr-1">INVITED</span>
-                        : (
-                          <>
-                            <span className="text-[9px] font-mono text-yellow-400/70 mr-1">PENDING</span>
-                            <button onClick={() => removePending(email)} className="text-white/20 hover:text-red-400 ml-1"><X className="w-3.5 h-3.5" /></button>
-                          </>
-                        )
-                      }
+                      <span className={`text-[9px] font-mono mr-1 ${
+                        alreadyInvited ? 'text-[#B388FF]/70' : 'text-yellow-400/70'
+                      }`}>{alreadyInvited ? 'INVITED' : 'PENDING'}</span>
+                      <button
+                        onClick={() => removePending(email)}
+                        className="text-white/20 hover:text-red-400 ml-1"
+                        title={alreadyInvited ? "Remove invite" : "Remove"}
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   )
                 })}
@@ -422,7 +440,7 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
                     <div className="flex-1 relative">
                       <Input value={memberEmail} onChange={e => handleMemberInput(e.target.value)}
                         onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addMember() } if (e.key === "Escape") setFriendSuggestions([]) }}
-                        placeholder="teammate@gmail.com"
+                        placeholder="Search friends..."
                         className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-9 text-sm w-full" />
                       {/* Friend autocomplete dropdown */}
                       {friendSuggestions.length > 0 && (
@@ -450,11 +468,16 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
                   </div>
                 )}
 
-                {/* Friend hint */}
+                {/* Friends-only restriction notice and error */}
                 <div className="flex items-center gap-1.5 mt-2">
                   <UserPlus className="w-3 h-3 text-white/25 shrink-0" />
-                  <p className="text-[10px] text-white/30 font-mono">Only friends appear as suggestions — add teammates as friends first.</p>
+                  <p className="text-[10px] text-white/30 font-mono">Team members must be added from your Friends list. Add teammates as friends first.</p>
                 </div>
+                {emailError && (
+                  <p className="text-[10px] text-red-400/80 mt-1.5 font-mono flex items-center gap-1">
+                    <X className="w-3 h-3 shrink-0" />{emailError}
+                  </p>
+                )}
 
                 {selectedSe.minTeamSize && acceptedCount < selectedSe.minTeamSize && (
                   <p className="text-[10px] text-yellow-400/80 mt-2 font-mono">

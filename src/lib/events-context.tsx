@@ -195,6 +195,7 @@ interface EventsContextType {
   undoCheckInParticipant: (eventId: string, regId: string) => void
   acceptTeamRequest: (eventId: string, regId: string, email: string) => Promise<void>
   rejectTeamRequest: (eventId: string, regId: string, email: string) => Promise<void>
+  removePendingMember: (eventId: string, regId: string, email: string) => Promise<void>
   addAutomation: (eventId: string, rule: AutomationRule) => void
   toggleAutomation: (eventId: string, ruleId: string) => void
   addAutomationLog: (eventId: string, log: AutomationLog) => void
@@ -586,6 +587,19 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
     })
   }
 
+  // Remove a pending member and clean up invitedMembers so the captain can re-invite them
+  // and so the invite disappears from the invitee's dashboard immediately.
+  const removePendingMember = async (eventId: string, regId: string, email: string) => {
+    const evt = events.find(e => e.id === eventId)
+    if (!evt) return
+    const reg = evt.registrations.find(r => r.id === regId)
+    if (!reg) return
+    await updateDoc(getRegRef(eventId, regId), {
+      pendingMembers: (reg.pendingMembers || []).filter(e => e !== email),
+      invitedMembers: (reg.invitedMembers || []).filter(e => e !== email),
+    })
+  }
+
   // Module 1 — Payment
   const submitTransaction = async (eventId: string, regId: string, transactionId: string, method: string) => {
     const evt = events.find(e => e.id === eventId)
@@ -772,6 +786,7 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
       checkInParticipant, undoCheckInParticipant,
       acceptTeamRequest,
       rejectTeamRequest,
+      removePendingMember,
       addAutomation, toggleAutomation, addAutomationLog
     }}>
       {children}
