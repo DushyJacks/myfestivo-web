@@ -514,7 +514,7 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
               subEvent?.name || "Event"
             )
 
-            // Gmail confirmation email
+            // Gmail confirmation email (with QR ticket attached)
             emailRegistrationConfirmation({
               toEmail: reg.userEmail,
               userName: reg.userName,
@@ -523,6 +523,8 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
               eventDate: evt.date,
               eventVenue: evt.venue,
               eventId,
+              subEventId: reg.subEventId,
+              registrationId: reg.id,
             })
 
             // Automation log

@@ -3,7 +3,7 @@
 import { useAuth } from "@/lib/auth-context"
 import { useEvents } from "@/lib/events-context"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import Image from "next/image"
 import { AppSidebar } from "@/components/layout/AppSidebar"
 import { GlassCard } from "@/components/ui/GlassCard"
@@ -119,12 +119,15 @@ export default function ProfilePage() {
   const [year, setYear] = useState("")
   const [saved, setSaved] = useState(false)
 
+  const COLLEGE_DOMAIN = "srmist.edu.in"
+
   const [collegePrefix, setCollegePrefix] = useState("")
-  const [collegeDomain, setCollegeDomain] = useState("srmist.edu.in")
   const [verifying, setVerifying] = useState(false)
   const [otpSent, setOtpSent] = useState(false)
   const [otp, setOtp] = useState("")
   const [verifyError, setVerifyError] = useState("")
+  const [countdown, setCountdown] = useState(0)
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Confirmation modals
   const [confirmModal, setConfirmModal] = useState<"signout" | "delete" | null>(null)
@@ -187,22 +190,43 @@ export default function ProfilePage() {
     setTimeout(() => { setSaved(false); setIsEditing(false) }, 1500)
   }
 
+  const startCountdown = useCallback(() => {
+    if (countdownRef.current) clearInterval(countdownRef.current)
+    setCountdown(120)
+    countdownRef.current = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(countdownRef.current!)
+          countdownRef.current = null
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }, [])
+
   const handleSendOtp = async () => {
     if (!collegePrefix.trim()) return
     setVerifying(true)
     setVerifyError("")
     try {
-      const collegeEmail = `${collegePrefix}@${collegeDomain}`
+      const collegeEmail = `${collegePrefix}@${COLLEGE_DOMAIN}`
       const response = await fetch('/api/auth/send-college-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid: user.id, collegeEmail, collegeDomain }),
+        body: JSON.stringify({ uid: user.id, collegeEmail }),
       })
       const data = await response.json()
-      if (data.success) { setOtpSent(true) }
+      if (data.success) { setOtpSent(true); startCountdown() }
       else { setVerifyError(data.message || 'Failed to send OTP') }
     } catch { setVerifyError('Network error. Please try again.') }
     finally { setVerifying(false) }
+  }
+
+  const handleResendOtp = async () => {
+    setOtp("")
+    setVerifyError("")
+    await handleSendOtp()
   }
 
   const handleVerifyOtp = async () => {
@@ -466,16 +490,11 @@ export default function ProfilePage() {
               ) : (
                 <div className="space-y-4">
                   <div>
-                    <label className={labelCls}>College Email Domain</label>
-                    <Input value={collegeDomain} onChange={e => setCollegeDomain(e.target.value)} placeholder="srmist.edu.in"
-                      className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11 mb-3" />
-                  </div>
-                  <div>
                     <label className={labelCls}>Your College Email</label>
-                    <div className="flex items-center gap-0">
+                    <div className="flex items-center">
                       <Input value={collegePrefix} onChange={e => setCollegePrefix(e.target.value)} placeholder="your.name"
                         className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11 rounded-r-none border-r-0 flex-1" />
-                      <div className="h-11 px-4 flex items-center bg-white/[0.06] border border-white/[0.08] rounded-r-md text-white/50 text-sm font-mono whitespace-nowrap">@{collegeDomain}</div>
+                      <div className="h-11 px-4 flex items-center bg-white/[0.06] border border-white/[0.08] rounded-r-md text-white/50 text-sm font-mono whitespace-nowrap">@{COLLEGE_DOMAIN}</div>
                     </div>
                   </div>
                   {verifyError && <div className="flex items-center gap-2 text-xs text-red-400"><AlertCircle className="w-3 h-3" /> {verifyError}</div>}
@@ -485,14 +504,24 @@ export default function ProfilePage() {
                     </Button>
                   ) : (
                     <div className="space-y-3">
-                      <div className="flex items-center gap-2 p-3 rounded-md bg-white/[0.03] border border-white/[0.06]">
-                        <Mail className="w-4 h-4 text-white/40" />
-                        <span className="text-xs text-white/70">Check {collegePrefix}@{collegeDomain} for the code. Valid 10 min.</span>
+                      <div className="flex items-center justify-between p-3 rounded-md bg-white/[0.03] border border-white/[0.06]">
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-4 h-4 text-white/40" />
+                          <span className="text-xs text-white/70">Code sent to <span className="font-mono">{collegePrefix}@{COLLEGE_DOMAIN}</span></span>
+                        </div>
+                        {countdown > 0 ? (
+                          <span className="text-[10px] font-mono text-white/40">{Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}</span>
+                        ) : (
+                          <button onClick={handleResendOtp} disabled={verifying}
+                            className="text-[10px] font-mono text-[#B388FF] hover:underline disabled:opacity-40">
+                            Resend OTP
+                          </button>
+                        )}
                       </div>
                       <div className="flex gap-3">
                         <Input value={otp} onChange={e => setOtp(e.target.value)} placeholder="Enter 6-digit OTP" maxLength={6}
                           className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11 font-mono text-center tracking-[0.5em] max-w-[200px]" />
-                        <Button onClick={handleVerifyOtp} disabled={verifying} className="bg-white text-black hover:bg-[#B388FF] h-11 px-6">
+                        <Button onClick={handleVerifyOtp} disabled={verifying || otp.length < 6} className="bg-white text-black hover:bg-[#B388FF] h-11 px-6">
                           {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify"}
                         </Button>
                       </div>

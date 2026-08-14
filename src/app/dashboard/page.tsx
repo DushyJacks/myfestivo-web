@@ -74,10 +74,10 @@ export default function DashboardPage() {
   ]
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen overflow-x-hidden">
       <AppSidebar activeItem="dashboard" />
 
-      <main className="flex-1 md:ml-[72px] lg:ml-[260px] pb-20 md:pb-0">
+      <main className="flex-1 md:ml-[72px] lg:ml-[260px] pb-20 md:pb-0 min-w-0">
         <PageTransition className="p-6 lg:p-10 max-w-6xl mx-auto">
           <motion.div variants={pageItem} className="mb-10">
             <MicroLabel>Student Dashboard</MicroLabel>
@@ -100,7 +100,7 @@ export default function DashboardPage() {
           {/* OVERVIEW */}
           {activeTab === "overview" && (
             <>
-              <motion.div variants={pageItem} className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
+              <motion.div variants={pageItem} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-10">
                 <GlassCard className="p-5">
                   <div className="text-3xl font-light mb-1">{registeredEvents.length}</div>
                   <div className="text-[11px] font-mono tracking-widest uppercase text-white/60">Registered</div>

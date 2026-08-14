@@ -18,6 +18,8 @@ export async function emailRegistrationConfirmation(params: {
   eventDate: string
   eventVenue: string
   eventId: string
+  subEventId: string
+  registrationId: string
 }): Promise<void> {
   try {
     const res = await fetch('/api/email/registration', {

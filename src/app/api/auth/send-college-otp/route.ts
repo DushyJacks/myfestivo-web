@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db as getDb } from '@/lib/firebase'
-import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 import { sendCollegeOTP } from '@/lib/email'
+import { saveOtp, clearOtp } from '@/lib/otp-store'
+
+const COLLEGE_DOMAIN = 'srmist.edu.in'
 
 /**
  * Generate a random 6-digit OTP
@@ -13,30 +16,31 @@ function generateOTP(): string {
 /**
  * Send college email verification OTP
  * POST /api/auth/send-college-otp
- * 
- * Body:
- * {
- *   uid: string,
- *   collegeEmail: string,
- *   collegeDomain: string
- * }
- * 
- * Returns:
- * { success: boolean, message: string }
+ *
+ * Body: { uid: string, collegeEmail: string }
+ * Returns: { success: boolean, message: string }
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { uid, collegeEmail, collegeDomain } = body
+    const { uid, collegeEmail } = body
 
-    if (!uid || !collegeEmail || !collegeDomain) {
+    if (!uid || !collegeEmail) {
       return NextResponse.json(
         { success: false, message: 'Missing required fields' },
         { status: 400 }
       )
     }
 
-    // Verify user exists
+    // Enforce hardcoded domain
+    if (!collegeEmail.endsWith(`@${COLLEGE_DOMAIN}`)) {
+      return NextResponse.json(
+        { success: false, message: `College email must end with @${COLLEGE_DOMAIN}` },
+        { status: 400 }
+      )
+    }
+
+    // Verify user exists in Firestore
     const userDoc = await getDoc(doc(getDb(), 'users', uid))
     if (!userDoc.exists()) {
       return NextResponse.json(
@@ -45,21 +49,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate OTP
+    // Clear any previous OTP for this user
+    clearOtp(uid)
+
+    // Generate OTP and store in server-side memory (2-minute TTL, no Firestore)
     const otp = generateOTP()
+    saveOtp(uid, otp, collegeEmail)
 
-    // Store OTP in a temporary collection with expiration (10 minutes)
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString()
-    await setDoc(doc(getDb(), 'collegeOtps', uid), {
-      otp,
-      collegeEmail,
-      collegeDomain,
-      createdAt: new Date().toISOString(),
-      expiresAt,
-    })
-
-    // Send email with OTP
-    const emailSent = await sendCollegeOTP(collegeEmail, otp, collegeDomain)
+    // Send OTP via Resend
+    const emailSent = await sendCollegeOTP(collegeEmail, otp, COLLEGE_DOMAIN)
 
     if (!emailSent) {
       return NextResponse.json(
@@ -80,4 +78,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-

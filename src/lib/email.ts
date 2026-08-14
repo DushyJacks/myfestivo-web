@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import QRCode from 'qrcode';
 
 /**
  * Email Automation Service — MyFestivo
@@ -67,11 +68,22 @@ export async function sendRegistrationConfirmation(
   subEventName: string,
   eventDate: string,
   eventVenue: string,
-  eventId: string
+  eventId: string,
+  subEventId: string,
+  registrationId: string
 ): Promise<boolean> {
   try {
     const subject = `✅ You're registered for ${eventTitle} — MyFestivo`;
-    
+
+    // Generate QR code as a PNG buffer (server-side, no browser needed)
+    const qrText = `MYFESTIVO:${eventId}:${subEventId}:${registrationId}`;
+    const qrBuffer = await QRCode.toBuffer(qrText, {
+      type: 'png',
+      width: 300,
+      margin: 2,
+      color: { dark: '#000000', light: '#FFFFFF' },
+    });
+
     const html = wrapHtml(`
       ${h2("You're registered! 🎉")}
       ${p(`Hi <strong>${userName}</strong>, your spot is secured for <strong>${eventTitle}</strong>.`)}
@@ -83,11 +95,11 @@ export async function sendRegistrationConfirmation(
         { label: 'Venue', value: eventVenue },
       ])}
       
+      ${p('Your QR ticket is attached to this email. Present it at the venue for check-in.')}
       ${ctaButton('View Event', `https://myfestivo.live/events/${eventId}`)}
-      ${p('Keep your registration pass handy — you\'ll need it for check-in.')}
     `);
 
-    const text = `Hi ${userName},\n\nYou're registered for ${eventTitle}!\n\nEvent Details:\n- Sub-Event: ${subEventName}\n- Date: ${eventDate}\n- Venue: ${eventVenue}\n\nView Event: https://myfestivo.live/events/${eventId}\n\nKeep your registration pass handy — you'll need it for check-in.\n\nMyFestivo`;
+    const text = `Hi ${userName},\n\nYou're registered for ${eventTitle}!\n\nEvent Details:\n- Sub-Event: ${subEventName}\n- Date: ${eventDate}\n- Venue: ${eventVenue}\n\nYour QR ticket is attached. Present it at the venue for check-in.\n\nView Event: https://myfestivo.live/events/${eventId}\n\nMyFestivo`;
 
     const { error } = await resend.emails.send({
       from: FROM,
@@ -95,10 +107,16 @@ export async function sendRegistrationConfirmation(
       subject,
       html,
       text,
+      attachments: [
+        {
+          filename: `ticket-${registrationId}.png`,
+          content: qrBuffer,
+        },
+      ],
     });
 
     if (error) throw error;
-    console.log(`[Email] Registration confirmation sent → ${toEmail}`);
+    console.log(`[Email] Registration confirmation (+ QR) sent → ${toEmail}`);
     return true;
   } catch (error) {
     console.error('[Email] sendRegistrationConfirmation failed:', error);
@@ -459,6 +477,44 @@ export async function sendTeamInvitation(
     return true;
   } catch (error) {
     console.error('[Email] sendTeamInvitation failed:', error);
+    return false;
+  }
+}
+
+// ─── 10. Password Reset Email ─────────────────────────────────────────────────
+
+export async function sendPasswordResetEmail(
+  toEmail: string,
+  resetLink: string
+): Promise<boolean> {
+  try {
+    const subject = 'Reset your MyFestivo password';
+
+    const html = wrapHtml(`
+      ${h2('Reset your password 🔑')}
+      ${p('We received a request to reset the password for your MyFestivo account.')}
+
+      ${ctaButton('Reset Password', resetLink)}
+
+      ${p('This link expires in <strong>1 hour</strong>. If you did not request a password reset, you can safely ignore this email — your password will remain unchanged.')}
+      ${p('<small style="color:#888;">If the button above doesn\'t work, copy and paste this URL into your browser:<br/>' + resetLink + '</small>')}
+    `);
+
+    const text = `Reset your MyFestivo password\n\nWe received a request to reset the password for your MyFestivo account.\n\nClick the link below to reset your password:\n${resetLink}\n\nThis link expires in 1 hour. If you did not request a password reset, you can safely ignore this email.\n\nMyFestivo`;
+
+    const { error } = await resend.emails.send({
+      from: FROM,
+      to: toEmail,
+      subject: `${subject} — MyFestivo`,
+      html,
+      text,
+    });
+
+    if (error) throw error;
+    console.log(`[Email] Password reset email sent → ${toEmail}`);
+    return true;
+  } catch (error) {
+    console.error('[Email] sendPasswordResetEmail failed:', error);
     return false;
   }
 }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { sendRegistrationConfirmation } from '@/lib/email'
 
 /**
- * Send registration confirmation email
+ * Send registration confirmation email (with QR ticket attachment)
  * POST /api/email/registration
  *
  * Body:
@@ -14,16 +14,28 @@ import { sendRegistrationConfirmation } from '@/lib/email'
  *   eventDate: string
  *   eventVenue: string
  *   eventId: string
+ *   subEventId: string
+ *   registrationId: string
  * }
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { toEmail, userName, eventTitle, subEventName, eventDate, eventVenue, eventId } = body
+    const {
+      toEmail,
+      userName,
+      eventTitle,
+      subEventName,
+      eventDate,
+      eventVenue,
+      eventId,
+      subEventId,
+      registrationId,
+    } = body
 
-    if (!toEmail || !eventTitle || !eventId) {
+    if (!toEmail || !eventTitle || !eventId || !subEventId || !registrationId) {
       return NextResponse.json(
-        { success: false, message: 'Missing required fields: toEmail, eventTitle, eventId' },
+        { success: false, message: 'Missing required fields: toEmail, eventTitle, eventId, subEventId, registrationId' },
         { status: 400 }
       )
     }
@@ -35,7 +47,9 @@ export async function POST(request: NextRequest) {
       subEventName || 'Event',
       eventDate || '',
       eventVenue || '',
-      eventId
+      eventId,
+      subEventId,
+      registrationId
     )
 
     if (!sent) {

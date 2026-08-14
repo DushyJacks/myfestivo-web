@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db as getDb } from '@/lib/firebase'
-import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore'
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { verifyAndConsumeOtp } from '@/lib/otp-store'
 
 /**
  * Verify college email OTP and link college email
  * POST /api/auth/verify-college-otp
- * 
- * Body:
- * {
- *   uid: string,
- *   otp: string
- * }
- * 
- * Returns:
- * { success: boolean, message: string, collegeEmail?: string }
+ *
+ * Body: { uid: string, otp: string }
+ * Returns: { success: boolean, message: string, collegeEmail?: string }
  */
 export async function POST(request: NextRequest) {
   try {
@@ -27,37 +22,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Retrieve stored OTP
-    const otpDoc = await getDoc(doc(getDb(), 'collegeOtps', uid))
-    if (!otpDoc.exists()) {
-      return NextResponse.json(
-        { success: false, message: 'No OTP found. Please request a new one.' },
-        { status: 404 }
-      )
-    }
+    // Verify OTP against in-memory store (no Firestore reads required)
+    const result = verifyAndConsumeOtp(uid, otp)
 
-    const otpData = otpDoc.data()
-    const currentTime = new Date()
-    const expiresAt = new Date(otpData.expiresAt)
-
-    // Check if OTP is expired
-    if (currentTime > expiresAt) {
-      await deleteDoc(doc(getDb(), 'collegeOtps', uid))
+    if (!result) {
+      // Could be: no OTP found, OTP expired, or OTP mismatch
       return NextResponse.json(
-        { success: false, message: 'OTP expired. Please request a new one.' },
+        { success: false, message: 'Invalid or expired OTP. Please request a new one.' },
         { status: 400 }
       )
     }
 
-    // Verify OTP
-    if (otp !== otpData.otp) {
-      return NextResponse.json(
-        { success: false, message: 'Invalid OTP' },
-        { status: 400 }
-      )
-    }
+    const { collegeEmail } = result
 
-    // Get user document
+    // Confirm user still exists before writing
     const userDoc = await getDoc(doc(getDb(), 'users', uid))
     if (!userDoc.exists()) {
       return NextResponse.json(
@@ -66,15 +44,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update user with verified college email
-    const collegeEmail = otpData.collegeEmail
+    // Persist verified college email to Firestore user document
     await updateDoc(doc(getDb(), 'users', uid), {
       collegeEmail,
       collegeEmailVerified: true,
     })
-
-    // Delete OTP document
-    await deleteDoc(doc(getDb(), 'collegeOtps', uid))
 
     return NextResponse.json({
       success: true,
