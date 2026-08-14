@@ -13,13 +13,15 @@
  * state and individual helpers will throw descriptive errors.
  */
 
-import { initializeApp, getApps, cert, App } from 'firebase-admin/app'
-import { getAuth, Auth } from 'firebase-admin/auth'
+import type { App } from 'firebase-admin/app'
+import type { Auth } from 'firebase-admin/auth'
 
 const g = globalThis as typeof globalThis & { __firebaseAdminApp?: App }
 
-function getAdminApp(): App {
+async function getAdminApp(): Promise<App> {
   if (g.__firebaseAdminApp) return g.__firebaseAdminApp
+
+  const { initializeApp, getApps, cert } = await import('firebase-admin/app')
 
   const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
   const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL
@@ -49,6 +51,8 @@ function getAdminApp(): App {
 }
 
 /** Returns a Firebase Admin Auth instance */
-export function getAdminAuth(): Auth {
-  return getAuth(getAdminApp())
+export async function getAdminAuth(): Promise<Auth> {
+  const { getAuth } = await import('firebase-admin/auth')
+  const app = await getAdminApp()
+  return getAuth(app)
 }

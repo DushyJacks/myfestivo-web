@@ -3,7 +3,10 @@
 import { useAuth } from "@/lib/auth-context"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Compass, Calendar, PlusCircle, LogOut, User, Users, House } from "lucide-react"
+import { useState } from "react"
+import { AnimatePresence, motion } from "framer-motion"
+import { Compass, Calendar, PlusCircle, LogOut, User, Users, House, Loader2 } from "lucide-react"
+import { GlassCard } from "@/components/ui/GlassCard"
 
 
 interface AppSidebarProps {
@@ -13,6 +16,15 @@ interface AppSidebarProps {
 export function AppSidebar({ activeItem }: AppSidebarProps) {
   const { user, logout } = useAuth()
   const pathname = usePathname()
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [signingOut, setSigningOut] = useState(false)
+
+  async function handleConfirmSignOut() {
+    setSigningOut(true)
+    await logout()
+    setSigningOut(false)
+    setShowConfirm(false)
+  }
 
   // Auto-detect active item from pathname if not provided
   const active = activeItem || (
@@ -112,7 +124,7 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
 
               {/* Logout */}
               <button
-                onClick={logout}
+                onClick={() => setShowConfirm(true)}
                 aria-label="Sign out"
                 className="flex items-center justify-center lg:justify-start gap-3 p-3 w-full rounded-lg
                   hover:bg-red-500/10 transition-colors text-white/40
@@ -193,6 +205,59 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
           })}
         </div>
       </nav>
+
+      {/* ═══ SIGN-OUT CONFIRMATION MODAL ══════════════════════════════════════ */}
+      <AnimatePresence>
+        {showConfirm && (
+          <motion.div
+            key="signout-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[300] flex items-center justify-center px-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => !signingOut && setShowConfirm(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ type: "spring", stiffness: 340, damping: 30 }}
+              className="w-full max-w-sm"
+              onClick={e => e.stopPropagation()}
+            >
+              <GlassCard className="p-6 border border-white/10">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white/[0.06]">
+                    <LogOut className="w-5 h-5 text-white/60" />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-semibold text-white">Sign Out?</h2>
+                    <p className="text-xs text-white/40">You can sign back in anytime</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 justify-end">
+                  <button
+                    onClick={() => setShowConfirm(false)}
+                    disabled={signingOut}
+                    className="px-4 py-2 rounded-md text-xs border border-white/[0.1] text-white/50 hover:text-white hover:border-white/20 transition-colors disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleConfirmSignOut}
+                    disabled={signingOut}
+                    className="px-4 py-2 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50 bg-white hover:bg-[#B388FF] text-black"
+                  >
+                    {signingOut && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    Yes, Sign Out
+                  </button>
+                </div>
+              </GlassCard>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }

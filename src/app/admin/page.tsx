@@ -67,6 +67,8 @@ export default function AdminPage() {
   const [usersLoading, setUsersLoading] = useState(false)
   const [userSearch, setUserSearch] = useState("")
   const [userRoleFilter, setUserRoleFilter] = useState<"all" | UserRole>("all")
+  const [userDeptFilter, setUserDeptFilter] = useState<string>("all")
+  const [userYearFilter, setUserYearFilter] = useState<string>("all")
 
   // ─── Events State ───
   const [eventSearch, setEventSearch] = useState("")
@@ -75,6 +77,7 @@ export default function AdminPage() {
   // ─── Registrations State ───
   const [regSearch, setRegSearch] = useState("")
   const [regStatusFilter, setRegStatusFilter] = useState<string>("all")
+  const [regEventFilter, setRegEventFilter] = useState<string>("all")
 
   // ─── Modals ───
   const [confirmAction, setConfirmAction] = useState<{
@@ -143,6 +146,7 @@ export default function AdminPage() {
   const totalSubEvents = events.reduce((sum, e) => sum + e.subEvents.length, 0)
   const paidRegistrations = events.reduce((sum, e) => sum + e.registrations.filter(r => r.status === "PAID").length, 0)
   const pendingRegistrations = events.reduce((sum, e) => sum + e.registrations.filter(r => r.status === "PENDING").length, 0)
+  const refundedRegistrations = events.reduce((sum, e) => sum + e.registrations.filter(r => r.status === "REFUNDED").length, 0)
   const interEvents = events.filter(e => e.isInter).length
   const intraEvents = events.filter(e => !e.isInter).length
   const categoryStats = ["Technical", "Cultural", "Sports", "Workshop"].map(cat => ({
@@ -162,13 +166,18 @@ export default function AdminPage() {
   })
 
   // ─── Filtered Users ───
+  const uniqueDepts = Array.from(new Set(allUsers.map(u => u.department).filter(Boolean))).sort() as string[]
+  const uniqueYears = Array.from(new Set(allUsers.map(u => u.year).filter(Boolean))).sort() as string[]
+
   const filteredUsers = allUsers.filter(u => {
     const college = u.college || ""
     const matchSearch = u.name.toLowerCase().includes(userSearch.toLowerCase()) ||
       u.email.toLowerCase().includes(userSearch.toLowerCase()) ||
       college.toLowerCase().includes(userSearch.toLowerCase())
     const matchRole = userRoleFilter === "all" || u.role === userRoleFilter
-    return matchSearch && matchRole
+    const matchDept = userDeptFilter === "all" || u.department === userDeptFilter
+    const matchYear = userYearFilter === "all" || u.year === userYearFilter
+    return matchSearch && matchRole && matchDept && matchYear
   })
 
   // ─── All Registrations flat list ───
@@ -178,7 +187,8 @@ export default function AdminPage() {
     const matchSearch = reg.userName.toLowerCase().includes(regSearch.toLowerCase()) ||
       reg.userEmail.toLowerCase().includes(regSearch.toLowerCase())
     const matchStatus = regStatusFilter === "all" || reg.status === regStatusFilter
-    return matchSearch && matchStatus
+    const matchEvent = regEventFilter === "all" || reg.eventId === regEventFilter
+    return matchSearch && matchStatus && matchEvent
   })
 
   // ─── User CRUD ───
@@ -382,7 +392,7 @@ export default function AdminPage() {
                       <div className="text-[10px] font-mono text-white/40 tracking-widest">PENDING</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-3xl font-light mb-1">{totalRegistrations - paidRegistrations - pendingRegistrations}</div>
+                      <div className="text-3xl font-light mb-1">{refundedRegistrations}</div>
                       <div className="text-[10px] font-mono text-white/40 tracking-widest">REFUNDED</div>
                     </div>
                   </div>
@@ -769,6 +779,20 @@ export default function AdminPage() {
                   <option value="faculty">Faculty</option>
                   <option value="admin">Admins</option>
                 </select>
+                <select
+                  value={userDeptFilter} onChange={e => setUserDeptFilter(e.target.value)}
+                  className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white/70 focus:outline-none appearance-none cursor-pointer"
+                >
+                  <option value="all">All Departments</option>
+                  {uniqueDepts.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+                <select
+                  value={userYearFilter} onChange={e => setUserYearFilter(e.target.value)}
+                  className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white/70 focus:outline-none appearance-none cursor-pointer"
+                >
+                  <option value="all">All Years</option>
+                  {uniqueYears.map(y => <option key={y} value={y}>{y}</option>)}
+                </select>
               </div>
 
               {usersLoading ? (
@@ -783,7 +807,8 @@ export default function AdminPage() {
                       <tr className="bg-white/[0.03] text-white/50">
                         <th className="text-left p-3 font-medium text-[11px] tracking-widest uppercase">User</th>
                         <th className="text-left p-3 font-medium text-[11px] tracking-widest uppercase">College</th>
-                        <th className="text-left p-3 font-medium text-[11px] tracking-widest uppercase">Dept / Year</th>
+                        <th className="text-left p-3 font-medium text-[11px] tracking-widest uppercase">Department</th>
+                        <th className="text-left p-3 font-medium text-[11px] tracking-widest uppercase">Year</th>
                         <th className="text-center p-3 font-medium text-[11px] tracking-widest uppercase">Role</th>
                         <th className="text-center p-3 font-medium text-[11px] tracking-widest uppercase">Events</th>
                         <th className="text-center p-3 font-medium text-[11px] tracking-widest uppercase">Verified</th>
@@ -806,7 +831,8 @@ export default function AdminPage() {
                             </div>
                           </td>
                           <td className="p-3 text-white/50 text-xs">{u.college || <span className="text-white/20">—</span>}</td>
-                          <td className="p-3 text-white/50 text-xs">{u.department || "—"} / {u.year || "—"}</td>
+                          <td className="p-3 text-white/50 text-xs">{u.department || <span className="text-white/20">—</span>}</td>
+                          <td className="p-3 text-white/50 text-xs">{u.year || <span className="text-white/20">—</span>}</td>
                           <td className="p-3 text-center">
                             <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
                               u.role === "admin"
@@ -933,6 +959,15 @@ export default function AdminPage() {
                   <option value="PAID">Paid</option>
                   <option value="PENDING">Pending</option>
                   <option value="REFUNDED">Refunded</option>
+                </select>
+                <select
+                  value={regEventFilter} onChange={e => setRegEventFilter(e.target.value)}
+                  className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white/70 focus:outline-none appearance-none cursor-pointer max-w-[220px]"
+                >
+                  <option value="all">All Events</option>
+                  {events.filter(e => e.status !== "pending_review").map(e => (
+                    <option key={e.id} value={e.id}>{e.title}</option>
+                  ))}
                 </select>
               </div>
 

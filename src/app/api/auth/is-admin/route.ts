@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { collection, query, where, getDocs } from 'firebase/firestore'
 import { db as getDb } from '@/lib/firebase'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * Check if user is admin by looking up their Firestore document
  */

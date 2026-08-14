@@ -147,6 +147,21 @@ export default function ProfilePage() {
     }
   }, [user, authLoading, router])
 
+  const startCountdown = useCallback(() => {
+    if (countdownRef.current) clearInterval(countdownRef.current)
+    setCountdown(120)
+    countdownRef.current = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(countdownRef.current!)
+          countdownRef.current = null
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }, [])
+
   if (authLoading) return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-6 h-6 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
@@ -189,21 +204,6 @@ export default function ProfilePage() {
     setSaved(true)
     setTimeout(() => { setSaved(false); setIsEditing(false) }, 1500)
   }
-
-  const startCountdown = useCallback(() => {
-    if (countdownRef.current) clearInterval(countdownRef.current)
-    setCountdown(120)
-    countdownRef.current = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(countdownRef.current!)
-          countdownRef.current = null
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-  }, [])
 
   const handleSendOtp = async () => {
     if (!collegePrefix.trim()) return

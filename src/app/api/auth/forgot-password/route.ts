@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminAuth } from '@/lib/firebase-admin-server'
 import { sendPasswordResetEmail } from '@/lib/email'
 
+export const dynamic = 'force-dynamic'
+
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://myfestivo.live'
 
 /**
@@ -30,7 +32,7 @@ export async function POST(request: NextRequest) {
     const normalizedEmail = email.trim().toLowerCase()
 
     try {
-      const auth = getAdminAuth()
+      const auth = await getAdminAuth()
 
       // Generate the reset link pointing to our custom /reset-password page
       const actionCodeSettings = {

@@ -10,6 +10,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   compress: true,
+  serverExternalPackages: ["firebase-admin", "jwks-rsa", "jose"],
 
   images: {
     formats: ["image/avif", "image/webp"],
