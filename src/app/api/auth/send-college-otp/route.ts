@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db as getDb } from '@/lib/firebase'
-import { doc, getDoc } from 'firebase/firestore'
+import { getAdminDb } from '@/lib/firebase-admin-server'
 import { sendCollegeOTP } from '@/lib/email'
 import { saveOtp, clearOtp } from '@/lib/otp-store'
 
@@ -40,9 +39,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Use Admin SDK to bypass Firestore security rules on the server
+    const adminDb = await getAdminDb()
+
     // Verify user exists in Firestore
-    const userDoc = await getDoc(doc(getDb(), 'users', uid))
-    if (!userDoc.exists()) {
+    const userDoc = await adminDb.collection('users').doc(uid).get()
+    if (!userDoc.exists) {
       return NextResponse.json(
         { success: false, message: 'User not found' },
         { status: 404 }

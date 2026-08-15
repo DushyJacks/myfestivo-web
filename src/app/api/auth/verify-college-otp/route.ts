@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db as getDb } from '@/lib/firebase'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
+import { getAdminDb } from '@/lib/firebase-admin-server'
 import { verifyAndConsumeOtp } from '@/lib/otp-store'
 
 /**
@@ -35,9 +34,12 @@ export async function POST(request: NextRequest) {
 
     const { collegeEmail } = result
 
+    // Use Admin SDK to bypass Firestore security rules on the server
+    const adminDb = await getAdminDb()
+
     // Confirm user still exists before writing
-    const userDoc = await getDoc(doc(getDb(), 'users', uid))
-    if (!userDoc.exists()) {
+    const userDoc = await adminDb.collection('users').doc(uid).get()
+    if (!userDoc.exists) {
       return NextResponse.json(
         { success: false, message: 'User not found' },
         { status: 404 }
@@ -45,7 +47,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Persist verified college email to Firestore user document
-    await updateDoc(doc(getDb(), 'users', uid), {
+    await adminDb.collection('users').doc(uid).update({
       collegeEmail,
       collegeEmailVerified: true,
     })

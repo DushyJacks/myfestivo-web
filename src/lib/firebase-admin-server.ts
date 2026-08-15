@@ -15,6 +15,7 @@
 
 import type { App } from 'firebase-admin/app'
 import type { Auth } from 'firebase-admin/auth'
+import type { Firestore } from 'firebase-admin/firestore'
 
 const g = globalThis as typeof globalThis & { __firebaseAdminApp?: App }
 
@@ -55,4 +56,11 @@ export async function getAdminAuth(): Promise<Auth> {
   const { getAuth } = await import('firebase-admin/auth')
   const app = await getAdminApp()
   return getAuth(app)
+}
+
+/** Returns a Firebase Admin Firestore instance */
+export async function getAdminDb(): Promise<Firestore> {
+  const { getFirestore } = await import('firebase-admin/firestore')
+  const app = await getAdminApp()
+  return getFirestore(app)
 }
