@@ -28,123 +28,262 @@ export default function TermsPage() {
 
         <Section title="1. Acceptance of Terms">
           <p>
-            Welcome to <strong className="text-white/90">MyFestivo</strong> ("Platform," "we," "us," "our"). MyFestivo is an online event
+            Welcome to <strong className="text-white/90">MyFestivo</strong> (&quot;Platform,&quot; &quot;we,&quot; &quot;us,&quot; &quot;our,&quot; or &quot;Company&quot;). MyFestivo is an online event
             operating system designed for college communities to create, manage, and participate in campus events.
           </p>
           <p>
-            By accessing, browsing, or using the MyFestivo Platform (including{" "}
-            <a href="https://myfestivo.live" className="text-[#B388FF] hover:underline">https://myfestivo.live</a> and any related services),
-            you ("User," "you," "your") agree to be bound by these Terms and Conditions. If you do not agree, you may not use the Platform.
+            By accessing, browsing, or using the MyFestivo Platform (including our website at{" "}
+            <a href="https://myfestivo.live" className="text-[#B388FF] hover:underline">https://myfestivo.live</a>{" "}
+            and any related services), you (&quot;User,&quot; &quot;you,&quot; or &quot;your&quot;) agree to be bound by these Terms and Conditions (&quot;Terms&quot;). If you do not agree to these Terms in their entirety, you may not use the Platform.
           </p>
+          <p>These Terms apply to all users of MyFestivo, including event organizers (&quot;Organizers&quot;) and event participants (&quot;Participants&quot;).</p>
         </Section>
 
         <Section title="2. User Eligibility">
           <Subsection title="2.1 Age Requirement">
-            <p>To use MyFestivo, you must be a college student or affiliated with a recognized educational institution in India. We expect users to be approximately 17 years or older.</p>
+            <p>To use MyFestivo, you must be a <strong className="text-white/90">college student or affiliated with a recognized educational institution in India</strong>. While there is no strict minimum age requirement, we expect Participants to be approximately <strong className="text-white/90">17 years or older</strong>.</p>
           </Subsection>
           <Subsection title="2.2 College Email Verification">
-            <p>MyFestivo requires verification through a valid college email address to register as a Participant or Organizer. Users who fail email verification will not be permitted to create accounts or register for events.</p>
+            <p>MyFestivo requires <strong className="text-white/90">verification through a valid college email address</strong> to register as a Participant or Organizer. Users who fail email verification or who are not affiliated with a recognized educational institution will not be permitted to create accounts or register for events.</p>
           </Subsection>
           <Subsection title="2.3 Account Eligibility">
-            <p>You represent and warrant that you are a student at an accredited institution, all information provided is accurate and truthful, you have not been previously banned from the Platform, and you will not create multiple accounts.</p>
+            <p className="mb-2">You represent and warrant that:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>You are a student at an accredited college or university in India.</li>
+              <li>All information you provide during registration is accurate, complete, and truthful.</li>
+              <li>You are not previously banned or suspended from the MyFestivo Platform.</li>
+              <li>You will not create multiple accounts or use the Platform on behalf of others.</li>
+            </ul>
           </Subsection>
         </Section>
 
         <Section title="3. Organizer Responsibilities">
-          <p>Event Organizers are solely responsible for:</p>
-          <ul className="list-disc pl-5 space-y-1.5 mt-2">
-            <li>Planning, organizing, and conducting all aspects of the event</li>
-            <li>Ensuring compliance with all applicable laws and college policies</li>
-            <li>Ensuring the safety and well-being of all participants</li>
-            <li>Assuming full legal and financial liability for their events</li>
-            <li>Notifying participants of any cancellations or changes promptly</li>
-            <li>Providing accurate, non-misleading event descriptions</li>
-          </ul>
-          <p className="mt-3">Organizers agree to <strong className="text-white/90">indemnify and hold harmless</strong> MyFestivo from any claims, damages, or expenses arising from their events or actions.</p>
+          <Subsection title="3.1 Full Responsibility for Events">
+            <p className="mb-2">Event Organizers are solely responsible for:</p>
+            <ul className="list-disc pl-5 space-y-1.5">
+              <li><strong className="text-white/90">Event Planning &amp; Execution:</strong> Planning, organizing, coordinating, and conducting all aspects of the event.</li>
+              <li><strong className="text-white/90">Compliance with Laws:</strong> Ensuring the event complies with all applicable Indian laws, local regulations, and college policies.</li>
+              <li><strong className="text-white/90">Safety &amp; Security:</strong> Ensuring the safety, security, and well-being of all Participants.</li>
+              <li><strong className="text-white/90">Liability &amp; Insurance:</strong> Assuming full legal and financial liability for any accidents, injuries, damages, or claims arising from the event.</li>
+              <li><strong className="text-white/90">Attendance Verification:</strong> Verifying that Participants meet the eligibility criteria for the event.</li>
+              <li><strong className="text-white/90">Cancellations &amp; Changes:</strong> Notifying Participants promptly of any cancellations, postponements, reschedulings, or significant changes to the event.</li>
+              <li><strong className="text-white/90">Collection of Participant Data:</strong> Responsibly managing and protecting any personal information collected from Participants (names, emails, phone numbers, etc.).</li>
+            </ul>
+          </Subsection>
+          <Subsection title="3.2 Indemnification">
+            <p className="mb-2">Organizers agree to <strong className="text-white/90">indemnify, defend, and hold harmless</strong> MyFestivo, its founders, employees, and agents from any and all claims, damages, losses, liabilities, and expenses (including legal fees) arising from:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>The Organizer&apos;s event, decisions, or actions.</li>
+              <li>Breach of these Terms by the Organizer.</li>
+              <li>Violation of applicable laws or college policies.</li>
+              <li>Any injury, damage, or loss to Participants or third parties.</li>
+            </ul>
+          </Subsection>
+          <Subsection title="3.3 Event Content &amp; Descriptions">
+            <p>Organizers must provide <strong className="text-white/90">accurate, truthful, and non-misleading</strong> event descriptions. Misleading event information may result in account suspension or permanent ban.</p>
+          </Subsection>
         </Section>
 
-        <Section title="4. Participant Rights & Responsibilities">
-          <p>As a Participant, you agree to:</p>
-          <ul className="list-disc pl-5 space-y-1.5 mt-2">
-            <li>Provide accurate information during registration</li>
-            <li>Comply with all event rules set by the Organizer</li>
-            <li>Treat other participants and organizers with respect</li>
-            <li>Not misuse, forge, or share your QR check-in pass</li>
-            <li>Accept that MyFestivo is not responsible for the conduct of Organizers or event outcomes</li>
-          </ul>
+        <Section title="4. Participant Rights &amp; Responsibilities">
+          <Subsection title="4.1 Participant Responsibilities">
+            <p className="mb-2">As a Participant, you agree to:</p>
+            <ul className="list-disc pl-5 space-y-1.5">
+              <li><strong className="text-white/90">Follow Event Guidelines:</strong> Comply with all rules, instructions, and guidelines set by the Organizer.</li>
+              <li><strong className="text-white/90">Respectful Conduct:</strong> Treat all attendees, organizers, and volunteers with respect. Harassment, hate speech, discrimination, or abusive behavior is strictly prohibited.</li>
+              <li><strong className="text-white/90">Accurate Information:</strong> Provide accurate and truthful information during registration.</li>
+              <li><strong className="text-white/90">Legal Compliance:</strong> Engage in activities that comply with all applicable laws and college policies.</li>
+              <li><strong className="text-white/90">No Reselling:</strong> You may not resell, transfer, or distribute your event registration to another person.</li>
+            </ul>
+          </Subsection>
+          <Subsection title="4.2 Participant Acknowledgment">
+            <p className="mb-2">By registering for an event, Participants acknowledge that:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>They have read and understood the event details provided by the Organizer.</li>
+              <li>They assume all risks associated with attending the event (including health, safety, and personal property risks).</li>
+              <li>They release the Organizer and MyFestivo from any claims of injury or loss during the event.</li>
+            </ul>
+          </Subsection>
         </Section>
 
-        <Section title="5. Prohibited Conduct">
-          <p>You agree <strong className="text-white/90">not</strong> to:</p>
-          <ul className="list-disc pl-5 space-y-1.5 mt-2">
-            <li>Use the Platform for any unlawful purpose</li>
-            <li>Post false, misleading, or offensive content</li>
-            <li>Attempt to hack, disrupt, or gain unauthorized access to the Platform</li>
-            <li>Spam, harass, or impersonate other users</li>
-            <li>Use bots or automated tools to scrape or misuse the Platform</li>
-            <li>Create events intended to defraud participants</li>
-          </ul>
-          <p className="mt-3">Violations may result in immediate account suspension or permanent ban.</p>
+        <Section title="5. Prohibited Activities">
+          <p>Users are strictly prohibited from:</p>
+          <Subsection title="5.1 Event-Related Violations">
+            <ul className="list-disc pl-5 space-y-1.5">
+              <li>Creating or promoting <strong className="text-white/90">commercial or non-educational events</strong> (events focused on profit generation rather than learning or community building).</li>
+              <li>Organizing events that <strong className="text-white/90">violate Indian laws</strong>, local regulations, or institutional policies.</li>
+              <li>Reselling or transferring event registrations.</li>
+              <li>Organizing events that promote <strong className="text-white/90">violence, illegal activities, harassment, hate speech, discrimination, or harm</strong> to any person or group.</li>
+            </ul>
+          </Subsection>
+          <Subsection title="5.2 Platform Conduct Violations">
+            <ul className="list-disc pl-5 space-y-1.5">
+              <li>Engaging in <strong className="text-white/90">harassment, hate speech, discrimination, bullying, or abusive behavior</strong> towards other users.</li>
+              <li>Sharing <strong className="text-white/90">sexually explicit, obscene, or illegal content</strong>.</li>
+              <li>Creating <strong className="text-white/90">fake, misleading, or fraudulent accounts</strong>.</li>
+              <li>Attempting to <strong className="text-white/90">hack, breach, disrupt, or damage</strong> the Platform or its systems.</li>
+              <li>Spam, automated bots, or malicious activity.</li>
+              <li>Attempting to <strong className="text-white/90">circumvent security measures</strong> or access unauthorized portions of the Platform.</li>
+            </ul>
+          </Subsection>
+          <Subsection title="5.3 Consequences">
+            <p className="mb-2">Users who violate these prohibitions will be subject to:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li><strong className="text-white/90">Immediate account suspension</strong> (temporary or permanent).</li>
+              <li><strong className="text-white/90">Removal from all events</strong> they have registered for or organized.</li>
+              <li><strong className="text-white/90">Referral to relevant authorities</strong> if the violation involves illegal activity.</li>
+            </ul>
+          </Subsection>
         </Section>
 
-        <Section title="6. Payments & Refunds">
-          <p>
-            Payment processing is handled by Razorpay. Event fees are collected by the Organizer, not by MyFestivo.
-            MyFestivo is not responsible for refunds — all refund requests must be directed to the Event Organizer.
-            MyFestivo does not take a platform fee on transactions.
+        <Section title="6. Intellectual Property Rights">
+          <Subsection title="6.1 MyFestivo's IP">
+            <p className="mb-2">MyFestivo retains full ownership of:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>The Platform&apos;s design, code, features, and functionality.</li>
+              <li>Logos, trademarks, and branding materials.</li>
+              <li>All documentation, databases, and systems.</li>
+            </ul>
+          </Subsection>
+          <Subsection title="6.2 User-Generated Content">
+            <p className="mb-2">You retain ownership of event descriptions, images, and other content you create (&quot;User Content&quot;). However, you grant MyFestivo a <strong className="text-white/90">perpetual, worldwide, royalty-free, non-exclusive license</strong> to:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Use, reproduce, modify, and display your event information for Platform operations.</li>
+              <li><strong className="text-white/90">Use event data and descriptions for marketing, analytics, and competitive research</strong> (including SEO content generation and blog posts comparing MyFestivo to competitors).</li>
+              <li>Aggregate anonymized data for insights and analytics.</li>
+            </ul>
+          </Subsection>
+          <Subsection title="6.3 Organizer Obligations">
+            <p>Organizers warrant that any event content they upload does not infringe on third-party intellectual property rights and does not violate any laws.</p>
+          </Subsection>
+        </Section>
+
+        <Section title="7. Disclaimer of Warranties">
+          <p>MyFestivo is provided on an <strong className="text-white/90">&quot;AS IS&quot; and &quot;AS AVAILABLE&quot;</strong> basis without warranties of any kind, express or implied.</p>
+          <Subsection title="7.1 Specific Disclaimers">
+            <p className="mb-2">We make <strong className="text-white/90">no representations or warranties</strong> regarding:</p>
+            <ul className="list-disc pl-5 space-y-1.5">
+              <li><strong className="text-white/90">Accuracy or Completeness:</strong> Event information, descriptions, or details provided by Organizers.</li>
+              <li><strong className="text-white/90">Reliability or Uninterrupted Access:</strong> The Platform may be subject to downtime, errors, or interruptions without liability.</li>
+              <li><strong className="text-white/90">Security:</strong> While we implement reasonable security measures, we cannot guarantee absolute protection against breaches or unauthorized access.</li>
+              <li><strong className="text-white/90">Third-Party Services:</strong> Firebase, email providers, college authentication systems, or other integrations may fail without our liability.</li>
+              <li><strong className="text-white/90">Fitness for Purpose:</strong> The Platform may not meet all your specific requirements.</li>
+            </ul>
+          </Subsection>
+        </Section>
+
+        <Section title="8. Limitation of Liability">
+          <Subsection title="8.1 Liability Cap">
+            <p><strong className="text-white/90">MyFestivo&apos;s total liability to any user is limited to zero rupees (₹0).</strong> MyFestivo shall not be liable for any damages, losses, or claims, regardless of the cause.</p>
+          </Subsection>
+          <Subsection title="8.2 Exclusions of Liability">
+            <p className="mb-2">MyFestivo is <strong className="text-white/90">NOT liable</strong> for:</p>
+            <ul className="list-disc pl-5 space-y-1.5">
+              <li><strong className="text-white/90">Direct or Indirect Damages:</strong> Including lost profits, revenue, data, business opportunities, or reputational harm.</li>
+              <li><strong className="text-white/90">Consequential, Incidental, or Special Damages:</strong> Even if MyFestivo has been advised of the possibility of such damages.</li>
+              <li><strong className="text-white/90">Third-Party Actions:</strong> Failures, breaches, or misconduct of third-party services (email providers, authentication systems, college servers, etc.).</li>
+              <li><strong className="text-white/90">Event-Related Losses:</strong> Any injury, damage, illness, or loss occurring during or related to events organized through the Platform.</li>
+              <li><strong className="text-white/90">Data Loss or Unauthorized Access:</strong> We are not liable if your data is compromised, lost, or accessed without authorization, except in cases of our gross negligence or willful misconduct.</li>
+            </ul>
+          </Subsection>
+          <Subsection title="8.3 Sole Remedy">
+            <p>If you are dissatisfied with the Platform, your sole remedy is to stop using it.</p>
+          </Subsection>
+        </Section>
+
+        <Section title="9. Account Suspension &amp; Termination">
+          <Subsection title="9.1 Grounds for Suspension">
+            <p className="mb-2">MyFestivo may suspend or terminate your account immediately, without notice, if you:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Violate these Terms or any applicable laws.</li>
+              <li>Engage in harassment, hate speech, discrimination, or abusive conduct.</li>
+              <li>Create misleading or fraudulent event information.</li>
+              <li>Attempt to breach Platform security or disrupt services.</li>
+              <li>Are deemed to pose a risk to other users or the Platform.</li>
+              <li>Fail to maintain valid college email verification.</li>
+            </ul>
+          </Subsection>
+          <Subsection title="9.2 Effect of Termination">
+            <p className="mb-2">Upon suspension or termination:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>You lose access to your account and all associated event data.</li>
+              <li>You will be removed from all events (as Organizer or Participant).</li>
+              <li>You forfeit any future access to the Platform.</li>
+              <li>Organizers lose ability to check in participants or manage events.</li>
+            </ul>
+          </Subsection>
+          <Subsection title="9.3 Data Retention">
+            <p>MyFestivo may retain your data indefinitely for analytics, legal compliance, and fraud prevention purposes, even after account termination.</p>
+          </Subsection>
+        </Section>
+
+        <Section title="10. Dispute Resolution">
+          <Subsection title="10.1 No MyFestivo Involvement">
+            <p className="mb-2">MyFestivo takes no role in disputes between Organizers and Participants. This includes:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Registration disagreements or check-in conflicts.</li>
+              <li>Event cancellations or reschedulings.</li>
+              <li>Complaints about event quality, content, or conduct.</li>
+              <li>Personal disputes between users.</li>
+            </ul>
+          </Subsection>
+          <Subsection title="10.2 Direct Resolution">
+            <p className="mb-2">Disputes must be resolved directly between the Organizer and Participant. If resolution is not possible, users may:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Report violations of these Terms to MyFestivo for investigation.</li>
+              <li>Pursue legal action through the appropriate courts.</li>
+            </ul>
+          </Subsection>
+          <Subsection title="10.3 Arbitration &amp; Jurisdiction">
+            <p>You agree to resolve any disputes through the courts of the jurisdiction in which the Organizer&apos;s college is located (in India). You waive any right to jury trial or class action.</p>
+          </Subsection>
+        </Section>
+
+        <Section title="11. Privacy &amp; Data Collection">
+          <p>MyFestivo collects, uses, and stores user data as described in the <strong className="text-white/90">separate Privacy Policy</strong> available on the Platform. Your use of the Platform constitutes acceptance of our{" "}
+            <Link href="/privacy-policy" className="text-[#B388FF] hover:underline">Privacy Policy</Link>.
           </p>
         </Section>
 
-        <Section title="7. Intellectual Property">
-          <p>
-            All Platform content, branding, design, and code are the property of MyFestivo. You may not copy, reproduce, or
-            distribute any part of the Platform without written permission. User-submitted content (event descriptions, chat
-            messages, etc.) remains your property, but you grant MyFestivo a license to display it on the Platform.
+        <Section title="12. Amendment of Terms">
+          <p>MyFestivo reserves the right to modify these Terms at any time. Changes become effective immediately upon posting to the Platform. Continued use of the Platform after changes constitutes acceptance of the new Terms.</p>
+          <p className="mt-2">We will provide <strong className="text-white/90">30 days&apos; notice</strong> via email or Platform notification of material changes.</p>
+        </Section>
+
+        <Section title="13. Severability">
+          <p>If any provision of these Terms is found to be invalid, illegal, or unenforceable, that provision shall be severed, and the remaining Terms shall continue in full force and effect.</p>
+        </Section>
+
+        <Section title="14. Governing Law &amp; Jurisdiction">
+          <Subsection title="14.1 Governing Law">
+            <p>These Terms are governed by and construed in accordance with the <strong className="text-white/90">laws of India</strong>, without regard to its conflict of law principles.</p>
+          </Subsection>
+          <Subsection title="14.2 Jurisdiction">
+            <p className="mb-2">You irrevocably submit to the exclusive jurisdiction of:</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>The <strong className="text-white/90">courts of New Delhi, India</strong> for any legal disputes.</li>
+              <li>You waive any objection to venue or inconvenient forum.</li>
+            </ul>
+          </Subsection>
+        </Section>
+
+        <Section title="15. Contact Information">
+          <p>If you have questions about these Terms and Conditions, please contact us at:</p>
+          <p className="mt-3 text-white/60">
+            <strong className="text-white/90">MyFestivo Support</strong><br />
+            Email:{" "}
+            <a href="mailto:myfestivo@gmail.com" className="text-[#B388FF] hover:underline">myfestivo@gmail.com</a><br />
+            Website:{" "}
+            <a href="https://myfestivo.live" className="text-[#B388FF] hover:underline">https://myfestivo.live</a>
           </p>
         </Section>
 
-        <Section title="8. Disclaimers & Limitation of Liability">
-          <p>
-            The Platform is provided "as is" without warranties of any kind. MyFestivo is not liable for:
-          </p>
-          <ul className="list-disc pl-5 space-y-1.5 mt-2">
-            <li>Any event cancellations, changes, or failures by Organizers</li>
-            <li>Personal injury, property damage, or financial loss at events</li>
-            <li>Data loss caused by technical failures beyond our control</li>
-            <li>Actions or conduct of other users on the Platform</li>
-          </ul>
-          <p className="mt-3">To the maximum extent permitted by law, MyFestivo's total liability shall not exceed the amount paid by you to the Platform in the 12 months preceding the claim.</p>
+        <Section title="16. Entire Agreement">
+          <p>These Terms, along with the Privacy Policy, constitute the entire agreement between you and MyFestivo regarding your use of the Platform and supersede all prior agreements, understandings, and negotiations.</p>
         </Section>
 
-        <Section title="9. Termination">
-          <p>
-            We reserve the right to suspend or terminate your account at any time for violations of these Terms, fraudulent
-            activity, or conduct that we deem harmful to other users or the Platform. You may delete your account at any time
-            from the Profile page.
-          </p>
-        </Section>
-
-        <Section title="10. Governing Law">
-          <p>
-            These Terms are governed by the laws of India. Any disputes arising from these Terms or your use of MyFestivo
-            shall be subject to the exclusive jurisdiction of the courts in Chennai, Tamil Nadu, India.
-          </p>
-        </Section>
-
-        <Section title="11. Changes to Terms">
-          <p>
-            We may update these Terms from time to time. We will notify you of significant changes by posting the updated Terms
-            on this page with a new effective date. Continued use of the Platform after changes constitutes your acceptance.
-          </p>
-        </Section>
-
-        <Section title="12. Contact Us">
-          <p>
-            For questions about these Terms, please contact:{" "}
-            <a href="mailto:myfestivo@gmail.com" className="text-[#B388FF] hover:underline">myfestivo@gmail.com</a>
-          </p>
-          <p className="mt-1 text-white/40 text-xs">MyFestivo Team — SRM Institute of Science and Technology, Chennai, India</p>
-        </Section>
+        <p className="text-white/40 text-xs border-t border-white/[0.06] pt-6 mt-6">
+          By using MyFestivo, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.
+        </p>
       </div>
 
       {/* Footer */}

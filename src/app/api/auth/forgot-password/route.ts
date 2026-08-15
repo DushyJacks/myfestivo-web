@@ -48,9 +48,25 @@ export async function POST(request: NextRequest) {
       // Send via Resend (our branding)
       await sendPasswordResetEmail(normalizedEmail, resetLink)
     } catch (err: any) {
-      // Log the real error server-side but return generic success to the client
-      // to prevent user enumeration (e.g. "auth/user-not-found" silently ignored)
-      console.error('[forgot-password] Error generating reset link:', err?.code, err?.message)
+      const code: string = err?.code ?? ''
+
+      // Expected Firebase errors: silently ignore to prevent user enumeration.
+      // "auth/user-not-found" — no account exists for this email (intentional).
+      // "auth/invalid-email"  — malformed email string.
+      const isBenignAuthError =
+        code === 'auth/user-not-found' ||
+        code === 'auth/invalid-email' ||
+        code === 'auth/email-not-found'
+
+      if (isBenignAuthError) {
+        console.info('[forgot-password] Benign auth error (ignored):', code)
+        // Fall through to generic success below
+      } else {
+        // Unexpected system error (ESM crash, network failure, Resend error, etc.)
+        // Re-throw so the outer catch returns a proper 500.
+        console.error('[forgot-password] Unexpected error:', code, err?.message)
+        throw err
+      }
     }
 
     // Always respond with a generic success — user never knows if the email exists

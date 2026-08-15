@@ -110,12 +110,46 @@ export default function AdminPage() {
         "SRMIST, Vadapalani",
         "SRMIST, Tiruchirappalli",
       ])
+      const STANDARD_DEPARTMENTS = new Set([
+        "BSc CS",
+        "BSc Cyber Security",
+        "BSc AIML",
+        "BSc DS",
+        "BCA GEN AI",
+      ])
+      // Map of lowercase/alias → canonical department name
+      const DEPT_ALIAS_MAP: Record<string, string> = {
+        "computer science": "BSc CS",
+        "cs": "BSc CS",
+        "cyber security": "BSc Cyber Security",
+        "cyber": "BSc Cyber Security",
+        "aiml": "BSc AIML",
+        "ai ml": "BSc AIML",
+        "artificial intelligence": "BSc AIML",
+        "data science": "BSc DS",
+        "ds": "BSc DS",
+        "bca": "BCA GEN AI",
+        "bca gen ai": "BCA GEN AI",
+        "bsc cs": "BSc CS",
+        "bsc cyber security": "BSc Cyber Security",
+        "bsc aiml": "BSc AIML",
+        "bsc ds": "BSc DS",
+      }
+      const normaliseDept = (raw: string | undefined): string => {
+        if (!raw) return "BSc CS"
+        const trimmed = raw.trim()
+        if (STANDARD_DEPARTMENTS.has(trimmed)) return trimmed
+        const lower = trimmed.toLowerCase()
+        return DEPT_ALIAS_MAP[lower] ?? "BSc CS"
+      }
       const users = snap.docs.map(d => {
         const data = { ...d.data(), id: d.id } as AppUser
         // Normalise college
         if (data.college && !STANDARD_COLLEGES.has(data.college.trim())) {
           data.college = "SRMIST, Ramapuram"
         }
+        // Normalise department — display-only, does NOT write back to DB
+        data.department = normaliseDept(data.department)
         // Derive faculty role from year field (non-destructive — doesn't write back to DB)
         if (data.role !== "admin") {
           const isFaculty = data.year === "Faculty/Staff" || data.year === "Faculty" || data.role === "faculty"
@@ -784,7 +818,11 @@ export default function AdminPage() {
                   className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2.5 text-sm text-white/70 focus:outline-none appearance-none cursor-pointer"
                 >
                   <option value="all">All Departments</option>
-                  {uniqueDepts.map(d => <option key={d} value={d}>{d}</option>)}
+                  <option value="BSc CS">BSc CS</option>
+                  <option value="BSc Cyber Security">BSc Cyber Security</option>
+                  <option value="BSc AIML">BSc AIML</option>
+                  <option value="BSc DS">BSc DS</option>
+                  <option value="BCA GEN AI">BCA GEN AI</option>
                 </select>
                 <select
                   value={userYearFilter} onChange={e => setUserYearFilter(e.target.value)}

@@ -10,7 +10,9 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   compress: true,
-  serverExternalPackages: ["firebase-admin", "jwks-rsa", "jose"],
+  // These packages use native bindings or ESM internals — let Node.js load them
+  // directly instead of having Next.js bundle them through webpack.
+  serverExternalPackages: ["firebase-admin"],
 
   images: {
     formats: ["image/avif", "image/webp"],

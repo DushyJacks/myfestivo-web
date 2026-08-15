@@ -353,10 +353,7 @@ We may create anonymized, aggregated reports (e.g., "events by category," "avera
 
 ## 4. Data Sharing & Disclosure
 
-### 4.1 What We Do NOT Share
-MyFestivo does not sell, rent, or lease your personal information to third parties for their marketing purposes.
-
-### 4.2 Information Shared Between Users
+### 4.1 Information Shared Between Users
 
 #### Organizer to Participant
 Organizers have access to:
@@ -368,7 +365,7 @@ Participants may see:
 - Organizer name and contact information.
 - Event details and descriptions.
 
-### 4.3 Sharing with Service Providers
+### 4.2 Sharing with Service Providers
 We share limited data with trusted third-party service providers who assist us:
 
 - Firebase (Google Cloud): For authentication, database hosting, and crash reporting.
@@ -378,14 +375,14 @@ We share limited data with trusted third-party service providers who assist us:
 
 These service providers are bound by confidentiality agreements and are prohibited from using your data for purposes other than providing services to MyFestivo.
 
-### 4.4 Legal Disclosure
+### 4.3 Legal Disclosure
 We may disclose your information if required by law or if we believe in good faith that disclosure is necessary to:
 - Comply with legal obligations, court orders, or government requests.
 - Enforce our Terms and Conditions.
 - Protect the safety, rights, or property of MyFestivo, its users, or the public.
 - Prevent or investigate fraudulent activity or security violations.
 
-### 4.5 Mergers & Acquisitions
+### 4.4 Mergers & Acquisitions
 If MyFestivo is acquired, merged, or undergoes a change of control, your information may be transferred as part of that transaction. We will provide notice of any such change.
 
 ---
