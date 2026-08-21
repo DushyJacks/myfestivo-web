@@ -1,6 +1,7 @@
 "use client"
 
 import { useAuth } from "@/lib/auth-context"
+import { useEvents } from "@/lib/events-context"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -8,15 +9,26 @@ import { AppSidebar } from "@/components/layout/AppSidebar"
 import { GlassCard } from "@/components/ui/GlassCard"
 import { MicroLabel } from "@/components/ui/MicroLabel"
 import { PageTransition, pageItem } from "@/components/animation/PageTransition"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { db as getDb } from "@/lib/firebase"
 import { collection, query, where, getDocs } from "firebase/firestore"
-import { Search, UserPlus, Check, X, Loader2 } from "lucide-react"
+import { Search, UserPlus, Check, X, Loader2, Trophy, CalendarDays, GraduationCap, Mail, UserCircle2, Building } from "lucide-react"
+
+interface FriendProfile {
+  name?: string
+  email?: string
+  role?: string
+  college?: string
+  department?: string
+  year?: string
+  avatarUrl?: string
+}
 
 export default function FriendsPage() {
   const { user, isLoading, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend } = useAuth()
+  const { events } = useEvents()
   const router = useRouter()
 
   const [searchQuery, setSearchQuery] = useState("")
@@ -25,6 +37,13 @@ export default function FriendsPage() {
   const [friendEmail, setFriendEmail] = useState("")
   const [friendSending, setFriendSending] = useState(false)
   const [friendMsg, setFriendMsg] = useState("")
+
+  // Confirmation dialog state
+  const [removingFriend, setRemovingFriend] = useState<string | null>(null)
+  const [isRemoving, setIsRemoving] = useState(false)
+
+  // Friend details modal state
+  const [selectedFriend, setSelectedFriend] = useState<{ email: string; profile: FriendProfile | null; loading: boolean } | null>(null)
 
   useEffect(() => {
     if (!isLoading && !user) router.push("/login")
@@ -43,8 +62,6 @@ export default function FriendsPage() {
     if (!searchQuery.trim() || !user) return
     setIsSearching(true)
     try {
-      // Fetch all users except self, then filter client-side by name/email
-      // (Firestore doesn't support full-text search natively, so we fetch all and filter locally)
       const q = query(collection(getDb(), "users"), where("email", "!=", user.email))
       const snap = await getDocs(q)
       const term = searchQuery.toLowerCase()
@@ -54,7 +71,7 @@ export default function FriendsPage() {
           u.name?.toLowerCase().includes(term) ||
           u.email?.toLowerCase().includes(term)
         )
-        .slice(0, 15) // cap display at 15
+        .slice(0, 15)
       setSearchResults(results)
     } catch (err) {
       console.error("Search failed:", err)
@@ -79,6 +96,40 @@ export default function FriendsPage() {
     setFriendSending(false)
     setTimeout(() => setFriendMsg(""), 3000)
   }
+
+  const handleConfirmRemove = async () => {
+    if (!removingFriend) return
+    setIsRemoving(true)
+    await removeFriend(removingFriend)
+    setIsRemoving(false)
+    setRemovingFriend(null)
+  }
+
+  const handleOpenFriendProfile = async (email: string) => {
+    setSelectedFriend({ email, profile: null, loading: true })
+    try {
+      const q = query(collection(getDb(), "users"), where("email", "==", email))
+      const snap = await getDocs(q)
+      if (!snap.empty) {
+        const data = snap.docs[0].data() as FriendProfile
+        setSelectedFriend({ email, profile: data, loading: false })
+      } else {
+        setSelectedFriend({ email, profile: { email }, loading: false })
+      }
+    } catch {
+      setSelectedFriend({ email, profile: { email }, loading: false })
+    }
+  }
+
+  // Compute event stats for the selected friend
+  const friendHostedCount = selectedFriend
+    ? events.filter(e => e.organizerEmail === selectedFriend.email).length
+    : 0
+  const friendParticipatedCount = selectedFriend
+    ? events.filter(e =>
+        e.registrations.some(r => r.userEmail === selectedFriend.email && r.status !== "DRAFT")
+      ).length
+    : 0
 
   return (
     <div className="flex min-h-screen">
@@ -211,7 +262,11 @@ export default function FriendsPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {user.friends.map(email => (
-                    <GlassCard key={email} className="p-4 hover:border-white/10 transition-colors group">
+                    <GlassCard
+                      key={email}
+                      className="p-4 hover:border-white/10 transition-colors group cursor-pointer"
+                      onClick={() => handleOpenFriendProfile(email)}
+                    >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-sm font-bold border border-white/10">
@@ -223,7 +278,10 @@ export default function FriendsPage() {
                           </div>
                         </div>
                         <button
-                          onClick={() => removeFriend(email)}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setRemovingFriend(email)
+                          }}
                           className="p-2 rounded hover:bg-red-500/10 text-white/20 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
                           title="Remove Friend"
                         >
@@ -250,6 +308,146 @@ export default function FriendsPage() {
           </div>
         </PageTransition>
       </main>
+
+      {/* ── Remove Friend Confirmation Modal ── */}
+      <AnimatePresence>
+        {removingFriend && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+            onClick={() => !isRemoving && setRemovingFriend(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              transition={{ duration: 0.18 }}
+              onClick={e => e.stopPropagation()}
+              className="w-full max-w-sm bg-[#0d0d0d] border border-white/[0.08] rounded-xl p-6 shadow-2xl"
+            >
+              <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
+                <X className="w-5 h-5 text-red-400" />
+              </div>
+              <h2 className="text-base font-medium mb-1">Remove Friend?</h2>
+              <p className="text-sm text-white/50 mb-6">
+                Are you sure you want to remove <span className="text-white/80 font-medium">{removingFriend}</span> from your friends? They will also be removed from their end.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1 border-white/10 text-white/60 hover:text-white hover:bg-white/5"
+                  onClick={() => setRemovingFriend(null)}
+                  disabled={isRemoving}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="flex-1 bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30"
+                  onClick={handleConfirmRemove}
+                  disabled={isRemoving}
+                >
+                  {isRemoving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Remove"}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Friend Details Modal ── */}
+      <AnimatePresence>
+        {selectedFriend && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+            onClick={() => setSelectedFriend(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              transition={{ duration: 0.18 }}
+              onClick={e => e.stopPropagation()}
+              className="w-full max-w-sm bg-[#0d0d0d] border border-white/[0.08] rounded-xl p-6 shadow-2xl"
+            >
+              <div className="flex items-start justify-between mb-5">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-[#B388FF]/10 border border-[#B388FF]/20 flex items-center justify-center text-xl font-bold text-[#B388FF]">
+                    {(selectedFriend.profile?.name ?? selectedFriend.email).charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    {selectedFriend.loading ? (
+                      <div className="w-24 h-4 bg-white/10 rounded animate-pulse mb-2" />
+                    ) : (
+                      <p className="font-medium text-base">{selectedFriend.profile?.name ?? selectedFriend.email.split("@")[0]}</p>
+                    )}
+                    <p className="text-[10px] font-mono text-white/40">{selectedFriend.email}</p>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedFriend(null)} className="p-1.5 rounded hover:bg-white/10 text-white/30 hover:text-white transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {selectedFriend.loading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="h-8 bg-white/[0.04] rounded animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {selectedFriend.profile?.role && (
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                      <UserCircle2 className="w-4 h-4 text-white/30 shrink-0" />
+                      <div>
+                        <p className="text-[10px] font-mono text-white/30 uppercase tracking-widest">Role</p>
+                        <p className="text-sm capitalize">{selectedFriend.profile.role}</p>
+                      </div>
+                    </div>
+                  )}
+                  {selectedFriend.profile?.college && (
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                      <Building className="w-4 h-4 text-white/30 shrink-0" />
+                      <div>
+                        <p className="text-[10px] font-mono text-white/30 uppercase tracking-widest">College</p>
+                        <p className="text-sm">{selectedFriend.profile.college}</p>
+                      </div>
+                    </div>
+                  )}
+                  {selectedFriend.profile?.department && (
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                      <GraduationCap className="w-4 h-4 text-white/30 shrink-0" />
+                      <div>
+                        <p className="text-[10px] font-mono text-white/30 uppercase tracking-widest">Department & Year</p>
+                        <p className="text-sm">{selectedFriend.profile.department}{selectedFriend.profile?.year ? ` · ${selectedFriend.profile.year}` : ""}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Event Stats */}
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <div className="p-3 rounded-lg bg-[#B388FF]/[0.06] border border-[#B388FF]/10 text-center">
+                      <Trophy className="w-4 h-4 text-[#B388FF]/60 mx-auto mb-1" />
+                      <p className="text-2xl font-light text-[#B388FF]">{friendHostedCount}</p>
+                      <p className="text-[10px] font-mono text-white/30 uppercase tracking-widest">Hosted</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06] text-center">
+                      <CalendarDays className="w-4 h-4 text-white/30 mx-auto mb-1" />
+                      <p className="text-2xl font-light">{friendParticipatedCount}</p>
+                      <p className="text-[10px] font-mono text-white/30 uppercase tracking-widest">Participated</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

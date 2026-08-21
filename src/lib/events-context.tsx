@@ -164,6 +164,9 @@ export interface MainEvent {
   restricted_registrations: string[]
   poster_base64?: string
   allowedDepartments?: string[]
+  /** Venue map coordinates (OpenStreetMap / Leaflet) */
+  venueLat?: number
+  venueLng?: number
 }
 
 // ─── Important Links ───

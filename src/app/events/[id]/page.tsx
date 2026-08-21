@@ -22,6 +22,7 @@ import { QRScanner } from "@/components/event/QRScanner"
 import { useEventReminders } from "@/hooks/useEventReminders"
 import { formatDateDisplay, formatTimeDisplay } from "@/lib/utils"
 import { RichTextDisplay } from "@/components/ui/RichTextDisplay"
+import { EventMapViewDynamic } from "@/components/map"
 import {
   MapPin, Clock, UserCheck, Users, MessageSquare, ArrowLeft,
   Lock, Check, PlusCircle, Send, Trophy, Phone, FileText,
@@ -124,6 +125,10 @@ export default function EventDetailPage() {
     se.coordinators.some(c => c.email === user!.email && c.role !== "Host")
   )
 
+  // "Staff" — event-level read-only access assigned in eventCoordinators
+  const isStaff = !isHost && !!user?.email &&
+    (event?.eventCoordinators ?? []).some((c: any) => c.email === user.email && c.role === "Staff")
+
   // "Volunteer" coordinators can register and use participant-level features
   const isVolunteer = !isHost && !!user?.email && subEvents.some(se =>
     se.coordinators.some(c => c.email === user!.email && c.role === "Volunteer")
@@ -149,7 +154,7 @@ export default function EventDetailPage() {
   const myCoordinatingSubEventIds = user
     ? subEvents.filter(se => se.coordinators.some(c => c.email === user.email)).map(se => se.id)
     : []
-  const accessibleChannels: string[] = isHost
+  const accessibleChannels: string[] = (isHost || isStaff)
     ? ["general", ...subEvents.map(se => se.id)]
     : isCoordinator
     ? ["general", ...myCoordinatingSubEventIds]
@@ -383,6 +388,17 @@ export default function EventDetailPage() {
     { id: "announcements" as TabId, label: "Announcements", icon: Megaphone },
     { id: "tasks" as TabId, label: "Tasks", icon: ListTodo },
     { id: "checkin" as TabId, label: "Check-In", icon: QrCode },
+    { id: "automation" as TabId, label: "Automation", icon: Zap },
+  ]
+  // Staff (event-level): same tabs as host but all actions are read-only
+  const staffTabs = [
+    { id: "overview" as TabId, label: "Overview", icon: Eye },
+    { id: "chat" as TabId, label: "Chat", icon: MessageSquare },
+    { id: "participants" as TabId, label: "Participants", icon: Users },
+    { id: "announcements" as TabId, label: "Announcements", icon: Megaphone },
+    { id: "tasks" as TabId, label: "Tasks", icon: ListTodo },
+    { id: "checkin" as TabId, label: "Check-In", icon: QrCode },
+    { id: "automation" as TabId, label: "Automation", icon: Zap },
   ]
   // Coordinator (non-Host roles): overview, chat, announcements, tasks
   const coordinatorTabs = [
@@ -400,6 +416,7 @@ export default function EventDetailPage() {
 
   let tabs: typeof hostTabs = []
   if (isHost) tabs = hostTabs
+  else if (isStaff) tabs = staffTabs
   else if (isCoordinator) tabs = coordinatorTabs
   else if (isRegistered || isVolunteer) tabs = participantTabs
 
@@ -656,6 +673,29 @@ export default function EventDetailPage() {
                 </GlassCard>
               </section>
 
+              {/* Venue Map */}
+              {event.venueLat && event.venueLng && (
+                <section>
+                  <MicroLabel>Venue Location</MicroLabel>
+                  <div className="space-y-2">
+                    <EventMapViewDynamic
+                      lat={event.venueLat}
+                      lng={event.venueLng}
+                      venueName={event.venue}
+                    />
+                    <a
+                      href={`https://www.google.com/maps?q=${event.venueLat},${event.venueLng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-[10px] font-mono text-white/30 hover:text-[#B388FF] transition-colors"
+                    >
+                      <MapPin className="w-3 h-3" />
+                      Open in Google Maps
+                    </a>
+                  </div>
+                </section>
+              )}
+
               {isRestricted && (
                 <section>
                   <MicroLabel>Verification Required</MicroLabel>
@@ -762,7 +802,7 @@ export default function EventDetailPage() {
         )}
 
         {/* ═══ TASKS TAB ═══ */}
-        {activeTab === "tasks" && (isHost || isCoordinator) && (
+        {activeTab === "tasks" && (isHost || isCoordinator || isStaff) && (
           <motion.div variants={pageItem}>
             <div className="flex justify-between items-center mb-6">
               <MicroLabel className="mb-0">Team Tasks ({event.tasks.length})</MicroLabel>
@@ -944,7 +984,7 @@ export default function EventDetailPage() {
         )}
 
         {/* ═══ CHECK-IN TAB ═══ */}
-        {activeTab === "checkin" && isHost && (
+        {activeTab === "checkin" && (isHost || isStaff) && (
           <motion.div variants={pageItem}>
             <MicroLabel>Participant Check-In</MicroLabel>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -957,9 +997,11 @@ export default function EventDetailPage() {
                 <p className="text-2xl font-light text-green-400">{confirmedRegistrations.length}</p>
               </GlassCard>
               <GlassCard className="p-4 col-span-2 flex items-center gap-3 border-white/20">
-                <Button onClick={() => setShowQRScanner(true)} className="bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80 h-10 px-6 rounded-full flex-1 max-w-[220px]">
-                  <Camera className="w-4 h-4 mr-2" /> Live QR Scan
-                </Button>
+                {!isStaff && (
+                  <Button onClick={() => setShowQRScanner(true)} className="bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80 h-10 px-6 rounded-full flex-1 max-w-[220px]">
+                    <Camera className="w-4 h-4 mr-2" /> Live QR Scan
+                  </Button>
+                )}
                 <Button onClick={downloadCheckedInCSV} variant="outline" className="h-10 px-4 text-[10px] font-mono border-white/20 text-white/70 hover:text-white gap-1.5">
                   <Download className="w-3.5 h-3.5" /> Export CSV
                 </Button>
@@ -1096,8 +1138,10 @@ export default function EventDetailPage() {
                             <span className="text-[10px] font-mono text-white/50 uppercase tracking-widest">
                               Arrived @ {reg.checkInTime ? new Date(reg.checkInTime.includes('T') ? reg.checkInTime : reg.checkInTime.replace(' ', 'T') + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'UNKNOWN'}
                             </span>
-                          ) : (
+                          ) : !isStaff ? (
                             <Button onClick={() => checkInParticipant(event.id, reg.id)} className="h-8 bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80">Check In</Button>
+                          ) : (
+                            <span className="text-[10px] font-mono text-white/20 uppercase tracking-widest">Pending</span>
                           )}
                         </div>
                       ))}
@@ -1110,9 +1154,15 @@ export default function EventDetailPage() {
         )}
 
         {/* ═══ AUTOMATION TAB ═══ */}
-        {activeTab === "automation" && isHost && (
+        {activeTab === "automation" && (isHost || isStaff) && (
           <motion.div variants={pageItem} className="max-w-3xl">
             <MicroLabel>Automation Rules</MicroLabel>
+            {isStaff && (
+              <div className="mb-4 flex items-center gap-2 p-3 rounded-lg bg-yellow-500/5 border border-yellow-500/10">
+                <Zap className="w-3.5 h-3.5 text-yellow-400/60 shrink-0" />
+                <p className="text-[10px] font-mono text-yellow-400/60">You have read-only access. Only the host can enable or disable automation rules.</p>
+              </div>
+            )}
             <div className="space-y-3 mb-8">
               {event.automations.map(rule => (
                 <GlassCard key={rule.id} className="p-4 flex items-center justify-between">
@@ -1126,10 +1176,16 @@ export default function EventDetailPage() {
                       <p className="text-xs text-white/40 mt-1">{rule.message}</p>
                     </div>
                   </div>
-                  <button onClick={() => toggleAutomation(event.id, rule.id)}
-                    className={`w-10 h-5 rounded-full transition-colors relative ${rule.enabled ? 'bg-green-500' : 'bg-white/10'}`}>
-                    <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${rule.enabled ? 'left-5' : 'left-0.5'}`} />
-                  </button>
+                  {isStaff ? (
+                    <div className={`w-10 h-5 rounded-full relative opacity-40 cursor-not-allowed ${rule.enabled ? 'bg-green-500' : 'bg-white/10'}`}>
+                      <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 ${rule.enabled ? 'left-5' : 'left-0.5'}`} />
+                    </div>
+                  ) : (
+                    <button onClick={() => toggleAutomation(event.id, rule.id)}
+                      className={`w-10 h-5 rounded-full transition-colors relative ${rule.enabled ? 'bg-green-500' : 'bg-white/10'}`}>
+                      <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${rule.enabled ? 'left-5' : 'left-0.5'}`} />
+                    </button>
+                  )}
                 </GlassCard>
               ))}
             </div>
