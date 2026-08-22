@@ -23,11 +23,13 @@ export function VenueMapPicker({ lat, lng, onSelect }: VenueMapPickerProps) {
   const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
+    let isMounted = true
     if (!containerRef.current || mapRef.current) return
 
     ;(async () => {
       const L = (await import("leaflet")).default
       await import("leaflet/dist/leaflet.css")
+      if (!isMounted) return
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -73,6 +75,7 @@ export function VenueMapPicker({ lat, lng, onSelect }: VenueMapPickerProps) {
     })()
 
     return () => {
+      isMounted = false
       if (mapRef.current) { mapRef.current.remove(); mapRef.current = null }
       markerRef.current = null
     }

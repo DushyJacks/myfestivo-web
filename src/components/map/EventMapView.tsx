@@ -17,12 +17,14 @@ export function EventMapView({ lat, lng, venueName }: EventMapViewProps) {
   const mapRef = useRef<any>(null)
 
   useEffect(() => {
+    let isMounted = true
     if (!containerRef.current || mapRef.current) return
 
     // Dynamically import Leaflet so it never runs on the server
     ;(async () => {
       const L = (await import("leaflet")).default
       await import("leaflet/dist/leaflet.css")
+      if (!isMounted) return
 
       // Fix default marker icon paths broken by webpack
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,6 +57,7 @@ export function EventMapView({ lat, lng, venueName }: EventMapViewProps) {
     })()
 
     return () => {
+      isMounted = false
       if (mapRef.current) {
         mapRef.current.remove()
         mapRef.current = null
