@@ -41,18 +41,18 @@ const sections = [
 
 export default function SitemapPage() {
   return (
-    <main className="min-h-screen bg-black px-6 md:px-16 py-24 max-w-3xl mx-auto" id="main-content">
+    <main className="min-h-screen bg-[var(--color-bg)] px-6 md:px-16 py-24 max-w-3xl mx-auto" id="main-content">
       {/* Header */}
       <header className="mb-16">
         <Link href="/" className="inline-block mb-10" aria-label="Go to MyFestivo home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="MyFestivo" width={120} height={40} className="h-10 w-auto" loading="lazy" decoding="async" />
         </Link>
-        <p className="text-[10px] font-mono tracking-[0.3em] uppercase text-white/30 mb-3">
+        <p className="text-[10px] font-mono tracking-[0.3em] uppercase text-[var(--color-text-faint)] mb-3">
           Navigation
         </p>
-        <h1 className="text-4xl font-extralight tracking-tight text-white mb-4">Site Map</h1>
-        <p className="text-white/50 text-sm max-w-md leading-relaxed">
+        <h1 className="text-4xl font-extralight tracking-tight text-[var(--color-text)] mb-4">Site Map</h1>
+        <p className="text-[var(--color-text-muted)] text-sm max-w-md leading-relaxed">
           A complete listing of all pages on MyFestivo — the all-in-one college event management
           platform. Use this page to navigate directly to any section of the site.
         </p>
@@ -62,11 +62,11 @@ export default function SitemapPage() {
       <nav aria-label="Full site navigation">
         {sections.map((section) => (
           <section key={section.heading} className="mb-12">
-            <h2 className="text-[10px] font-mono tracking-[0.25em] uppercase text-white/40 mb-2 pb-2 border-b border-white/[0.06]">
+            <h2 className="text-[10px] font-mono tracking-[0.25em] uppercase text-[var(--color-text-faint)] mb-2 pb-2 border-b border-[var(--color-border)]">
               {section.heading}
             </h2>
             {section.description && (
-              <p className="text-xs text-white/40 mt-2 mb-4 leading-relaxed">
+              <p className="text-xs text-[var(--color-text-faint)] mt-2 mb-4 leading-relaxed">
                 {section.description}
               </p>
             )}
@@ -75,10 +75,10 @@ export default function SitemapPage() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="group flex items-center gap-3 text-sm text-white/60 hover:text-white transition-colors"
+                    className="group flex items-center gap-3 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
                   >
                     <span
-                      className="w-1 h-1 rounded-full bg-white/20 group-hover:bg-white/60 transition-colors shrink-0"
+                      className="w-1 h-1 rounded-full bg-[var(--color-accent-low)] group-hover:bg-[var(--color-surface-3)] transition-colors shrink-0"
                       aria-hidden="true"
                     />
                     {link.label}
@@ -91,10 +91,10 @@ export default function SitemapPage() {
       </nav>
 
       {/* Footer note */}
-      <footer className="mt-16 pt-8 border-t border-white/[0.06]">
-        <p className="text-xs text-white/30 font-mono">
+      <footer className="mt-16 pt-8 border-t border-[var(--color-border)]">
+        <p className="text-xs text-[var(--color-text-faint)] font-mono">
           © {new Date().getFullYear()} MyFestivo. All rights reserved. •{" "}
-          <Link href="mailto:myfestivo@gmail.com" className="hover:text-white/60 transition-colors">
+          <Link href="mailto:myfestivo@gmail.com" className="hover:text-[var(--color-text-muted)] transition-colors">
             myfestivo@gmail.com
           </Link>
         </p>

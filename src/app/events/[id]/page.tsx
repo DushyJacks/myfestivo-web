@@ -49,8 +49,8 @@ function CoordinatorBadge({ c }: { c: SubEventCoordinator }) {
   }, [c.email, c.name])
 
   return (
-    <span className="text-[10px] font-mono bg-white/[0.05] border border-white/[0.08] px-2 py-1 rounded">
-      {name} — {c.role} {c.phone && <span className="text-white/30 ml-1 flex items-center gap-1 inline-flex"><Phone className="w-2.5 h-2.5" />{c.phone}</span>}
+    <span className="text-[10px] font-mono bg-[var(--color-surface-3)] border border-[var(--color-border)] px-2 py-1 rounded">
+      {name} — {c.role} {c.phone && <span className="text-[var(--color-text-faint)] ml-1 flex items-center gap-1 inline-flex"><Phone className="w-2.5 h-2.5" />{c.phone}</span>}
     </span>
   )
 }
@@ -186,8 +186,8 @@ export default function EventDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
-          <p className="text-white/30 font-mono text-xs tracking-widest uppercase">Loading event…</p>
+          <div className="w-8 h-8 border-2 border-[var(--color-border)] border-t-white/80 rounded-full animate-spin" />
+          <p className="text-[var(--color-text-faint)] font-mono text-xs tracking-widest uppercase">Loading event…</p>
         </div>
       </div>
     )
@@ -197,21 +197,21 @@ export default function EventDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="flex flex-col items-center gap-5 text-center">
-          <div className="w-12 h-12 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center">
-            <X className="w-5 h-5 text-white/40" />
+          <div className="w-12 h-12 rounded-full bg-[var(--color-surface-3)] border border-[var(--color-border)] flex items-center justify-center">
+            <X className="w-5 h-5 text-[var(--color-text-faint)]" />
           </div>
           <div>
-            <p className="text-white/60 font-medium mb-1">Couldn’t load this event</p>
-            <p className="text-white/30 text-sm font-mono">Check your connection and try again.</p>
+            <p className="text-[var(--color-text-muted)] font-medium mb-1">Couldn’t load this event</p>
+            <p className="text-[var(--color-text-faint)] text-sm font-mono">Check your connection and try again.</p>
           </div>
           <div className="flex gap-3">
             <Button
               onClick={() => window.location.reload()}
-              className="bg-white text-black text-xs h-9 px-5 hover:bg-white/80"
+              className="bg-white text-black text-xs h-9 px-5 hover:bg-[var(--color-surface-3)]"
             >
               Reload
             </Button>
-            <Button onClick={() => router.back()} variant="outline" className="border-white/20 text-white/60 text-xs h-9 px-5">
+            <Button onClick={() => router.back()} variant="outline" className="border-[var(--color-border)] text-[var(--color-text-muted)] text-xs h-9 px-5">
               Go Back
             </Button>
           </div>
@@ -223,7 +223,7 @@ export default function EventDetailPage() {
   if (!event) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-white/40 font-mono">Event not found</p>
+        <p className="text-[var(--color-text-faint)] font-mono">Event not found</p>
       </div>
     )
   }
@@ -373,8 +373,8 @@ export default function EventDetailPage() {
     setTimeout(() => setScanStatus(null), 2500)
   }
 
-  const inputCls = "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 text-sm"
-  const labelCls = "text-[10px] font-mono text-white/40 mb-1 block tracking-widest uppercase"
+  const inputCls = "bg-[var(--color-surface-2)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] text-sm"
+  const labelCls = "text-[10px] font-mono text-[var(--color-text-faint)] mb-1 block tracking-widest uppercase"
 
   const hostTabs = [
     { id: "overview" as TabId, label: "Overview", icon: Eye },
@@ -405,10 +405,10 @@ export default function EventDetailPage() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 md:left-[72px] lg:left-[260px] right-0 h-16 flex items-center justify-between px-4 md:px-8 z-50 bg-black/60 backdrop-blur-md border-b border-white/[0.06]">
+      <header className="fixed top-0 left-0 md:left-[72px] lg:left-[260px] right-0 h-16 flex items-center justify-between px-4 md:px-8 z-50 bg-[var(--color-surface)]/60 backdrop-blur-md border-b border-[var(--color-border)]">
         <div className="flex items-center gap-4">
-          <Link href="/events" className="text-white/40 hover:text-white transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
-          <span className="font-medium text-white truncate">{event.title}</span>
+          <Link href="/events" className="text-[var(--color-text-faint)] hover:text-[var(--color-text)] transition-colors"><ArrowLeft className="w-5 h-5" /></Link>
+          <span className="font-medium text-[var(--color-text)] truncate">{event.title}</span>
         </div>
         <div className="flex items-center gap-1.5 flex-shrink-0">
           {isHost && (
@@ -417,7 +417,7 @@ export default function EventDetailPage() {
               <button
                 onClick={() => setShowRegConfirm(true)}
                 className={`text-[10px] font-mono tracking-widest uppercase px-2 sm:px-3 py-1.5 rounded border transition-colors ${event.registrationOpen
-                  ? "border-green-500/30 text-green-400 hover:bg-green-500/10"
+                  ? "border-[var(--color-success)]/30 text-[var(--color-success)] hover:bg-[var(--color-success)]/10"
                   : "border-red-500/30 text-red-400 hover:bg-red-500/10"
                   }`}
               >
@@ -426,14 +426,14 @@ export default function EventDetailPage() {
               </button>
               {/* Edit — icon only on mobile */}
               <Link href={`/events/${event.id}/edit`}>
-                <Button variant="ghost" className="text-white/50 hover:text-white h-9 px-2 sm:px-3">
+                <Button variant="ghost" className="text-[var(--color-text-muted)] hover:text-[var(--color-text)] h-9 px-2 sm:px-3">
                   <Pencil className="w-4 h-4" />
                   <span className="hidden sm:inline ml-1 text-sm">Edit</span>
                 </Button>
               </Link>
               {/* Finance — icon only on mobile */}
               <Link href={`/events/${event.id}/finance`}>
-                <Button variant="ghost" className="text-white/50 hover:text-white h-9 px-2 sm:px-3">
+                <Button variant="ghost" className="text-[var(--color-text-muted)] hover:text-[var(--color-text)] h-9 px-2 sm:px-3">
                   <DollarSign className="w-4 h-4" />
                   <span className="hidden sm:inline ml-1 text-sm">Finance</span>
                 </Button>
@@ -457,14 +457,14 @@ export default function EventDetailPage() {
               }
             }}
             id="share-event-btn"
-            className="text-[10px] font-mono tracking-widest uppercase px-2 sm:px-3 py-1.5 rounded border border-white/20 text-white/60 hover:bg-white/10 transition-colors flex items-center gap-1"
+            className="text-[10px] font-mono tracking-widest uppercase px-2 sm:px-3 py-1.5 rounded border border-[var(--color-border)] text-[var(--color-text-muted)] hover:bg-[var(--color-surface-3)] transition-colors flex items-center gap-1"
           >
             <LinkIcon className="w-3 h-3" />
             <span className="share-label hidden sm:inline">Share</span>
           </button>
           {user?.role === "admin" && (
             <Link href="/admin">
-              <Button variant="outline" className="border-white/20 text-white text-[10px] h-8 px-3 font-mono tracking-widest hover:bg-white/10 uppercase">Admin Hub</Button>
+              <Button variant="outline" className="border-[var(--color-border)] text-[var(--color-text)] text-[10px] h-8 px-3 font-mono tracking-widest hover:bg-[var(--color-surface-3)] uppercase">Admin Hub</Button>
             </Link>
           )}
         </div>
@@ -475,29 +475,29 @@ export default function EventDetailPage() {
         {/* Hero Section */}
         <motion.div variants={pageItem} className="mb-12">
           <div className="flex flex-wrap gap-2 mb-4">
-            {!event.collegeDomain ? <span className="font-mono text-[10px] px-2 py-0.5 border border-white/20 text-white/50">OPEN EVENT</span>
+            {!event.collegeDomain ? <span className="font-mono text-[10px] px-2 py-0.5 border border-[var(--color-border)] text-[var(--color-text-muted)]">OPEN EVENT</span>
               : <span className="font-mono text-[10px] px-2 py-0.5 border border-yellow-500/50 text-yellow-400">INTRA — @{event.collegeDomain}</span>}
-            <span className="font-mono text-[10px] px-2 py-0.5 border border-white/20 text-white/50">{event.category}</span>
-            {event.price > 0 && <span className="font-mono text-[10px] px-2 py-0.5 border border-white/20 text-white/50">₹{event.price}</span>}
+            <span className="font-mono text-[10px] px-2 py-0.5 border border-[var(--color-border)] text-[var(--color-text-muted)]">{event.category}</span>
+            {event.price > 0 && <span className="font-mono text-[10px] px-2 py-0.5 border border-[var(--color-border)] text-[var(--color-text-muted)]">₹{event.price}</span>}
             {event.prizePool && <span className="font-mono text-[10px] px-2 py-0.5 border border-yellow-500/20 text-yellow-400/80 flex items-center gap-1"><Trophy className="w-3 h-3" /> {event.prizePool}</span>}
             {registrationClosed && <span className="font-mono text-[10px] px-2 py-0.5 border border-red-500/30 text-red-400">REGISTRATION CLOSED</span>}
             {eventExpired && <span className="font-mono text-[10px] px-2 py-0.5 border border-red-500/30 text-red-400">EVENT ENDED</span>}
-            {event.registrationDeadline && !deadlinePassed && <span className="font-mono text-[10px] px-2 py-0.5 border border-white/20 text-white/50">Deadline: {formatDateDisplay(event.registrationDeadline)}</span>}
+            {event.registrationDeadline && !deadlinePassed && <span className="font-mono text-[10px] px-2 py-0.5 border border-[var(--color-border)] text-[var(--color-text-muted)]">Deadline: {formatDateDisplay(event.registrationDeadline)}</span>}
           </div>
           <h1 className="text-3xl md:text-5xl font-light leading-tight tracking-tight mb-4">{event.title}</h1>
-          <div className="flex flex-wrap gap-5 font-mono text-sm text-white/60">
+          <div className="flex flex-wrap gap-5 font-mono text-sm text-[var(--color-text-muted)]">
             <span className="flex items-center gap-2"><MapPin className="w-4 h-4" />{event.venue}</span>
             <span className="flex items-center gap-2">
               <Clock className="w-4 h-4" />
               {formatDateDisplay(event.date)}
-              {event.hasTime && event.time && <span className="ml-1 text-white/40">at {formatTimeDisplay(event.time)}</span>}
+              {event.hasTime && event.time && <span className="ml-1 text-[var(--color-text-faint)]">at {formatTimeDisplay(event.time)}</span>}
             </span>
             <span className="flex items-center gap-2"><Users className="w-4 h-4" />{Math.max(event.registeredCount || 0, confirmedRegistrations.length)}{event.seats !== 9999 ? ` / ${event.seats}` : ""} registered</span>
           </div>
         </motion.div>
 
         {/* Navigation Tabs */}
-        <motion.div variants={pageItem} className="flex w-full gap-1 border-b border-white/[0.06] mb-8 overflow-x-auto pb-px no-scrollbar">
+        <motion.div variants={pageItem} className="flex w-full gap-1 border-b border-[var(--color-border)] mb-8 overflow-x-auto pb-px no-scrollbar">
           {tabs.map(tab => (
             <button
               key={tab.id}
@@ -505,7 +505,7 @@ export default function EventDetailPage() {
               className={`flex-1 flex items-center justify-center gap-2 px-4 md:px-6 py-4 text-xs font-medium transition-all relative whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'text-[#B388FF]'
-                  : 'text-white/40 hover:text-[#B388FF]/70'
+                  : 'text-[var(--color-text-faint)] hover:text-[#B388FF]/70'
               }`}
             >
               <tab.icon className="w-4 h-4" />
@@ -531,23 +531,23 @@ export default function EventDetailPage() {
                     // A user is considered registered if they have a non-DRAFT registration for this sub-event
                     const isUserRegistered = registrations.some(r => r.subEventId === se.id && r.status !== "DRAFT" && (r.userEmail === user?.email || r.teamMembers?.includes(user?.email || "")))
                     return (
-                      <GlassCard key={se.id} className="p-6 transition-all hover:bg-white/[0.04] scroll-mt-24" id={se.id}>
+                      <GlassCard key={se.id} className="p-6 transition-all hover:bg-[var(--color-surface-3)] scroll-mt-24" id={se.id}>
                         <div className="flex justify-between items-start mb-4">
                           <div>
                             <h3 className="text-lg font-medium mb-1">{se.name}</h3>
-                            <div className="flex gap-3 text-[10px] font-mono text-white/40 uppercase tracking-widest">
+                            <div className="flex gap-3 text-[10px] font-mono text-[var(--color-text-faint)] uppercase tracking-widest">
                               <span>{se.type}</span>
                               <span>•</span>
                               <span>Max: {se.maxParticipants}</span>
                               {se.hasTime && se.time && (
-                                <span className="flex items-center gap-1 text-white/30">
+                                <span className="flex items-center gap-1 text-[var(--color-text-faint)]">
                                   <Clock className="w-3 h-3" />{formatTimeDisplay(se.time)}
                                 </span>
                               )}
                             </div>
                           </div>
                           {isUserRegistered ? (
-                            <span className="text-[10px] font-mono bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1 rounded-full flex items-center gap-1"><BadgeCheck className="w-3 h-3" /> Registered</span>
+                            <span className="text-[10px] font-mono bg-[var(--color-success)]/10 text-[var(--color-success)] border border-[var(--color-success)]/20 px-3 py-1 rounded-full flex items-center gap-1"><BadgeCheck className="w-3 h-3" /> Registered</span>
                           ) : registrationClosed || eventExpired ? (
                             <span className="text-[10px] font-mono bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-full">Closed</span>
                           ) : (
@@ -557,13 +557,13 @@ export default function EventDetailPage() {
                                 setSelectedSubEventForReg(se)
                               }}
                               disabled={isRestricted || isStaffRestricted}
-                              variant="outline" className="h-8 px-4 text-[10px] font-mono border-white/20 hover:bg-[#B388FF] hover:text-black hover:border-[#B388FF] text-white bg-white/5 transition-all">
+                              variant="outline" className="h-8 px-4 text-[10px] font-mono border-[var(--color-border)] hover:bg-[#B388FF] hover:text-black hover:border-[#B388FF] text-[var(--color-text)] bg-[var(--color-surface-2)] transition-all">
                               {!user ? "Login to Register" : isStaffRestricted ? "Restricted" : "Register"}
                             </Button>
                           )}
                         </div>
 
-                        <div className="text-sm text-white/60 mb-4">
+                        <div className="text-sm text-[var(--color-text-muted)] mb-4">
                             <RichTextDisplay content={se.description} className="text-sm" />
                           </div>
 
@@ -572,22 +572,22 @@ export default function EventDetailPage() {
                           {(se as any).showPrize && se.prize ? (
                             <>
                               <span className="text-[10px] bg-yellow-500/10 border border-yellow-500/20 text-yellow-400/80 px-2 py-0.5 rounded flex items-center gap-1"><Trophy className="w-3 h-3 text-yellow-500" /> {se.prize.first}</span>
-                              <span className="text-[10px] bg-white/[0.04] border border-white/[0.08] text-white/40 px-2 py-0.5 rounded flex items-center gap-1"><Trophy className="w-3 h-3 text-gray-400" /> {se.prize.second}</span>
-                              {se.prize.third && <span className="text-[10px] bg-white/[0.04] border border-white/[0.08] text-white/30 px-2 py-0.5 rounded flex items-center gap-1"><Trophy className="w-3 h-3 text-amber-700" /> {se.prize.third}</span>}
+                              <span className="text-[10px] bg-[var(--color-surface-3)] border border-[var(--color-border)] text-[var(--color-text-faint)] px-2 py-0.5 rounded flex items-center gap-1"><Trophy className="w-3 h-3 text-gray-400" /> {se.prize.second}</span>
+                              {se.prize.third && <span className="text-[10px] bg-[var(--color-surface-3)] border border-[var(--color-border)] text-[var(--color-text-faint)] px-2 py-0.5 rounded flex items-center gap-1"><Trophy className="w-3 h-3 text-amber-700" /> {se.prize.third}</span>}
                             </>
                           ) : (
-                            <span className="text-[10px] bg-white/[0.02] border border-white/[0.06] text-white/30 px-2 py-0.5 rounded">No Special rewards</span>
+                            <span className="text-[10px] bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text-faint)] px-2 py-0.5 rounded">No Special rewards</span>
                           )}
                         </div>
 
                         {se.rules.length > 0 && (
                           <div className="mb-3">
-                            <button onClick={() => setSelectedSubEvent(selectedSubEvent === se.id ? null : se.id)} className="text-[10px] font-mono text-white/30 flex items-center gap-1 hover:text-white/50 transition-colors uppercase tracking-widest">
+                            <button onClick={() => setSelectedSubEvent(selectedSubEvent === se.id ? null : se.id)} className="text-[10px] font-mono text-[var(--color-text-faint)] flex items-center gap-1 hover:text-[var(--color-text-muted)] transition-colors uppercase tracking-widest">
                               {selectedSubEvent === se.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />} Sub-event Rules
                             </button>
                             {selectedSubEvent === se.id && (
-                              <motion.ul initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-3 space-y-1.5 pl-4 border-l border-white/10">
-                                {se.rules.map((rule, i) => <li key={i} className="text-[11px] text-white/40">{rule}</li>)}
+                              <motion.ul initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-3 space-y-1.5 pl-4 border-l border-[var(--color-border)]">
+                                {se.rules.map((rule, i) => <li key={i} className="text-[11px] text-[var(--color-text-faint)]">{rule}</li>)}
                               </motion.ul>
                             )}
                           </div>
@@ -609,8 +609,8 @@ export default function EventDetailPage() {
                 <ul className="space-y-3">
                   {event.rules.map((rule, i) => (
                     <li key={i} className="flex items-start gap-3 group">
-                      <div className="mt-1 w-1.5 h-1.5 rounded-full bg-white/20 group-hover:bg-white transition-colors" />
-                      <span className="text-white/60 text-sm group-hover:text-white/80 transition-colors">{rule}</span>
+                      <div className="mt-1 w-1.5 h-1.5 rounded-full bg-[var(--color-accent-low)] group-hover:bg-white transition-colors" />
+                      <span className="text-[var(--color-text-muted)] text-sm group-hover:text-[var(--color-text)] transition-colors">{rule}</span>
                     </li>
                   ))}
                 </ul>
@@ -627,13 +627,13 @@ export default function EventDetailPage() {
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.05] hover:border-white/[0.12] transition-all group"
+                        className="flex items-center gap-3 p-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border)] hover:bg-[var(--color-surface-3)] hover:border-[var(--color-border-muted)] transition-all group"
                       >
                         <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
                           <LinkIcon className="w-4 h-4 text-blue-400" />
                         </div>
-                        <span className="text-sm text-white/70 group-hover:text-white transition-colors flex-1">{link.label}</span>
-                        <ExternalLink className="w-3.5 h-3.5 text-white/20 group-hover:text-white/50 transition-colors" />
+                        <span className="text-sm text-[var(--color-text-muted)] group-hover:text-[var(--color-text)] transition-colors flex-1">{link.label}</span>
+                        <ExternalLink className="w-3.5 h-3.5 text-[var(--color-text-faint)] group-hover:text-[var(--color-text-muted)] transition-colors" />
                       </a>
                     ))}
                   </div>
@@ -645,12 +645,12 @@ export default function EventDetailPage() {
               <section>
                 <MicroLabel>Organizer Info</MicroLabel>
                 <GlassCard className="p-5">
-                  <p className="text-white/90 font-medium mb-1">{event.organizer}</p>
-                  <p className="text-xs text-white/60 font-mono mb-4">{event.organizerEmail}</p>
+                  <p className="text-[var(--color-text)] font-medium mb-1">{event.organizer}</p>
+                  <p className="text-xs text-[var(--color-text-muted)] font-mono mb-4">{event.organizerEmail}</p>
                   {event.organizerPhone && (
-                    <div className="flex items-center gap-2 pt-4 border-t border-white/[0.06]">
-                      <Phone className="w-3 h-3 text-white/40" />
-                      <span className="text-sm text-white/70 font-mono">+91 {event.organizerPhone}</span>
+                    <div className="flex items-center gap-2 pt-4 border-t border-[var(--color-border)]">
+                      <Phone className="w-3 h-3 text-[var(--color-text-faint)]" />
+                      <span className="text-sm text-[var(--color-text-muted)] font-mono">+91 {event.organizerPhone}</span>
                     </div>
                   )}
                 </GlassCard>
@@ -677,7 +677,7 @@ export default function EventDetailPage() {
               {(isRegistered || isVolunteer) && !isHost && (
                 <section>
                   <MicroLabel>Event Chat</MicroLabel>
-                  <Button onClick={() => setActiveTab("chat")} variant="ghost" className="w-full text-[10px] font-mono text-white/40 uppercase tracking-widest hover:text-white border border-white/[0.08] h-8 flex items-center gap-2">
+                  <Button onClick={() => setActiveTab("chat")} variant="ghost" className="w-full text-[10px] font-mono text-[var(--color-text-faint)] uppercase tracking-widest hover:text-[var(--color-text)] border border-[var(--color-border)] h-8 flex items-center gap-2">
                     <MessageSquare className="w-3 h-3" /> Open Chat
                   </Button>
                 </section>
@@ -689,13 +689,13 @@ export default function EventDetailPage() {
                   <MicroLabel>Announcements</MicroLabel>
                   <div className="space-y-3">
                     {event.announcements.slice(0, 5).map(a => (
-                      <div key={a.id} className="p-3 bg-white/[0.02] border border-white/[0.06] rounded-md">
+                      <div key={a.id} className="p-3 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-md">
                         <div className="flex items-center gap-2 mb-1">
                           {a.pinned && <Pin className="w-3 h-3 text-yellow-400" />}
-                          <span className="text-xs font-medium text-white/80">{a.title}</span>
+                          <span className="text-xs font-medium text-[var(--color-text)]">{a.title}</span>
                         </div>
-                        <p className="text-[11px] text-white/50 line-clamp-3">{a.message}</p>
-                        <p className="text-[9px] font-mono text-white/20 mt-1">{a.authorName} · {a.timestamp.slice(0, 10)}</p>
+                        <p className="text-[11px] text-[var(--color-text-muted)] line-clamp-3">{a.message}</p>
+                        <p className="text-[9px] font-mono text-[var(--color-text-faint)] mt-1">{a.authorName} · {a.timestamp.slice(0, 10)}</p>
                       </div>
                     ))}
                   </div>
@@ -711,18 +711,18 @@ export default function EventDetailPage() {
             <MicroLabel>Announcements</MicroLabel>
             {isHost && (
               <GlassCard className="p-5 mb-6 space-y-3">
-                <p className="text-xs font-mono text-white/40 tracking-widest uppercase">New Announcement</p>
+                <p className="text-xs font-mono text-[var(--color-text-faint)] tracking-widest uppercase">New Announcement</p>
                 <Input value={annTitle} onChange={e => setAnnTitle(e.target.value)} placeholder="Title" className={`${inputCls} h-9`} />
                 <textarea value={annMsg} onChange={e => setAnnMsg(e.target.value)} placeholder="Message..."
                   className={`w-full ${inputCls} min-h-[80px] rounded-md p-3 outline-none resize-none`} />
                 <div className="flex gap-3">
-                  <select value={annTarget} onChange={e => setAnnTarget(e.target.value)} className="h-8 bg-white/[0.03] border border-white/[0.08] text-white text-xs rounded-md px-2 flex-1">
+                  <select value={annTarget} onChange={e => setAnnTarget(e.target.value)} className="h-8 bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] text-xs rounded-md px-2 flex-1">
                     <option value="">All Participants</option>
                     {event.subEvents.map(se => <option key={se.id} value={se.id}>{se.name}</option>)}
                   </select>
-                  <div className="flex items-center gap-2 bg-white/[0.03] border border-white/[0.08] px-3 h-8 rounded-md">
+                  <div className="flex items-center gap-2 bg-[var(--color-surface-2)] border border-[var(--color-border)] px-3 h-8 rounded-md">
                     <input type="checkbox" id="pin" checked={annPinned} onChange={e => setAnnPinned(e.target.checked)} className="accent-white" />
-                    <label htmlFor="pin" className="text-[10px] font-mono text-white/40 uppercase cursor-pointer">Pin</label>
+                    <label htmlFor="pin" className="text-[10px] font-mono text-[var(--color-text-faint)] uppercase cursor-pointer">Pin</label>
                   </div>
                   <Button onClick={handleAddAnnouncement} className="bg-white text-black text-[10px] h-8 px-4 font-mono tracking-widest uppercase hover:bg-[#B388FF]">
                     <Send className="w-3 h-3 mr-1" /> Post
@@ -733,7 +733,7 @@ export default function EventDetailPage() {
 
             <div className="space-y-4">
               {event.announcements.length === 0 ? (
-                <p className="text-white/30 text-sm font-mono py-12 text-center border border-white/[0.04] rounded-lg bg-white/[0.01]">No announcements yet.</p>
+                <p className="text-[var(--color-text-faint)] text-sm font-mono py-12 text-center border border-[var(--color-border)] rounded-lg bg-[var(--color-surface-2)]">No announcements yet.</p>
               ) : (
                 [...event.announcements]
                   .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))
@@ -741,17 +741,17 @@ export default function EventDetailPage() {
                   const se = event.subEvents.find(s => s.id === ann.targetSubEventId)
                   return (
                     <GlassCard key={ann.id} className={`p-5 relative ${ann.pinned ? 'border-l-white border-l-2' : ''}`}>
-                      {ann.pinned && <Pin className="absolute top-4 right-4 w-3 h-3 text-white/50" />}
+                      {ann.pinned && <Pin className="absolute top-4 right-4 w-3 h-3 text-[var(--color-text-muted)]" />}
                       <div className="flex items-center gap-2 mb-2">
-                        {se ? <span className="text-[9px] font-mono bg-white/[0.06] border border-white/10 px-1.5 py-0.5 rounded text-white/60">{se.name}</span>
-                          : <span className="text-[9px] font-mono bg-green-500/10 border border-green-500/20 px-1.5 py-0.5 rounded text-green-400">GENERAL</span>}
-                        <span className="text-[10px] font-mono text-white/30">{ann.timestamp}</span>
+                        {se ? <span className="text-[9px] font-mono bg-[var(--color-surface-3)] border border-[var(--color-border)] px-1.5 py-0.5 rounded text-[var(--color-text-muted)]">{se.name}</span>
+                          : <span className="text-[9px] font-mono bg-[var(--color-success)]/10 border border-[var(--color-success)]/20 px-1.5 py-0.5 rounded text-[var(--color-success)]">GENERAL</span>}
+                        <span className="text-[10px] font-mono text-[var(--color-text-faint)]">{ann.timestamp}</span>
                       </div>
                       <h3 className="font-medium mb-1">{ann.title}</h3>
-                      <p className="text-sm text-white/60 leading-relaxed">{ann.message}</p>
-                      <div className="mt-4 pt-4 border-t border-white/[0.04] flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[8px] font-mono">{ann.authorName[0]}</div>
-                        <span className="text-[10px] font-mono text-white/30">{ann.authorName}</span>
+                      <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">{ann.message}</p>
+                      <div className="mt-4 pt-4 border-t border-[var(--color-border)] flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full bg-[var(--color-surface-3)] flex items-center justify-center text-[8px] font-mono">{ann.authorName[0]}</div>
+                        <span className="text-[10px] font-mono text-[var(--color-text-faint)]">{ann.authorName}</span>
                       </div>
                     </GlassCard>
                   )
@@ -770,7 +770,7 @@ export default function EventDetailPage() {
 
             {isHost && (
               <GlassCard className="p-5 mb-6 space-y-3">
-                <p className="text-xs font-mono text-white/40 tracking-widest uppercase">New Task</p>
+                <p className="text-xs font-mono text-[var(--color-text-faint)] tracking-widest uppercase">New Task</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Input value={taskTitle} onChange={e => setTaskTitle(e.target.value)} placeholder="Task title" className={`${inputCls} h-9`} />
                   {/* Assignee with friends name-based autofill */}
@@ -798,7 +798,7 @@ export default function EventDetailPage() {
                       className={`${inputCls} h-9`}
                     />
                     {taskAssigneeResults.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 border border-white/[0.1] rounded-md z-20 overflow-hidden">
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-[var(--color-surface)] shadow-lg border border-[var(--color-border-muted)] rounded-md z-20 overflow-hidden">
                         {taskAssigneeResults.map(f => (
                           <button
                             key={f.email}
@@ -808,12 +808,12 @@ export default function EventDetailPage() {
                               setTaskAssigneeEmail(f.email)
                               setTaskAssigneeResults([])
                             }}
-                            className="w-full text-left px-3 py-2 text-xs text-white/70 hover:bg-white/[0.08] transition-colors flex items-center gap-2"
+                            className="w-full text-left px-3 py-2 text-xs text-[var(--color-text-muted)] hover:bg-[var(--color-surface-3)] transition-colors flex items-center gap-2"
                           >
-                            <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold shrink-0">{f.name[0].toUpperCase()}</div>
+                            <div className="w-6 h-6 rounded-full bg-[var(--color-surface-3)] flex items-center justify-center text-[10px] font-bold shrink-0">{f.name[0].toUpperCase()}</div>
                             <div className="min-w-0">
-                              <p className="font-medium text-white/80">{f.name}</p>
-                              <p className="text-[10px] text-white/30 truncate">{f.email}</p>
+                              <p className="font-medium text-[var(--color-text)]">{f.name}</p>
+                              <p className="text-[10px] text-[var(--color-text-faint)] truncate">{f.email}</p>
                             </div>
                           </button>
                         ))}
@@ -821,14 +821,14 @@ export default function EventDetailPage() {
                     )}
                     {/* Indicate when a friend has been selected */}
                     {taskAssigneeEmail && (
-                      <p className="text-[10px] font-mono text-green-400/70 mt-0.5 px-0.5 truncate">{taskAssigneeEmail}</p>
+                      <p className="text-[10px] font-mono text-[var(--color-success)]/70 mt-0.5 px-0.5 truncate">{taskAssigneeEmail}</p>
                     )}
                   </div>
                 </div>
                 <Input value={taskDesc} onChange={e => setTaskDesc(e.target.value)} placeholder="Description (required)" className={`${inputCls} h-9`} required />
                 <div className="flex gap-3 items-end">
                   <div className="flex-1">
-                    <label className="text-[9px] font-mono text-white/30 mb-1 block tracking-widest uppercase">Deadline</label>
+                    <label className="text-[9px] font-mono text-[var(--color-text-faint)] mb-1 block tracking-widest uppercase">Deadline</label>
                     <Input
                       type="date"
                       value={taskDeadline}
@@ -838,7 +838,7 @@ export default function EventDetailPage() {
                       className={`${inputCls} h-8`}
                     />
                   </div>
-                  <select value={taskSubEvent} onChange={e => setTaskSubEvent(e.target.value)} className="h-8 bg-white/[0.03] border border-white/[0.08] text-white text-xs rounded-md px-2 flex-1">
+                  <select value={taskSubEvent} onChange={e => setTaskSubEvent(e.target.value)} className="h-8 bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] text-xs rounded-md px-2 flex-1">
                     <option value="">General</option>
                     {event.subEvents.map(se => <option key={se.id} value={se.id}>{se.name}</option>)}
                   </select>
@@ -853,30 +853,30 @@ export default function EventDetailPage() {
                 const statusConfig = {
                   TODO: { label: "To-do", btnCls: "bg-red-500/20 border-red-500/30 text-red-300 hover:bg-red-500/30" },
                   IN_PROGRESS: { label: "In Progress", btnCls: "bg-yellow-500/20 border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/30" },
-                  DONE: { label: "Done", btnCls: "bg-green-500/20 border-green-500/30 text-green-300 hover:bg-green-500/30" },
+                  DONE: { label: "Done", btnCls: "bg-[var(--color-success)]/20 border-[var(--color-success)]/30 text-[var(--color-success)] hover:bg-[var(--color-success)]/30" },
                 }[status]
                 return (
                   <div key={status} className="space-y-3">
                     <div className="flex items-center justify-between px-1">
                       <span className={`text-[10px] font-mono tracking-widest uppercase font-semibold ${
-                        status === 'TODO' ? 'text-red-400/70' : status === 'IN_PROGRESS' ? 'text-yellow-400/70' : 'text-green-400/70'
+                        status === 'TODO' ? 'text-red-400/70' : status === 'IN_PROGRESS' ? 'text-yellow-400/70' : 'text-[var(--color-success)]/70'
                       }`}>{statusConfig.label}</span>
-                      <span className="text-[10px] font-mono text-white/20">{event.tasks.filter(t => t.status === status).length}</span>
+                      <span className="text-[10px] font-mono text-[var(--color-text-faint)]">{event.tasks.filter(t => t.status === status).length}</span>
                     </div>
-                    <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg p-2 min-h-[400px] space-y-2">
+                    <div className="bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg p-2 min-h-[400px] space-y-2">
                       {event.tasks.filter(t => t.status === status).map(task => {
                         const se = event.subEvents.find(s => s.id === task.subEventId)
                         const isOverdue = task.deadline && new Date(task.deadline) < new Date() && status !== "DONE"
                         // Only the assignee can change task status
                         const canChangeStatus = user?.email === task.assignedTo || user?.collegeEmail === task.assignedTo
                         return (
-                          <GlassCard key={task.id} className="p-3 space-y-2 border-white/[0.04]">
+                          <GlassCard key={task.id} className="p-3 space-y-2 border-[var(--color-border)]">
                             <p className="text-sm font-medium">{task.title}</p>
-                            {task.description && <p className="text-xs text-white/40 line-clamp-2">{task.description}</p>}
+                            {task.description && <p className="text-xs text-[var(--color-text-faint)] line-clamp-2">{task.description}</p>}
                             <div className="flex flex-wrap gap-1 mb-1">
-                              <span className="text-[9px] font-mono bg-white/[0.05] px-1.5 py-0.5 rounded text-white/40">{task.assignedTo}</span>
-                              {se && <span className="text-[9px] font-mono bg-white/[0.05] px-1.5 py-0.5 rounded text-white/30">{se.name}</span>}
-                              {task.deadline && <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded flex items-center gap-1 ${isOverdue ? 'bg-red-500/10 text-red-400' : 'bg-white/[0.05] text-white/30'}`}><CalendarDays className="w-2.5 h-2.5" /> {task.deadline}</span>}
+                              <span className="text-[9px] font-mono bg-[var(--color-surface-3)] px-1.5 py-0.5 rounded text-[var(--color-text-faint)]">{task.assignedTo}</span>
+                              {se && <span className="text-[9px] font-mono bg-[var(--color-surface-3)] px-1.5 py-0.5 rounded text-[var(--color-text-faint)]">{se.name}</span>}
+                              {task.deadline && <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded flex items-center gap-1 ${isOverdue ? 'bg-red-500/10 text-red-400' : 'bg-[var(--color-surface-3)] text-[var(--color-text-faint)]'}`}><CalendarDays className="w-2.5 h-2.5" /> {task.deadline}</span>}
                             </div>
                             {/* Status change buttons — only shown to the assignee */}
                             {canChangeStatus && (
@@ -887,7 +887,7 @@ export default function EventDetailPage() {
                                 )}
                                 {status !== "DONE" && (
                                   <button onClick={() => updateTaskStatus(event.id, task.id, "DONE")}
-                                    className="text-[10px] font-mono px-3 py-1.5 border rounded-md transition-colors bg-green-500/20 border-green-500/30 text-green-300 hover:bg-green-500/30">Done</button>
+                                    className="text-[10px] font-mono px-3 py-1.5 border rounded-md transition-colors bg-[var(--color-success)]/20 border-[var(--color-success)]/30 text-[var(--color-success)] hover:bg-[var(--color-success)]/30">Done</button>
                                 )}
                                 {status === "DONE" && (
                                   <button onClick={() => updateTaskStatus(event.id, task.id, "TODO")}
@@ -906,33 +906,33 @@ export default function EventDetailPage() {
               {/* Work Update column */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">
-                  <span className="text-[10px] font-mono tracking-widest text-white/30 uppercase">Work Update</span>
+                  <span className="text-[10px] font-mono tracking-widest text-[var(--color-text-faint)] uppercase">Work Update</span>
                 </div>
-                <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg flex flex-col min-h-[400px]">
+                <div className="bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg flex flex-col min-h-[400px]">
                   {/* Feed */}
                   <div className="flex-1 overflow-y-auto p-3 space-y-2">
                     {event.chatMessages.filter(m => m.subEventId === "work-updates").length === 0 && (
-                      <p className="text-[10px] font-mono text-white/15 text-center mt-8">No updates yet</p>
+                      <p className="text-[10px] font-mono text-[var(--color-text-faint)] text-center mt-8">No updates yet</p>
                     )}
                     {event.chatMessages.filter(m => m.subEventId === "work-updates").map(m => (
-                      <div key={m.id} className="p-2 rounded bg-white/[0.03] border border-white/[0.05] text-xs">
+                      <div key={m.id} className="p-2 rounded bg-[var(--color-surface-2)] border border-[var(--color-border)] text-xs">
                         <div className="flex items-center gap-1 mb-1">
-                          <span className="font-medium text-white/70 text-[10px]">{m.userName}</span>
-                          <span className="text-[9px] text-white/20 font-mono">{m.timestamp.slice(11)}</span>
+                          <span className="font-medium text-[var(--color-text-muted)] text-[10px]">{m.userName}</span>
+                          <span className="text-[9px] text-[var(--color-text-faint)] font-mono">{m.timestamp.slice(11)}</span>
                         </div>
-                        <p className="text-white/50 leading-relaxed">{m.message}</p>
+                        <p className="text-[var(--color-text-muted)] leading-relaxed">{m.message}</p>
                       </div>
                     ))}
                   </div>
                   {/* Input */}
                   {user && (isHost || isCoordinator || isRegistered || isVolunteer) && (
-                    <div className="p-2 border-t border-white/[0.06] flex gap-1">
+                    <div className="p-2 border-t border-[var(--color-border)] flex gap-1">
                       <input
                         value={workUpdateText}
                         onChange={e => setWorkUpdateText(e.target.value)}
                         onKeyDown={e => e.key === "Enter" && handleAddWorkUpdate()}
                         placeholder="Post an update..."
-                        className="flex-1 bg-white/[0.03] border border-white/[0.06] text-white text-[10px] rounded px-2 py-1.5 placeholder:text-white/20 outline-none"
+                        className="flex-1 bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] text-[10px] rounded px-2 py-1.5 placeholder:text-[var(--color-text-faint)] outline-none"
                       />
                       <button onClick={handleAddWorkUpdate} className="bg-white text-black text-[9px] px-2 py-1.5 rounded font-mono">Post</button>
                     </div>
@@ -949,30 +949,30 @@ export default function EventDetailPage() {
             <MicroLabel>Participant Check-In</MicroLabel>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <GlassCard className="p-4 text-center">
-                <p className="text-[10px] font-mono text-white/50 tracking-widest uppercase mb-1">Checked In</p>
+                <p className="text-[10px] font-mono text-[var(--color-text-muted)] tracking-widest uppercase mb-1">Checked In</p>
                 <p className="text-2xl font-light">{registrations.filter(r => r.checkedIn).length}</p>
               </GlassCard>
               <GlassCard className="p-4 text-center">
-                <p className="text-[10px] font-mono text-white/50 tracking-widest uppercase mb-1">Total Registered</p>
-                <p className="text-2xl font-light text-green-400">{confirmedRegistrations.length}</p>
+                <p className="text-[10px] font-mono text-[var(--color-text-muted)] tracking-widest uppercase mb-1">Total Registered</p>
+                <p className="text-2xl font-light text-[var(--color-success)]">{confirmedRegistrations.length}</p>
               </GlassCard>
-              <GlassCard className="p-4 col-span-2 flex items-center gap-3 border-white/20">
-                <Button onClick={() => setShowQRScanner(true)} className="bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80 h-10 px-6 rounded-full flex-1 max-w-[220px]">
+              <GlassCard className="p-4 col-span-2 flex items-center gap-3 border-[var(--color-border)]">
+                <Button onClick={() => setShowQRScanner(true)} className="bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-[var(--color-surface-3)] h-10 px-6 rounded-full flex-1 max-w-[220px]">
                   <Camera className="w-4 h-4 mr-2" /> Live QR Scan
                 </Button>
-                <Button onClick={downloadCheckedInCSV} variant="outline" className="h-10 px-4 text-[10px] font-mono border-white/20 text-white/70 hover:text-white gap-1.5">
+                <Button onClick={downloadCheckedInCSV} variant="outline" className="h-10 px-4 text-[10px] font-mono border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] gap-1.5">
                   <Download className="w-3.5 h-3.5" /> Export CSV
                 </Button>
               </GlassCard>
             </div>
 
             {/* Sub-event filter dropdown — its own row below summary cards */}
-            <div className="flex items-center gap-3 mb-6 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-              <span className="text-[10px] font-mono text-white/40 tracking-widest uppercase whitespace-nowrap">Filter by Sub-event:</span>
+            <div className="flex items-center gap-3 mb-6 p-3 rounded-xl bg-[var(--color-surface-2)] border border-[var(--color-border)]">
+              <span className="text-[10px] font-mono text-[var(--color-text-faint)] tracking-widest uppercase whitespace-nowrap">Filter by Sub-event:</span>
               <select
                 value={checkInSubEventFilter}
                 onChange={e => setCheckInSubEventFilter(e.target.value)}
-                className="flex-1 max-w-xs h-9 bg-white/[0.04] border border-white/[0.1] text-white text-xs rounded-lg px-3 focus:outline-none focus:border-white/30 transition-colors cursor-pointer"
+                className="flex-1 max-w-xs h-9 bg-[var(--color-surface-3)] border border-[var(--color-border-muted)] text-[var(--color-text)] text-xs rounded-lg px-3 focus:outline-none focus:border-[var(--color-border-focus)] transition-colors cursor-pointer"
               >
                 <option value="">All Sub-events</option>
                 {event.subEvents.map(se => (
@@ -989,11 +989,11 @@ export default function EventDetailPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
                   className={`mb-6 p-4 rounded-xl border flex items-center gap-3 ${scanStatus.type === 'success'
-                      ? 'bg-green-500/10 border-green-500/20 text-green-400'
+                      ? 'bg-[var(--color-success)]/10 border-[var(--color-success)]/20 text-[var(--color-success)]'
                       : 'bg-red-500/10 border-red-500/20 text-red-400'
                     }`}
                 >
-                  <div className={`p-1.5 rounded-full ${scanStatus.type === 'success' ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+                  <div className={`p-1.5 rounded-full ${scanStatus.type === 'success' ? 'bg-[var(--color-success)]/20' : 'bg-red-500/20'}`}>
                     {scanStatus.type === 'success' ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
                   </div>
                   <span className="text-sm font-medium">{scanStatus.msg}</span>
@@ -1012,16 +1012,16 @@ export default function EventDetailPage() {
                 return (
                   <div key={se.id}>
                     {/* Sub-event section header */}
-                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/[0.08]">
+                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-[var(--color-border)]">
                       <div>
-                        <h3 className="text-sm font-medium text-white">{se.name}</h3>
-                        <p className="text-[10px] font-mono text-white/50 uppercase tracking-widest mt-0.5">{se.type}</p>
+                        <h3 className="text-sm font-medium text-[var(--color-text)]">{se.name}</h3>
+                        <p className="text-[10px] font-mono text-[var(--color-text-muted)] uppercase tracking-widest mt-0.5">{se.type}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className={`text-xs font-mono px-3 py-1 rounded-full border ${
                           checkedCount === seRegs.length
-                            ? 'bg-green-500/10 border-green-500/20 text-green-400'
-                            : 'bg-white/[0.04] border-white/10 text-white/70'
+                            ? 'bg-[var(--color-success)]/10 border-[var(--color-success)]/20 text-[var(--color-success)]'
+                            : 'bg-[var(--color-surface-3)] border-[var(--color-border)] text-[var(--color-text-muted)]'
                         }`}>
                           {checkedCount} / {seRegs.length} checked in
                         </span>
@@ -1030,22 +1030,22 @@ export default function EventDetailPage() {
                     {/* Participants for this sub-event */}
                     <div className="space-y-2">
                       {seRegs.map(reg => (
-                        <div key={reg.id} className="flex items-center justify-between p-3 rounded-md bg-white/[0.02] border border-white/[0.06]">
+                        <div key={reg.id} className="flex items-center justify-between p-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)]">
                           <div className="flex items-center gap-3">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs ${
-                              reg.checkedIn ? 'bg-green-500/10 text-green-400' : 'bg-white/[0.05] text-white/40'
+                              reg.checkedIn ? 'bg-[var(--color-success)]/10 text-[var(--color-success)]' : 'bg-[var(--color-surface-3)] text-[var(--color-text-faint)]'
                             }`}>
                               {reg.checkedIn ? <Check className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
                             </div>
                             <div>
                               <p className="text-sm font-medium">{reg.userName}</p>
-                              <p className="text-[10px] font-mono text-white/50">{reg.userEmail}</p>
+                              <p className="text-[10px] font-mono text-[var(--color-text-muted)]">{reg.userEmail}</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
                             {reg.checkedIn ? (
                               <>
-                                <span className="text-[10px] font-mono text-white/50 uppercase tracking-widest">
+                                <span className="text-[10px] font-mono text-[var(--color-text-muted)] uppercase tracking-widest">
                                   Arrived @ {reg.checkInTime ? new Date(reg.checkInTime.includes('T') ? reg.checkInTime : reg.checkInTime.replace(' ', 'T') + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'UNKNOWN'}
                                 </span>
                                 <button
@@ -1054,13 +1054,13 @@ export default function EventDetailPage() {
                                       undoCheckInParticipant(event.id, reg.id)
                                     }
                                   }}
-                                  className="text-[9px] font-mono text-white/30 hover:text-red-400 border border-white/10 hover:border-red-400/40 rounded px-2 py-0.5 transition-colors uppercase tracking-wider"
+                                  className="text-[9px] font-mono text-[var(--color-text-faint)] hover:text-red-400 border border-[var(--color-border)] hover:border-red-400/40 rounded px-2 py-0.5 transition-colors uppercase tracking-wider"
                                 >
                                   Undo
                                 </button>
                               </>
                             ) : (
-                              <Button onClick={() => checkInParticipant(event.id, reg.id)} className="h-8 bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80">Check In</Button>
+                              <Button onClick={() => checkInParticipant(event.id, reg.id)} className="h-8 bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-[var(--color-surface-3)]">Check In</Button>
                             )}
                           </div>
                         </div>
@@ -1075,29 +1075,29 @@ export default function EventDetailPage() {
                 if (orphanRegs.length === 0) return null
                 return (
                   <div>
-                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/[0.08]">
-                      <h3 className="text-sm font-medium text-white/70">General / Uncategorised</h3>
-                      <span className="text-xs font-mono px-3 py-1 rounded-full border bg-white/[0.04] border-white/10 text-white/60">
+                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-[var(--color-border)]">
+                      <h3 className="text-sm font-medium text-[var(--color-text-muted)]">General / Uncategorised</h3>
+                      <span className="text-xs font-mono px-3 py-1 rounded-full border bg-[var(--color-surface-3)] border-[var(--color-border)] text-[var(--color-text-muted)]">
                         {orphanRegs.filter(r => r.checkedIn).length} / {orphanRegs.length} checked in
                       </span>
                     </div>
                     <div className="space-y-2">
                       {orphanRegs.map(reg => (
-                        <div key={reg.id} className="flex items-center justify-between p-3 rounded-md bg-white/[0.02] border border-white/[0.06]">
+                        <div key={reg.id} className="flex items-center justify-between p-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)]">
                           <div className="flex items-center gap-3">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs ${
-                              reg.checkedIn ? 'bg-green-500/10 text-green-400' : 'bg-white/[0.05] text-white/40'
+                              reg.checkedIn ? 'bg-[var(--color-success)]/10 text-[var(--color-success)]' : 'bg-[var(--color-surface-3)] text-[var(--color-text-faint)]'
                             }`}>
                               {reg.checkedIn ? <Check className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
                             </div>
                             <p className="text-sm font-medium">{reg.userName}</p>
                           </div>
                           {reg.checkedIn ? (
-                            <span className="text-[10px] font-mono text-white/50 uppercase tracking-widest">
+                            <span className="text-[10px] font-mono text-[var(--color-text-muted)] uppercase tracking-widest">
                               Arrived @ {reg.checkInTime ? new Date(reg.checkInTime.includes('T') ? reg.checkInTime : reg.checkInTime.replace(' ', 'T') + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'UNKNOWN'}
                             </span>
                           ) : (
-                            <Button onClick={() => checkInParticipant(event.id, reg.id)} className="h-8 bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-white/80">Check In</Button>
+                            <Button onClick={() => checkInParticipant(event.id, reg.id)} className="h-8 bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-[var(--color-surface-3)]">Check In</Button>
                           )}
                         </div>
                       ))}
@@ -1117,17 +1117,17 @@ export default function EventDetailPage() {
               {event.automations.map(rule => (
                 <GlassCard key={rule.id} className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${rule.enabled ? 'bg-green-500/10' : 'bg-white/[0.03]'}`}>
-                      <Zap className={`w-4 h-4 ${rule.enabled ? 'text-green-400' : 'text-white/20'}`} />
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${rule.enabled ? 'bg-[var(--color-success)]/10' : 'bg-[var(--color-surface-2)]'}`}>
+                      <Zap className={`w-4 h-4 ${rule.enabled ? 'text-[var(--color-success)]' : 'text-[var(--color-text-faint)]'}`} />
                     </div>
                     <div>
                       <p className="text-sm font-medium">{rule.name}</p>
-                      <p className="text-[10px] font-mono text-white/30">Trigger: {rule.trigger.replace(/_/g, " ")}</p>
-                      <p className="text-xs text-white/40 mt-1">{rule.message}</p>
+                      <p className="text-[10px] font-mono text-[var(--color-text-faint)]">Trigger: {rule.trigger.replace(/_/g, " ")}</p>
+                      <p className="text-xs text-[var(--color-text-faint)] mt-1">{rule.message}</p>
                     </div>
                   </div>
                   <button onClick={() => toggleAutomation(event.id, rule.id)}
-                    className={`w-10 h-5 rounded-full transition-colors relative ${rule.enabled ? 'bg-green-500' : 'bg-white/10'}`}>
+                    className={`w-10 h-5 rounded-full transition-colors relative ${rule.enabled ? 'bg-[var(--color-success)]' : 'bg-[var(--color-surface-3)]'}`}>
                     <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${rule.enabled ? 'left-5' : 'left-0.5'}`} />
                   </button>
                 </GlassCard>
@@ -1136,19 +1136,19 @@ export default function EventDetailPage() {
 
             <MicroLabel>Notification Log ({event.automationLogs.length})</MicroLabel>
             {event.automationLogs.length === 0 ? (
-              <p className="text-white/30 text-sm font-mono">No notifications sent yet.</p>
+              <p className="text-[var(--color-text-faint)] text-sm font-mono">No notifications sent yet.</p>
             ) : (
               <div className="space-y-2">
                 {event.automationLogs.map(log => (
-                  <div key={log.id} className="flex items-start gap-3 p-3 rounded-md bg-white/[0.02] border border-white/[0.06]">
-                    <div className="w-6 h-6 rounded bg-green-500/10 flex items-center justify-center shrink-0"><Check className="w-3 h-3 text-green-400" /></div>
+                  <div key={log.id} className="flex items-start gap-3 p-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)]">
+                    <div className="w-6 h-6 rounded bg-[var(--color-success)]/10 flex items-center justify-center shrink-0"><Check className="w-3 h-3 text-[var(--color-success)]" /></div>
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-medium">{log.ruleName}</span>
-                        <span className="text-[10px] font-mono text-white/30">→ {log.recipientEmail}</span>
+                        <span className="text-[10px] font-mono text-[var(--color-text-faint)]">→ {log.recipientEmail}</span>
                       </div>
-                      <p className="text-xs text-white/50 mt-0.5">{log.message}</p>
-                      <p className="text-[9px] font-mono text-white/20 mt-1">{log.timestamp}</p>
+                      <p className="text-xs text-[var(--color-text-muted)] mt-0.5">{log.message}</p>
+                      <p className="text-[9px] font-mono text-[var(--color-text-faint)] mt-1">{log.timestamp}</p>
                     </div>
                   </div>
                 ))}
@@ -1157,14 +1157,14 @@ export default function EventDetailPage() {
             <div className="mt-8">
               <MicroLabel>Manual Push Notification</MicroLabel>
               <GlassCard className="p-4 flex flex-col gap-3">
-                <Input placeholder="Recipient Email (leave empty for all participants)" value={pushRecipient} onChange={e => setPushRecipient(e.target.value)} className="bg-white/[0.03] border-white/[0.08]" />
+                <Input placeholder="Recipient Email (leave empty for all participants)" value={pushRecipient} onChange={e => setPushRecipient(e.target.value)} className="bg-[var(--color-surface-2)] border-[var(--color-border)]" />
                 <div>
-                  <label className="text-[9px] font-mono text-white/30 mb-1 block tracking-widest uppercase">Email Subject</label>
-                  <Input placeholder="e.g. Important Update for TechFest" value={pushSubject} onChange={e => setPushSubject(e.target.value)} className="bg-white/[0.03] border-white/[0.08]" />
+                  <label className="text-[9px] font-mono text-[var(--color-text-faint)] mb-1 block tracking-widest uppercase">Email Subject</label>
+                  <Input placeholder="e.g. Important Update for TechFest" value={pushSubject} onChange={e => setPushSubject(e.target.value)} className="bg-[var(--color-surface-2)] border-[var(--color-border)]" />
                 </div>
                 <div>
-                  <label className="text-[9px] font-mono text-white/30 mb-1 block tracking-widest uppercase">Email Body</label>
-                  <textarea placeholder="Write the full email message here..." value={pushBody} onChange={e => setPushBody(e.target.value)} className="bg-white/[0.03] border border-white/[0.08] text-sm text-white placeholder:text-white/30 rounded-md p-3 min-h-[100px] w-full outline-none focus:border-white/20 transition-colors" />
+                  <label className="text-[9px] font-mono text-[var(--color-text-faint)] mb-1 block tracking-widest uppercase">Email Body</label>
+                  <textarea placeholder="Write the full email message here..." value={pushBody} onChange={e => setPushBody(e.target.value)} className="bg-[var(--color-surface-2)] border border-[var(--color-border)] text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] rounded-md p-3 min-h-[100px] w-full outline-none focus:border-[var(--color-border)] transition-colors" />
                 </div>
                 <Button onClick={handleSendPush} disabled={!pushSubject.trim() || !pushBody.trim()} className="bg-white text-black self-end text-xs h-9 px-4">Send Notification</Button>
               </GlassCard>
@@ -1184,10 +1184,10 @@ export default function EventDetailPage() {
                     <div className="p-4 bg-white rounded-lg mb-4">
                       <QRCodeSVG value={`MYFESTIVO:${event.id}:${reg.subEventId}:${reg.id}`} size={200} />
                     </div>
-                    <p className="text-xs font-mono text-white/40 mb-1">REG-ID: {reg.id}</p>
+                    <p className="text-xs font-mono text-[var(--color-text-faint)] mb-1">REG-ID: {reg.id}</p>
                     <div className="flex items-center gap-2">
-                      <span className={`font-mono text-[10px] px-2 py-0.5 border rounded ${reg.status === "PAID" || reg.status === "FREE" ? "border-green-500/30 text-green-400" : "border-yellow-500/30 text-yellow-400"}`}>{reg.status}</span>
-                      {reg.checkedIn && <span className="text-[10px] font-mono text-green-400 flex items-center gap-1"><ClipboardCheck className="w-3 h-3" /> Checked In</span>}
+                      <span className={`font-mono text-[10px] px-2 py-0.5 border rounded ${reg.status === "PAID" || reg.status === "FREE" ? "border-[var(--color-success)]/30 text-[var(--color-success)]" : "border-yellow-500/30 text-yellow-400"}`}>{reg.status}</span>
+                      {reg.checkedIn && <span className="text-[10px] font-mono text-[var(--color-success)] flex items-center gap-1"><ClipboardCheck className="w-3 h-3" /> Checked In</span>}
                     </div>
                   </GlassCard>
                 )
@@ -1205,7 +1205,7 @@ export default function EventDetailPage() {
               {accessibleChannels.includes("general") && (
                 <button
                   onClick={() => setChatChannel("general")}
-                  className={`px-3 py-1.5 rounded text-[10px] font-mono tracking-widest uppercase whitespace-nowrap transition-colors ${chatChannel === "general" ? "bg-white text-black" : "bg-white/[0.04] text-white/40 hover:text-white/60 border border-white/[0.08]"}`}
+                  className={`px-3 py-1.5 rounded text-[10px] font-mono tracking-widest uppercase whitespace-nowrap transition-colors ${chatChannel === "general" ? "bg-white text-black" : "bg-[var(--color-surface-3)] text-[var(--color-text-faint)] hover:text-[var(--color-text-muted)] border border-[var(--color-border)]"}`}
                 ># General</button>
               )}
               {/* Sub-event channels — filtered by role */}
@@ -1213,7 +1213,7 @@ export default function EventDetailPage() {
                 <button
                   key={se.id}
                   onClick={() => setChatChannel(se.id)}
-                  className={`px-3 py-1.5 rounded text-[10px] font-mono tracking-widest uppercase whitespace-nowrap transition-colors ${chatChannel === se.id ? "bg-white text-black" : "bg-white/[0.04] text-white/40 hover:text-white/60 border border-white/[0.08]"}`}
+                  className={`px-3 py-1.5 rounded text-[10px] font-mono tracking-widest uppercase whitespace-nowrap transition-colors ${chatChannel === se.id ? "bg-white text-black" : "bg-[var(--color-surface-3)] text-[var(--color-text-faint)] hover:text-[var(--color-text-muted)] border border-[var(--color-border)]"}`}
                 ># {se.name}</button>
               ))}
             </div>
@@ -1264,17 +1264,17 @@ export default function EventDetailPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 16 }}
               transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="bg-[#111] border border-white/[0.1] rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+              className="bg-[#111] border border-[var(--color-border-muted)] rounded-2xl p-6 w-full max-w-sm shadow-2xl"
             >
               {/* Icon */}
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${event.registrationOpen ? 'bg-red-500/10' : 'bg-green-500/10'}`}>
-                <UserCheck className={`w-6 h-6 ${event.registrationOpen ? 'text-red-400' : 'text-green-400'}`} />
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${event.registrationOpen ? 'bg-red-500/10' : 'bg-[var(--color-success)]/10'}`}>
+                <UserCheck className={`w-6 h-6 ${event.registrationOpen ? 'text-red-400' : 'text-[var(--color-success)]'}`} />
               </div>
 
               <h3 className="text-lg font-medium mb-1">
                 {event.registrationOpen ? 'Close Registration?' : 'Open Registration?'}
               </h3>
-              <p className="text-sm text-white/50 mb-6 leading-relaxed">
+              <p className="text-sm text-[var(--color-text-muted)] mb-6 leading-relaxed">
                 {event.registrationOpen
                   ? 'This will prevent new participants from registering for your event. Existing registrations will not be affected.'
                   : 'This will allow participants to register for your event. You can close it again at any time.'}
@@ -1283,7 +1283,7 @@ export default function EventDetailPage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowRegConfirm(false)}
-                  className="flex-1 py-2.5 rounded-lg border border-white/10 text-white/60 text-sm hover:bg-white/[0.04] transition-colors"
+                  className="flex-1 py-2.5 rounded-lg border border-[var(--color-border)] text-[var(--color-text-muted)] text-sm hover:bg-[var(--color-surface-3)] transition-colors"
                 >
                   Cancel
                 </button>
@@ -1294,7 +1294,7 @@ export default function EventDetailPage() {
                   }}
                   className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors ${event.registrationOpen
                     ? 'bg-red-500/20 border border-red-500/30 text-red-300 hover:bg-red-500/30'
-                    : 'bg-green-500/20 border border-green-500/30 text-green-300 hover:bg-green-500/30'
+                    : 'bg-[var(--color-success)]/20 border border-[var(--color-success)]/30 text-[var(--color-success)] hover:bg-[var(--color-success)]/30'
                   }`}
                 >
                   {event.registrationOpen ? 'Yes, Close' : 'Yes, Open'}

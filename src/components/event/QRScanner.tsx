@@ -147,7 +147,7 @@ export function QRScanner({ onScan, onClose, scanResult }: QRScannerProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
       <GlassCard className="w-full max-w-md p-6 relative flex flex-col items-center">
-        <Button onClick={onClose} variant="ghost" className="absolute top-4 right-4 text-white/50 hover:text-white" size="icon">
+        <Button onClick={onClose} variant="ghost" className="absolute top-4 right-4 text-[var(--color-text-muted)] hover:text-[var(--color-text)]" size="icon">
           <X className="w-5 h-5" />
         </Button>
         <h2 className="text-xl font-light mb-4 flex items-center gap-2">
@@ -163,24 +163,24 @@ export function QRScanner({ onScan, onClose, scanResult }: QRScannerProps) {
             {permState !== "denied" && (
               <Button
                 onClick={startCamera}
-                className="w-full bg-white text-black hover:bg-white/90 flex items-center gap-2"
+                className="w-full bg-white text-black hover:bg-[var(--color-surface-3)] flex items-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" /> Try Again
               </Button>
             )}
             {permState === "denied" && (
-              <p className="text-[11px] text-white/30 font-mono text-center">
+              <p className="text-[11px] text-[var(--color-text-faint)] font-mono text-center">
                 Open your browser settings → Site Settings → Camera → Allow.
               </p>
             )}
           </div>
         ) : (
-          <div className="relative rounded-lg overflow-hidden border border-white/10 w-full aspect-square bg-black mb-4">
+          <div className="relative rounded-lg overflow-hidden border border-[var(--color-border)] w-full aspect-square bg-[var(--color-surface-2)] mb-4">
             <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
             <canvas ref={canvasRef} className="hidden" />
 
             {/* Scanning frame guide */}
-            <div className="absolute inset-0 pointer-events-none border-[3px] border-green-500/30 m-8 rounded-xl" />
+            <div className="absolute inset-0 pointer-events-none border-[3px] border-[var(--color-success)]/30 m-8 rounded-xl" />
 
             {/* Switch Camera button — overlaid bottom-right of the video */}
             <Button
@@ -188,7 +188,7 @@ export function QRScanner({ onScan, onClose, scanResult }: QRScannerProps) {
               variant="ghost"
               size="icon"
               title={facingMode === "environment" ? "Switch to front camera" : "Switch to rear camera"}
-              className="absolute bottom-3 right-3 bg-black/50 text-white hover:bg-black/70 rounded-full w-10 h-10 backdrop-blur-sm border border-white/10"
+              className="absolute bottom-3 right-3 bg-black/50 text-[var(--color-text)] hover:bg-black/70 rounded-full w-10 h-10 backdrop-blur-sm border border-[var(--color-border)]"
             >
               <SwitchCamera className="w-5 h-5" />
             </Button>
@@ -205,26 +205,26 @@ export function QRScanner({ onScan, onClose, scanResult }: QRScannerProps) {
                 <div
                   className={`w-16 h-16 rounded-full flex items-center justify-center ${
                     overlayResult.type === "success"
-                      ? "bg-green-500/20 border-2 border-green-400/50"
+                      ? "bg-[var(--color-success)]/20 border-2 border-[var(--color-success)]/50"
                       : "bg-red-500/20 border-2 border-red-400/50"
                   }`}
                 >
                   {overlayResult.type === "success" ? (
-                    <Check className="w-8 h-8 text-green-400" />
+                    <Check className="w-8 h-8 text-[var(--color-success)]" />
                   ) : (
                     <AlertCircle className="w-8 h-8 text-red-400" />
                   )}
                 </div>
                 <p
                   className={`text-base font-semibold text-center px-4 ${
-                    overlayResult.type === "success" ? "text-green-300" : "text-red-300"
+                    overlayResult.type === "success" ? "text-[var(--color-success)]" : "text-red-300"
                   }`}
                 >
                   {overlayResult.type === "success" ? "Check-in Successful!" : "Scan Failed"}
                 </p>
                 <p
                   className={`text-xs font-mono text-center px-6 ${
-                    overlayResult.type === "success" ? "text-green-400/70" : "text-red-400/70"
+                    overlayResult.type === "success" ? "text-[var(--color-success)]/70" : "text-red-400/70"
                   }`}
                 >
                   {overlayResult.msg}
@@ -233,7 +233,7 @@ export function QRScanner({ onScan, onClose, scanResult }: QRScannerProps) {
             )}
           </div>
         )}
-        <p className="text-xs text-white/40 font-mono text-center mt-2">Position the QR code within the frame.</p>
+        <p className="text-xs text-[var(--color-text-faint)] font-mono text-center mt-2">Position the QR code within the frame.</p>
       </GlassCard>
     </div>
   )

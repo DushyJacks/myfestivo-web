@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
           </Link>
           <MicroLabel>Password Reset</MicroLabel>
           <h1 className="text-4xl font-light tracking-tight mb-2">Forgot password?</h1>
-          <p className="text-white/40 text-sm">
+          <p className="text-[var(--color-text-muted)] text-sm">
             Enter your account email and we&apos;ll send you a reset link.
           </p>
         </div>
@@ -77,19 +77,19 @@ export default function ForgotPasswordPage() {
                 className="text-center space-y-4"
               >
                 <div className="flex justify-center mb-4">
-                  <div className="w-14 h-14 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center">
-                    <CheckCircle2 className="w-7 h-7 text-green-400" />
+                  <div className="w-14 h-14 rounded-full bg-[var(--color-success)]/10 border border-[var(--color-success)]/20 flex items-center justify-center">
+                    <CheckCircle2 className="w-7 h-7 text-[var(--color-success)]" />
                   </div>
                 </div>
-                <h2 className="text-xl font-medium text-white">Check your email</h2>
-                <p className="text-sm text-white/60 leading-relaxed">
-                  If an account exists for <span className="text-white font-mono">{email}</span>,
+                <h2 className="text-xl font-medium text-[var(--color-text)]">Check your email</h2>
+                <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
+                  If an account exists for <span className="text-[var(--color-text)] font-mono">{email}</span>,
                   we&apos;ve sent instructions to reset your password.
                 </p>
 
-                <div className="mt-4 p-4 rounded-md bg-white/[0.03] border border-white/[0.07] text-left">
-                  <p className="text-xs text-white/40 leading-relaxed">
-                    <strong className="text-white/60">Didn&apos;t receive it?</strong><br />
+                <div className="mt-4 p-4 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-left">
+                  <p className="text-xs text-[var(--color-text-faint)] leading-relaxed">
+                    <strong className="text-[var(--color-text-muted)]">Didn&apos;t receive it?</strong><br />
                     Check your spam folder or{" "}
                     <button
                       onClick={() => { setSent(false) }}
@@ -103,7 +103,7 @@ export default function ForgotPasswordPage() {
 
                 <Link
                   href="/login"
-                  className="mt-4 inline-flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors"
+                  className="mt-4 inline-flex items-center gap-2 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back to Sign In
@@ -130,7 +130,7 @@ export default function ForgotPasswordPage() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block"
+                    className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block"
                   >
                     Email Address
                   </label>
@@ -142,7 +142,7 @@ export default function ForgotPasswordPage() {
                     placeholder="you@gmail.com"
                     autoComplete="email"
                     spellCheck={false}
-                    className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11"
+                    className="themed-input h-11"
                     required
                   />
                 </div>
@@ -165,9 +165,9 @@ export default function ForgotPasswordPage() {
                   )}
                 </Button>
 
-                <div className="text-center text-sm text-white/50">
+                <div className="text-center text-sm text-[var(--color-text-muted)]">
                   Remember your password?{" "}
-                  <Link href="/login" className="text-white hover:underline">
+                  <Link href="/login" className="text-[var(--color-accent)] hover:underline">
                     Sign in
                   </Link>
                 </div>

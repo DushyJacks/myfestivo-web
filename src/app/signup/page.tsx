@@ -176,9 +176,9 @@ export default function SignupPage() {
               </Link>
               <MicroLabel>Verify your email</MicroLabel>
               <h1 className="text-4xl font-light tracking-tight mb-2">Check your inbox.</h1>
-              <p className="text-[13px] text-white/70">
+              <p className="text-[13px] text-[var(--color-text-muted)]">
                 We sent a 6-digit code to{" "}
-                <span className="text-white font-medium">{form.email}</span>.
+                <span className="text-[var(--color-text)] font-medium">{form.email}</span>.
                 Check your primary inbox or spam folder.
               </p>
             </div>
@@ -200,7 +200,7 @@ export default function SignupPage() {
 
               <div className="space-y-5">
                 <div>
-                  <label htmlFor="otp-input" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">
+                  <label htmlFor="otp-input" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">
                     Verification Code
                   </label>
                   <Input
@@ -216,7 +216,7 @@ export default function SignupPage() {
                     }}
                     onKeyDown={(e) => { if (e.key === "Enter") handleVerifyOtp() }}
                     placeholder="000000"
-                    className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 h-14 text-center text-2xl font-mono tracking-[0.4em]"
+                    className="themed-input h-14 text-center text-2xl font-mono tracking-[0.4em]"
                     autoFocus
                   />
                 </div>
@@ -241,12 +241,12 @@ export default function SignupPage() {
 
                 {/* Resend */}
                 <div className="text-center">
-                  <p className="text-sm text-white/40 mb-2">Didn&apos;t receive it?</p>
+                  <p className="text-sm text-[var(--color-text-muted)] mb-2">Didn&apos;t receive it?</p>
                   <button
                     type="button"
                     onClick={handleResendOtp}
                     disabled={resendCooldown > 0 || resending}
-                    className="inline-flex items-center gap-1.5 text-sm text-[#B388FF] hover:text-[#c9a9ff] disabled:text-white/20 disabled:cursor-not-allowed transition-colors"
+                    className="inline-flex items-center gap-1.5 text-sm text-[#B388FF] hover:text-[#c9a9ff] disabled:text-[var(--color-text-faint)] disabled:cursor-not-allowed transition-colors"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${resending ? "animate-spin" : ""}`} />
                     {resendCooldown > 0
@@ -260,7 +260,7 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => { setShowOtpStep(false); setOtpError(""); setEnteredOtp("") }}
-                  className="w-full text-center text-sm text-white/30 hover:text-white/60 transition-colors"
+                  className="w-full text-center text-sm text-[var(--color-text-faint)] hover:text-[var(--color-text-muted)] transition-colors"
                 >
                   ← Back to sign up
                 </button>
@@ -290,7 +290,7 @@ export default function SignupPage() {
           </Link>
           <MicroLabel>Create Account</MicroLabel>
           <h1 className="text-4xl font-light tracking-tight mb-2">Join the platform.</h1>
-          <p className="text-[13px] text-white/70">
+          <p className="text-[13px] text-[var(--color-text-muted)]">
             Sign up with any Gmail. Link your college email from your Profile to access intra-college events.
           </p>
         </div>
@@ -305,85 +305,85 @@ export default function SignupPage() {
             )}
 
             <div>
-              <label htmlFor="fullname" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">Full Name</label>
-              <Input id="fullname" value={form.name} onChange={(e) => update("name", e.target.value)} placeholder="Your full name" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
+              <label htmlFor="fullname" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">Full Name</label>
+              <Input id="fullname" value={form.name} onChange={(e) => update("name", e.target.value)} placeholder="Your full name" className="themed-input h-11" required />
             </div>
 
             <div>
-              <label htmlFor="signup-email" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">Email Address</label>
-              <Input id="signup-email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="you@gmail.com" autoComplete="email" spellCheck={false} className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required aria-describedby="email-hint" />
-              <p id="email-hint" className="text-[13px] text-white/70 mt-1">You can link your college email from your Profile later for intra-college events.</p>
+              <label htmlFor="signup-email" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">Email Address</label>
+              <Input id="signup-email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="you@gmail.com" autoComplete="email" spellCheck={false} className="themed-input h-11" required aria-describedby="email-hint" />
+              <p id="email-hint" className="text-[13px] text-[var(--color-text-muted)] mt-1">You can link your college email from your Profile later for intra-college events.</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="signup-password" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">Password</label>
-                <Input id="signup-password" type="password" value={form.password} onChange={(e) => update("password", e.target.value)} placeholder="••••••••" autoComplete="new-password" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
+                <label htmlFor="signup-password" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">Password</label>
+                <Input id="signup-password" type="password" value={form.password} onChange={(e) => update("password", e.target.value)} placeholder="••••••••" autoComplete="new-password" className="themed-input h-11" required />
               </div>
               <div>
-                <label htmlFor="signup-confirm-password" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">Confirm Password</label>
-                <Input id="signup-confirm-password" type="password" value={form.confirmPassword} onChange={(e) => update("confirmPassword", e.target.value)} placeholder="••••••••" autoComplete="new-password" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" required />
+                <label htmlFor="signup-confirm-password" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">Confirm Password</label>
+                <Input id="signup-confirm-password" type="password" value={form.confirmPassword} onChange={(e) => update("confirmPassword", e.target.value)} placeholder="••••••••" autoComplete="new-password" className="themed-input h-11" required />
               </div>
             </div>
 
             {form.role === "student" && (
               <>
                 <div>
-                  <label htmlFor="college" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">College / University</label>
+                  <label htmlFor="college" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">College / University</label>
                   <select
                     id="college"
                     value={form.college}
                     onChange={(e) => update("college", e.target.value)}
                     required
-                    className="w-full h-11 px-3 rounded-md bg-white/[0.03] border border-white/[0.08] text-white text-sm focus:outline-none focus:border-white/30 transition-colors"
+                    className="w-full h-11 px-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-border-focus)] transition-colors"
                   >
-                    <option value="" className="bg-black text-white/50">Select your campus...</option>
+                    <option value="" className="bg-[var(--color-surface-2)] text-[var(--color-text-muted)]">Select your campus...</option>
                     {["SRMIST, Ramapuram", "SRMIST, Kattankulathur", "SRMIST, Vadapalani", "SRMIST, Tiruchirappalli"].map(c => (
-                      <option key={c} value={c} className="bg-black text-white">{c}</option>
+                      <option key={c} value={c} className="bg-[var(--color-surface-2)] text-[var(--color-text)]">{c}</option>
                     ))}
                   </select>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="rollNo" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">Roll Number <span className="text-white/30">(optional)</span></label>
-                    <Input id="rollNo" value={form.rollNo} onChange={(e) => update("rollNo", e.target.value)} placeholder="RA2211003010001" className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11" />
+                    <label htmlFor="rollNo" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">Roll Number <span className="text-[var(--color-text-faint)]">(optional)</span></label>
+                    <Input id="rollNo" value={form.rollNo} onChange={(e) => update("rollNo", e.target.value)} placeholder="RA2211003010001" className="bg-[var(--color-surface-2)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] h-11" />
                   </div>
                   <div>
-                    <label htmlFor="department" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">Department</label>
+                    <label htmlFor="department" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">Department</label>
                     <select
                       id="department"
                       value={form.department}
                       onChange={(e) => update("department", e.target.value)}
                       required
-                      className="w-full h-11 px-3 rounded-md bg-white/[0.03] border border-white/[0.08] text-white text-sm focus:outline-none focus:border-white/30 transition-colors"
+                      className="w-full h-11 px-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-border-focus)] transition-colors"
                     >
-                      <option value="" className="bg-black text-white/50">Select department...</option>
+                      <option value="" className="bg-[var(--color-surface-2)] text-[var(--color-text-muted)]">Select department...</option>
                       {["BSc CS", "BSc Cyber Security", "BSc AI/ML", "BCA", "BCA Gen AI", "BCA DS"].map(dept => (
-                        <option key={dept} value={dept} className="bg-black text-white">{dept}</option>
+                        <option key={dept} value={dept} className="bg-[var(--color-surface-2)] text-[var(--color-text)]">{dept}</option>
                       ))}
                     </select>
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="year" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">Year of Study</label>
+                  <label htmlFor="year" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">Year of Study</label>
                   <select
                     id="year"
                     value={form.year}
                     onChange={(e) => update("year", e.target.value)}
                     required
-                    className="w-full h-11 px-3 rounded-md bg-white/[0.03] border border-white/[0.08] text-white text-sm focus:outline-none focus:border-white/30 transition-colors"
+                    className="w-full h-11 px-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-border-focus)] transition-colors"
                   >
                     {["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "Postgraduate", "PhD", "Faculty/Staff"].map((yr) => (
-                      <option key={yr} value={yr} className="bg-black text-white">{yr}</option>
+                      <option key={yr} value={yr} className="bg-[var(--color-surface-2)] text-[var(--color-text)]">{yr}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="phone" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 flex items-center gap-1.5">
+                  <label htmlFor="phone" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 flex items-center gap-1.5">
                     <Phone className="w-3 h-3" /> Phone Number
                   </label>
                   <div className="flex">
-                    <span className="inline-flex items-center h-11 px-3 rounded-l-md border border-r-0 border-white/[0.08] bg-white/[0.05] text-white/50 text-sm font-mono">+91</span>
+                    <span className="inline-flex items-center h-11 px-3 rounded-l-md border border-r-0 border-[var(--color-border)] bg-[var(--color-surface-3)] text-[var(--color-text-muted)] text-sm font-mono">+91</span>
                     <Input
                       id="phone"
                       type="tel"
@@ -391,7 +391,7 @@ export default function SignupPage() {
                       onChange={(e) => update("phone", e.target.value)}
                       placeholder="9876543210"
                       maxLength={10}
-                      className={`bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11 rounded-l-none flex-1 ${
+                      className={`themed-input h-11 rounded-l-none flex-1 ${
                         form.phone && form.phone.replace(/\D/g, "").length !== 10 ? "border-red-500/50" : ""
                       }`}
                       required
@@ -428,9 +428,9 @@ export default function SignupPage() {
           </form>
 
           <div className="my-6 flex items-center gap-4" aria-hidden="true">
-            <div className="flex-1 h-px bg-white/[0.08]" />
-            <span className="text-[10px] font-mono tracking-widest uppercase text-white/60">or</span>
-            <div className="flex-1 h-px bg-white/[0.08]" />
+            <div className="flex-1 h-px bg-[var(--color-border)]" />
+            <span className="text-[10px] font-mono tracking-widest uppercase text-[var(--color-text-faint)]">or</span>
+            <div className="flex-1 h-px bg-[var(--color-border)]" />
           </div>
 
           <Button
@@ -458,11 +458,11 @@ export default function SignupPage() {
               }
               setGoogleLoading(false)
             }}
-            className="w-full bg-white/[0.05] border border-white/[0.1] text-white hover:bg-white/[0.1] font-medium h-12 transition-colors"
+            className="w-full bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] hover:bg-[var(--color-surface-3)] font-medium h-12 transition-colors"
           >
             {googleLoading ? (
               <span className="inline-flex items-center gap-2">
-                <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" aria-hidden="true" />
+                <span className="w-4 h-4 border-2 border-[var(--color-border)] border-t-white rounded-full animate-spin" aria-hidden="true" />
                 <span>Connecting…</span>
               </span>
             ) : (
@@ -479,9 +479,9 @@ export default function SignupPage() {
             )}
           </Button>
 
-          <div className="mt-6 pt-6 border-t border-white/[0.06] text-center text-sm text-white/70">
+          <div className="mt-6 pt-6 border-t border-[var(--color-border-muted)] text-center text-sm text-[var(--color-text-muted)]">
             Already have an account?{" "}
-            <Link href="/login" className="text-white hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/50">
+            <Link href="/login" className="text-[var(--color-accent)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-accent)]/50">
               Sign in
             </Link>
           </div>

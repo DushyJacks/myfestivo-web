@@ -109,7 +109,7 @@ function ResetPasswordContent() {
           </Link>
           <MicroLabel>Password Reset</MicroLabel>
           <h1 className="text-4xl font-light tracking-tight mb-2">Create new password</h1>
-          <p className="text-white/40 text-sm">Enter and confirm your new password below.</p>
+          <p className="text-[var(--color-text-faint)] text-sm">Enter and confirm your new password below.</p>
         </div>
 
         <GlassCard className="p-8">
@@ -117,7 +117,7 @@ function ResetPasswordContent() {
             {verifyingCode ? (
               /* Loading while verifying code */
               <motion.div key="loading" className="flex justify-center py-8">
-                <span className="w-6 h-6 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
+                <span className="w-6 h-6 border-2 border-[var(--color-border)] border-t-white/80 rounded-full animate-spin" />
               </motion.div>
             ) : codeError ? (
               /* Invalid / expired code */
@@ -132,7 +132,7 @@ function ResetPasswordContent() {
                     <AlertCircle className="w-7 h-7 text-red-400" />
                   </div>
                 </div>
-                <p className="text-sm text-white/60">{codeError}</p>
+                <p className="text-sm text-[var(--color-text-muted)]">{codeError}</p>
                 <Link
                   href="/forgot-password"
                   className="inline-block mt-2 text-sm text-[#B388FF] hover:underline"
@@ -149,12 +149,12 @@ function ResetPasswordContent() {
                 className="text-center space-y-4"
               >
                 <div className="flex justify-center mb-4">
-                  <div className="w-14 h-14 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center">
-                    <CheckCircle2 className="w-7 h-7 text-green-400" />
+                  <div className="w-14 h-14 rounded-full bg-[var(--color-success)]/10 border border-[var(--color-success)]/20 flex items-center justify-center">
+                    <CheckCircle2 className="w-7 h-7 text-[var(--color-success)]" />
                   </div>
                 </div>
-                <h2 className="text-xl font-medium text-white">Password changed!</h2>
-                <p className="text-sm text-white/60">
+                <h2 className="text-xl font-medium text-[var(--color-text)]">Password changed!</h2>
+                <p className="text-sm text-[var(--color-text-muted)]">
                   Your password has been updated successfully. You&apos;ll be redirected to sign in shortly.
                 </p>
                 <Link
@@ -183,7 +183,7 @@ function ResetPasswordContent() {
 
                 {/* New Password */}
                 <div>
-                  <label htmlFor="new-password" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">
+                  <label htmlFor="new-password" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">
                     New Password
                   </label>
                   <div className="relative">
@@ -194,13 +194,13 @@ function ResetPasswordContent() {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Min. 8 characters"
                       autoComplete="new-password"
-                      className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11 pr-10"
+                      className="bg-[var(--color-surface-2)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] h-11 pr-10"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-faint)] hover:text-[var(--color-text-muted)] transition-colors"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -213,7 +213,7 @@ function ResetPasswordContent() {
 
                 {/* Confirm Password */}
                 <div>
-                  <label htmlFor="confirm-password" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">
+                  <label htmlFor="confirm-password" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">
                     Confirm New Password
                   </label>
                   <div className="relative">
@@ -224,7 +224,7 @@ function ResetPasswordContent() {
                       onChange={(e) => setConfirm(e.target.value)}
                       placeholder="Repeat your password"
                       autoComplete="new-password"
-                      className={`bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11 pr-10 ${
+                      className={`bg-[var(--color-surface-2)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] h-11 pr-10 ${
                         confirm && !passwordsMatch ? "border-red-500/50" : ""
                       }`}
                       required
@@ -232,7 +232,7 @@ function ResetPasswordContent() {
                     <button
                       type="button"
                       onClick={() => setShowConfirm(v => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-faint)] hover:text-[var(--color-text-muted)] transition-colors"
                       aria-label={showConfirm ? "Hide password" : "Show password"}
                     >
                       {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -273,7 +273,7 @@ export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-[var(--color-border)] border-t-white/80 rounded-full animate-spin" />
       </div>
     }>
       <ResetPasswordContent />

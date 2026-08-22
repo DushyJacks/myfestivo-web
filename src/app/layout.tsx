@@ -89,8 +89,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)",  color: "#000000" },
-    { media: "(prefers-color-scheme: light)", color: "#000000" },
+    { media: "(prefers-color-scheme: dark)",  color: "#080A14" },
+    { media: "(prefers-color-scheme: light)", color: "#F8F7FC" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -104,12 +104,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // next-themes manages the `class` attribute — suppressHydrationWarning avoids mismatch
   return (
-    /* Dark mode is permanent — class is hardcoded, no script flash needed */
-    <html lang="en" className={`h-full antialiased dark ${poppins.variable} ${jetbrainsMono.variable}`} style={{ colorScheme: "dark", backgroundColor: "#000000" }} suppressHydrationWarning>
+    <html lang="en" className={`h-full antialiased ${poppins.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
-        {/* Force dark color scheme — prevents white flash on mobile Chrome/Safari */}
-        <meta name="color-scheme" content="dark" />
         {/* Favicon */}
         <link rel="icon" href="/favicon.jpg" type="image/jpeg" />
         <link rel="shortcut icon" href="/favicon.jpg" type="image/jpeg" />
@@ -177,19 +175,7 @@ export default function RootLayout({
           }}
         />
 
-        {/* Blocking script: runs before first paint to guarantee black background */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(){
-                var d = document.documentElement;
-                d.style.backgroundColor = '#000000';
-                d.style.colorScheme = 'dark';
-                document.body && (document.body.style.backgroundColor = '#000000');
-              })();
-            `,
-          }}
-        />
+        {/* next-themes handles theme flash prevention via its own inline script */}
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         {/* Skip to content link for accessibility */}
@@ -199,8 +185,8 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        <BackgroundWrapper />
         <Providers>
+          <BackgroundWrapper />
           <div className="relative z-10 flex-1 flex flex-col" id="main-content">
             {children}
           </div>

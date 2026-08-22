@@ -22,7 +22,7 @@ export function RichTextDisplay({ content, className = "" }: RichTextDisplayProp
         components={{
           // Paragraphs — preserve spacing
           p: ({ children }) => (
-            <p className="text-white/70 leading-relaxed text-[15px] mb-3 last:mb-0">{children}</p>
+            <p className="text-[var(--color-text-muted)] leading-relaxed text-[15px] mb-3 last:mb-0">{children}</p>
           ),
           // Unordered list
           ul: ({ children }) => (
@@ -34,28 +34,28 @@ export function RichTextDisplay({ content, className = "" }: RichTextDisplayProp
           ),
           // List items — custom bullet style to match the app aesthetic
           li: ({ children }) => (
-            <li className="flex items-start gap-2.5 text-white/70 text-[15px] leading-relaxed">
-              <span className="mt-2 w-1 h-1 rounded-full bg-white/40 shrink-0" />
+            <li className="flex items-start gap-2.5 text-[var(--color-text-muted)] text-[15px] leading-relaxed">
+              <span className="mt-2 w-1 h-1 rounded-full bg-[var(--color-surface-3)] shrink-0" />
               <span>{children}</span>
             </li>
           ),
           // Bold
           strong: ({ children }) => (
-            <strong className="text-white font-semibold">{children}</strong>
+            <strong className="text-[var(--color-text)] font-semibold">{children}</strong>
           ),
           // Italic
           em: ({ children }) => (
-            <em className="text-white/80 italic">{children}</em>
+            <em className="text-[var(--color-text)] italic">{children}</em>
           ),
           // Blockquote (used for highlighted info)
           blockquote: ({ children }) => (
-            <blockquote className="border-l-2 border-white/20 pl-4 text-white/50 italic mb-3 last:mb-0">
+            <blockquote className="border-l-2 border-[var(--color-border)] pl-4 text-[var(--color-text-muted)] italic mb-3 last:mb-0">
               {children}
             </blockquote>
           ),
           // Inline code
           code: ({ children }) => (
-            <code className="bg-white/[0.06] px-1.5 py-0.5 rounded text-[13px] font-mono text-white/70">
+            <code className="bg-[var(--color-surface-3)] px-1.5 py-0.5 rounded text-[13px] font-mono text-[var(--color-text-muted)]">
               {children}
             </code>
           ),

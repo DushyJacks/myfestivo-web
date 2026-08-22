@@ -44,7 +44,7 @@ export default function DashboardPage() {
 
   if (isLoading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+      <div className="w-6 h-6 border-2 border-[var(--color-border)] border-t-white rounded-full animate-spin" />
     </div>
   )
 
@@ -84,13 +84,13 @@ export default function DashboardPage() {
             <h1 className="text-3xl lg:text-4xl font-light tracking-tight">Hey, {user.name.split(" ")[0]}.</h1>
           </motion.div>
 
-          <motion.div variants={pageItem} className="flex gap-1 mb-10 border-b dark:border-white/[0.08] border-[rgba(179,136,255,0.15)] overflow-x-auto">
+          <motion.div variants={pageItem} className="flex gap-1 mb-10 border-b dark:border-[var(--color-border)] border-[rgba(179,136,255,0.15)] overflow-x-auto">
             {tabs.map(tab => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-3 text-sm transition-colors border-b-2 whitespace-nowrap ${
                   activeTab === tab.id
                     ? "text-[#B388FF] border-[#B388FF]"
-                    : "dark:text-white/40 text-[#6B6480] border-transparent hover:text-[#B388FF]/70"
+                    : "dark:text-[var(--color-text-faint)] text-[#6B6480] border-transparent hover:text-[#B388FF]/70"
                 }`}>
                 <tab.icon className="w-4 h-4" strokeWidth={1.5} />{tab.label}
               </button>
@@ -103,23 +103,23 @@ export default function DashboardPage() {
               <motion.div variants={pageItem} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-10">
                 <GlassCard className="p-5">
                   <div className="text-3xl font-light mb-1">{registeredEvents.length}</div>
-                  <div className="text-[11px] font-mono tracking-widest uppercase text-white/60">Registered</div>
+                  <div className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)]">Registered</div>
                 </GlassCard>
                 <GlassCard className="p-5">
                   <div className="text-3xl font-light mb-1">{hostedEvents.length}</div>
-                  <div className="text-[11px] font-mono tracking-widest uppercase text-white/60">Hosted</div>
+                  <div className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)]">Hosted</div>
                 </GlassCard>
                 <GlassCard className="p-5">
                   <div className="text-3xl font-light mb-1">{coordinatingEvents.length}</div>
-                  <div className="text-[11px] font-mono tracking-widest uppercase text-white/60">Coordinating</div>
+                  <div className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)]">Coordinating</div>
                 </GlassCard>
                 <GlassCard className="p-5">
                   <div className="text-3xl font-light mb-1 text-yellow-400">{pendingTasks.length}</div>
-                  <div className="text-[11px] font-mono tracking-widest uppercase text-white/60">Pending Tasks</div>
+                  <div className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)]">Pending Tasks</div>
                 </GlassCard>
                 <GlassCard className="p-5">
                   <div className="text-3xl font-light mb-1">{user.friends.length}</div>
-                  <div className="text-[11px] font-mono tracking-widest uppercase text-white/60">Friends</div>
+                  <div className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)]">Friends</div>
                 </GlassCard>
               </motion.div>
 
@@ -127,16 +127,16 @@ export default function DashboardPage() {
                 <Link href="/events">
                   <GlassCard className="p-6 hover:scale-[1.01] transition-transform cursor-pointer group">
                     <div className="flex items-center justify-between">
-                      <div><h3 className="font-medium mb-1">Browse Events</h3><p className="text-sm text-white/60">Find and register for upcoming events</p></div>
-                      <ChevronRight className="w-5 h-5 text-white/20 group-hover:text-white/60 transition-colors" />
+                      <div><h3 className="font-medium mb-1">Browse Events</h3><p className="text-sm text-[var(--color-text-muted)]">Find and register for upcoming events</p></div>
+                      <ChevronRight className="w-5 h-5 text-[var(--color-text-faint)] group-hover:text-[var(--color-text-muted)] transition-colors" />
                     </div>
                   </GlassCard>
                 </Link>
                 <Link href="/events/create">
                   <GlassCard className="p-6 hover:scale-[1.01] transition-transform cursor-pointer group">
                     <div className="flex items-center justify-between">
-                      <div><h3 className="font-medium mb-1">Host New Event</h3><p className="text-sm text-white/60">Create and manage your own event</p></div>
-                      <ChevronRight className="w-5 h-5 text-white/20 group-hover:text-white/60 transition-colors" />
+                      <div><h3 className="font-medium mb-1">Host New Event</h3><p className="text-sm text-[var(--color-text-muted)]">Create and manage your own event</p></div>
+                      <ChevronRight className="w-5 h-5 text-[var(--color-text-faint)] group-hover:text-[var(--color-text-muted)] transition-colors" />
                     </div>
                   </GlassCard>
                 </Link>
@@ -151,7 +151,7 @@ export default function DashboardPage() {
                         <GlassCard key={r.id} className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                           <div>
                             <h3 className="font-medium text-sm">{event.title} - {se?.name}</h3>
-                            <p className="text-xs text-white/50 mt-1">Invited by {r.userName} ({r.teamName})</p>
+                            <p className="text-xs text-[var(--color-text-muted)] mt-1">Invited by {r.userName} ({r.teamName})</p>
                           </div>
                           <div className="flex gap-2 w-full sm:w-auto">
                             <Button size="sm" variant="outline" className="flex-1 sm:flex-none h-8 border-red-500/30 text-red-400 hover:bg-red-500/10" onClick={() => setConfirmDialog({ action: "decline", eventId: event.id, regId: r.id, email: user.email, eventTitle: event.title, seName: se?.name || "", teamName: r.teamName || "" })}>Decline</Button>
@@ -170,18 +170,18 @@ export default function DashboardPage() {
                   <div className="space-y-2">
                     {pendingTasks.slice(0, 5).map(t => (
                       <Link key={t.id} href={`/events/${t.eventId}`}>
-                        <GlassCard className="p-4 hover:bg-white/[0.04] transition-colors cursor-pointer flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-md flex items-center justify-center ${t.status === "IN_PROGRESS" ? 'bg-yellow-500/10' : 'bg-white/[0.05]'}`}>
-                            {t.status === "IN_PROGRESS" ? <Clock className="w-4 h-4 text-yellow-400" /> : <CheckSquare className="w-4 h-4 text-white/30" />}
+                        <GlassCard className="p-4 hover:bg-[var(--color-surface-3)] transition-colors cursor-pointer flex items-center gap-3">
+                          <div className={`w-8 h-8 rounded-md flex items-center justify-center ${t.status === "IN_PROGRESS" ? 'bg-yellow-500/10' : 'bg-[var(--color-surface-3)]'}`}>
+                            {t.status === "IN_PROGRESS" ? <Clock className="w-4 h-4 text-yellow-400" /> : <CheckSquare className="w-4 h-4 text-[var(--color-text-faint)]" />}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium">{t.title}</p>
                             <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-mono text-white/50">{t.eventTitle}</span>
-                              {t.deadline && <span className={`text-[10px] font-mono flex items-center gap-0.5 ${new Date(t.deadline) < new Date() ? 'text-red-400' : 'text-white/50'}`}><CalendarDays className="w-3 h-3" /> {t.deadline}</span>}
+                              <span className="text-[10px] font-mono text-[var(--color-text-muted)]">{t.eventTitle}</span>
+                              {t.deadline && <span className={`text-[10px] font-mono flex items-center gap-0.5 ${new Date(t.deadline) < new Date() ? 'text-red-400' : 'text-[var(--color-text-muted)]'}`}><CalendarDays className="w-3 h-3" /> {t.deadline}</span>}
                             </div>
                           </div>
-                          <span className={`text-[9px] font-mono px-2 py-0.5 rounded border ${t.status === "IN_PROGRESS" ? "border-yellow-500/30 text-yellow-400" : "border-white/20 text-white/40"}`}>{t.status.replace("_", " ")}</span>
+                          <span className={`text-[9px] font-mono px-2 py-0.5 rounded border ${t.status === "IN_PROGRESS" ? "border-yellow-500/30 text-yellow-400" : "border-[var(--color-border)] text-[var(--color-text-faint)]"}`}>{t.status.replace("_", " ")}</span>
                         </GlassCard>
                       </Link>
                     ))}
@@ -197,7 +197,7 @@ export default function DashboardPage() {
               <MicroLabel>My Tickets & QR Passes</MicroLabel>
               {registeredEvents.length === 0 ? (
                 <GlassCard className="p-8 text-center">
-                  <p className="font-mono text-white/40 text-lg mb-4">No tickets yet</p>
+                  <p className="font-mono text-[var(--color-text-faint)] text-lg mb-4">No tickets yet</p>
                   <Link href="/events"><Button className="bg-white text-black hover:bg-[#B388FF]">Browse Events</Button></Link>
                 </GlassCard>
               ) : (
@@ -209,41 +209,41 @@ export default function DashboardPage() {
                         <div className="flex justify-between items-start mb-4">
                           <div>
                             <h3 className="text-lg font-medium mb-1">{evt.title}</h3>
-                            <p className="text-xs font-mono text-white/60">{formatDateDisplay(evt.date)}{evt.hasTime && evt.time ? ` at ${formatTimeDisplay(evt.time)}` : ''} &mdash; {evt.venue}</p>
+                            <p className="text-xs font-mono text-[var(--color-text-muted)]">{formatDateDisplay(evt.date)}{evt.hasTime && evt.time ? ` at ${formatTimeDisplay(evt.time)}` : ''} &mdash; {evt.venue}</p>
                           </div>
                           <Link href={`/events/${evt.id}`}>
-                            <Button variant="outline" className="border-white/20 text-white text-xs">View Event</Button>
+                            <Button variant="outline" className="border-[var(--color-border)] text-[var(--color-text)] text-xs">View Event</Button>
                           </Link>
                         </div>
                         {myRegs.map(reg => {
                           const subEvt = evt.subEvents.find(se => se.id === reg.subEventId)
                           const isOpen = showQR === reg.id
                           return (
-                            <div key={reg.id} className="mb-3 p-3 rounded-md bg-white/[0.02] border border-white/[0.06]">
+                            <div key={reg.id} className="mb-3 p-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)]">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                   <div className="flex-1">
                                     <p className="text-sm">{subEvt?.name || "Sub-Event"}</p>
-                                    {reg.teamName && <p className="text-xs text-white/40">Team: {reg.teamName}</p>}
+                                    {reg.teamName && <p className="text-xs text-[var(--color-text-faint)]">Team: {reg.teamName}</p>}
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <span className={`font-mono text-[10px] px-2 py-0.5 border rounded ${reg.status === "PAID" || reg.status === "FREE" ? "border-green-500/30 text-green-400" : reg.status === "PENDING" ? "border-yellow-500/30 text-yellow-400" : "border-white/20 text-white/40"}`}>
+                                  <span className={`font-mono text-[10px] px-2 py-0.5 border rounded ${reg.status === "PAID" || reg.status === "FREE" ? "border-[var(--color-success)]/30 text-[var(--color-success)]" : reg.status === "PENDING" ? "border-yellow-500/30 text-yellow-400" : "border-[var(--color-border)] text-[var(--color-text-faint)]"}`}>
                                     {reg.status === "PAID" || reg.status === "FREE" ? "REGISTERED" : reg.status}
                                   </span>
-                                  {reg.checkedIn && <span className="text-[10px] font-mono text-green-400 flex items-center gap-1"><CheckSquare className="w-3 h-3" />Checked In</span>}
-                                  <button onClick={() => setShowQR(isOpen ? null : reg.id)} aria-label={isOpen ? "Hide QR pass" : "Show QR pass"} className="flex items-center gap-1 text-xs text-white/50 hover:text-white border border-white/20 rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40">
+                                  {reg.checkedIn && <span className="text-[10px] font-mono text-[var(--color-success)] flex items-center gap-1"><CheckSquare className="w-3 h-3" />Checked In</span>}
+                                  <button onClick={() => setShowQR(isOpen ? null : reg.id)} aria-label={isOpen ? "Hide QR pass" : "Show QR pass"} className="flex items-center gap-1 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text)] border border-[var(--color-border)] rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40">
                                     <QrCode className="w-3 h-3" aria-hidden="true" />{isOpen ? "Hide" : "QR Pass"}
                                   </button>
                                 </div>
                               </div>
                               {isOpen && (
-                                <div className="mt-4 flex flex-col items-center pt-4 border-t border-white/[0.06]">
+                                <div className="mt-4 flex flex-col items-center pt-4 border-t border-[var(--color-border)]">
                                   <div className="p-4 bg-white rounded-lg mb-3">
                                     <QRCodeSVG value={`MYFESTIVO:${evt.id}:${reg.subEventId}:${reg.id}`} size={160} />
                                   </div>
-                                  <p className="text-[10px] font-mono text-white/50">{reg.id}</p>
-                                  <p className="text-[10px] font-mono text-white/50">Show this at check-in</p>
+                                  <p className="text-[10px] font-mono text-[var(--color-text-muted)]">{reg.id}</p>
+                                  <p className="text-[10px] font-mono text-[var(--color-text-muted)]">Show this at check-in</p>
                                 </div>
                               )}
                             </div>
@@ -266,7 +266,7 @@ export default function DashboardPage() {
               </div>
               {hostedEvents.length === 0 ? (
                 <GlassCard className="p-8 text-center">
-                  <p className="font-mono text-white/40 text-lg mb-4">No events hosted yet</p>
+                  <p className="font-mono text-[var(--color-text-faint)] text-lg mb-4">No events hosted yet</p>
                   <Link href="/events/create"><Button className="bg-white text-black hover:bg-[#B388FF]">Host Your First Event</Button></Link>
                 </GlassCard>
               ) : (
@@ -276,11 +276,11 @@ export default function DashboardPage() {
                       {/* Top row: title + date */}
                       <div className="mb-3">
                         <h3 className="text-base font-semibold truncate mb-0.5">{evt.title}</h3>
-                        <p className="text-[11px] font-mono text-white/60">{formatDateDisplay(evt.date)}{(evt as any).hasTime && (evt as any).time ? ` at ${formatTimeDisplay((evt as any).time)}` : ''}</p>
+                        <p className="text-[11px] font-mono text-[var(--color-text-muted)]">{formatDateDisplay(evt.date)}{(evt as any).hasTime && (evt as any).time ? ` at ${formatTimeDisplay((evt as any).time)}` : ''}</p>
                       </div>
 
                       {/* Stats — 2×2 grid on mobile, single row on sm+ */}
-                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-4 gap-y-2 text-xs text-white/70 mb-4">
+                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-4 gap-y-2 text-xs text-[var(--color-text-muted)] mb-4">
                         <span className="flex items-center gap-1">
                           <Users className="w-3 h-3 shrink-0" />
                           <span>{evt.registrations.filter(r => r.status !== "DRAFT").length} registrations</span>
@@ -302,12 +302,12 @@ export default function DashboardPage() {
                       {/* Action buttons — stack on mobile, row on sm+ */}
                       <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
                         <Link href={`/events/${evt.id}/edit`} className="flex-1 sm:flex-none">
-                          <Button variant="outline" className="w-full sm:w-auto border-white/20 text-white text-xs h-9 px-4 hover:bg-white/10">
+                          <Button variant="outline" className="w-full sm:w-auto border-[var(--color-border)] text-[var(--color-text)] text-xs h-9 px-4 hover:bg-[var(--color-surface-3)]">
                             <Pencil className="w-3 h-3 mr-1.5" />Edit
                           </Button>
                         </Link>
                         <Link href={`/events/${evt.id}`} className="flex-1 sm:flex-none">
-                          <Button variant="ghost" className="w-full sm:w-auto text-white/50 hover:text-white text-xs h-9 px-4">
+                          <Button variant="ghost" className="w-full sm:w-auto text-[var(--color-text-muted)] hover:text-[var(--color-text)] text-xs h-9 px-4">
                             View<ChevronRight className="w-4 h-4 ml-1" />
                           </Button>
                         </Link>
@@ -325,8 +325,8 @@ export default function DashboardPage() {
               <MicroLabel>My Assigned Tasks</MicroLabel>
               {myTasks.length === 0 ? (
                 <GlassCard className="p-8 text-center">
-                  <p className="font-mono text-white/40 text-lg mb-4">No tasks assigned</p>
-                  <p className="text-sm text-white/50">Tasks assigned to you by event organizers will appear here.</p>
+                  <p className="font-mono text-[var(--color-text-faint)] text-lg mb-4">No tasks assigned</p>
+                  <p className="text-sm text-[var(--color-text-muted)]">Tasks assigned to you by event organizers will appear here.</p>
                 </GlassCard>
               ) : (
                 <TaskBoard
@@ -364,20 +364,20 @@ export default function DashboardPage() {
 
       {/* Confirmation Dialog for Team Invitations */}
       {confirmDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--color-surface)]/60 backdrop-blur-sm">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden shadow-2xl"
+            className="w-full max-w-md bg-[#0A0A0A] border border-[var(--color-border)] rounded-xl overflow-hidden shadow-2xl"
           >
             <div className="p-6">
               <h2 className="text-xl font-medium mb-2">Confirm {confirmDialog.action === "accept" ? "Acceptance" : "Decline"}</h2>
-              <p className="text-sm text-white/60 mb-6">
+              <p className="text-sm text-[var(--color-text-muted)] mb-6">
                 Are you sure you want to {confirmDialog.action} the invitation for <strong>{confirmDialog.eventTitle}</strong> ({confirmDialog.seName}) from team <strong>{confirmDialog.teamName}</strong>?
               </p>
               
               <div className="flex gap-3 justify-end">
-                <Button variant="outline" className="border-white/20" onClick={() => setConfirmDialog(null)}>
+                <Button variant="outline" className="border-[var(--color-border)]" onClick={() => setConfirmDialog(null)}>
                   Cancel
                 </Button>
                 {confirmDialog.action === "accept" ? (

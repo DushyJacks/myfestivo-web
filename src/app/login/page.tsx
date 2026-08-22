@@ -63,7 +63,7 @@ export default function LoginPage() {
             </Link>
             <MicroLabel>Sign In</MicroLabel>
             <h1 className="text-4xl font-light tracking-tight mb-2">Welcome back.</h1>
-            <p className="text-white/40 text-sm">Enter your credentials to continue.</p>
+            <p className="text-[var(--color-text-muted)] text-sm">Enter your credentials to continue.</p>
           </div>
 
           <GlassCard className="p-8">
@@ -76,7 +76,7 @@ export default function LoginPage() {
               )}
 
               <div>
-                <label htmlFor="email" className="text-[11px] font-mono tracking-widest uppercase text-white/75 mb-2 block">
+                <label htmlFor="email" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">
                   Email Address
                 </label>
                 <Input
@@ -87,19 +87,19 @@ export default function LoginPage() {
                   placeholder="you@gmail.com"
                   autoComplete="email"
                   spellCheck={false}
-                  className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11"
+                  className="bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] h-11"
                   required
                 />
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label htmlFor="password" className="text-[11px] font-mono tracking-widest uppercase text-white/75">
+                  <label htmlFor="password" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)]">
                     Password
                   </label>
                   <Link
                     href="/forgot-password"
-                    className="text-[11px] font-mono text-white/40 hover:text-[#B388FF] transition-colors"
+                    className="text-[11px] font-mono text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors"
                   >
                     Forgot password?
                   </Link>
@@ -111,7 +111,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="current-password"
-                  className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11"
+                  className="bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] h-11"
                   required
                 />
               </div>
@@ -121,7 +121,7 @@ export default function LoginPage() {
                 type="submit"
                 disabled={loading}
                 aria-label={loading ? "Signing in..." : "Sign in"}
-                className="w-full bg-white text-black hover:bg-[#B388FF] font-medium h-12 transition-colors disabled:opacity-50"
+                className="w-full bg-[var(--color-accent)] text-[var(--color-text)] hover:opacity-90 font-medium h-12 transition-all shadow-md disabled:opacity-50"
               >
                 {loading ? (
                   <span className="inline-flex items-center gap-2">
@@ -138,9 +138,9 @@ export default function LoginPage() {
             </form>
 
             <div className="my-6 flex items-center gap-4" aria-hidden="true">
-              <div className="flex-1 h-px bg-white/[0.08]" />
-              <span className="text-[10px] font-mono tracking-widest uppercase text-white/60">or</span>
-              <div className="flex-1 h-px bg-white/[0.08]" />
+              <div className="flex-1 h-px bg-[var(--color-border)]" />
+              <span className="text-[10px] font-mono tracking-widest uppercase text-[var(--color-text-muted)]">or</span>
+              <div className="flex-1 h-px bg-[var(--color-border)]" />
             </div>
 
             <Button
@@ -168,11 +168,11 @@ export default function LoginPage() {
                 }
                 setGoogleLoading(false)
               }}
-              className="w-full bg-white/[0.05] border border-white/[0.1] text-white hover:bg-white/[0.1] font-medium h-12 transition-colors disabled:opacity-50"
+              className="w-full bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] hover:bg-[var(--color-accent-low)] font-medium h-12 transition-colors disabled:opacity-50"
             >
               {googleLoading ? (
                 <span className="inline-flex items-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" aria-hidden="true" />
+                  <span className="w-4 h-4 border-2 border-[var(--color-border)] border-t-white rounded-full animate-spin" aria-hidden="true" />
                   <span>Connecting…</span>
                 </span>
               ) : (
@@ -189,9 +189,9 @@ export default function LoginPage() {
               )}
             </Button>
 
-            <div className="mt-6 pt-6 border-t border-white/[0.06] text-center text-sm text-white/70">
+            <div className="mt-6 pt-6 border-t border-[var(--color-border)] text-center text-sm text-[var(--color-text-muted)]">
               No account?{" "}
-              <Link href="/signup" className="text-white hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/50">
+              <Link href="/signup" className="text-[var(--color-accent)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-accent)]">
                 Sign up
               </Link>
             </div>

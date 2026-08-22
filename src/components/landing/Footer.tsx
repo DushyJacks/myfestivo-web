@@ -1,13 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { Mail, MessageSquare, MapPin, Phone } from "lucide-react"
+import { Mail, MessageSquare } from "lucide-react"
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-black/80 backdrop-blur-md border-t border-white/[0.06] mt-24 safe-padding">
+    <footer className="glass-surface mt-24 safe-padding">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         {/* Main footer content */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-8 md:mb-12">
@@ -17,14 +17,14 @@ export function Footer() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.png" alt="MyFestivo" className="h-8 w-auto" width={100} height={32} loading="lazy" decoding="async" />
             </Link>
-            <p className="text-sm text-white/60 mb-4">
+            <p className="text-sm text-[var(--color-text-muted)] mb-4">
               Built for college events that actually happen. One platform. All events.
             </p>
             <div className="flex gap-3">
-              <a href="mailto:myfestivo@gmail.com" aria-label="Email us" className="p-2 rounded-md bg-white/[0.05] hover:bg-white/[0.1] transition-colors text-white/60 hover:text-white">
+              <a href="mailto:myfestivo@gmail.com" aria-label="Email us" className="p-2 rounded-md bg-[var(--color-surface-2)] hover:bg-[var(--color-accent-low)] transition-colors text-[var(--color-text-muted)] hover:text-[var(--color-accent)]">
                 <Mail className="w-4 h-4" aria-hidden="true" />
               </a>
-              <a href="https://twitter.com" aria-label="Follow on Twitter" target="_blank" rel="noopener noreferrer" className="p-2 rounded-md bg-white/[0.05] hover:bg-white/[0.1] transition-colors text-white/60 hover:text-white">
+              <a href="https://twitter.com" aria-label="Follow on Twitter" target="_blank" rel="noopener noreferrer" className="p-2 rounded-md bg-[var(--color-surface-2)] hover:bg-[var(--color-accent-low)] transition-colors text-[var(--color-text-muted)] hover:text-[var(--color-accent)]">
                 <MessageSquare className="w-4 h-4" aria-hidden="true" />
               </a>
             </div>
@@ -32,20 +32,20 @@ export function Footer() {
 
           {/* Product links */}
           <div>
-            <h3 className="text-xs font-mono tracking-widest uppercase text-white/40 mb-4 sr-only">Product</h3>
+            <h3 className="text-xs font-mono tracking-widest uppercase text-[var(--color-text-faint)] mb-4 sr-only">Product</h3>
             <ul className="space-y-2.5">
               <li>
-                <Link href="/events" className="text-sm text-white/60 hover:text-white transition-colors">
+                <Link href="/events" className="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
                   Browse Events
                 </Link>
               </li>
               <li>
-                <Link href="/events/create" className="text-sm text-white/60 hover:text-white transition-colors">
+                <Link href="/events/create" className="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
                   Host Event
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm text-white/60 hover:text-white transition-colors">
+                <Link href="#" className="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
                   Features
                 </Link>
               </li>
@@ -54,20 +54,20 @@ export function Footer() {
 
           {/* Company links */}
           <div>
-            <h3 className="text-xs font-mono tracking-widest uppercase text-white/40 mb-4 sr-only">Company</h3>
+            <h3 className="text-xs font-mono tracking-widest uppercase text-[var(--color-text-faint)] mb-4 sr-only">Company</h3>
             <ul className="space-y-2.5">
               <li>
-                <Link href="#" className="text-sm text-white/60 hover:text-white transition-colors">
+                <Link href="#" className="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
                   About
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm text-white/60 hover:text-white transition-colors">
+                <Link href="#" className="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
                   Blog
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm text-white/60 hover:text-white transition-colors">
+                <Link href="#" className="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
                   Contact
                 </Link>
               </li>
@@ -76,20 +76,20 @@ export function Footer() {
 
           {/* Legal links */}
           <div>
-            <h3 className="text-xs font-mono tracking-widest uppercase text-white/40 mb-4">Legal</h3>
+            <h3 className="text-xs font-mono tracking-widest uppercase text-[var(--color-text-faint)] mb-4">Legal</h3>
             <ul className="space-y-2.5">
               <li>
-                <Link href="/privacy-policy" className="text-sm text-white/60 hover:text-white transition-colors">
+                <Link href="/privacy-policy" className="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-sm text-white/60 hover:text-white transition-colors">
+                <Link href="/terms" className="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
                   Terms &amp; Conditions
                 </Link>
               </li>
               <li>
-                <Link href="/sitemap-page" className="text-sm text-white/60 hover:text-white transition-colors">
+                <Link href="/sitemap-page" className="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
                   Site Map
                 </Link>
               </li>
@@ -98,11 +98,11 @@ export function Footer() {
         </div>
 
         {/* Bottom footer */}
-        <div className="border-t border-white/[0.06] pt-8 md:pt-12 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-white/40">
+        <div className="border-t border-[var(--color-border)] pt-8 md:pt-12 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-[var(--color-text-faint)]">
           <p>© {currentYear} MyFestivo. All rights reserved.</p>
           <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
-            <Link href="/privacy-policy" className="hover:text-white/70 transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-white/70 transition-colors">Terms &amp; Conditions</Link>
+            <Link href="/privacy-policy" className="hover:text-[var(--color-text-muted)] transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-[var(--color-text-muted)] transition-colors">Terms &amp; Conditions</Link>
           </div>
         </div>
       </div>

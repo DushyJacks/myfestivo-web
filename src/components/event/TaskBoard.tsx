@@ -26,9 +26,9 @@ interface TaskBoardProps {
 }
 
 const TASK_STATUSES: { status: TaskStatus; label: string; color: string; borderColor: string; accentColor: string }[] = [
-  { status: "TODO", label: "To Do", color: "bg-gradient-to-br from-white/[0.02] to-white/[0.005]", borderColor: "border-white/[0.08]", accentColor: "text-white/40" },
+  { status: "TODO", label: "To Do", color: "bg-gradient-to-br from-white/[0.02] to-white/[0.005]", borderColor: "border-[var(--color-border)]", accentColor: "text-[var(--color-text-faint)]" },
   { status: "IN_PROGRESS", label: "In Progress", color: "bg-gradient-to-br from-yellow-500/[0.02] to-yellow-500/[0.005]", borderColor: "border-yellow-500/[0.15]", accentColor: "text-yellow-400/70" },
-  { status: "DONE", label: "Done", color: "bg-gradient-to-br from-green-500/[0.02] to-green-500/[0.005]", borderColor: "border-green-500/[0.15]", accentColor: "text-green-400/70" },
+  { status: "DONE", label: "Done", color: "bg-gradient-to-br from-green-500/[0.02] to-green-500/[0.005]", borderColor: "border-green-500/[0.15]", accentColor: "text-[var(--color-success)]/70" },
 ]
 
 function DraggableTaskCard({
@@ -64,10 +64,10 @@ function DraggableTaskCard({
         <div
           className={`p-4 rounded-xl cursor-move transition-all duration-300 border backdrop-blur-sm ${
             isSortableDragging
-              ? "border-white/30 bg-white/[0.08] shadow-xl shadow-white/20 scale-105"
+              ? "border-[var(--color-border-focus)] bg-[var(--color-surface-3)] shadow-xl shadow-white/20 scale-105"
               : isOverdue
               ? "border-red-500/40 bg-gradient-to-br from-red-500/[0.08] to-red-500/[0.03]"
-              : "border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.12]"
+              : "border-[var(--color-border)] bg-[var(--color-surface-2)] hover:bg-[var(--color-surface-3)] hover:border-[var(--color-border-muted)]"
           }`}
         >
           <div className="flex items-start gap-3">
@@ -80,23 +80,23 @@ function DraggableTaskCard({
               whileHover={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.2 }}
             >
-              <GripVertical className="w-4 h-4 text-white/25 hover:text-white/45 transition-colors duration-200" />
+              <GripVertical className="w-4 h-4 text-[var(--color-text-faint)] hover:text-[var(--color-text-faint)] transition-colors duration-200" />
             </motion.div>
 
             {/* Task Content */}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium mb-2 line-clamp-2 text-white/90 group-hover:text-white transition-colors duration-200">
+              <p className="text-sm font-medium mb-2 line-clamp-2 text-[var(--color-text)] group-hover:text-[var(--color-text)] transition-colors duration-200">
                 {task.title}
               </p>
               {task.description && (
-                <p className="text-[10px] text-white/35 mb-2 line-clamp-2">
+                <p className="text-[10px] text-[var(--color-text-faint)] mb-2 line-clamp-2">
                   {task.description}
                 </p>
               )}
 
               {/* Tags and Metadata */}
               <div className="flex flex-wrap gap-1.5 items-center">
-                <span className="text-[9px] font-mono bg-white/[0.04] px-2 py-0.5 rounded text-white/35 group-hover:bg-white/[0.06] transition-all duration-200">
+                <span className="text-[9px] font-mono bg-[var(--color-surface-3)] px-2 py-0.5 rounded text-[var(--color-text-faint)] group-hover:bg-[var(--color-surface-3)] transition-all duration-200">
                   {task.eventTitle}
                 </span>
                 {task.deadline && (
@@ -106,7 +106,7 @@ function DraggableTaskCard({
                     className={`text-[9px] font-mono px-2 py-0.5 rounded flex items-center gap-1 transition-all duration-200 ${
                       isOverdue
                         ? "bg-red-500/15 text-red-300 group-hover:bg-red-500/25"
-                        : "bg-white/[0.04] text-white/35 group-hover:bg-white/[0.06]"
+                        : "bg-[var(--color-surface-3)] text-[var(--color-text-faint)] group-hover:bg-[var(--color-surface-3)]"
                     }`}
                   >
                     <CalendarDays className="w-3 h-3" />
@@ -147,20 +147,20 @@ function TaskColumn({ status, label, color, borderColor, accentColor, tasks, onR
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className={`rounded-2xl border ${borderColor} ${color} p-6 min-h-[450px] flex flex-col transition-all duration-300 hover:border-white/[0.16] hover:shadow-lg hover:shadow-white/[0.05] backdrop-blur-sm`}
+      className={`rounded-2xl border ${borderColor} ${color} p-6 min-h-[450px] flex flex-col transition-all duration-300 hover:border-[var(--color-border-muted)] hover:shadow-lg hover:shadow-white/[0.05] backdrop-blur-sm`}
     >
       {/* Column Header */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.1 }}
-        className="flex items-center justify-between mb-6 pb-5 border-b border-white/[0.08]"
+        className="flex items-center justify-between mb-6 pb-5 border-b border-[var(--color-border)]"
       >
         <div>
           <h3 className={`text-sm font-semibold ${accentColor} tracking-wide transition-colors duration-200`}>
             {label}
           </h3>
-          <p className="text-[10px] font-mono text-white/25 mt-1">
+          <p className="text-[10px] font-mono text-[var(--color-text-faint)] mt-1">
             {tasks.length === 1
               ? "1 task"
               : tasks.length === 0
@@ -213,11 +213,11 @@ function TaskColumn({ status, label, color, borderColor, accentColor, tasks, onR
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="flex items-center justify-center h-32 rounded-xl border-2 border-dashed border-white/[0.05]"
+                className="flex items-center justify-center h-32 rounded-xl border-2 border-dashed border-[var(--color-border)]"
               >
                 <div className="text-center">
-                  <p className="text-[11px] font-mono text-white/15 uppercase tracking-widest">No tasks yet</p>
-                  <p className="text-[9px] font-mono text-white/10 mt-1">Drag tasks here</p>
+                  <p className="text-[11px] font-mono text-[var(--color-text-faint)] uppercase tracking-widest">No tasks yet</p>
+                  <p className="text-[9px] font-mono text-[var(--color-text-faint)] mt-1">Drag tasks here</p>
                 </div>
               </motion.div>
             )}

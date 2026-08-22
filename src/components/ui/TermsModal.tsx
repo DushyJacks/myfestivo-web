@@ -557,15 +557,15 @@ Last updated: July 5, 2026`
 
 function renderMarkdown(md: string): string {
   return md
-    .replace(/^# (.+)$/gm, '<h2 class="text-base font-bold text-white mb-3 mt-2">$1</h2>')
-    .replace(/^## (.+)$/gm, '<h3 class="text-sm font-semibold text-[#B388FF] mt-5 mb-2">$1</h3>')
-    .replace(/^### (.+)$/gm, '<h4 class="text-xs font-semibold text-white/80 mt-4 mb-1.5">$1</h4>')
-    .replace(/^#### (.+)$/gm, '<h5 class="text-xs font-medium text-white/70 mt-3 mb-1">$1</h5>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white/90 font-semibold">$1</strong>')
-    .replace(/^- (.+)$/gm, '<li class="ml-4 text-white/60 text-[13px] leading-relaxed list-disc my-0.5">$1</li>')
-    .replace(/^\d+\. (.+)$/gm, '<li class="ml-4 text-white/60 text-[13px] leading-relaxed list-decimal my-0.5">$1</li>')
-    .replace(/^---$/gm, '<hr class="border-white/[0.06] my-4" />')
-    .replace(/\n{2,}/g, '</p><p class="text-white/55 text-[13px] leading-relaxed mt-2">')
+    .replace(/^# (.+)$/gm, '<h2 class="text-base font-bold text-[var(--color-text)] mb-3 mt-2">$1</h2>')
+    .replace(/^## (.+)$/gm, '<h3 class="text-sm font-semibold text-[var(--color-accent)] mt-5 mb-2">$1</h3>')
+    .replace(/^### (.+)$/gm, '<h4 class="text-xs font-semibold text-[var(--color-text-muted)] mt-4 mb-1.5">$1</h4>')
+    .replace(/^#### (.+)$/gm, '<h5 class="text-xs font-medium text-[var(--color-text-muted)] mt-3 mb-1">$1</h5>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-[var(--color-text)] font-semibold">$1</strong>')
+    .replace(/^- (.+)$/gm, '<li class="ml-4 text-[var(--color-text-muted)] text-[13px] leading-relaxed list-disc my-0.5">$1</li>')
+    .replace(/^\d+\. (.+)$/gm, '<li class="ml-4 text-[var(--color-text-muted)] text-[13px] leading-relaxed list-decimal my-0.5">$1</li>')
+    .replace(/^---$/gm, '<hr class="border-[var(--color-border-muted)] my-4" />')
+    .replace(/\n{2,}/g, '</p><p class="text-[var(--color-text-muted)] text-[13px] leading-relaxed mt-2">')
     .replace(/^(?!<)(.+)/gm, '<span>$1</span>')
 }
 
@@ -585,7 +585,7 @@ function DocumentModal({ title, icon, content, onClose }: DocumentModalProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[400] flex items-center justify-center px-4 py-8 bg-black/90 backdrop-blur-sm"
+      className="fixed inset-0 z-[400] flex items-center justify-center px-4 py-8 bg-[var(--color-surface)] shadow-lg backdrop-blur-sm"
       onClick={onClose}
     >
       <motion.div
@@ -599,13 +599,13 @@ function DocumentModal({ title, icon, content, onClose }: DocumentModalProps) {
       >
         <GlassCard className="p-0 overflow-hidden border border-[rgba(179,136,255,0.2)] flex flex-col max-h-[90dvh]">
           {/* Header */}
-          <div className="flex items-center gap-3 px-6 py-4 border-b border-white/[0.06] bg-gradient-to-r from-[rgba(179,136,255,0.08)] to-transparent shrink-0">
-            <span className="text-[#B388FF]">{icon}</span>
-            <span className="text-sm font-semibold text-white flex-1">{title}</span>
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-[var(--color-border-muted)] bg-gradient-to-r from-[rgba(179,136,255,0.08)] to-transparent shrink-0">
+            <span className="text-[var(--color-accent)]">{icon}</span>
+            <span className="text-sm font-semibold text-[var(--color-text)] flex-1">{title}</span>
             <button
               onClick={onClose}
               aria-label="Close"
-              className="w-8 h-8 rounded-md flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.06] transition-colors"
+              className="w-8 h-8 rounded-md flex items-center justify-center text-[var(--color-text-faint)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-2)] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -614,15 +614,15 @@ function DocumentModal({ title, icon, content, onClose }: DocumentModalProps) {
           {/* Scrollable body */}
           <div className="flex-1 overflow-y-auto px-6 py-5 scroll-smooth">
             <div
-              className="prose prose-invert max-w-none text-white/60 text-[13px] leading-relaxed"
+              className="prose max-w-none text-[var(--color-text-muted)] text-[13px] leading-relaxed"
               dangerouslySetInnerHTML={{
-                __html: `<p class="text-white/55 text-[13px] leading-relaxed">${renderMarkdown(content.trim())}</p>`
+                __html: `<p class="text-[var(--color-text-muted)] text-[13px] leading-relaxed">${renderMarkdown(content.trim())}</p>`
               }}
             />
           </div>
 
           {/* Footer */}
-          <div className="shrink-0 px-6 py-4 border-t border-white/[0.06] bg-black/20 flex justify-end">
+          <div className="shrink-0 px-6 py-4 border-t border-[var(--color-border)] bg-black/20 flex justify-end">
             <Button
               onClick={onClose}
               className="bg-[#B388FF] text-black hover:bg-[#c9a9ff] font-semibold h-9 px-6"
@@ -667,13 +667,13 @@ export function InlineLegalCheckboxes({
         onClick={() => onChange(!checked)}
         className={`w-5 h-5 rounded border flex-shrink-0 mt-0.5 flex items-center justify-center transition-all ${
           checked
-            ? 'bg-[#B388FF] border-[#B388FF]'
-            : 'border-white/20 bg-white/[0.03] group-hover:border-white/40'
+            ? 'bg-[var(--color-accent)] border-[var(--color-accent)]'
+            : 'border-[var(--color-border)] bg-[var(--color-surface-2)] group-hover:border-[var(--color-border-focus)]'
         }`}
       >
         {checked && <Check className="w-3 h-3 text-black" strokeWidth={3} />}
       </button>
-      <span className="text-[12px] text-white/50 group-hover:text-white/70 transition-colors leading-relaxed">
+      <span className="text-[12px] text-[var(--color-text-muted)] group-hover:text-[var(--color-text)] transition-colors leading-relaxed">
         {children}
       </span>
     </label>

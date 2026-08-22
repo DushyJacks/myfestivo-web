@@ -116,18 +116,18 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
   }
 
   return (
-    <div className="flex flex-col h-[600px] bg-white/[0.01] border border-white/[0.06] rounded-lg">
+    <div className="flex flex-col h-[600px] bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-white/[0.06]">
-        <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Channel</p>
-        <p className="font-medium text-white"># {channelLabel}</p>
+      <div className="px-4 py-3 border-b border-[var(--color-border)]">
+        <p className="text-[10px] font-mono text-[var(--color-text-faint)] tracking-widest uppercase mb-1">Channel</p>
+        <p className="font-medium text-[var(--color-text)]"># {channelLabel}</p>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {filtered.length === 0 && (
           <div className="flex items-center justify-center h-full">
-            <p className="text-white/20 text-sm font-mono text-center">No messages yet. Start the conversation!</p>
+            <p className="text-[var(--color-text-faint)] text-sm font-mono text-center">No messages yet. Start the conversation!</p>
           </div>
         )}
         {filtered.map((m, idx) => {
@@ -143,7 +143,7 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
               {/* WhatsApp-style date separator */}
               {showDateSeparator && (
                 <div className="flex items-center justify-center my-4">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-mono text-white/40 bg-white/[0.05] border border-white/[0.08] tracking-widest">
+                  <span className="px-3 py-1 rounded-full text-[10px] font-mono text-[var(--color-text-faint)] bg-[var(--color-surface-3)] border border-[var(--color-border)] tracking-widest">
                     {formatDateLabel(msgDate)}
                   </span>
                 </div>
@@ -153,7 +153,7 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
                 {/* User info with roles */}
                 <div className="flex items-center gap-2 mb-1.5">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-medium text-white">{m.userName}</span>
+                    <span className="text-sm font-medium text-[var(--color-text)]">{m.userName}</span>
                     
                     {/* Overall Event Organizer Badge */}
                     {isOrganizer && (
@@ -181,7 +181,7 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
                   </div>
                   
                   {/* Show date + time */}
-                  <span className="text-[9px] font-mono text-white/20">
+                  <span className="text-[9px] font-mono text-[var(--color-text-faint)]">
                     {formatTime(m.timestamp)}
                   </span>
                 </div>
@@ -189,8 +189,8 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
                 {/* Message bubble */}
                 <div className={`max-w-[70%] px-4 py-2.5 rounded-lg text-sm leading-relaxed ${
                   m.userId === user?.id
-                    ? "bg-white/[0.1] border border-white/[0.15] text-white/90"
-                    : "bg-white/[0.04] border border-white/[0.08] text-white/70"
+                    ? "bg-white/[0.1] border border-[var(--color-border-muted)] text-[var(--color-text)]"
+                    : "bg-[var(--color-surface-3)] border border-[var(--color-border)] text-[var(--color-text-muted)]"
                 }`}>
                   {sanitizeUserInput(m.message)}
                 </div>
@@ -203,13 +203,13 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
 
       {/* Input */}
       {user && (
-        <div className="px-4 py-4 border-t border-white/[0.06] bg-white/[0.01] flex gap-2">
+        <div className="px-4 py-4 border-t border-[var(--color-border)] bg-[var(--color-surface-2)] flex gap-2">
           <Input
             value={msg}
             onChange={e => setMsg(e.target.value)}
             onKeyDown={e => e.key === "Enter" && send()}
             placeholder="Type a message..."
-            className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 text-sm h-10 flex-1 rounded-lg"
+            className="bg-[var(--color-surface-2)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] text-sm h-10 flex-1 rounded-lg"
           />
           <Button 
             onClick={send} 

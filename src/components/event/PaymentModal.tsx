@@ -96,12 +96,12 @@ export function PaymentModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-border)]">
           <h2 className="font-medium">Complete Payment</h2>
           <button
             onClick={onCancel}
             disabled={state === "processing"}
-            className="text-white/30 hover:text-white disabled:opacity-50"
+            className="text-[var(--color-text-faint)] hover:text-[var(--color-text)] disabled:opacity-50"
           >
             <X className="w-5 h-5" />
           </button>
@@ -113,14 +113,14 @@ export function PaymentModal({
           {state === "success" && (
             <div className="text-center space-y-4">
               <div className="flex justify-center">
-                <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center">
-                  <CheckCircle2 className="w-8 h-8 text-green-400" />
+                <div className="w-16 h-16 rounded-full bg-[var(--color-success)]/10 flex items-center justify-center">
+                  <CheckCircle2 className="w-8 h-8 text-[var(--color-success)]" />
                 </div>
               </div>
               <div>
-                <h3 className="font-medium text-green-400 mb-1">Payment Successful!</h3>
-                <p className="text-sm text-white/50">
-                  Transaction ID: <span className="font-mono text-white/70">{transactionId}</span>
+                <h3 className="font-medium text-[var(--color-success)] mb-1">Payment Successful!</h3>
+                <p className="text-sm text-[var(--color-text-muted)]">
+                  Transaction ID: <span className="font-mono text-[var(--color-text-muted)]">{transactionId}</span>
                 </p>
               </div>
             </div>
@@ -145,28 +145,28 @@ export function PaymentModal({
           {state === "ready" && (
             <>
               <div className="space-y-2">
-                <p className="text-[10px] font-mono text-white/40 tracking-widest uppercase">
+                <p className="text-[10px] font-mono text-[var(--color-text-faint)] tracking-widest uppercase">
                   Event
                 </p>
                 <p className="text-sm">{eventTitle}</p>
               </div>
 
-              <div className="flex justify-between items-center p-3 bg-white/[0.02] border border-white/[0.06] rounded-lg">
-                <span className="text-white/60">Amount to Pay</span>
+              <div className="flex justify-between items-center p-3 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg">
+                <span className="text-[var(--color-text-muted)]">Amount to Pay</span>
                 <span className="font-mono font-semibold text-lg">₹{amount}</span>
               </div>
 
               <div className="space-y-2">
-                <p className="text-[10px] font-mono text-white/40 tracking-widest uppercase">
+                <p className="text-[10px] font-mono text-[var(--color-text-faint)] tracking-widest uppercase">
                   Participant
                 </p>
                 <div className="text-sm space-y-0.5">
-                  <p className="text-white">{userName}</p>
-                  <p className="text-white/50 text-xs">{userEmail}</p>
+                  <p className="text-[var(--color-text)]">{userName}</p>
+                  <p className="text-[var(--color-text-muted)] text-xs">{userEmail}</p>
                 </div>
               </div>
 
-              <p className="text-[10px] text-white/30 text-center">
+              <p className="text-[10px] text-[var(--color-text-faint)] text-center">
                 You will be redirected to Razorpay Secure Payment Gateway
               </p>
             </>
@@ -175,19 +175,19 @@ export function PaymentModal({
           {/* Processing State */}
           {state === "processing" && (
             <div className="flex flex-col items-center gap-4 py-6">
-              <Loader2 className="w-8 h-8 text-white/50 animate-spin" />
-              <p className="text-sm text-white/50">Loading payment gateway...</p>
+              <Loader2 className="w-8 h-8 text-[var(--color-text-muted)] animate-spin" />
+              <p className="text-sm text-[var(--color-text-muted)]">Loading payment gateway...</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
         {state === "ready" && (
-          <div className="flex gap-3 px-6 py-4 border-t border-white/[0.06]">
+          <div className="flex gap-3 px-6 py-4 border-t border-[var(--color-border)]">
             <Button
               onClick={onCancel}
               variant="ghost"
-              className="flex-1 border border-white/20 text-white/60 hover:text-white h-10"
+              className="flex-1 border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] h-10"
             >
               Cancel
             </Button>
@@ -201,7 +201,7 @@ export function PaymentModal({
         )}
 
         {state === "success" && (
-          <div className="px-6 py-4 border-t border-white/[0.06]">
+          <div className="px-6 py-4 border-t border-[var(--color-border)]">
             <Button
               onClick={onCancel}
               className="w-full bg-white text-black hover:bg-[#B388FF] h-10"

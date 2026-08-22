@@ -32,7 +32,7 @@ export default function FriendsPage() {
 
   if (isLoading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-6 h-6 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
+      <div className="w-6 h-6 border-2 border-[var(--color-border)] border-t-white/80 rounded-full animate-spin" />
     </div>
   )
 
@@ -98,44 +98,44 @@ export default function FriendsPage() {
                 <MicroLabel>Find your peers</MicroLabel>
                 <GlassCard className="p-4 mb-3">
                   <form onSubmit={handleSearchUsers} className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-faint)]" />
                     <Input
                       value={searchQuery}
                       onChange={e => setSearchQuery(e.target.value)}
                       placeholder="Search by name or email..."
-                      className="pl-9 bg-white/[0.03] border-white/10 text-sm h-10"
+                      className="pl-9 bg-[var(--color-surface-2)] border-[var(--color-border)] text-sm h-10"
                     />
                   </form>
                 </GlassCard>
                 <div className="space-y-2">
-                  {isSearching && <p className="text-[10px] font-mono text-white/20 text-center py-2 animate-pulse">SEARCHING...</p>}
+                  {isSearching && <p className="text-[10px] font-mono text-[var(--color-text-faint)] text-center py-2 animate-pulse">SEARCHING...</p>}
                   {!isSearching && searchQuery && searchResults.length === 0 && (
-                    <p className="text-[10px] font-mono text-white/20 text-center py-2 uppercase">No results found</p>
+                    <p className="text-[10px] font-mono text-[var(--color-text-faint)] text-center py-2 uppercase">No results found</p>
                   )}
                   {searchResults.map((u: any) => {
                     const isFriend = user.friends.includes(u.email)
                     const isSent = user.friendRequestsOut.includes(u.email)
                     const isIncoming = user.friendRequestsIn.some(r => r.from === u.email)
                     return (
-                      <GlassCard key={u.id} className="p-3 border-white/[0.03]">
+                      <GlassCard key={u.id} className="p-3 border-[var(--color-border)]">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-[10px] font-bold overflow-hidden">
+                            <div className="w-8 h-8 rounded-full bg-[var(--color-surface-2)] flex items-center justify-center text-[10px] font-bold overflow-hidden">
                               {u.avatarUrl ? <Image src={u.avatarUrl} alt={u.name ?? "User"} width={32} height={32} className="w-full h-full object-cover" /> : u.name?.charAt(0)}
                             </div>
                             <div className="min-w-0">
                               <p className="text-xs font-medium truncate">{u.name}</p>
-                              <p className="text-[9px] font-mono text-white/30 truncate">{u.email}</p>
+                              <p className="text-[9px] font-mono text-[var(--color-text-faint)] truncate">{u.email}</p>
                             </div>
                           </div>
                           {isFriend ? (
-                            <span className="text-[9px] font-mono text-green-400/50 uppercase">Friend</span>
+                            <span className="text-[9px] font-mono text-[var(--color-success)]/50 uppercase">Friend</span>
                           ) : isSent ? (
-                            <span className="text-[9px] font-mono text-white/20 uppercase">Sent</span>
+                            <span className="text-[9px] font-mono text-[var(--color-text-faint)] uppercase">Sent</span>
                           ) : isIncoming ? (
                             <span className="text-[9px] font-mono text-yellow-400/50 uppercase">Pending</span>
                           ) : (
-                            <button onClick={() => handleSendRequest(u.email)} className="p-1.5 rounded hover:bg-white/10 text-white/40 hover:text-white transition-colors">
+                            <button onClick={() => handleSendRequest(u.email)} className="p-1.5 rounded hover:bg-[var(--color-surface-3)] text-[var(--color-text-faint)] hover:text-[var(--color-text)] transition-colors">
                               <UserPlus className="w-4 h-4" />
                             </button>
                           )}
@@ -156,13 +156,13 @@ export default function FriendsPage() {
                       onChange={e => setFriendEmail(e.target.value)}
                       onKeyDown={e => e.key === "Enter" && handleSendByEmail()}
                       placeholder="friend@gmail.com"
-                      className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-10 flex-1 text-sm"
+                      className="bg-[var(--color-surface-2)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] h-10 flex-1 text-sm"
                     />
-                    <Button onClick={handleSendByEmail} disabled={friendSending} className="bg-white text-black hover:bg-white/90 h-10 px-4">
+                    <Button onClick={handleSendByEmail} disabled={friendSending} className="bg-white text-black hover:bg-[var(--color-surface-3)] h-10 px-4">
                       {friendSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
                     </Button>
                   </div>
-                  {friendMsg && <p className={`text-xs mt-2 ${friendMsg.includes("✓") ? "text-green-400" : "text-red-400"}`}>{friendMsg}</p>}
+                  {friendMsg && <p className={`text-xs mt-2 ${friendMsg.includes("✓") ? "text-[var(--color-success)]" : "text-red-400"}`}>{friendMsg}</p>}
                 </GlassCard>
               </motion.div>
 
@@ -180,11 +180,11 @@ export default function FriendsPage() {
                             </div>
                             <div>
                               <p className="text-xs font-medium">{req.fromName}</p>
-                              <p className="text-[9px] font-mono text-white/40">{req.from}</p>
+                              <p className="text-[9px] font-mono text-[var(--color-text-faint)]">{req.from}</p>
                             </div>
                           </div>
                           <div className="flex gap-1">
-                            <button onClick={() => acceptFriendRequest(req.from)} aria-label="Accept" className="p-1.5 rounded hover:bg-green-500/20 text-green-400">
+                            <button onClick={() => acceptFriendRequest(req.from)} aria-label="Accept" className="p-1.5 rounded hover:bg-[var(--color-success)]/20 text-[var(--color-success)]">
                               <Check className="w-4 h-4" />
                             </button>
                             <button onClick={() => declineFriendRequest(req.from)} aria-label="Decline" className="p-1.5 rounded hover:bg-red-500/20 text-red-400">
@@ -205,26 +205,26 @@ export default function FriendsPage() {
                 <MicroLabel className="mb-0">My Friends ({user.friends.length})</MicroLabel>
               </div>
               {user.friends.length === 0 ? (
-                <div className="h-[200px] flex items-center justify-center border border-dashed border-white/10 rounded-xl">
-                  <p className="text-sm text-white/20 font-mono italic">YOUR SOCIAL CIRCLE IS EMPTY</p>
+                <div className="h-[200px] flex items-center justify-center border border-dashed border-[var(--color-border)] rounded-xl">
+                  <p className="text-sm text-[var(--color-text-faint)] font-mono italic">YOUR SOCIAL CIRCLE IS EMPTY</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {user.friends.map(email => (
-                    <GlassCard key={email} className="p-4 hover:border-white/10 transition-colors group">
+                    <GlassCard key={email} className="p-4 hover:border-[var(--color-border)] transition-colors group">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-sm font-bold border border-white/10">
+                          <div className="w-10 h-10 rounded-full bg-[var(--color-surface-2)] flex items-center justify-center text-sm font-bold border border-[var(--color-border)]">
                             {email.charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <p className="text-sm font-medium">{email.split('@')[0]}</p>
-                            <p className="text-[10px] font-mono text-white/30 italic">{email}</p>
+                            <p className="text-[10px] font-mono text-[var(--color-text-faint)] italic">{email}</p>
                           </div>
                         </div>
                         <button
                           onClick={() => removeFriend(email)}
-                          className="p-2 rounded hover:bg-red-500/10 text-white/20 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                          className="p-2 rounded hover:bg-red-500/10 text-[var(--color-text-faint)] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
                           title="Remove Friend"
                         >
                           <X className="w-4 h-4" />

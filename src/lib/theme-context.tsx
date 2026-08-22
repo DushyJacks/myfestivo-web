@@ -1,31 +1,23 @@
 "use client"
 
-import { createContext, useContext, useEffect } from "react"
-
-type Theme = "dark"
-
-const ThemeContext = createContext<{
-  theme: Theme
-  toggle: () => void
-}>({ theme: "dark", toggle: () => {} })
+import { ThemeProvider as NextThemesProvider, useTheme as useNextTheme } from "next-themes"
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    // Always enforce dark mode — light mode is disabled
-    const root = document.documentElement
-    root.classList.add("dark")
-    root.style.colorScheme = "dark"
-    localStorage.setItem("myfestivo-theme", "dark")
-  }, [])
-
-  // No-op toggle since light mode is hidden
-  const toggle = () => {}
-
   return (
-    <ThemeContext.Provider value={{ theme: "dark", toggle }}>
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange={false}
+      storageKey="myfestivo-theme"
+    >
       {children}
-    </ThemeContext.Provider>
+    </NextThemesProvider>
   )
 }
 
-export const useTheme = () => useContext(ThemeContext)
+/**
+ * Re-export useTheme from next-themes for consistent usage across the app.
+ * Provides: { theme, setTheme, resolvedTheme, systemTheme, themes }
+ */
+export const useTheme = useNextTheme

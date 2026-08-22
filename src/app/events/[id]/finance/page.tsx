@@ -26,7 +26,7 @@ export default function FinancePage() {
   if (!event) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-white/40 font-mono">Event not found</p>
+        <p className="text-[var(--color-text-faint)] font-mono">Event not found</p>
       </div>
     )
   }
@@ -36,9 +36,9 @@ export default function FinancePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-white/40 font-mono mb-4">Access denied — hosts only</p>
+          <p className="text-[var(--color-text-faint)] font-mono mb-4">Access denied — hosts only</p>
           <Link href={`/events/${event.id}`}>
-            <Button variant="outline" className="border-white/20 text-white text-sm">Back to Event</Button>
+            <Button variant="outline" className="border-[var(--color-border)] text-[var(--color-text)] text-sm">Back to Event</Button>
           </Link>
         </div>
       </div>
@@ -82,14 +82,14 @@ export default function FinancePage() {
   return (
     <>
       {/* Header */}
-      <header className="fixed top-0 left-[72px] lg:left-[260px] right-0 h-16 flex items-center justify-between px-8 z-50 bg-black/60 backdrop-blur-md border-b border-white/[0.06]">
+      <header className="fixed top-0 left-[72px] lg:left-[260px] right-0 h-16 flex items-center justify-between px-8 z-50 bg-[var(--color-surface)]/60 backdrop-blur-md border-b border-[var(--color-border)]">
         <div className="flex items-center gap-4">
-          <Link href={`/events/${event.id}`} className="text-white/40 hover:text-white transition-colors">
+          <Link href={`/events/${event.id}`} className="text-[var(--color-text-faint)] hover:text-[var(--color-text)] transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <span className="font-medium text-white">{event.title}</span>
-            <span className="text-white/30 text-xs ml-2 font-mono">/ Finance</span>
+            <span className="font-medium text-[var(--color-text)]">{event.title}</span>
+            <span className="text-[var(--color-text-faint)] text-xs ml-2 font-mono">/ Finance</span>
           </div>
         </div>
       </header>
@@ -99,19 +99,19 @@ export default function FinancePage() {
           <motion.div variants={pageItem} className="mb-10">
             <MicroLabel>Finance Dashboard</MicroLabel>
             <h1 className="text-3xl lg:text-4xl font-light tracking-tight">Revenue Overview</h1>
-            <p className="text-sm text-white/30 mt-2">Financial breakdown for {event.title}</p>
+            <p className="text-sm text-[var(--color-text-faint)] mt-2">Financial breakdown for {event.title}</p>
           </motion.div>
 
           {/* Key Metrics */}
           <motion.div variants={pageItem} className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
             <GlassCard className="p-6">
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-                  <DollarSign className="w-4 h-4 text-green-400" />
+                <div className="w-8 h-8 rounded-lg bg-[var(--color-success)]/10 flex items-center justify-center">
+                  <DollarSign className="w-4 h-4 text-[var(--color-success)]" />
                 </div>
               </div>
-              <div className="text-3xl font-light mb-1 text-green-400">₹{totalRevenue.toLocaleString()}</div>
-              <div className="text-[11px] font-mono tracking-widest uppercase text-white/40">Collected Revenue</div>
+              <div className="text-3xl font-light mb-1 text-[var(--color-success)]">₹{totalRevenue.toLocaleString()}</div>
+              <div className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-faint)]">Collected Revenue</div>
             </GlassCard>
 
             <GlassCard className="p-6">
@@ -121,27 +121,27 @@ export default function FinancePage() {
                 </div>
               </div>
               <div className="text-3xl font-light mb-1 text-yellow-400">₹{pendingRevenue.toLocaleString()}</div>
-              <div className="text-[11px] font-mono tracking-widest uppercase text-white/40">Pending Revenue</div>
+              <div className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-faint)]">Pending Revenue</div>
             </GlassCard>
 
             <GlassCard className="p-6">
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-white/[0.05] flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 text-white/40" />
+                <div className="w-8 h-8 rounded-lg bg-[var(--color-surface-3)] flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 text-[var(--color-text-faint)]" />
                 </div>
               </div>
               <div className="text-3xl font-light mb-1">{collectionRate}%</div>
-              <div className="text-[11px] font-mono tracking-widest uppercase text-white/40">Collection Rate</div>
+              <div className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-faint)]">Collection Rate</div>
             </GlassCard>
 
             <GlassCard className="p-6">
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-white/[0.05] flex items-center justify-center">
-                  <Users className="w-4 h-4 text-white/40" />
+                <div className="w-8 h-8 rounded-lg bg-[var(--color-surface-3)] flex items-center justify-center">
+                  <Users className="w-4 h-4 text-[var(--color-text-faint)]" />
                 </div>
               </div>
               <div className="text-3xl font-light mb-1">{totalRegs}</div>
-              <div className="text-[11px] font-mono tracking-widest uppercase text-white/40">Total Registrations</div>
+              <div className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-faint)]">Total Registrations</div>
             </GlassCard>
           </motion.div>
 
@@ -152,16 +152,16 @@ export default function FinancePage() {
               <div className="space-y-4 mt-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-4 h-4 text-green-400" />
+                    <CheckCircle2 className="w-4 h-4 text-[var(--color-success)]" />
                     <span className="text-sm">Paid</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-mono text-white/60">{paidRegs.length} registrations</span>
-                    <span className="text-sm font-mono text-green-400">₹{(paidRegs.length * event.price).toLocaleString()}</span>
+                    <span className="text-sm font-mono text-[var(--color-text-muted)]">{paidRegs.length} registrations</span>
+                    <span className="text-sm font-mono text-[var(--color-success)]">₹{(paidRegs.length * event.price).toLocaleString()}</span>
                   </div>
                 </div>
-                <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
-                  <div className="h-full bg-green-500/40 rounded-full" style={{ width: `${totalRegs > 0 ? (paidRegs.length / totalRegs) * 100 : 0}%` }} />
+                <div className="h-2 rounded-full bg-[var(--color-surface-3)] overflow-hidden">
+                  <div className="h-full bg-[var(--color-success)]/40 rounded-full" style={{ width: `${totalRegs > 0 ? (paidRegs.length / totalRegs) * 100 : 0}%` }} />
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -170,11 +170,11 @@ export default function FinancePage() {
                     <span className="text-sm">Pending</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-mono text-white/60">{pendingRegs.length} registrations</span>
+                    <span className="text-sm font-mono text-[var(--color-text-muted)]">{pendingRegs.length} registrations</span>
                     <span className="text-sm font-mono text-yellow-400">₹{(pendingRegs.length * event.price).toLocaleString()}</span>
                   </div>
                 </div>
-                <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
+                <div className="h-2 rounded-full bg-[var(--color-surface-3)] overflow-hidden">
                   <div className="h-full bg-yellow-500/40 rounded-full" style={{ width: `${totalRegs > 0 ? (pendingRegs.length / totalRegs) * 100 : 0}%` }} />
                 </div>
 
@@ -184,11 +184,11 @@ export default function FinancePage() {
                     <span className="text-sm">Refunded</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-mono text-white/60">{refundedRegs.length} registrations</span>
+                    <span className="text-sm font-mono text-[var(--color-text-muted)]">{refundedRegs.length} registrations</span>
                     <span className="text-sm font-mono text-red-400">₹{refundedAmount.toLocaleString()}</span>
                   </div>
                 </div>
-                <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
+                <div className="h-2 rounded-full bg-[var(--color-surface-3)] overflow-hidden">
                   <div className="h-full bg-red-500/40 rounded-full" style={{ width: `${totalRegs > 0 ? (refundedRegs.length / totalRegs) * 100 : 0}%` }} />
                 </div>
               </div>
@@ -197,24 +197,24 @@ export default function FinancePage() {
             <GlassCard className="p-6">
               <MicroLabel>Revenue Summary</MicroLabel>
               <div className="space-y-4 mt-4">
-                <div className="flex justify-between items-center py-3 border-b border-white/[0.06]">
-                  <span className="text-sm text-white/50">Event Price</span>
+                <div className="flex justify-between items-center py-3 border-b border-[var(--color-border)]">
+                  <span className="text-sm text-[var(--color-text-muted)]">Event Price</span>
                   <span className="text-sm font-mono">{event.price === 0 ? "FREE" : `₹${event.price}`}</span>
                 </div>
-                <div className="flex justify-between items-center py-3 border-b border-white/[0.06]">
-                  <span className="text-sm text-white/50">Total Potential</span>
-                  <span className="text-sm font-mono text-white/60">₹{potentialRevenue.toLocaleString()}</span>
+                <div className="flex justify-between items-center py-3 border-b border-[var(--color-border)]">
+                  <span className="text-sm text-[var(--color-text-muted)]">Total Potential</span>
+                  <span className="text-sm font-mono text-[var(--color-text-muted)]">₹{potentialRevenue.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between items-center py-3 border-b border-white/[0.06]">
-                  <span className="text-sm text-white/50">Collected</span>
-                  <span className="text-sm font-mono text-green-400">₹{totalRevenue.toLocaleString()}</span>
+                <div className="flex justify-between items-center py-3 border-b border-[var(--color-border)]">
+                  <span className="text-sm text-[var(--color-text-muted)]">Collected</span>
+                  <span className="text-sm font-mono text-[var(--color-success)]">₹{totalRevenue.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between items-center py-3 border-b border-white/[0.06]">
-                  <span className="text-sm text-white/50">Pending</span>
+                <div className="flex justify-between items-center py-3 border-b border-[var(--color-border)]">
+                  <span className="text-sm text-[var(--color-text-muted)]">Pending</span>
                   <span className="text-sm font-mono text-yellow-400">₹{pendingRevenue.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center py-3">
-                  <span className="text-sm text-white/50">Refunded</span>
+                  <span className="text-sm text-[var(--color-text-muted)]">Refunded</span>
                   <span className="text-sm font-mono text-red-400">-₹{refundedAmount.toLocaleString()}</span>
                 </div>
               </div>
@@ -225,10 +225,10 @@ export default function FinancePage() {
           {subEventFinance.length > 0 && (
             <motion.div variants={pageItem} className="mb-10">
               <MicroLabel>Sub-Event Breakdown</MicroLabel>
-              <div className="overflow-x-auto rounded-xl border border-white/[0.06] mt-4">
+              <div className="overflow-x-auto rounded-xl border border-[var(--color-border)] mt-4">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-white/[0.03] text-white/50">
+                    <tr className="bg-[var(--color-surface-2)] text-[var(--color-text-muted)]">
                       <th className="text-left p-3 font-medium text-[11px] tracking-widest uppercase">Sub-Event</th>
                       <th className="text-center p-3 font-medium text-[11px] tracking-widest uppercase">Total Regs</th>
                       <th className="text-center p-3 font-medium text-[11px] tracking-widest uppercase">Paid</th>
@@ -238,12 +238,12 @@ export default function FinancePage() {
                   </thead>
                   <tbody>
                     {subEventFinance.map((se, i) => (
-                      <tr key={se.name} className={`border-b border-white/[0.04] ${i % 2 === 0 ? 'bg-white/[0.01]' : ''}`}>
-                        <td className="p-3 text-white/80">{se.name}</td>
-                        <td className="p-3 text-center font-mono text-white/50">{se.totalRegs}</td>
-                        <td className="p-3 text-center font-mono text-green-400">{se.paidCount}</td>
+                      <tr key={se.name} className={`border-b border-[var(--color-border)] ${i % 2 === 0 ? 'bg-[var(--color-surface-2)]' : ''}`}>
+                        <td className="p-3 text-[var(--color-text)]">{se.name}</td>
+                        <td className="p-3 text-center font-mono text-[var(--color-text-muted)]">{se.totalRegs}</td>
+                        <td className="p-3 text-center font-mono text-[var(--color-success)]">{se.paidCount}</td>
                         <td className="p-3 text-center font-mono text-yellow-400">{se.pendingCount}</td>
-                        <td className="p-3 text-right font-mono text-white/70">₹{se.revenue.toLocaleString()}</td>
+                        <td className="p-3 text-right font-mono text-[var(--color-text-muted)]">₹{se.revenue.toLocaleString()}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -260,11 +260,11 @@ export default function FinancePage() {
                 {Object.entries(paymentMethods).map(([method, count]) => (
                   <GlassCard key={method} className="p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <CreditCard className="w-4 h-4 text-white/30" />
-                      <span className="text-xs font-mono text-white/50 uppercase">{method}</span>
+                      <CreditCard className="w-4 h-4 text-[var(--color-text-faint)]" />
+                      <span className="text-xs font-mono text-[var(--color-text-muted)] uppercase">{method}</span>
                     </div>
                     <div className="text-2xl font-light">{count}</div>
-                    <div className="text-[10px] font-mono text-white/30">transactions</div>
+                    <div className="text-[10px] font-mono text-[var(--color-text-faint)]">transactions</div>
                   </GlassCard>
                 ))}
               </div>
@@ -279,20 +279,20 @@ export default function FinancePage() {
                 {paidRegs.slice(0, 10).map(reg => {
                   const subEvt = event.subEvents.find(se => se.id === reg.subEventId)
                   return (
-                    <div key={reg.id} className="flex items-center justify-between p-3 bg-white/[0.02] border border-white/[0.06] rounded-lg">
+                    <div key={reg.id} className="flex items-center justify-between p-3 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-lg">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
-                          <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        <div className="w-8 h-8 rounded-full bg-[var(--color-success)]/10 flex items-center justify-center">
+                          <CheckCircle2 className="w-4 h-4 text-[var(--color-success)]" />
                         </div>
                         <div>
-                          <p className="text-sm text-white/80">{reg.userName}</p>
-                          <p className="text-[10px] font-mono text-white/30">{subEvt?.name || "—"} · {reg.timestamp}</p>
+                          <p className="text-sm text-[var(--color-text)]">{reg.userName}</p>
+                          <p className="text-[10px] font-mono text-[var(--color-text-faint)]">{subEvt?.name || "—"} · {reg.timestamp}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-mono text-green-400">₹{event.price}</p>
+                        <p className="text-sm font-mono text-[var(--color-success)]">₹{event.price}</p>
                         {reg.transactionId && (
-                          <p className="text-[9px] font-mono text-white/20">TX: {reg.transactionId}</p>
+                          <p className="text-[9px] font-mono text-[var(--color-text-faint)]">TX: {reg.transactionId}</p>
                         )}
                       </div>
                     </div>
@@ -310,7 +310,7 @@ export default function FinancePage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-white/[0.03] text-white/50">
+                  <tr className="bg-[var(--color-surface-2)] text-[var(--color-text-muted)]">
                     <th className="text-left p-3 text-[10px] font-mono tracking-widest">Registrant</th>
                     <th className="text-left p-3 text-[10px] font-mono tracking-widest">Sub-Event</th>
                     <th className="text-left p-3 text-[10px] font-mono tracking-widest">Transaction Info</th>
@@ -321,29 +321,29 @@ export default function FinancePage() {
                   {event.registrations.map(reg => {
                     const se = event.subEvents.find(s => s.id === reg.subEventId)
                     return (
-                      <tr key={reg.id} className="border-b border-white/[0.04] hover:bg-white/[0.02]">
+                      <tr key={reg.id} className="border-b border-[var(--color-border)] hover:bg-[var(--color-surface-2)]">
                         <td className="p-3">
                           <div className="font-medium">{reg.userName}</div>
-                          <div className="text-[10px] text-white/30 font-mono italic">{reg.userEmail}</div>
+                          <div className="text-[10px] text-[var(--color-text-faint)] font-mono italic">{reg.userEmail}</div>
                         </td>
-                        <td className="p-3 text-white/60">{se?.name}</td>
+                        <td className="p-3 text-[var(--color-text-muted)]">{se?.name}</td>
                         <td className="p-3">
                           {reg.transactionId ? (
                             <div>
-                              <div className="text-[11px] font-mono text-white/80 uppercase">{reg.transactionId}</div>
-                              <div className="text-[10px] text-white/40 font-mono">{reg.paymentMethod} • {reg.timestamp}</div>
+                              <div className="text-[11px] font-mono text-[var(--color-text)] uppercase">{reg.transactionId}</div>
+                              <div className="text-[10px] text-[var(--color-text-faint)] font-mono">{reg.paymentMethod} • {reg.timestamp}</div>
                             </div>
-                          ) : <span className="text-[10px] font-mono text-white/20">NO TRANSACTION</span>}
+                          ) : <span className="text-[10px] font-mono text-[var(--color-text-faint)]">NO TRANSACTION</span>}
                         </td>
                         <td className="p-3 text-right">
                           {reg.status === "PENDING" && reg.transactionId && (
                             <div className="flex justify-end gap-2">
-                              <Button onClick={() => approvePayment(event.id, reg.id)} className="h-7 px-3 bg-green-500 text-black text-[9px] font-mono uppercase tracking-widest hover:bg-green-400">Approve</Button>
+                              <Button onClick={() => approvePayment(event.id, reg.id)} className="h-7 px-3 bg-[var(--color-success)] text-black text-[9px] font-mono uppercase tracking-widest hover:bg-[var(--color-success)]">Approve</Button>
                               <Button onClick={() => rejectPayment(event.id, reg.id)} variant="ghost" className="h-7 px-3 border border-red-500/30 text-red-400 text-[9px] font-mono uppercase tracking-widest hover:bg-red-500/10 hover:text-red-300">Reject</Button>
                             </div>
                           )}
-                          {reg.status === "PAID" && <span className="text-green-400 text-[9px] font-mono flex items-center justify-end gap-1"><BadgeCheck className="w-3 h-3" /> VERIFIED</span>}
-                          {reg.status === "REFUNDED" && <span className="text-white/20 text-[9px] font-mono flex items-center justify-end gap-1">REJECTED</span>}
+                          {reg.status === "PAID" && <span className="text-[var(--color-success)] text-[9px] font-mono flex items-center justify-end gap-1"><BadgeCheck className="w-3 h-3" /> VERIFIED</span>}
+                          {reg.status === "REFUNDED" && <span className="text-[var(--color-text-faint)] text-[9px] font-mono flex items-center justify-end gap-1">REJECTED</span>}
                         </td>
                       </tr>
                     )

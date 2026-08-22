@@ -311,12 +311,12 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={onClose}>
         <GlassCard className="p-8 max-w-md w-full text-center" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
-          <div className="w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
-            <Check className="w-7 h-7 text-green-400" />
+          <div className="w-14 h-14 rounded-full bg-[var(--color-success)]/10 flex items-center justify-center mx-auto mb-4">
+            <Check className="w-7 h-7 text-[var(--color-success)]" />
           </div>
           <h2 className="text-xl font-medium mb-2">Registration Successful!</h2>
-          <p className="text-sm text-white/50 mb-2">
-            You have been registered for <span className="text-white">{event.title} - {selectedSe?.name}</span>. Check your dashboard for your QR pass.
+          <p className="text-sm text-[var(--color-text-muted)] mb-2">
+            You have been registered for <span className="text-[var(--color-text)]">{event.title} - {selectedSe?.name}</span>. Check your dashboard for your QR pass.
           </p>
           <p className="text-xs text-[#B388FF]/70 mb-6 flex items-center justify-center gap-1.5">
             <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
@@ -332,23 +332,23 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={onClose} role="presentation">
       <GlassCard className="p-0 max-w-lg w-full max-h-[85vh] overflow-hidden flex flex-col" onClick={(e: React.MouseEvent) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="registration-title">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-border)]">
           <div>
-            <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase">Register for</p>
+            <p className="text-[10px] font-mono text-[var(--color-text-faint)] tracking-widest uppercase">Register for</p>
             <p className="font-medium" id="registration-title">{event.title} — {selectedSe.name}</p>
           </div>
-          <button onClick={onClose} aria-label="Close registration wizard" className="text-white/30 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded"><X className="w-5 h-5" aria-hidden="true" /></button>
+          <button onClick={onClose} aria-label="Close registration wizard" className="text-[var(--color-text-faint)] hover:text-[var(--color-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded"><X className="w-5 h-5" aria-hidden="true" /></button>
         </div>
 
         {/* Progress */}
-        <div className="px-6 py-3 border-b border-white/[0.06] flex items-center gap-2">
+        <div className="px-6 py-3 border-b border-[var(--color-border)] flex items-center gap-2">
           {steps.map((s, i) => (
             <div key={s} className="flex items-center gap-2">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-mono ${i < stepIndex ? "bg-green-500/20 text-green-400" :
-                i === stepIndex ? "bg-white text-black" : "bg-white/[0.06] text-white/30"
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-mono ${i < stepIndex ? "bg-[var(--color-success)]/20 text-[var(--color-success)]" :
+                i === stepIndex ? "bg-white text-black" : "bg-[var(--color-surface-3)] text-[var(--color-text-faint)]"
                 }`}>{i < stepIndex ? <Check className="w-3 h-3" /> : i + 1}</div>
-              <span className={`text-[10px] font-mono tracking-widest uppercase ${i === stepIndex ? "text-white" : "text-white/30"}`}>{stepLabels[s]}</span>
-              {i < steps.length - 1 && <ChevronRight className="w-3 h-3 text-white/20 mx-1" />}
+              <span className={`text-[10px] font-mono tracking-widest uppercase ${i === stepIndex ? "text-[var(--color-text)]" : "text-[var(--color-text-faint)]"}`}>{stepLabels[s]}</span>
+              {i < steps.length - 1 && <ChevronRight className="w-3 h-3 text-[var(--color-text-faint)] mx-1" />}
             </div>
           ))}
         </div>
@@ -371,35 +371,35 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
           {step === "team" && (
             <div className="space-y-5">
               <div>
-                <label className="text-[10px] font-mono text-white/40 mb-2 block tracking-widest uppercase">Team Name</label>
+                <label className="text-[10px] font-mono text-[var(--color-text-faint)] mb-2 block tracking-widest uppercase">Team Name</label>
                 <Input value={teamName} onChange={e => setTeamName(e.target.value)} placeholder={`${user.name}'s Team`}
-                  className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-10" />
+                  className="bg-[var(--color-surface-2)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] h-10" />
               </div>
 
               <div>
-                <label className="text-[10px] font-mono text-white/40 mb-2 block tracking-widest uppercase">
+                <label className="text-[10px] font-mono text-[var(--color-text-faint)] mb-2 block tracking-widest uppercase">
                   Team Members {selectedSe.minTeamSize && selectedSe.maxTeamSize
                     ? `(${selectedSe.minTeamSize} – ${selectedSe.maxTeamSize} including you)`
                     : ""}
                 </label>
 
                 {/* Captain */}
-                <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.06] mb-2">
+                <div className="p-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border)] mb-2">
                   <div className="flex items-center gap-2 text-sm">
-                    <div className="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center"><Check className="w-3 h-3 text-green-400" /></div>
-                    <span className="text-white/80">{user.name}</span>
-                    <span className="text-[10px] font-mono text-white/30 ml-auto">You (Captain)</span>
+                    <div className="w-6 h-6 rounded-full bg-[var(--color-success)]/10 flex items-center justify-center"><Check className="w-3 h-3 text-[var(--color-success)]" /></div>
+                    <span className="text-[var(--color-text)]">{user.name}</span>
+                    <span className="text-[10px] font-mono text-[var(--color-text-faint)] ml-auto">You (Captain)</span>
                   </div>
                 </div>
 
                 {/* Accepted members */}
                 {teamMembers.map((email, i) => (
-                  <div key={email} className="flex items-center gap-2 p-3 rounded-lg bg-green-500/[0.05] border border-green-500/20 mb-2">
-                    <div className="w-6 h-6 rounded-full bg-green-500/15 flex items-center justify-center">
-                      <Check className="w-3 h-3 text-green-400" />
+                  <div key={email} className="flex items-center gap-2 p-3 rounded-lg bg-green-500/[0.05] border border-[var(--color-success)]/20 mb-2">
+                    <div className="w-6 h-6 rounded-full bg-[var(--color-success)]/15 flex items-center justify-center">
+                      <Check className="w-3 h-3 text-[var(--color-success)]" />
                     </div>
-                    <span className="text-sm text-white/80 flex-1">{email}</span>
-                    <span className="text-[9px] font-mono text-green-400/80 mr-1">ACCEPTED</span>
+                    <span className="text-sm text-[var(--color-text)] flex-1">{email}</span>
+                    <span className="text-[9px] font-mono text-[var(--color-success)]/80 mr-1">ACCEPTED</span>
                   </div>
                 ))}
 
@@ -419,13 +419,13 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
                           ? <Send className="w-3 h-3 text-[#B388FF]" />
                           : <Clock className="w-3 h-3 text-yellow-400" />}
                       </div>
-                      <span className="text-sm text-white/60 flex-1">{email}</span>
+                      <span className="text-sm text-[var(--color-text-muted)] flex-1">{email}</span>
                       <span className={`text-[9px] font-mono mr-1 ${
                         alreadyInvited ? 'text-[#B388FF]/70' : 'text-yellow-400/70'
                       }`}>{alreadyInvited ? 'INVITED' : 'PENDING'}</span>
                       <button
                         onClick={() => removePending(email)}
-                        className="text-white/20 hover:text-red-400 ml-1"
+                        className="text-[var(--color-text-faint)] hover:text-red-400 ml-1"
                         title={alreadyInvited ? "Remove invite" : "Remove"}
                       >
                         <X className="w-3.5 h-3.5" />
@@ -441,10 +441,10 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
                       <Input value={memberEmail} onChange={e => handleMemberInput(e.target.value)}
                         onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addMember() } if (e.key === "Escape") setFriendSuggestions([]) }}
                         placeholder="Search friends..."
-                        className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-9 text-sm w-full" />
+                        className="bg-[var(--color-surface-2)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] h-9 text-sm w-full" />
                       {/* Friend autocomplete dropdown */}
                       {friendSuggestions.length > 0 && (
-                        <div ref={suggestionsRef} className="absolute top-full left-0 right-0 mt-1 bg-black/95 border border-white/[0.1] rounded-lg z-20 overflow-hidden shadow-xl">
+                        <div ref={suggestionsRef} className="absolute top-full left-0 right-0 mt-1 bg-black/95 border border-[var(--color-border-muted)] rounded-lg z-20 overflow-hidden shadow-xl">
                           {friendSuggestions.map(email => (
                             <button
                               key={email}
@@ -455,14 +455,14 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
                               <div className="w-6 h-6 rounded-full bg-[#B388FF]/20 flex items-center justify-center text-[10px] font-bold text-[#B388FF] shrink-0">
                                 {email[0].toUpperCase()}
                               </div>
-                              <span className="text-sm text-white/80 truncate">{email}</span>
+                              <span className="text-sm text-[var(--color-text)] truncate">{email}</span>
                               <span className="ml-auto text-[9px] font-mono text-[#B388FF]/60">Friend</span>
                             </button>
                           ))}
                         </div>
                       )}
                     </div>
-                    <Button onClick={addMember} variant="outline" className="h-9 px-3 border-white/20 text-white/60 hover:text-white shrink-0">
+                    <Button onClick={addMember} variant="outline" className="h-9 px-3 border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] shrink-0">
                       <Plus className="w-3.5 h-3.5" />
                     </Button>
                   </div>
@@ -470,8 +470,8 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
 
                 {/* Friends-only restriction notice and error */}
                 <div className="flex items-center gap-1.5 mt-2">
-                  <UserPlus className="w-3 h-3 text-white/25 shrink-0" />
-                  <p className="text-[10px] text-white/30 font-mono">Team members must be added from your Friends list. Add teammates as friends first.</p>
+                  <UserPlus className="w-3 h-3 text-[var(--color-text-faint)] shrink-0" />
+                  <p className="text-[10px] text-[var(--color-text-faint)] font-mono">Team members must be added from your Friends list. Add teammates as friends first.</p>
                 </div>
                 {emailError && (
                   <p className="text-[10px] text-red-400/80 mt-1.5 font-mono flex items-center gap-1">
@@ -501,7 +501,7 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
                     <Button
                       onClick={handleSendRequest}
                       disabled={sendingRequest}
-                      className="w-full h-10 bg-[#B388FF]/20 text-[#B388FF] border border-[#B388FF]/30 hover:bg-[#B388FF]/30 hover:text-white"
+                      className="w-full h-10 bg-[#B388FF]/20 text-[#B388FF] border border-[#B388FF]/30 hover:bg-[#B388FF]/30 hover:text-[var(--color-text)]"
                       variant="outline"
                     >
                       {sendingRequest
@@ -530,24 +530,24 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
           {/* STEP: Confirm */}
           {step === "confirm" && (
             <div className="space-y-5">
-              <p className="text-xs text-white/40 mb-2">Review your registration:</p>
-              <div className="p-4 rounded-lg bg-white/[0.02] border border-white/[0.06] space-y-3">
+              <p className="text-xs text-[var(--color-text-faint)] mb-2">Review your registration:</p>
+              <div className="p-4 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-border)] space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/40">Event</span><span className="text-white/80">{event.title}</span>
+                  <span className="text-[var(--color-text-faint)]">Event</span><span className="text-[var(--color-text)]">{event.title}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/40">Sub-Event</span><span className="text-white/80">{selectedSe.name}</span>
+                  <span className="text-[var(--color-text-faint)]">Sub-Event</span><span className="text-[var(--color-text)]">{selectedSe.name}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/40">Type</span><span className="text-white/80 capitalize">{selectedSe.type}</span>
+                  <span className="text-[var(--color-text-faint)]">Type</span><span className="text-[var(--color-text)] capitalize">{selectedSe.type}</span>
                 </div>
                 {selectedSe.type === "team" && (
                   <>
                     <div className="flex justify-between text-sm">
-                      <span className="text-white/40">Team</span><span className="text-white/80">{teamName || `${user.name}'s Team`}</span>
+                      <span className="text-[var(--color-text-faint)]">Team</span><span className="text-[var(--color-text)]">{teamName || `${user.name}'s Team`}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-white/40">Members (confirmed)</span><span className="text-white/80">{acceptedCount}</span>
+                      <span className="text-[var(--color-text-faint)]">Members (confirmed)</span><span className="text-[var(--color-text)]">{acceptedCount}</span>
                     </div>
                     {pendingMembers.length > 0 && (
                       <div className="flex justify-between text-sm">
@@ -557,14 +557,14 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
                   </>
                 )}
                 <div className="flex justify-between text-sm">
-                  <span className="text-white/40">Fee</span>
-                  <span className="text-white/80">{event.price > 0 ? `₹${event.price}` : "Free"}</span>
+                  <span className="text-[var(--color-text-faint)]">Fee</span>
+                  <span className="text-[var(--color-text)]">{event.price > 0 ? `₹${event.price}` : "Free"}</span>
                 </div>
               </div>
 
               <div className="flex gap-3">
                 {selectedSe.type === "team" && (
-                  <Button onClick={() => setStep("team")} variant="ghost" className="flex-1 h-10 border border-white/[0.1] text-white/60">Back</Button>
+                  <Button onClick={() => setStep("team")} variant="ghost" className="flex-1 h-10 border border-[var(--color-border-muted)] text-[var(--color-text-muted)]">Back</Button>
                 )}
                 <Button onClick={handleConfirm} disabled={submitting || isStaffRestricted || isDeptRestricted} className="flex-1 h-10 bg-white text-black hover:bg-[#B388FF]">
                   {submitting ? "Registering..." : "Confirm Registration"}

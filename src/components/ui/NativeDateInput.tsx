@@ -21,19 +21,19 @@ function NativeDateInput({
     <input
       type="date"
       data-slot="date-input"
-      style={{ colorScheme: "dark", ...style }}
       className={cn(
-        // Match the same visual language as <Input> from input.tsx
-        "h-10 w-full min-w-0 rounded-lg border border-white/[0.08] bg-white/[0.03]",
-        "px-2.5 py-1 text-sm text-white transition-colors outline-none",
-        // Date-specific: make the calendar icon visible in dark mode
-        "[color-scheme:dark]",
+        // Match the same visual language as <Input> from input.tsx, using theme vars
+        "h-10 w-full min-w-0 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)]",
+        "px-2.5 py-1 text-sm text-[var(--color-text)] transition-colors outline-none",
+        // Date-specific: let color-scheme follow the document theme
+        "[color-scheme:inherit]",
         // Focus ring
-        "focus-visible:border-[#B388FF]/50 focus-visible:ring-2 focus-visible:ring-[#B388FF]/20",
+        "focus-visible:border-[var(--color-border-focus)] focus-visible:ring-2 focus-visible:ring-[var(--color-border-focus)]/20",
         // Disabled state
         "disabled:pointer-events-none disabled:opacity-50",
         className
       )}
+      style={style}
       {...props}
     />
   )

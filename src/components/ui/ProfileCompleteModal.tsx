@@ -82,14 +82,14 @@ export function ProfileCompleteModal() {
           >
             <GlassCard className="p-0 overflow-hidden border border-[rgba(179,136,255,0.2)] max-h-[90dvh] overflow-y-auto">
               {/* Header */}
-              <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-white/[0.06] bg-gradient-to-r from-[rgba(179,136,255,0.08)] to-transparent sticky top-0 z-10 backdrop-blur-sm">
+              <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[var(--color-border)] bg-gradient-to-r from-[rgba(179,136,255,0.08)] to-transparent sticky top-0 z-10 backdrop-blur-sm">
                 <div className="flex items-center gap-3 mb-1">
                   <div className="w-9 h-9 rounded-full bg-[rgba(179,136,255,0.12)] flex items-center justify-center">
                     <User className="w-4 h-4 text-[#B388FF]" />
                   </div>
-                  <h2 className="text-lg font-semibold text-white">Complete Your Profile</h2>
+                  <h2 className="text-lg font-semibold text-[var(--color-text)]">Complete Your Profile</h2>
                 </div>
-                <p className="text-sm text-white/40 ml-12">
+                <p className="text-sm text-[var(--color-text-muted)] ml-12">
                   Fill in a few details before registering or hosting events.
                 </p>
               </div>
@@ -99,8 +99,8 @@ export function ProfileCompleteModal() {
                 {/* Welcome message */}
                 <div className="flex items-start gap-3 p-4 rounded-lg bg-[rgba(179,136,255,0.06)] border border-[rgba(179,136,255,0.12)]">
                   <span className="text-[#B388FF] text-lg">👋</span>
-                  <p className="text-sm text-white/60 leading-relaxed">
-                    Welcome, <strong className="text-white">{user.name}</strong>! You signed in with Google.
+                  <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
+                    Welcome, <strong className="text-[var(--color-text)]">{user.name}</strong>! You signed in with Google.
                     Please complete your profile so others can identify you at events.
                   </p>
                 </div>
@@ -113,31 +113,31 @@ export function ProfileCompleteModal() {
 
                 {/* College */}
                 <div>
-                  <label className="text-[10px] font-mono tracking-widest uppercase text-white/60 mb-1.5 flex items-center gap-1.5 block">
+                  <label className="text-[10px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-1.5 flex items-center gap-1.5 block">
                     <GraduationCap className="w-3 h-3" /> College / University <span className="text-red-400">*</span>
                   </label>
                   <select
                     value={college}
                     onChange={e => setCollege(e.target.value)}
-                    className="w-full h-10 bg-white/[0.03] border border-white/[0.08] text-white text-sm rounded-md px-3 outline-none focus:border-[rgba(179,136,255,0.4)] transition-colors"
+                    className="w-full h-10 bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] text-sm rounded-md px-3 outline-none focus:border-[var(--color-border-focus)] transition-colors"
                     required
                   >
-                    <option value="" disabled className="bg-black text-white/50">Select your campus...</option>
+                    <option value="" disabled className="bg-[var(--color-surface-2)] text-[var(--color-text-muted)]">Select your campus...</option>
                     {["SRMIST, Ramapuram", "SRMIST, Kattankulathur", "SRMIST, Vadapalani", "SRMIST, Tiruchirappalli"].map(c => (
-                      <option key={c} value={c} className="bg-black text-white">{c}</option>
+                      <option key={c} value={c} className="bg-[var(--color-surface-2)] text-[var(--color-text)]">{c}</option>
                     ))}
                   </select>
                 </div>
 
                 {/* Department */}
                 <div>
-                  <label className="text-[10px] font-mono tracking-widest uppercase text-white/60 mb-1.5 flex items-center gap-1.5 block">
+                  <label className="text-[10px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-1.5 flex items-center gap-1.5 block">
                     <BookOpen className="w-3 h-3" /> Department <span className="text-red-400">*</span>
                   </label>
                   <select
                     value={department}
                     onChange={e => setDepartment(e.target.value)}
-                    className="w-full h-10 bg-white/[0.03] border border-white/[0.08] text-white text-sm rounded-md px-3 outline-none focus:border-[rgba(179,136,255,0.4)] transition-colors"
+                    className="w-full h-10 bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] text-sm rounded-md px-3 outline-none focus:border-[rgba(179,136,255,0.4)] transition-colors"
                   >
                     <option value="" disabled>Select department</option>
                     <option value="BSc CS">BSc CS</option>
@@ -151,13 +151,13 @@ export function ProfileCompleteModal() {
 
                 {/* Year */}
                 <div>
-                  <label className="text-[10px] font-mono tracking-widest uppercase text-white/60 mb-1.5 block">
+                  <label className="text-[10px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-1.5 block">
                     Year of Study <span className="text-red-400">*</span>
                   </label>
                   <select
                     value={year}
                     onChange={e => setYear(e.target.value)}
-                    className="w-full h-10 bg-white/[0.03] border border-white/[0.08] text-white text-sm rounded-md px-3 outline-none focus:border-[rgba(179,136,255,0.4)] transition-colors"
+                    className="w-full h-10 bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] text-sm rounded-md px-3 outline-none focus:border-[var(--color-border-focus)] transition-colors"
                   >
                     <option value="" disabled>Select year</option>
                     <option value="1st Year">1st Year</option>
@@ -173,18 +173,18 @@ export function ProfileCompleteModal() {
 
                 {/* Phone (required) */}
                 <div>
-                  <label className="text-[10px] font-mono tracking-widest uppercase text-white/60 mb-1.5 flex items-center gap-1.5 block">
+                  <label className="text-[10px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-1.5 flex items-center gap-1.5 block">
                     <Phone className="w-3 h-3" /> Phone <span className="text-red-400">*</span>
                   </label>
                   <div className="flex">
-                    <span className="inline-flex items-center h-10 px-3 rounded-l-md border border-r-0 border-white/[0.08] bg-white/[0.05] text-white/50 text-sm font-mono">+91</span>
+                    <span className="inline-flex items-center h-10 px-3 rounded-l-md border border-r-0 border-[var(--color-border)] bg-[var(--color-surface-3)] text-[var(--color-text-muted)] text-sm font-mono">+91</span>
                     <Input
                       value={phone}
                       onChange={e => setPhone(e.target.value)}
                       placeholder="9876543210"
                       type="tel"
                       maxLength={10}
-                      className={`bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/20 h-10 rounded-l-none flex-1 ${phone && !isPhoneValid ? "border-red-500/50" : ""}`}
+                      className={`themed-input h-10 rounded-l-none flex-1 ${phone && !isPhoneValid ? "border-red-500/50" : ""}`}
                       required
                     />
                   </div>
@@ -193,7 +193,7 @@ export function ProfileCompleteModal() {
                   )}
                 </div>
 
-                <p className="text-[11px] text-white/40 font-mono">
+                <p className="text-[11px] text-[var(--color-text-faint)] font-mono">
                   You can update these details anytime from your Profile page.
                 </p>
 
@@ -207,7 +207,7 @@ export function ProfileCompleteModal() {
               </div>
 
               {/* Footer */}
-              <div className="px-4 sm:px-8 py-4 sm:py-5 border-t border-white/[0.06] bg-black/20 flex items-center justify-end gap-3">
+              <div className="px-4 sm:px-8 py-4 sm:py-5 border-t border-[var(--color-border)] bg-black/20 flex items-center justify-end gap-3">
                 <Button
                   onClick={handleSave}
                   disabled={!canSave || saving}

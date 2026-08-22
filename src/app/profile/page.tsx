@@ -51,20 +51,20 @@ function ConfirmModal({
         className="w-full max-w-sm"
         onClick={e => e.stopPropagation()}
       >
-        <GlassCard className={`p-6 border ${isDelete ? "border-red-500/30" : "border-white/10"}`}>
+        <GlassCard className={`p-6 border ${isDelete ? "border-red-500/30" : "border-[var(--color-border)]"}`}>
           <div className="flex items-center gap-3 mb-4">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDelete ? "bg-red-500/10" : "bg-white/[0.06]"}`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDelete ? "bg-red-500/10" : "bg-[var(--color-surface-3)]"}`}>
               {isDelete ? (
                 <AlertTriangle className="w-5 h-5 text-red-400" />
               ) : (
-                <LogOut className="w-5 h-5 text-white/60" />
+                <LogOut className="w-5 h-5 text-[var(--color-text-muted)]" />
               )}
             </div>
             <div>
-              <h2 className="text-base font-semibold text-white">
+              <h2 className="text-base font-semibold text-[var(--color-text)]">
                 {isDelete ? "Delete Account?" : "Sign Out?"}
               </h2>
-              <p className="text-xs text-white/40">
+              <p className="text-xs text-[var(--color-text-faint)]">
                 {isDelete ? "This action cannot be undone" : "You can sign back in anytime"}
               </p>
             </div>
@@ -81,7 +81,7 @@ function ConfirmModal({
           <div className="flex gap-3 justify-end">
             <button
               onClick={onCancel}
-              className="px-4 py-2 rounded-md text-xs border border-white/[0.1] text-white/50 hover:text-white hover:border-white/20 transition-colors"
+              className="px-4 py-2 rounded-md text-xs border border-[var(--color-border-muted)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:border-[var(--color-border)] transition-colors"
             >
               Cancel
             </button>
@@ -90,7 +90,7 @@ function ConfirmModal({
               disabled={loading}
               className={`px-4 py-2 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50 ${
                 isDelete
-                  ? "bg-red-500 hover:bg-red-600 text-white"
+                  ? "bg-red-500 hover:bg-red-600 text-[var(--color-text)]"
                   : "bg-white hover:bg-[#B388FF] text-black"
               }`}
             >
@@ -164,7 +164,7 @@ export default function ProfilePage() {
 
   if (authLoading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-6 h-6 border-2 border-white/20 border-t-white/80 rounded-full animate-spin" />
+      <div className="w-6 h-6 border-2 border-[var(--color-border)] border-t-white/80 rounded-full animate-spin" />
     </div>
   )
 
@@ -267,9 +267,9 @@ export default function ProfilePage() {
     }
   }
 
-  const inputCls = "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11"
-  const readonlyCls = "h-11 px-3 flex items-center text-sm text-white/80 bg-white/[0.02] border border-white/[0.06] rounded-md"
-  const labelCls = "text-[11px] font-mono tracking-widest uppercase text-white/60 mb-2 block"
+  const inputCls = "bg-[var(--color-surface-2)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] h-11"
+  const readonlyCls = "h-11 px-3 flex items-center text-sm text-[var(--color-text)] bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-md"
+  const labelCls = "text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block"
 
   return (
     <div className="flex min-h-screen">
@@ -303,14 +303,14 @@ export default function ProfilePage() {
                   {user.avatarUrl ? (
                     <Image src={user.avatarUrl} alt="User avatar" width={80} height={80} className="w-20 h-20 rounded-full object-cover" />
                   ) : (
-                    <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white"
+                    <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-[var(--color-text)]"
                       style={{ backgroundColor: user.avatarColor || "#3B82F6" }}>
                       {user.name.charAt(0).toUpperCase()}
                     </div>
                   )}
                   {isEditing && (
                     <label className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                      <span className="text-[9px] font-mono text-white/80 uppercase tracking-widest">Change</span>
+                      <span className="text-[9px] font-mono text-[var(--color-text)] uppercase tracking-widest">Change</span>
                       <input type="file" accept="image/*" className="hidden" onChange={e => {
                         const file = e.target.files?.[0]
                         if (!file) return
@@ -323,11 +323,11 @@ export default function ProfilePage() {
                 </div>
                 <div className="flex-1">
                   <h2 className="text-xl font-medium">{user.name}</h2>
-                  <p className="text-sm text-white/60 font-mono">{user.email}</p>
+                  <p className="text-sm text-[var(--color-text-muted)] font-mono">{user.email}</p>
                   <div className="flex items-center gap-2 mt-2">
-                    <span className="text-[10px] font-mono border border-white/20 text-white/40 px-2 py-0.5 rounded uppercase">{user.role}</span>
+                    <span className="text-[10px] font-mono border border-[var(--color-border)] text-[var(--color-text-faint)] px-2 py-0.5 rounded uppercase">{user.role}</span>
                     {user.collegeEmailVerified && (
-                      <span className="text-[10px] font-mono border border-green-500/30 text-green-400 px-2 py-0.5 rounded flex items-center gap-1">
+                      <span className="text-[10px] font-mono border border-[var(--color-success)]/30 text-[var(--color-success)] px-2 py-0.5 rounded flex items-center gap-1">
                         <BadgeCheck className="w-3 h-3" /> College Verified
                       </span>
                     )}
@@ -343,7 +343,7 @@ export default function ProfilePage() {
                       }}
                       disabled={hasActiveRegistration}
                       title={hasActiveRegistration ? "Cannot edit profile while registered for an active event" : "Edit profile"}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-xs transition-colors ${hasActiveRegistration ? "border-white/[0.05] text-white/20 cursor-not-allowed" : "border-white/20 text-white/60 hover:border-white/40 hover:text-white"}`}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-xs transition-colors ${hasActiveRegistration ? "border-[var(--color-border)] text-[var(--color-text-faint)] cursor-not-allowed" : "border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-[var(--color-border-focus)] hover:text-[var(--color-text)]"}`}
                     >
                       <Pencil className="w-3.5 h-3.5" />
                       Edit
@@ -351,7 +351,7 @@ export default function ProfilePage() {
                   ) : (
                     <button
                       onClick={() => setIsEditing(false)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/20 text-white/60 hover:border-white/40 hover:text-white text-xs transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-[var(--color-border-focus)] hover:text-[var(--color-text)] text-xs transition-colors"
                     >
                       <X className="w-3.5 h-3.5" />
                       Cancel
@@ -361,7 +361,7 @@ export default function ProfilePage() {
               </div>
 
               {hasActiveRegistration && !isEditing && (
-                <div className="mb-4 flex items-center gap-2 p-3 rounded-md bg-yellow-500/10 border border-yellow-500/20 text-xs text-yellow-400">
+                <div className="mb-4 flex items-center gap-2 p-3 rounded-md bg-amber-500/10 border border-amber-500/20 text-xs text-amber-500">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   {eventsLoading
                     ? "Checking event registrations…"
@@ -376,14 +376,14 @@ export default function ProfilePage() {
                     <label className={labelCls}><User className="w-3 h-3 inline mr-1" />Full Name <span className="text-red-400">*</span></label>
                     {isEditing
                       ? <Input value={name} onChange={e => setName(e.target.value)} className={inputCls} />
-                      : <div className={readonlyCls}>{user.name || <span className="text-white/30">Not set</span>}</div>}
+                      : <div className={readonlyCls}>{user.name || <span className="text-[var(--color-text-faint)]">Not set</span>}</div>}
                   </div>
                   <div>
                     <label className={labelCls}><Phone className="w-3 h-3 inline mr-1" />Phone <span className="text-red-400">*</span></label>
                     {isEditing ? (
                       <div>
                         <div className="flex">
-                          <span className="inline-flex items-center h-11 px-3 rounded-l-md border border-r-0 border-white/[0.08] bg-white/[0.05] text-white/50 text-sm font-mono">+91</span>
+                          <span className="inline-flex items-center h-11 px-3 rounded-l-md border border-r-0 border-[var(--color-border)] bg-[var(--color-surface-3)] text-[var(--color-text-muted)] text-sm font-mono">+91</span>
                           <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="9876543210" type="tel" maxLength={10}
                             className={`${inputCls} h-11 rounded-l-none flex-1 ${phone && !isPhoneValid ? "border-red-500/50" : ""}`} />
                         </div>
@@ -392,15 +392,15 @@ export default function ProfilePage() {
                         )}
                       </div>
                     ) : (
-                      <div className={readonlyCls}>{user.phone ? `+91 ${user.phone}` : <span className="text-white/30">Not set</span>}</div>
+                      <div className={readonlyCls}>{user.phone ? `+91 ${user.phone}` : <span className="text-[var(--color-text-faint)]">Not set</span>}</div>
                     )}
                   </div>
                 </div>
                 <div>
                   <label className={labelCls}>Bio</label>
                   {isEditing
-                    ? <textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="Tell us about yourself..." rows={3} className="w-full bg-white/[0.03] border border-white/[0.08] text-white placeholder:text-white/30 rounded-md px-3 py-3 text-sm resize-none" />
-                    : <div className="min-h-[60px] px-3 py-3 text-sm text-white/80 bg-white/[0.02] border border-white/[0.06] rounded-md">{user.bio || <span className="text-white/30">No bio added</span>}</div>}
+                    ? <textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="Tell us about yourself..." rows={3} className="w-full bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] rounded-md px-3 py-3 text-sm resize-none" />
+                    : <div className="min-h-[60px] px-3 py-3 text-sm text-[var(--color-text)] bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-md">{user.bio || <span className="text-[var(--color-text-faint)]">No bio added</span>}</div>}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -410,15 +410,15 @@ export default function ProfilePage() {
                         <select
                           value={college}
                           onChange={e => setCollege(e.target.value)}
-                          className="w-full h-11 bg-white/[0.03] border border-white/[0.08] text-white rounded-md px-3 text-sm"
+                          className="w-full h-11 bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-md px-3 text-sm"
                         >
-                          <option value="" className="bg-black text-white/50">Select your campus...</option>
+                          <option value="" className="bg-[var(--color-surface-2)] text-[var(--color-text-muted)]">Select your campus...</option>
                           {["SRMIST, Ramapuram", "SRMIST, Kattankulathur", "SRMIST, Vadapalani", "SRMIST, Tiruchirappalli"].map(c => (
-                            <option key={c} value={c} className="bg-black text-white">{c}</option>
+                            <option key={c} value={c} className="bg-[var(--color-surface-2)] text-[var(--color-text)]">{c}</option>
                           ))}
                         </select>
                       )
-                      : <div className={readonlyCls}>{user.college || <span className="text-white/50">Not set</span>}</div>}
+                      : <div className={readonlyCls}>{user.college || <span className="text-[var(--color-text-muted)]">Not set</span>}</div>}
                   </div>
                   <div>
                     <label className={labelCls}><BookOpen className="w-3 h-3 inline mr-1" />Department <span className="text-red-400">*</span></label>
@@ -426,22 +426,22 @@ export default function ProfilePage() {
                       <select
                         value={department}
                         onChange={e => setDepartment(e.target.value)}
-                        className="w-full h-11 bg-white/[0.03] border border-white/[0.08] text-white rounded-md px-3 text-sm"
+                        className="w-full h-11 bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-md px-3 text-sm"
                       >
                         <option value="">Select department</option>
                         {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
                       </select>
                     ) : (
-                      <div className={readonlyCls}>{user.department || <span className="text-white/30">Not set</span>}</div>
+                      <div className={readonlyCls}>{user.department || <span className="text-[var(--color-text-faint)]">Not set</span>}</div>
                     )}
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}>Roll Number <span className="text-white/30">(optional)</span></label>
+                    <label className={labelCls}>Roll Number <span className="text-[var(--color-text-faint)]">(optional)</span></label>
                     {isEditing
                       ? <Input value={rollNo} onChange={e => setRollNo(e.target.value)} className={inputCls} />
-                      : <div className={readonlyCls}>{user.rollNo || <span className="text-white/30">Not set</span>}</div>}
+                      : <div className={readonlyCls}>{user.rollNo || <span className="text-[var(--color-text-faint)]">Not set</span>}</div>}
                   </div>
                   <div>
                     <label className={labelCls}>Year <span className="text-red-400">*</span></label>
@@ -449,13 +449,13 @@ export default function ProfilePage() {
                       <select
                         value={year}
                         onChange={e => setYear(e.target.value)}
-                        className="w-full h-11 bg-white/[0.03] border border-white/[0.08] text-white rounded-md px-3 text-sm"
+                        className="w-full h-11 bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-md px-3 text-sm"
                       >
                         <option value="">Select year</option>
                         {YEAR_OPTIONS.map(yr => <option key={yr} value={yr}>{yr}</option>)}
                       </select>
                     ) : (
-                      <div className={readonlyCls}>{user.year || <span className="text-white/30">Not set</span>}</div>
+                      <div className={readonlyCls}>{user.year || <span className="text-[var(--color-text-faint)]">Not set</span>}</div>
                     )}
                   </div>
                 </div>
@@ -466,7 +466,7 @@ export default function ProfilePage() {
                   <Button onClick={handleSave} disabled={!canSave} className="bg-white text-black hover:bg-[#B388FF] font-medium h-11 px-8 disabled:opacity-50">
                     <Save className="w-4 h-4 mr-2" />Save Changes
                   </Button>
-                  {saved && <span className="text-sm text-green-400 flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> Saved!</span>}
+                  {saved && <span className="text-sm text-[var(--color-success)] flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> Saved!</span>}
                 </div>
               )}
             </GlassCard>
@@ -476,15 +476,15 @@ export default function ProfilePage() {
           <motion.div variants={pageItem} className="mb-8">
             <GlassCard className="p-6 sm:p-8">
               <MicroLabel>02 — College Email Verification</MicroLabel>
-              <p className="text-sm text-white/60 mb-2">Link your college email to access intra-college events.</p>
-              <p className="text-[11px] text-white/50 mb-6 font-mono">This step is optional — you can participate in events without verification.</p>
+              <p className="text-sm text-[var(--color-text-muted)] mb-2">Link your college email to access intra-college events.</p>
+              <p className="text-[11px] text-[var(--color-text-muted)] mb-6 font-mono">This step is optional — you can participate in events without verification.</p>
 
               {user.collegeEmailVerified ? (
-                <div className="flex items-center gap-3 p-4 rounded-md bg-green-500/10 border border-green-500/20">
-                  <Shield className="w-5 h-5 text-green-400" />
+                <div className="flex items-center gap-3 p-4 rounded-md bg-[var(--color-success)]/10 border border-[var(--color-success)]/20">
+                  <Shield className="w-5 h-5 text-[var(--color-success)]" />
                   <div>
-                    <p className="text-sm text-green-400 font-medium">College Email Verified</p>
-                    <p className="text-xs font-mono text-green-400/60">{user.collegeEmail}</p>
+                    <p className="text-sm text-[var(--color-success)] font-medium">College Email Verified</p>
+                    <p className="text-xs font-mono text-[var(--color-success)]/60">{user.collegeEmail}</p>
                   </div>
                 </div>
               ) : (
@@ -493,8 +493,8 @@ export default function ProfilePage() {
                     <label className={labelCls}>Your College Email</label>
                     <div className="flex items-center">
                       <Input value={collegePrefix} onChange={e => setCollegePrefix(e.target.value)} placeholder="your.name"
-                        className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11 rounded-r-none border-r-0 flex-1" />
-                      <div className="h-11 px-4 flex items-center bg-white/[0.06] border border-white/[0.08] rounded-r-md text-white/50 text-sm font-mono whitespace-nowrap">@{COLLEGE_DOMAIN}</div>
+                        className="bg-[var(--color-surface-2)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] h-11 rounded-r-none border-r-0 flex-1" />
+                      <div className="h-11 px-4 flex items-center bg-[var(--color-surface-3)] border border-[var(--color-border)] rounded-r-md text-[var(--color-text-muted)] text-sm font-mono whitespace-nowrap">@{COLLEGE_DOMAIN}</div>
                     </div>
                   </div>
                   {verifyError && <div className="flex items-center gap-2 text-xs text-red-400"><AlertCircle className="w-3 h-3" /> {verifyError}</div>}
@@ -504,13 +504,13 @@ export default function ProfilePage() {
                     </Button>
                   ) : (
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 rounded-md bg-white/[0.03] border border-white/[0.06]">
+                      <div className="flex items-center justify-between p-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)]">
                         <div className="flex items-center gap-2">
-                          <Mail className="w-4 h-4 text-white/40" />
-                          <span className="text-xs text-white/70">Code sent to <span className="font-mono">{collegePrefix}@{COLLEGE_DOMAIN}</span></span>
+                          <Mail className="w-4 h-4 text-[var(--color-text-faint)]" />
+                          <span className="text-xs text-[var(--color-text-muted)]">Code sent to <span className="font-mono">{collegePrefix}@{COLLEGE_DOMAIN}</span></span>
                         </div>
                         {countdown > 0 ? (
-                          <span className="text-[10px] font-mono text-white/40">{Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}</span>
+                          <span className="text-[10px] font-mono text-[var(--color-text-faint)]">{Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}</span>
                         ) : (
                           <button onClick={handleResendOtp} disabled={verifying}
                             className="text-[10px] font-mono text-[#B388FF] hover:underline disabled:opacity-40">
@@ -520,7 +520,7 @@ export default function ProfilePage() {
                       </div>
                       <div className="flex gap-3">
                         <Input value={otp} onChange={e => setOtp(e.target.value)} placeholder="Enter 6-digit OTP" maxLength={6}
-                          className="bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-11 font-mono text-center tracking-[0.5em] max-w-[200px]" />
+                          className="bg-[var(--color-surface-2)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] h-11 font-mono text-center tracking-[0.5em] max-w-[200px]" />
                         <Button onClick={handleVerifyOtp} disabled={verifying || otp.length < 6} className="bg-white text-black hover:bg-[#B388FF] h-11 px-6">
                           {verifying ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify"}
                         </Button>
@@ -536,18 +536,18 @@ export default function ProfilePage() {
           <motion.div variants={pageItem} className="mb-8">
             <GlassCard className="p-6 sm:p-8">
               <MicroLabel>03 — Account</MicroLabel>
-              <p className="text-sm text-white/60 mb-6">Manage your session and account data.</p>
+              <p className="text-sm text-[var(--color-text-muted)] mb-6">Manage your session and account data.</p>
 
               <div className="space-y-3">
                 {/* Sign Out */}
                 <button
                   onClick={() => setConfirmModal("signout")}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-white/[0.08] text-white/60 hover:text-white hover:border-white/20 hover:bg-white/[0.03] transition-all text-sm"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:border-[var(--color-border)] hover:bg-[var(--color-surface-2)] transition-all text-sm"
                 >
                   <LogOut className="w-4 h-4 shrink-0" />
                   <div className="text-left">
                     <p className="font-medium">Sign Out</p>
-                    <p className="text-xs text-white/50">End your current session</p>
+                    <p className="text-xs text-[var(--color-text-muted)]">End your current session</p>
                   </div>
                 </button>
 

@@ -66,12 +66,12 @@ export function RichTextEditor({
     })
   }
 
-  const toolbarBtn = "p-1.5 rounded text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+  const toolbarBtn = "p-1.5 rounded text-[var(--color-text-faint)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-3)] transition-colors"
 
   return (
-    <div className="rounded-md border border-white/[0.08] bg-white/[0.03] overflow-hidden focus-within:border-white/20 transition-colors">
+    <div className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-2)] overflow-hidden focus-within:border-[var(--color-border-focus)] transition-colors">
       {/* Toolbar */}
-      <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-white/[0.06] bg-white/[0.02]">
+      <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-[var(--color-border-muted)] bg-[var(--color-surface-3)]">
         <button
           type="button"
           title="Bold (wraps selected text in **bold**)"
@@ -96,7 +96,7 @@ export function RichTextEditor({
         >
           <Quote className="w-3.5 h-3.5" />
         </button>
-        <span className="ml-auto text-[9px] font-mono text-white/20 tracking-widest pr-1 select-none">
+        <span className="ml-auto text-[9px] font-mono text-[var(--color-text-faint)] tracking-widest pr-1 select-none">
           Markdown supported · Enter for new line
         </span>
       </div>
@@ -108,7 +108,7 @@ export function RichTextEditor({
         placeholder={placeholder}
         rows={rows}
         required={required}
-        className={`w-full bg-transparent text-white placeholder:text-white/30 px-3 py-3 text-sm resize-none outline-none ${className}`}
+        className={`w-full bg-transparent text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] px-3 py-3 text-sm resize-none outline-none ${className}`}
       />
     </div>
   )

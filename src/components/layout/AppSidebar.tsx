@@ -1,6 +1,7 @@
 "use client"
 
 import { useAuth } from "@/lib/auth-context"
+import { ThemeToggle } from "@/components/ui/ThemeToggle"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
@@ -49,9 +50,9 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
     return true
   })
 
-  // ── Shared active item style ──────────────────────────────────────────
-  const activeClass = "bg-[rgba(179,136,255,0.12)] text-[#B388FF] border-[rgba(179,136,255,0.30)]"
-  const inactiveClass = "text-white/50 hover:bg-[rgba(179,136,255,0.08)] hover:text-[#B388FF] border-transparent"
+  // ── Theme-aware active item styles ──────────────────────────────────────
+  const activeClass = "bg-[var(--color-accent-low)] text-[var(--color-accent)] border-[var(--color-accent)]/30"
+  const inactiveClass = "text-[var(--color-text-muted)] hover:bg-[var(--color-accent-low)] hover:text-[var(--color-accent)] border-transparent"
 
   return (
     <>
@@ -60,9 +61,8 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
         className="
           hidden md:flex
           w-[72px] lg:w-[260px]
-          border-r border-white/[0.06]
-          bg-black/60
-          backdrop-blur-md
+          border-r border-[var(--glass-border)]
+          glass-surface
           flex-col justify-between
           py-6 fixed h-screen z-40 overflow-y-auto
           transition-colors duration-300
@@ -106,19 +106,24 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
 
         {/* Bottom section */}
         <div className="px-3 space-y-2">
+          {/* Theme Toggle */}
+          <div className="flex justify-center lg:justify-start px-1 mb-2">
+            <ThemeToggle />
+          </div>
+
           {user ? (
             <>
               {/* User info */}
               <div className={`flex items-center justify-center lg:justify-start gap-3 p-3 rounded-lg
-                bg-white/[0.03]
-                border-white/[0.06] border`}>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 text-white"
+                bg-[var(--color-surface-2)]
+                border-[var(--glass-border)] border`}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 text-[var(--color-text)]"
                   style={{ background: "linear-gradient(135deg, #B388FF, #7C5CBF)" }}>
                   {user.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="hidden lg:block flex-1 min-w-0">
-                  <p className="text-sm text-white truncate font-medium">{user.name}</p>
-                  <p className="text-[10px] font-mono text-white/40 truncate">{user.email}</p>
+                  <p className="text-sm text-[var(--color-text)] truncate font-medium">{user.name}</p>
+                  <p className="text-[10px] font-mono text-[var(--color-text-faint)] truncate">{user.email}</p>
                 </div>
               </div>
 
@@ -127,7 +132,7 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
                 onClick={() => setShowConfirm(true)}
                 aria-label="Sign out"
                 className="flex items-center justify-center lg:justify-start gap-3 p-3 w-full rounded-lg
-                  hover:bg-red-500/10 transition-colors text-white/40
+                  hover:bg-red-500/10 transition-colors text-[var(--color-text-faint)]
                   hover:text-red-400 touch-target focus-ring border border-transparent"
               >
                 <LogOut className="w-4 h-4 shrink-0" strokeWidth={1.5} aria-hidden="true" />
@@ -139,8 +144,8 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
               href="/login"
               aria-label="Sign in to MyFestivo"
               className="flex items-center justify-center lg:justify-start gap-3 p-3 rounded-lg
-                hover:bg-[rgba(179,136,255,0.08)] text-white/50
-                hover:text-[#B388FF] transition-colors touch-target focus-ring border border-transparent"
+                hover:bg-[var(--color-accent-low)] text-[var(--color-text-muted)]
+                hover:text-[var(--color-accent)] transition-colors touch-target focus-ring border border-transparent"
             >
               <User className="w-5 h-5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
               <span className="hidden lg:inline text-sm">Sign In</span>
@@ -153,9 +158,7 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
       <nav
         className="
           md:hidden fixed bottom-0 left-0 right-0 z-50
-          bg-black/90
-          backdrop-blur-xl
-          border-t border-white/[0.06]
+          glass-surface
           pb-safe
         "
         aria-label="Mobile navigation"
@@ -167,7 +170,7 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
             href="/"
             aria-label="Go to MyFestivo home"
             className={`flex flex-col items-center gap-0.5 px-1.5 py-2 rounded-xl transition-all duration-200 min-w-[40px] ${
-              pathname === "/" ? "text-[#B388FF]" : "text-white/40"
+              pathname === "/" ? "text-[var(--color-accent)]" : "text-[var(--color-text-faint)]"
             }`}
           >
             <House
@@ -176,7 +179,7 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
               aria-hidden="true"
             />
             <span className="text-[8px] font-medium tracking-wide">Home</span>
-            {pathname === "/" && <span className="w-1 h-1 rounded-full bg-[#B388FF]" />}
+            {pathname === "/" && <span className="w-1 h-1 rounded-full bg-[var(--color-accent)]" />}
           </Link>
 
           {visibleNavItems.map(item => {
@@ -188,7 +191,7 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
                 aria-label={item.label}
                 aria-current={isActive ? "page" : undefined}
                 className={`flex flex-col items-center gap-0.5 px-1.5 py-2 rounded-xl transition-all duration-200 min-w-[40px] ${
-                  isActive ? "text-[#B388FF]" : "text-white/40"
+                  isActive ? "text-[var(--color-accent)]" : "text-[var(--color-text-faint)]"
                 }`}
               >
                 <item.icon
@@ -199,7 +202,7 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
                 <span className="text-[8px] font-medium tracking-wide">
                   {item.id === "browse" ? "Events" : item.id === "dashboard" ? "Dash" : item.id === "host" ? "Host" : item.id === "friends" ? "Friends" : "Profile"}
                 </span>
-                {isActive && <span className="w-1 h-1 rounded-full bg-[#B388FF]" />}
+                {isActive && <span className="w-1 h-1 rounded-full bg-[var(--color-accent)]" />}
               </Link>
             )
           })}
@@ -225,14 +228,14 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
               className="w-full max-w-sm"
               onClick={e => e.stopPropagation()}
             >
-              <GlassCard className="p-6 border border-white/10">
+              <GlassCard className="p-6 border border-[var(--color-border)]">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white/[0.06]">
-                    <LogOut className="w-5 h-5 text-white/60" />
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--color-surface-2)]">
+                    <LogOut className="w-5 h-5 text-[var(--color-text-muted)]" />
                   </div>
                   <div>
-                    <h2 className="text-base font-semibold text-white">Sign Out?</h2>
-                    <p className="text-xs text-white/40">You can sign back in anytime</p>
+                    <h2 className="text-base font-semibold text-[var(--color-text)]">Sign Out?</h2>
+                    <p className="text-xs text-[var(--color-text-faint)]">You can sign back in anytime</p>
                   </div>
                 </div>
 
@@ -240,7 +243,7 @@ export function AppSidebar({ activeItem }: AppSidebarProps) {
                   <button
                     onClick={() => setShowConfirm(false)}
                     disabled={signingOut}
-                    className="px-4 py-2 rounded-md text-xs border border-white/[0.1] text-white/50 hover:text-white hover:border-white/20 transition-colors disabled:opacity-50"
+                    className="px-4 py-2 rounded-md text-xs border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:border-[var(--color-border-focus)] transition-colors disabled:opacity-50"
                   >
                     Cancel
                   </button>

@@ -104,15 +104,15 @@ export function ParticipantsList({ event }: Props) {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         <GlassCard className="p-4 text-center">
-          <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Total</p>
+          <p className="text-[10px] font-mono text-[var(--color-text-faint)] tracking-widest uppercase mb-1">Total</p>
           <p className="text-2xl font-light">{confirmedRegs.length}</p>
         </GlassCard>
         <GlassCard className="p-4 text-center">
-          <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Pending</p>
+          <p className="text-[10px] font-mono text-[var(--color-text-faint)] tracking-widest uppercase mb-1">Pending</p>
           <p className="text-2xl font-light text-yellow-400">{confirmedRegs.filter(r => r.status === "PENDING").length}</p>
         </GlassCard>
         <GlassCard className="p-4 text-center">
-          <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase mb-1">Checked In</p>
+          <p className="text-[10px] font-mono text-[var(--color-text-faint)] tracking-widest uppercase mb-1">Checked In</p>
           <p className="text-2xl font-light">{confirmedRegs.filter(r => r.checkedIn).length}</p>
         </GlassCard>
       </div>
@@ -124,7 +124,7 @@ export function ParticipantsList({ event }: Props) {
           <select
             value={filterSe}
             onChange={e => setFilterSe(e.target.value)}
-            className="h-7 bg-white/[0.03] border border-white/[0.08] text-white text-[10px] font-mono rounded px-2"
+            className="h-7 bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] text-[10px] font-mono rounded px-2"
           >
             <option value="">All Sub-Events</option>
             {event.subEvents.map(se => (
@@ -132,7 +132,7 @@ export function ParticipantsList({ event }: Props) {
             ))}
           </select>
         </div>
-        <Button onClick={downloadCSV} disabled={isExporting} variant="outline" className="h-8 px-4 text-[10px] font-mono border-white/20 text-white/60 hover:text-white gap-1.5">
+        <Button onClick={downloadCSV} disabled={isExporting} variant="outline" className="h-8 px-4 text-[10px] font-mono border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] gap-1.5">
           <Download className={`w-3.5 h-3.5 ${isExporting ? "animate-pulse" : ""}`} /> {isExporting ? "Exporting..." : "Export CSV"}
         </Button>
       </div>
@@ -141,7 +141,7 @@ export function ParticipantsList({ event }: Props) {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-white/[0.03] text-white/50">
+            <tr className="bg-[var(--color-surface-2)] text-[var(--color-text-muted)]">
               <th className="text-left p-3 text-[10px] font-mono tracking-widest">#</th>
               <th className="text-left p-3 text-[10px] font-mono tracking-widest">Participant</th>
               <th className="text-left p-3 text-[10px] font-mono tracking-widest">Phone</th>
@@ -152,7 +152,7 @@ export function ParticipantsList({ event }: Props) {
           </thead>
           <tbody>
             {regs.length === 0 ? (
-              <tr><td colSpan={6} className="p-8 text-center text-white/20 font-mono">No registrations yet</td></tr>
+              <tr><td colSpan={6} className="p-8 text-center text-[var(--color-text-faint)] font-mono">No registrations yet</td></tr>
             ) : regs.map((reg, i) => {
               const se = event.subEvents.find(s => s.id === reg.subEventId)
               return (
@@ -162,42 +162,42 @@ export function ParticipantsList({ event }: Props) {
                     setSelectedReg(reg)
                     setModalOpen(true)
                   }}
-                  className="border-b border-white/[0.04] hover:bg-white/[0.04] transition-colors cursor-pointer"
+                  className="border-b border-[var(--color-border)] hover:bg-[var(--color-surface-3)] transition-colors cursor-pointer"
                 >
-                  <td className="p-3 text-white/30 font-mono text-xs">{i + 1}</td>
+                  <td className="p-3 text-[var(--color-text-faint)] font-mono text-xs">{i + 1}</td>
                   <td className="p-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-white/[0.06] flex items-center justify-center text-[10px] font-mono text-white/40">
+                      <div className="w-7 h-7 rounded-full bg-[var(--color-surface-3)] flex items-center justify-center text-[10px] font-mono text-[var(--color-text-faint)]">
                         {reg.userName[0]}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-white/80">{reg.userName}</p>
-                        <p className="text-[10px] font-mono text-white/30">{reg.userEmail}</p>
+                        <p className="text-sm font-medium text-[var(--color-text)]">{reg.userName}</p>
+                        <p className="text-[10px] font-mono text-[var(--color-text-faint)]">{reg.userEmail}</p>
                       </div>
                     </div>
                   </td>
                   <td className="p-3">
                     {reg.userPhone ? (
-                      <div className="flex items-center gap-1.5 text-xs text-white/60">
-                        <Phone className="w-3 h-3 text-white/30" />
+                      <div className="flex items-center gap-1.5 text-xs text-[var(--color-text-muted)]">
+                        <Phone className="w-3 h-3 text-[var(--color-text-faint)]" />
                         <span className="font-mono">{reg.userPhone}</span>
                       </div>
                     ) : (
-                      <span className="text-[10px] font-mono text-white/20">—</span>
+                      <span className="text-[10px] font-mono text-[var(--color-text-faint)]">—</span>
                     )}
                   </td>
-                  <td className="p-3 text-white/50 text-xs">{se?.name}</td>
+                  <td className="p-3 text-[var(--color-text-muted)] text-xs">{se?.name}</td>
                   <td className="p-3">
                     {reg.teamName ? (
                       <div>
-                        <p className="text-xs text-white/60 flex items-center gap-1"><Users className="w-3 h-3" />{reg.teamName}</p>
+                        <p className="text-xs text-[var(--color-text-muted)] flex items-center gap-1"><Users className="w-3 h-3" />{reg.teamName}</p>
                         {reg.teamMembers && reg.teamMembers.length > 1 && (
-                          <p className="text-[10px] font-mono text-white/30">{reg.teamMembers.length} members</p>
+                          <p className="text-[10px] font-mono text-[var(--color-text-faint)]">{reg.teamMembers.length} members</p>
                         )}
                       </div>
-                    ) : <span className="text-[10px] font-mono text-white/20">Solo</span>}
+                    ) : <span className="text-[10px] font-mono text-[var(--color-text-faint)]">Solo</span>}
                   </td>
-                  <td className="p-3 text-[10px] font-mono text-white/30">{reg.timestamp}</td>
+                  <td className="p-3 text-[10px] font-mono text-[var(--color-text-faint)]">{reg.timestamp}</td>
                 </tr>
               )
             })}

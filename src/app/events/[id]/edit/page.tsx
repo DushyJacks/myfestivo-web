@@ -183,23 +183,23 @@ export default function EditEventPage() {
 
   if (isLoading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+      <div className="w-6 h-6 border-2 border-[var(--color-border)] border-t-white rounded-full animate-spin" />
     </div>
   )
   if (!user) { router.push("/login"); return null }
   if (!event) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-white/40 font-mono">Event not found</p>
+        <p className="text-[var(--color-text-faint)] font-mono">Event not found</p>
       </div>
     )
   }
   if (user.email !== event.organizerEmail) {
     return (
       <div className="min-h-screen flex items-center justify-center flex-col gap-4">
-        <p className="text-white/40 font-mono">Only the host can edit this event.</p>
+        <p className="text-[var(--color-text-faint)] font-mono">Only the host can edit this event.</p>
         <Link href={`/events/${event.id}`}>
-          <Button variant="outline" className="border-white/20 text-white">Back to Event</Button>
+          <Button variant="outline" className="border-[var(--color-border)] text-[var(--color-text)]">Back to Event</Button>
         </Link>
       </div>
     )
@@ -354,8 +354,8 @@ export default function EditEventPage() {
     }
   }
 
-  const inputCls = "bg-white/[0.03] border-white/[0.08] text-white placeholder:text-white/30 h-10 text-sm"
-  const labelCls = "text-[10px] font-mono text-white/40 mb-1 block tracking-widest uppercase"
+  const inputCls = "bg-[var(--color-surface-2)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] h-10 text-sm"
+  const labelCls = "text-[10px] font-mono text-[var(--color-text-faint)] mb-1 block tracking-widest uppercase"
 
   const sections = [
     { id: "details" as const, label: "Event Details", icon: Info },
@@ -369,7 +369,7 @@ export default function EditEventPage() {
     <div className="pb-16 px-4 max-w-3xl mx-auto">
       {/* Header */}
       <motion.div variants={pageItem} className="mb-3">
-        <Link href={`/events/${event.id}`} className="flex items-center gap-2 text-white/40 hover:text-white text-sm transition-colors mb-6">
+        <Link href={`/events/${event.id}`} className="flex items-center gap-2 text-[var(--color-text-faint)] hover:text-[var(--color-text)] text-sm transition-colors mb-6">
           <ArrowLeft className="w-4 h-4" /> Back to Event
         </Link>
         <div className="flex items-center justify-between">
@@ -381,12 +381,12 @@ export default function EditEventPage() {
       </motion.div>
 
       {/* Section Tabs */}
-      <motion.div variants={pageItem} className="flex gap-1 mb-8 border-b border-white/[0.06] overflow-x-auto pb-px">
+      <motion.div variants={pageItem} className="flex gap-1 mb-8 border-b border-[var(--color-border)] overflow-x-auto pb-px">
         {sections.map(sec => (
           <button
             key={sec.id}
             onClick={() => setActiveSection(sec.id)}
-            className={`flex items-center gap-2 px-5 py-3.5 text-xs font-medium transition-all relative whitespace-nowrap ${activeSection === sec.id ? "text-white" : "text-white/40 hover:text-white/60"}`}
+            className={`flex items-center gap-2 px-5 py-3.5 text-xs font-medium transition-all relative whitespace-nowrap ${activeSection === sec.id ? "text-[var(--color-text)]" : "text-[var(--color-text-faint)] hover:text-[var(--color-text-muted)]"}`}
           >
             <sec.icon className="w-4 h-4" />
             {sec.label}
@@ -404,31 +404,31 @@ export default function EditEventPage() {
               <MicroLabel className="mb-0">01 — Event Details</MicroLabel>
               {/* Event Poster */}
               <div>
-                <label className={labelCls}><ImageIcon className="w-3 h-3 inline mr-1" />Event Poster <span className="text-white/20">(optional)</span></label>
+                <label className={labelCls}><ImageIcon className="w-3 h-3 inline mr-1" />Event Poster <span className="text-[var(--color-text-faint)]">(optional)</span></label>
                 <div className="flex gap-4 items-start">
                   {posterPreview ? (
                     <div className="relative w-24 h-24 shrink-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={posterPreview} alt="Event poster preview" className="w-24 h-24 object-cover rounded-md border border-white/10" />
+                      <img src={posterPreview} alt="Event poster preview" className="w-24 h-24 object-cover rounded-md border border-[var(--color-border)]" />
                       <button
                         type="button"
                         onClick={() => { setPosterBase64(undefined); setPosterPreview(undefined) }}
-                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-black/80 border border-white/20 rounded-full flex items-center justify-center text-white/60 hover:text-red-400 transition-colors"
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-black/80 border border-[var(--color-border)] rounded-full flex items-center justify-center text-[var(--color-text-muted)] hover:text-red-400 transition-colors"
                         aria-label="Remove poster"
                       >
                         <X className="w-3 h-3" />
                       </button>
                     </div>
                   ) : (
-                    <div className="w-24 h-24 shrink-0 border border-dashed border-white/10 rounded-md flex flex-col items-center justify-center text-white/20 bg-white/[0.01]">
+                    <div className="w-24 h-24 shrink-0 border border-dashed border-[var(--color-border)] rounded-md flex flex-col items-center justify-center text-[var(--color-text-faint)] bg-[var(--color-surface-2)]">
                       <ImageIcon className="w-6 h-6 mb-1" />
                       <span className="text-[9px] font-mono">No poster</span>
                     </div>
                   )}
-                  <label className="flex-1 flex flex-col items-center justify-center h-24 border border-dashed border-white/10 rounded-md cursor-pointer hover:border-white/20 hover:bg-white/[0.02] transition-colors bg-white/[0.01]">
-                    <Upload className="w-4 h-4 text-white/30 mb-1" />
-                    <span className="text-[10px] font-mono text-white/30">Click to {posterPreview ? "change" : "upload"}</span>
-                    <span className="text-[9px] font-mono text-white/20 mt-0.5">JPG, PNG, WebP</span>
+                  <label className="flex-1 flex flex-col items-center justify-center h-24 border border-dashed border-[var(--color-border)] rounded-md cursor-pointer hover:border-[var(--color-border)] hover:bg-[var(--color-surface-2)] transition-colors bg-[var(--color-surface-2)]">
+                    <Upload className="w-4 h-4 text-[var(--color-text-faint)] mb-1" />
+                    <span className="text-[10px] font-mono text-[var(--color-text-faint)]">Click to {posterPreview ? "change" : "upload"}</span>
+                    <span className="text-[9px] font-mono text-[var(--color-text-faint)] mt-0.5">JPG, PNG, WebP</span>
                     <input type="file" accept="image/*" className="sr-only" onChange={handlePosterChange} />
                   </label>
                 </div>
@@ -442,12 +442,12 @@ export default function EditEventPage() {
                 <div><label className={labelCls}>Event Date</label><NativeDateInput value={form.date} onChange={(e) => update("date", e.target.value)} className="h-11" required /></div>
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className={labelCls}>Event Time <span className="text-white/20">(optional)</span></label>
+                    <label className={labelCls}>Event Time <span className="text-[var(--color-text-faint)]">(optional)</span></label>
                     <button
                       type="button"
                       onClick={() => update("hasTime", !form.hasTime)}
                       aria-label={form.hasTime ? "Disable event time" : "Enable event time"}
-                      className={`relative w-9 h-5 rounded-full transition-colors ${form.hasTime ? "bg-green-500" : "bg-white/10"}`}
+                      className={`relative w-9 h-5 rounded-full transition-colors ${form.hasTime ? "bg-[var(--color-success)]" : "bg-[var(--color-surface-3)]"}`}
                     >
                       <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${form.hasTime ? "left-4" : "left-0.5"}`} />
                     </button>
@@ -459,8 +459,8 @@ export default function EditEventPage() {
                       className="w-full"
                     />
                   ) : (
-                    <div className="h-11 bg-white/[0.01] border border-white/[0.04] rounded-md px-3 flex items-center">
-                      <span className="text-xs text-white/20 font-mono">Toggle to add event time</span>
+                    <div className="h-11 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-md px-3 flex items-center">
+                      <span className="text-xs text-[var(--color-text-faint)] font-mono">Toggle to add event time</span>
                     </div>
                   )}
                 </div>
@@ -472,7 +472,7 @@ export default function EditEventPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><label className={labelCls}>Price (₹)</label><Input type="number" value={form.price} onChange={(e) => update("price", parseInt(e.target.value) || 0)} className={`${inputCls} h-11`} /></div>
                 <div><label className={labelCls}>Category</label>
-                  <select value={form.category} onChange={(e) => update("category", e.target.value)} className="w-full h-11 bg-white/[0.03] border border-white/[0.08] text-white rounded-md px-3 text-sm">
+                  <select value={form.category} onChange={(e) => update("category", e.target.value)} className="w-full h-11 bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] rounded-md px-3 text-sm">
                     <option value="Technical">Technical</option><option value="Cultural">Cultural</option><option value="Sports">Sports</option><option value="Workshop">Workshop</option>
                   </select>
                 </div>
@@ -490,7 +490,7 @@ export default function EditEventPage() {
                 <div>
                   <label className={labelCls}><Phone className="w-3 h-3 inline mr-1" />Organizer Phone</label>
                   <div className="flex h-11">
-                    <span className="flex items-center px-3 bg-white/[0.04] border border-r-0 border-white/[0.08] rounded-l-md text-sm text-white/50 font-mono shrink-0 select-none">+91</span>
+                    <span className="flex items-center px-3 bg-[var(--color-surface-3)] border border-r-0 border-[var(--color-border)] rounded-l-md text-sm text-[var(--color-text-muted)] font-mono shrink-0 select-none">+91</span>
                     <input
                       type="tel"
                       value={form.organizerPhone}
@@ -501,7 +501,7 @@ export default function EditEventPage() {
                       placeholder="9876543210"
                       maxLength={10}
                       pattern="[0-9]{10}"
-                      className="flex-1 bg-white/[0.03] border border-white/[0.08] rounded-r-md px-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 font-mono"
+                      className="flex-1 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-r-md px-3 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] focus:outline-none focus:border-[var(--color-border)] font-mono"
                     />
                   </div>
                   {form.organizerPhone.length > 0 && form.organizerPhone.length < 10 && (
@@ -515,7 +515,7 @@ export default function EditEventPage() {
                       type="button"
                       onClick={() => update("showPrizePool", !form.showPrizePool)}
                       aria-label={form.showPrizePool ? "Disable prize pool" : "Enable prize pool"}
-                      className={`relative w-9 h-5 rounded-full transition-colors ${form.showPrizePool ? "bg-green-500" : "bg-white/10"}`}
+                      className={`relative w-9 h-5 rounded-full transition-colors ${form.showPrizePool ? "bg-[var(--color-success)]" : "bg-[var(--color-surface-3)]"}`}
                     >
                       <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${form.showPrizePool ? "left-4" : "left-0.5"}`} />
                     </button>
@@ -523,8 +523,8 @@ export default function EditEventPage() {
                   {form.showPrizePool ? (
                     <Input value={form.prizePool} onChange={(e) => update("prizePool", e.target.value)} placeholder="₹1,50,000" className={`${inputCls} h-11`} />
                   ) : (
-                    <div className="h-11 bg-white/[0.01] border border-white/[0.04] rounded-md px-3 flex items-center">
-                      <span className="text-xs text-white/20 font-mono">Toggle to add prize pool</span>
+                    <div className="h-11 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-md px-3 flex items-center">
+                      <span className="text-xs text-[var(--color-text-faint)] font-mono">Toggle to add prize pool</span>
                     </div>
                   )}
                 </div>
@@ -532,14 +532,14 @@ export default function EditEventPage() {
               {/* Event Scope */}
               <div><label className={labelCls}>Event Scope</label>
                 <div className="flex gap-2">
-                  <button type="button" onClick={() => update("isInter", true)} className={`flex-1 py-2.5 px-4 rounded-md text-sm transition-colors border ${form.isInter ? "bg-white text-black border-white" : "bg-white/[0.03] text-white/50 border-white/[0.08]"}`}>Inter-College (Open)</button>
-                  <button type="button" onClick={() => update("isInter", false)} className={`flex-1 py-2.5 px-4 rounded-md text-sm transition-colors border ${!form.isInter ? "bg-white text-black border-white" : "bg-white/[0.03] text-white/50 border-white/[0.08]"}`}>Intra-College (Restricted)</button>
+                  <button type="button" onClick={() => update("isInter", true)} className={`flex-1 py-2.5 px-4 rounded-md text-sm transition-colors border ${form.isInter ? "bg-white text-black border-[var(--color-border-focus)]" : "bg-[var(--color-surface-2)] text-[var(--color-text-muted)] border-[var(--color-border)]"}`}>Inter-College (Open)</button>
+                  <button type="button" onClick={() => update("isInter", false)} className={`flex-1 py-2.5 px-4 rounded-md text-sm transition-colors border ${!form.isInter ? "bg-white text-black border-[var(--color-border-focus)]" : "bg-[var(--color-surface-2)] text-[var(--color-text-muted)] border-[var(--color-border)]"}`}>Intra-College (Restricted)</button>
                 </div>
               </div>
               {!form.isInter && (
                 <div><label className={labelCls}>College Email Domain</label>
                   <Input value={form.collegeDomain} onChange={(e) => update("collegeDomain", e.target.value)} placeholder="srmist.edu.in" className={`${inputCls} h-11`} />
-                  <p className="text-[10px] text-white/30 mt-1">Only users with verified @{form.collegeDomain || "domain"} email can register</p>
+                  <p className="text-[10px] text-[var(--color-text-faint)] mt-1">Only users with verified @{form.collegeDomain || "domain"} email can register</p>
                 </div>
               )}
             </GlassCard>
@@ -550,14 +550,14 @@ export default function EditEventPage() {
             <GlassCard className="p-6 space-y-4">
               <div className="flex justify-between items-center">
                 <MicroLabel className="mb-0">02 — Event Rules</MicroLabel>
-                <button type="button" onClick={addRule} className="flex items-center gap-1 text-xs text-white/50 hover:text-white transition-colors"><PlusCircle className="w-3 h-3" /> Add Rule</button>
+                <button type="button" onClick={addRule} className="flex items-center gap-1 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"><PlusCircle className="w-3 h-3" /> Add Rule</button>
               </div>
               {form.rules.map((rule, idx) => (
                 <div key={idx} className="flex gap-2 items-center">
-                  <span className="text-[10px] font-mono text-white/30 w-6 shrink-0">{idx + 1}.</span>
+                  <span className="text-[10px] font-mono text-[var(--color-text-faint)] w-6 shrink-0">{idx + 1}.</span>
                   <Input value={rule} onChange={(e) => updateRule(idx, e.target.value)} placeholder="Enter a rule..." className={`${inputCls} flex-1`} />
                   {form.rules.length > 1 && (
-                    <button type="button" onClick={() => removeRule(idx)} className="text-white/20 hover:text-red-400 transition-colors"><X className="w-3 h-3" /></button>
+                    <button type="button" onClick={() => removeRule(idx)} className="text-[var(--color-text-faint)] hover:text-red-400 transition-colors"><X className="w-3 h-3" /></button>
                   )}
                 </div>
               ))}
@@ -569,13 +569,13 @@ export default function EditEventPage() {
             <GlassCard className="p-6 space-y-5">
               <div className="flex justify-between items-center">
                 <MicroLabel className="mb-0">03 — Sub-Events</MicroLabel>
-                <button type="button" onClick={addSubEvent} className="flex items-center gap-1 text-xs text-white/50 hover:text-white transition-colors"><PlusCircle className="w-4 h-4" /> Add Sub-Event</button>
+                <button type="button" onClick={addSubEvent} className="flex items-center gap-1 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"><PlusCircle className="w-4 h-4" /> Add Sub-Event</button>
               </div>
 
               {subEvents.length === 0 && (
                 <div className="text-center py-8">
-                  <p className="text-white/30 text-sm font-mono mb-4">No sub-events yet</p>
-                  <Button type="button" onClick={addSubEvent} variant="outline" className="border-white/20 text-white/60">
+                  <p className="text-[var(--color-text-faint)] text-sm font-mono mb-4">No sub-events yet</p>
+                  <Button type="button" onClick={addSubEvent} variant="outline" className="border-[var(--color-border)] text-[var(--color-text-muted)]">
                     <PlusCircle className="w-4 h-4 mr-2" /> Add First Sub-Event
                   </Button>
                 </div>
@@ -585,17 +585,17 @@ export default function EditEventPage() {
                 const regCount = event.registrations.filter(r => r.subEventId === se.id).length
 
                 return (
-                  <div key={se.id} className="p-4 rounded-md bg-white/[0.02] border border-white/[0.06] space-y-4 relative">
+                  <div key={se.id} className="p-4 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] space-y-4 relative">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <p className="text-[10px] font-mono text-white/30 tracking-widest uppercase">Sub-Event {idx + 1}</p>
+                        <p className="text-[10px] font-mono text-[var(--color-text-faint)] tracking-widest uppercase">Sub-Event {idx + 1}</p>
                         {regCount > 0 && (
                           <span className="text-[9px] font-mono bg-blue-500/10 border border-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">
                             {regCount} registration{regCount !== 1 ? "s" : ""}
                           </span>
                         )}
                       </div>
-                      <button type="button" onClick={() => removeSubEvent(idx)} className="text-white/20 hover:text-red-400 transition-colors p-1">
+                      <button type="button" onClick={() => removeSubEvent(idx)} className="text-[var(--color-text-faint)] hover:text-red-400 transition-colors p-1">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -616,8 +616,8 @@ export default function EditEventPage() {
                               <Button type="button" onClick={() => {
                                 setSubEvents(prev => prev.filter((_, i) => i !== idx))
                                 setShowDeleteConfirm(null)
-                              }} className="bg-red-500 text-white text-xs h-7 px-3 hover:bg-red-600">Remove Anyway</Button>
-                              <Button type="button" onClick={() => setShowDeleteConfirm(null)} variant="ghost" className="text-white/50 text-xs h-7 px-3 border border-white/10">Cancel</Button>
+                              }} className="bg-red-500 text-[var(--color-text)] text-xs h-7 px-3 hover:bg-red-600">Remove Anyway</Button>
+                              <Button type="button" onClick={() => setShowDeleteConfirm(null)} variant="ghost" className="text-[var(--color-text-muted)] text-xs h-7 px-3 border border-[var(--color-border)]">Cancel</Button>
                             </div>
                           </div>
                         </div>
@@ -629,12 +629,12 @@ export default function EditEventPage() {
                       <div><label className={labelCls}>Max Participants</label><Input type="number" value={se.maxParticipants} onChange={(e) => updateSubEvent(idx, "maxParticipants", parseInt(e.target.value) || 0)} className={inputCls} /></div>
                       <div>
                         <div className="flex items-center justify-between mb-1">
-                          <label className={labelCls}>Time <span className="text-white/20">(opt.)</span></label>
+                          <label className={labelCls}>Time <span className="text-[var(--color-text-faint)]">(opt.)</span></label>
                           <button
                             type="button"
                             onClick={() => updateSubEvent(idx, "hasTime", !se.hasTime)}
                             aria-label={se.hasTime ? "Disable sub-event time" : "Enable sub-event time"}
-                            className={`relative w-9 h-5 rounded-full transition-colors ${se.hasTime ? "bg-green-500" : "bg-white/10"}`}
+                            className={`relative w-9 h-5 rounded-full transition-colors ${se.hasTime ? "bg-[var(--color-success)]" : "bg-[var(--color-surface-3)]"}`}
                           >
                             <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${se.hasTime ? "left-4" : "left-0.5"}`} />
                           </button>
@@ -646,8 +646,8 @@ export default function EditEventPage() {
                             className="w-full !h-10"
                           />
                         ) : (
-                          <div className="h-10 bg-white/[0.01] border border-white/[0.04] rounded-md px-3 flex items-center">
-                            <span className="text-xs text-white/20 font-mono">Toggle to add</span>
+                          <div className="h-10 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-md px-3 flex items-center">
+                            <span className="text-xs text-[var(--color-text-faint)] font-mono">Toggle to add</span>
                           </div>
                         )}
                       </div>
@@ -661,13 +661,13 @@ export default function EditEventPage() {
                       />
                     </div>
                     <div className="flex gap-2">
-                      <div className={`flex-1 py-2 rounded-md text-xs text-center border cursor-not-allowed select-none ${se.type === "solo" ? "bg-white/10 text-white border-white/30" : "bg-white/[0.02] text-white/20 border-white/[0.05]"}`}>Solo</div>
-                      <div className={`flex-1 py-2 rounded-md text-xs text-center border cursor-not-allowed select-none ${se.type === "team" ? "bg-white/10 text-white border-white/30" : "bg-white/[0.02] text-white/20 border-white/[0.05]"}`}>Team</div>
+                      <div className={`flex-1 py-2 rounded-md text-xs text-center border cursor-not-allowed select-none ${se.type === "solo" ? "bg-[var(--color-surface-3)] text-[var(--color-text)] border-[var(--color-border-focus)]" : "bg-[var(--color-surface-2)] text-[var(--color-text-faint)] border-[var(--color-border)]"}`}>Solo</div>
+                      <div className={`flex-1 py-2 rounded-md text-xs text-center border cursor-not-allowed select-none ${se.type === "team" ? "bg-[var(--color-surface-3)] text-[var(--color-text)] border-[var(--color-border-focus)]" : "bg-[var(--color-surface-2)] text-[var(--color-text-faint)] border-[var(--color-border)]"}`}>Team</div>
                     </div>
-                    <p className="text-[10px] text-white/30 font-mono mt-1.5">🔒 Participation type is locked and cannot be changed after creation.</p>
+                    <p className="text-[10px] text-[var(--color-text-faint)] font-mono mt-1.5">🔒 Participation type is locked and cannot be changed after creation.</p>
 
                     {se.type === "team" && (
-                      <div className="grid grid-cols-2 gap-3 p-3 rounded-md bg-white/[0.02] border border-white/[0.06]">
+                      <div className="grid grid-cols-2 gap-3 p-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)]">
                         <div>
                           <label className={labelCls}>Min Team Size</label>
                           <Input type="number" min={1} value={se.minTeamSize} onChange={(e) => updateSubEvent(idx, "minTeamSize", Math.max(1, parseInt(e.target.value) || 1))} className={inputCls} />
@@ -683,13 +683,13 @@ export default function EditEventPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className={labelCls}>Rules</span>
-                        <button type="button" onClick={() => addSubRule(idx)} className="text-[10px] text-white/30 hover:text-white/60 transition-colors"><PlusCircle className="w-3 h-3 inline mr-0.5" /> Add</button>
+                        <button type="button" onClick={() => addSubRule(idx)} className="text-[10px] text-[var(--color-text-faint)] hover:text-[var(--color-text-muted)] transition-colors"><PlusCircle className="w-3 h-3 inline mr-0.5" /> Add</button>
                       </div>
                       {se.rules.map((rule, rIdx) => (
                         <div key={rIdx} className="flex gap-2 items-center">
-                          <span className="text-[9px] font-mono text-white/20 w-4">{rIdx + 1}.</span>
+                          <span className="text-[9px] font-mono text-[var(--color-text-faint)] w-4">{rIdx + 1}.</span>
                           <Input value={rule} onChange={(e) => updateSubRule(idx, rIdx, e.target.value)} placeholder="Rule..." className={`${inputCls} flex-1 h-8 text-xs`} />
-                          {se.rules.length > 1 && <button type="button" onClick={() => removeSubRule(idx, rIdx)} className="text-white/20 hover:text-red-400 transition-colors"><X className="w-3 h-3" /></button>}
+                          {se.rules.length > 1 && <button type="button" onClick={() => removeSubRule(idx, rIdx)} className="text-[var(--color-text-faint)] hover:text-red-400 transition-colors"><X className="w-3 h-3" /></button>}
                         </div>
                       ))}
                     </div>
@@ -701,7 +701,7 @@ export default function EditEventPage() {
                         <button
                           type="button"
                           onClick={() => updateSubEvent(idx, "showPrize", !se.showPrize)}
-                          className={`relative w-9 h-5 rounded-full transition-colors ${se.showPrize ? "bg-green-500" : "bg-white/10"}`}
+                          className={`relative w-9 h-5 rounded-full transition-colors ${se.showPrize ? "bg-[var(--color-success)]" : "bg-[var(--color-surface-3)]"}`}
                         >
                           <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all ${se.showPrize ? "left-4" : "left-0.5"}`} />
                         </button>
@@ -709,15 +709,15 @@ export default function EditEventPage() {
                       {se.showPrize && (
                         <div className="grid grid-cols-3 gap-2 mt-1">
                           <div>
-                            <span className="text-[9px] font-mono text-white/30 flex items-center gap-1"><Trophy className="w-2.5 h-2.5" /> 1st Prize</span>
+                            <span className="text-[9px] font-mono text-[var(--color-text-faint)] flex items-center gap-1"><Trophy className="w-2.5 h-2.5" /> 1st Prize</span>
                             <Input value={se.prizeFirst} onChange={(e) => updateSubEvent(idx, "prizeFirst", e.target.value)} placeholder="₹50,000" className={`${inputCls} h-8 text-xs mt-1`} />
                           </div>
                           <div>
-                            <span className="text-[9px] font-mono text-white/30 flex items-center gap-1"><Trophy className="w-2.5 h-2.5 text-gray-400" /> 2nd Prize</span>
+                            <span className="text-[9px] font-mono text-[var(--color-text-faint)] flex items-center gap-1"><Trophy className="w-2.5 h-2.5 text-gray-400" /> 2nd Prize</span>
                             <Input value={se.prizeSecond} onChange={(e) => updateSubEvent(idx, "prizeSecond", e.target.value)} placeholder="₹25,000" className={`${inputCls} h-8 text-xs mt-1`} />
                           </div>
                           <div>
-                            <span className="text-[9px] font-mono text-white/30 flex items-center gap-1"><Trophy className="w-2.5 h-2.5 text-amber-700" /> 3rd Prize</span>
+                            <span className="text-[9px] font-mono text-[var(--color-text-faint)] flex items-center gap-1"><Trophy className="w-2.5 h-2.5 text-amber-700" /> 3rd Prize</span>
                             <Input value={se.prizeThird} onChange={(e) => updateSubEvent(idx, "prizeThird", e.target.value)} placeholder="₹10,000" className={`${inputCls} h-8 text-xs mt-1`} />
                           </div>
                         </div>
@@ -729,20 +729,20 @@ export default function EditEventPage() {
                       <span className={labelCls}><Users className="w-3 h-3 inline mr-1" />In-charges</span>
                       {/* Already-added in-charges */}
                       {se.coordinators.map((c, cIdx) => (
-                        <div key={cIdx} className="flex items-center justify-between p-2 rounded bg-white/[0.03] border border-white/[0.05] text-xs">
+                        <div key={cIdx} className="flex items-center justify-between p-2 rounded bg-[var(--color-surface-2)] border border-[var(--color-border)] text-xs">
                           <div>
-                            <span className="text-white/70">{c.name || c.email}</span>
-                            <span className="text-white/30 ml-2">{c.email}</span>
-                            <span className="ml-2 text-[9px] font-mono text-white/30">{c.role}</span>
+                            <span className="text-[var(--color-text-muted)]">{c.name || c.email}</span>
+                            <span className="text-[var(--color-text-faint)] ml-2">{c.email}</span>
+                            <span className="ml-2 text-[9px] font-mono text-[var(--color-text-faint)]">{c.role}</span>
                           </div>
-                          <button type="button" onClick={() => removeSubCoordinator(idx, cIdx)} className="text-white/20 hover:text-red-400 transition-colors"><X className="w-3 h-3" /></button>
+                          <button type="button" onClick={() => removeSubCoordinator(idx, cIdx)} className="text-[var(--color-text-faint)] hover:text-red-400 transition-colors"><X className="w-3 h-3" /></button>
                         </div>
                       ))}
                       {/* Search + role row */}
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         {/* Search friends */}
                         <div className="relative sm:col-span-2">
-                          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+                          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--color-text-faint)]" />
                           <Input
                             value={se.inchargeSearch}
                             onChange={(e) => handleInchargeSearch(idx, e.target.value)}
@@ -751,23 +751,23 @@ export default function EditEventPage() {
                           />
                           {/* Autocomplete dropdown */}
                           {(inchargeResults[idx] || []).length > 0 && (
-                            <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 border border-white/[0.1] rounded-md z-20 overflow-hidden">
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-[var(--color-surface)] shadow-lg border border-[var(--color-border-muted)] rounded-md z-20 overflow-hidden">
                               {(inchargeResults[idx] || []).map((f) => (
                                 <button
                                   key={f.email}
                                   type="button"
                                   onClick={() => addIncharge(idx, f)}
-                                  className="w-full text-left px-3 py-2 text-xs text-white/70 hover:bg-white/[0.08] transition-colors flex items-center gap-2"
+                                  className="w-full text-left px-3 py-2 text-xs text-[var(--color-text-muted)] hover:bg-[var(--color-surface-3)] transition-colors flex items-center gap-2"
                                 >
-                                  <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[9px] font-bold">{f.email[0].toUpperCase()}</div>
+                                  <div className="w-5 h-5 rounded-full bg-[var(--color-surface-3)] flex items-center justify-center text-[9px] font-bold">{f.email[0].toUpperCase()}</div>
                                   <span>{f.email}</span>
                                 </button>
                               ))}
                             </div>
                           )}
                           {se.inchargeSearch && (inchargeResults[idx] || []).length === 0 && (
-                            <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 border border-white/[0.1] rounded-md z-20 px-3 py-2">
-                              <p className="text-[10px] text-white/30">No friends found matching “{se.inchargeSearch}”. Add them as friends first.</p>
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-[var(--color-surface)] shadow-lg border border-[var(--color-border-muted)] rounded-md z-20 px-3 py-2">
+                              <p className="text-[10px] text-[var(--color-text-faint)]">No friends found matching “{se.inchargeSearch}”. Add them as friends first.</p>
                             </div>
                           )}
                         </div>
@@ -775,7 +775,7 @@ export default function EditEventPage() {
                         <select
                           value={se.coordRole}
                           onChange={(e) => updateSubEvent(idx, "coordRole", e.target.value)}
-                          className="h-8 bg-white/[0.03] border border-white/[0.08] text-white text-xs rounded-md px-2"
+                          className="h-8 bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] text-xs rounded-md px-2"
                         >
                           <option value="Host">Host</option>
                           <option value="Coordinator">Coordinator</option>
@@ -794,21 +794,21 @@ export default function EditEventPage() {
             <GlassCard className="p-6 space-y-4">
               <div className="flex justify-between items-center">
                 <MicroLabel className="mb-0">04 — Important Links</MicroLabel>
-                <button type="button" onClick={addLink} className="flex items-center gap-1 text-xs text-white/50 hover:text-white transition-colors"><PlusCircle className="w-3 h-3" /> Add Link</button>
+                <button type="button" onClick={addLink} className="flex items-center gap-1 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"><PlusCircle className="w-3 h-3" /> Add Link</button>
               </div>
-              <p className="text-[10px] text-white/30">Add links to resources participants should see (WhatsApp groups, Google Forms, rule books, etc.)</p>
+              <p className="text-[10px] text-[var(--color-text-faint)]">Add links to resources participants should see (WhatsApp groups, Google Forms, rule books, etc.)</p>
               {importantLinks.length === 0 ? (
-                <button type="button" onClick={addLink} className="w-full py-6 border border-dashed border-white/10 rounded-md text-white/30 text-sm hover:border-white/20 hover:text-white/50 transition-colors flex items-center justify-center gap-2">
+                <button type="button" onClick={addLink} className="w-full py-6 border border-dashed border-[var(--color-border)] rounded-md text-[var(--color-text-faint)] text-sm hover:border-[var(--color-border)] hover:text-[var(--color-text-muted)] transition-colors flex items-center justify-center gap-2">
                   <LinkIcon className="w-4 h-4" /> Add your first link
                 </button>
               ) : (
                 <div className="space-y-3">
                   {importantLinks.map((link, idx) => (
                     <div key={link.id} className="flex gap-2 items-center">
-                      <span className="text-[10px] font-mono text-white/30 w-6 shrink-0">{idx + 1}.</span>
+                      <span className="text-[10px] font-mono text-[var(--color-text-faint)] w-6 shrink-0">{idx + 1}.</span>
                       <Input value={link.label} onChange={(e) => updateLink(idx, "label", e.target.value)} placeholder="Label (e.g. WhatsApp Group)" className={`${inputCls} flex-1`} />
                       <Input value={link.url} onChange={(e) => updateLink(idx, "url", e.target.value)} placeholder="https://..." className={`${inputCls} flex-1`} />
-                      <button type="button" onClick={() => removeLink(idx)} className="text-white/20 hover:text-red-400 transition-colors"><X className="w-3 h-3" /></button>
+                      <button type="button" onClick={() => removeLink(idx)} className="text-[var(--color-text-faint)] hover:text-red-400 transition-colors"><X className="w-3 h-3" /></button>
                     </div>
                   ))}
                 </div>
@@ -822,10 +822,10 @@ export default function EditEventPage() {
               <GlassCard className="p-6 space-y-5">
                 <MicroLabel className="mb-0">Registration Controls</MicroLabel>
 
-                <div className="flex items-center justify-between p-4 rounded-md bg-white/[0.02] border border-white/[0.06]">
+                <div className="flex items-center justify-between p-4 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)]">
                   <div>
                     <p className="text-sm font-medium mb-0.5">Registration Status</p>
-                    <p className="text-[10px] font-mono text-white/30">Toggle whether new participants can register for this event</p>
+                    <p className="text-[10px] font-mono text-[var(--color-text-faint)]">Toggle whether new participants can register for this event</p>
                   </div>
                   <button
                     type="button"
@@ -834,8 +834,8 @@ export default function EditEventPage() {
                   >
                     {form.registrationOpen ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono text-green-400 tracking-widest uppercase">Open</span>
-                        <ToggleRight className="w-8 h-8 text-green-400" />
+                        <span className="text-[10px] font-mono text-[var(--color-success)] tracking-widest uppercase">Open</span>
+                        <ToggleRight className="w-8 h-8 text-[var(--color-success)]" />
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
@@ -846,11 +846,11 @@ export default function EditEventPage() {
                   </button>
                 </div>
 
-                <div className="p-4 rounded-md bg-white/[0.02] border border-white/[0.06]">
+                <div className="p-4 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)]">
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <p className="text-sm font-medium mb-0.5">Registration Deadline</p>
-                      <p className="text-[10px] font-mono text-white/30">Auto-close registration after this date</p>
+                      <p className="text-[10px] font-mono text-[var(--color-text-faint)]">Auto-close registration after this date</p>
                     </div>
                   </div>
                   <Input type="date" value={form.registrationDeadline} onChange={(e) => update("registrationDeadline", e.target.value)} className={`${inputCls} h-11 max-w-xs`} />
@@ -861,21 +861,21 @@ export default function EditEventPage() {
               <GlassCard className="p-6">
                 <MicroLabel className="mb-4">Event Stats</MicroLabel>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="p-3 rounded-md bg-white/[0.02] border border-white/[0.06] text-center">
-                    <p className="text-2xl font-light text-white">{event.registrations.filter(r => r.status !== "DRAFT").length}</p>
-                    <p className="text-[9px] font-mono text-white/30 tracking-widest uppercase mt-1">Registered</p>
+                  <div className="p-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-center">
+                    <p className="text-2xl font-light text-[var(--color-text)]">{event.registrations.filter(r => r.status !== "DRAFT").length}</p>
+                    <p className="text-[9px] font-mono text-[var(--color-text-faint)] tracking-widest uppercase mt-1">Registered</p>
                   </div>
-                  <div className="p-3 rounded-md bg-white/[0.02] border border-white/[0.06] text-center">
-                    <p className="text-2xl font-light text-green-400">{event.registrations.filter(r => r.status === "PAID").length}</p>
-                    <p className="text-[9px] font-mono text-white/30 tracking-widest uppercase mt-1">Paid</p>
+                  <div className="p-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-center">
+                    <p className="text-2xl font-light text-[var(--color-success)]">{event.registrations.filter(r => r.status === "PAID").length}</p>
+                    <p className="text-[9px] font-mono text-[var(--color-text-faint)] tracking-widest uppercase mt-1">Paid</p>
                   </div>
-                  <div className="p-3 rounded-md bg-white/[0.02] border border-white/[0.06] text-center">
+                  <div className="p-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-center">
                     <p className="text-2xl font-light text-yellow-400">{event.registrations.filter(r => r.status === "PENDING").length}</p>
-                    <p className="text-[9px] font-mono text-white/30 tracking-widest uppercase mt-1">Pending</p>
+                    <p className="text-[9px] font-mono text-[var(--color-text-faint)] tracking-widest uppercase mt-1">Pending</p>
                   </div>
-                  <div className="p-3 rounded-md bg-white/[0.02] border border-white/[0.06] text-center">
-                    <p className="text-2xl font-light text-white">{event.registrations.filter(r => r.status !== "DRAFT" && r.checkedIn).length}</p>
-                    <p className="text-[9px] font-mono text-white/30 tracking-widest uppercase mt-1">Checked In</p>
+                  <div className="p-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-center">
+                    <p className="text-2xl font-light text-[var(--color-text)]">{event.registrations.filter(r => r.status !== "DRAFT" && r.checkedIn).length}</p>
+                    <p className="text-[9px] font-mono text-[var(--color-text-faint)] tracking-widest uppercase mt-1">Checked In</p>
                   </div>
                 </div>
               </GlassCard>
@@ -883,12 +883,12 @@ export default function EditEventPage() {
               {/* Danger Zone */}
               <GlassCard className="p-6 border-red-500/10">
                 <MicroLabel className="mb-0 text-red-400/60">Danger Zone</MicroLabel>
-                <p className="text-xs text-white/30 mt-1 mb-4">These actions are permanent and cannot be undone.</p>
+                <p className="text-xs text-[var(--color-text-faint)] mt-1 mb-4">These actions are permanent and cannot be undone.</p>
 
                 <div className="flex items-center justify-between p-4 rounded-md bg-red-500/5 border border-red-500/10">
                   <div>
                     <p className="text-sm font-medium text-red-400/80 mb-0.5">Close Registration Permanently</p>
-                    <p className="text-[10px] font-mono text-white/30">Close registration and prevent it from being reopened</p>
+                    <p className="text-[10px] font-mono text-[var(--color-text-faint)]">Close registration and prevent it from being reopened</p>
                   </div>
                   <Button
                     type="button"
@@ -921,7 +921,7 @@ export default function EditEventPage() {
               )}
             </Button>
             <Link href={`/events/${event.id}`} className="shrink-0">
-              <Button type="button" variant="outline" className="h-12 px-6 border-white/20 text-white hover:bg-white/10">
+              <Button type="button" variant="outline" className="h-12 px-6 border-[var(--color-border)] text-[var(--color-text)] hover:bg-[var(--color-surface-3)]">
                 Cancel
               </Button>
             </Link>

@@ -39,10 +39,10 @@ export function TimeInput({ value, onChange, className }: TimeInputProps) {
   // Provide minutes in 5-minute increments for cleaner UI, or all 60. Let's do 5 min increments.
   const minutes = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, "0"))
 
-  const selectClasses = "bg-transparent text-white outline-none text-sm appearance-none cursor-pointer py-2 hover:text-white/80 focus:text-white focus:bg-[#1a1a1a]"
+  const selectClasses = "bg-transparent text-[var(--color-text)] outline-none text-sm appearance-none cursor-pointer py-2 hover:text-[var(--color-text-muted)] focus:text-[var(--color-text)]"
 
   return (
-    <div className={cn("flex items-center bg-white/[0.03] border border-white/[0.08] rounded-md focus-within:border-white/20 transition-colors h-11 px-2 gap-1", className)}>
+    <div className={cn("flex items-center bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-md focus-within:border-[var(--color-border-focus)] transition-colors h-11 px-2 gap-1", className)}>
       <select 
         value={hour12} 
         onChange={(e) => handleChange(e.target.value, minute, ampm)}
@@ -51,7 +51,7 @@ export function TimeInput({ value, onChange, className }: TimeInputProps) {
         {hours.map(h => <option key={h} value={h}>{h}</option>)}
       </select>
       
-      <span className="text-white/30 font-bold">:</span>
+      <span className="text-[var(--color-text-faint)] font-bold">:</span>
       
       <select 
         value={minute} 
@@ -64,7 +64,7 @@ export function TimeInput({ value, onChange, className }: TimeInputProps) {
       <select 
         value={ampm} 
         onChange={(e) => handleChange(hour12, minute, e.target.value)}
-        className={cn(selectClasses, "pr-2 font-medium text-white/70")}
+        className={cn(selectClasses, "pr-2 font-medium text-[var(--color-text-muted)]")}
       >
         <option value="AM">AM</option>
         <option value="PM">PM</option>

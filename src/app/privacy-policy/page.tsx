@@ -11,20 +11,20 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <main className="min-h-screen bg-black px-6 md:px-16 py-24 max-w-3xl mx-auto">
+    <main className="min-h-screen bg-[var(--color-bg)] px-6 md:px-16 py-24 max-w-3xl mx-auto">
       {/* Header */}
       <header className="mb-16">
         <Link href="/" className="inline-block mb-10" aria-label="Go to MyFestivo home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="MyFestivo" width={120} height={40} className="h-10 w-auto" loading="lazy" decoding="async" />
         </Link>
-        <p className="text-[10px] font-mono tracking-[0.3em] uppercase text-white/30 mb-3">Legal</p>
-        <h1 className="text-4xl font-extralight tracking-tight text-white mb-4">Privacy Policy</h1>
-        <p className="text-white/40 text-sm font-mono">Effective Date: July 5, 2026 · Last Updated: July 5, 2026</p>
+        <p className="text-[10px] font-mono tracking-[0.3em] uppercase text-[var(--color-text-faint)] mb-3">Legal</p>
+        <h1 className="text-4xl font-extralight tracking-tight text-[var(--color-text)] mb-4">Privacy Policy</h1>
+        <p className="text-[var(--color-text-faint)] text-sm font-mono">Effective Date: July 5, 2026 · Last Updated: July 5, 2026</p>
       </header>
 
       {/* Content */}
-      <div className="prose prose-invert max-w-none space-y-10 text-white/70 text-sm leading-relaxed">
+      <div className="prose prose-invert max-w-none space-y-10 text-[var(--color-text-muted)] text-sm leading-relaxed">
 
         <Section title="1. Introduction">
           <p>
@@ -39,18 +39,18 @@ export default function PrivacyPolicyPage() {
 
         <Section title="2. Information We Collect">
           <Subsection title="2.1 Information You Provide Directly">
-            <p className="font-semibold text-white/90 mb-1">Registration &amp; Account Information</p>
+            <p className="font-semibold text-[var(--color-text)] mb-1">Registration &amp; Account Information</p>
             <p className="mb-2">When you create an account on MyFestivo, we collect:</p>
             <ul className="list-disc pl-5 space-y-1">
-              <li><strong className="text-white/90">Full Name</strong></li>
-              <li><strong className="text-white/90">College Email Address</strong> (required for verification)</li>
-              <li><strong className="text-white/90">College/University Name</strong></li>
-              <li><strong className="text-white/90">Phone Number</strong> (optional)</li>
-              <li><strong className="text-white/90">Password</strong> (securely hashed)</li>
-              <li><strong className="text-white/90">Profile Information</strong> (bio, profile picture, etc.)</li>
+              <li><strong className="text-[var(--color-text)]">Full Name</strong></li>
+              <li><strong className="text-[var(--color-text)]">College Email Address</strong> (required for verification)</li>
+              <li><strong className="text-[var(--color-text)]">College/University Name</strong></li>
+              <li><strong className="text-[var(--color-text)]">Phone Number</strong> (optional)</li>
+              <li><strong className="text-[var(--color-text)]">Password</strong> (securely hashed)</li>
+              <li><strong className="text-[var(--color-text)]">Profile Information</strong> (bio, profile picture, etc.)</li>
             </ul>
 
-            <p className="font-semibold text-white/90 mt-4 mb-1">Event-Related Information</p>
+            <p className="font-semibold text-[var(--color-text)] mt-4 mb-1">Event-Related Information</p>
             <p className="mb-2">When you create or register for an event, we collect:</p>
             <ul className="list-disc pl-5 space-y-1">
               <li>Event Title, Description, and Details</li>
@@ -60,7 +60,7 @@ export default function PrivacyPolicyPage() {
               <li>Organizer Information (for event creation)</li>
             </ul>
 
-            <p className="font-semibold text-white/90 mt-4 mb-1">Check-in &amp; Verification Data</p>
+            <p className="font-semibold text-[var(--color-text)] mt-4 mb-1">Check-in &amp; Verification Data</p>
             <p className="mb-2">When you check in to an event, we collect:</p>
             <ul className="list-disc pl-5 space-y-1">
               <li>QR Code Scan Data</li>
@@ -68,7 +68,7 @@ export default function PrivacyPolicyPage() {
               <li>Device Information (for QR scanning)</li>
             </ul>
 
-            <p className="font-semibold text-white/90 mt-4 mb-1">Communication Data</p>
+            <p className="font-semibold text-[var(--color-text)] mt-4 mb-1">Communication Data</p>
             <p className="mb-2">If you contact us via email or through the Platform, we collect:</p>
             <ul className="list-disc pl-5 space-y-1">
               <li>Your Message Content</li>
@@ -76,7 +76,7 @@ export default function PrivacyPolicyPage() {
               <li>Communication History</li>
             </ul>
 
-            <p className="font-semibold text-white/90 mt-4 mb-1">Technical Data</p>
+            <p className="font-semibold text-[var(--color-text)] mt-4 mb-1">Technical Data</p>
             <p className="mb-2">We automatically collect:</p>
             <ul className="list-disc pl-5 space-y-1">
               <li>IP Address</li>
@@ -92,8 +92,8 @@ export default function PrivacyPolicyPage() {
 
           <Subsection title="2.2 Information from Third Parties">
             <ul className="list-disc pl-5 space-y-1">
-              <li><strong className="text-white/90">College Email Verification:</strong> We receive confirmation of your email domain from your college&apos;s email provider.</li>
-              <li><strong className="text-white/90">Firebase &amp; Google Services:</strong> Authentication data, crash reports, and analytics.</li>
+              <li><strong className="text-[var(--color-text)]">College Email Verification:</strong> We receive confirmation of your email domain from your college&apos;s email provider.</li>
+              <li><strong className="text-[var(--color-text)]">Firebase &amp; Google Services:</strong> Authentication data, crash reports, and analytics.</li>
             </ul>
           </Subsection>
         </Section>
@@ -122,10 +122,10 @@ export default function PrivacyPolicyPage() {
 
           <Subsection title="3.3 Marketing &amp; Analytics">
             <ul className="list-disc pl-5 space-y-1">
-              <li><strong className="text-white/90">Generating Content:</strong> Using aggregated, anonymized event data and descriptions to create comparative blog posts, articles, and marketing materials.</li>
-              <li><strong className="text-white/90">Competitive Analysis:</strong> Analyzing event trends, popular topics, and competitor positioning to inform our SEO strategy and content planning.</li>
-              <li><strong className="text-white/90">Promotional Communications:</strong> Sending you updates about new features, events, and news (you can opt out at any time).</li>
-              <li><strong className="text-white/90">Analytics:</strong> Tracking aggregate usage statistics to understand Platform reach and effectiveness.</li>
+              <li><strong className="text-[var(--color-text)]">Generating Content:</strong> Using aggregated, anonymized event data and descriptions to create comparative blog posts, articles, and marketing materials.</li>
+              <li><strong className="text-[var(--color-text)]">Competitive Analysis:</strong> Analyzing event trends, popular topics, and competitor positioning to inform our SEO strategy and content planning.</li>
+              <li><strong className="text-[var(--color-text)]">Promotional Communications:</strong> Sending you updates about new features, events, and news (you can opt out at any time).</li>
+              <li><strong className="text-[var(--color-text)]">Analytics:</strong> Tracking aggregate usage statistics to understand Platform reach and effectiveness.</li>
             </ul>
           </Subsection>
 
@@ -139,19 +139,19 @@ export default function PrivacyPolicyPage() {
           </Subsection>
 
           <Subsection title="3.5 Aggregate &amp; Anonymized Data">
-            <p>We may create <strong className="text-white/90">anonymized, aggregated reports</strong> (e.g., &quot;events by category,&quot; &quot;average registration rates,&quot; &quot;trending event types&quot;) that cannot identify individuals. These reports may be used for marketing, internal insights, and public analysis.</p>
+            <p>We may create <strong className="text-[var(--color-text)]">anonymized, aggregated reports</strong> (e.g., &quot;events by category,&quot; &quot;average registration rates,&quot; &quot;trending event types&quot;) that cannot identify individuals. These reports may be used for marketing, internal insights, and public analysis.</p>
           </Subsection>
         </Section>
 
         <Section title="4. Data Sharing &amp; Disclosure">
           <Subsection title="4.1 Information Shared Between Users">
-            <p className="font-semibold text-white/90 mb-1">Organizer to Participant</p>
+            <p className="font-semibold text-[var(--color-text)] mb-1">Organizer to Participant</p>
             <p className="mb-2">Organizers have access to:</p>
             <ul className="list-disc pl-5 space-y-1 mb-3">
               <li>Participant names and registered email addresses (for communication and check-in).</li>
               <li>Event registration status.</li>
             </ul>
-            <p className="font-semibold text-white/90 mb-1">Participant to Organizer</p>
+            <p className="font-semibold text-[var(--color-text)] mb-1">Participant to Organizer</p>
             <p className="mb-2">Participants may see:</p>
             <ul className="list-disc pl-5 space-y-1">
               <li>Organizer name and contact information.</li>
@@ -162,10 +162,10 @@ export default function PrivacyPolicyPage() {
           <Subsection title="4.2 Sharing with Service Providers">
             <p className="mb-2">We share limited data with trusted third-party service providers who assist us:</p>
             <ul className="list-disc pl-5 space-y-1">
-              <li><strong className="text-white/90">Firebase (Google Cloud):</strong> For authentication, database hosting, and crash reporting.</li>
-              <li><strong className="text-white/90">Email Service Providers:</strong> For sending transactional and promotional emails.</li>
-              <li><strong className="text-white/90">Analytics Tools:</strong> For understanding Platform usage (anonymized data only).</li>
-              <li><strong className="text-white/90">Cloud Hosting Providers:</strong> For Platform infrastructure and security.</li>
+              <li><strong className="text-[var(--color-text)]">Firebase (Google Cloud):</strong> For authentication, database hosting, and crash reporting.</li>
+              <li><strong className="text-[var(--color-text)]">Email Service Providers:</strong> For sending transactional and promotional emails.</li>
+              <li><strong className="text-[var(--color-text)]">Analytics Tools:</strong> For understanding Platform usage (anonymized data only).</li>
+              <li><strong className="text-[var(--color-text)]">Cloud Hosting Providers:</strong> For Platform infrastructure and security.</li>
             </ul>
             <p className="mt-2">These service providers are bound by confidentiality agreements and are prohibited from using your data for purposes other than providing services to MyFestivo.</p>
           </Subsection>
@@ -187,7 +187,7 @@ export default function PrivacyPolicyPage() {
 
         <Section title="5. Data Retention">
           <Subsection title="5.1 Indefinite Retention for Analytics">
-            <p className="mb-2">MyFestivo retains user data <strong className="text-white/90">indefinitely</strong> for the following purposes:</p>
+            <p className="mb-2">MyFestivo retains user data <strong className="text-[var(--color-text)]">indefinitely</strong> for the following purposes:</p>
             <ul className="list-disc pl-5 space-y-1">
               <li>Analytics and understanding user behavior trends.</li>
               <li>Fraud detection and prevention.</li>
@@ -197,15 +197,15 @@ export default function PrivacyPolicyPage() {
           </Subsection>
 
           <Subsection title="5.2 Organizer-Managed Data">
-            <p>If you are an Organizer, participant data collected through your event registration (names, emails, phone numbers) is <strong className="text-white/90">retained indefinitely</strong> for historical records and analytics, even after the event concludes.</p>
+            <p>If you are an Organizer, participant data collected through your event registration (names, emails, phone numbers) is <strong className="text-[var(--color-text)]">retained indefinitely</strong> for historical records and analytics, even after the event concludes.</p>
           </Subsection>
 
           <Subsection title="5.3 Account Deletion">
             <p className="mb-2">If you request account deletion, we will:</p>
             <ul className="list-disc pl-5 space-y-1">
               <li>Remove your account login credentials and personal identifiable information.</li>
-              <li><strong className="text-white/90">Retain anonymized and aggregated data</strong> for analytics purposes.</li>
-              <li><strong className="text-white/90">Retain event registration records</strong> for historical accuracy (without personally identifying you).</li>
+              <li><strong className="text-[var(--color-text)]">Retain anonymized and aggregated data</strong> for analytics purposes.</li>
+              <li><strong className="text-[var(--color-text)]">Retain event registration records</strong> for historical accuracy (without personally identifying you).</li>
             </ul>
           </Subsection>
 
@@ -218,15 +218,15 @@ export default function PrivacyPolicyPage() {
           <Subsection title="6.1 Security Measures">
             <p className="mb-2">We implement industry-standard security measures to protect your information:</p>
             <ul className="list-disc pl-5 space-y-1">
-              <li><strong className="text-white/90">Encryption:</strong> Sensitive data (passwords, authentication tokens) are encrypted using modern encryption standards.</li>
-              <li><strong className="text-white/90">Secure Servers:</strong> Data is stored on secure, password-protected servers managed by Firebase/Google Cloud.</li>
-              <li><strong className="text-white/90">Access Controls:</strong> Only authorized personnel have access to personal information.</li>
-              <li><strong className="text-white/90">SSL/TLS:</strong> Our website uses HTTPS to encrypt data in transit.</li>
+              <li><strong className="text-[var(--color-text)]">Encryption:</strong> Sensitive data (passwords, authentication tokens) are encrypted using modern encryption standards.</li>
+              <li><strong className="text-[var(--color-text)]">Secure Servers:</strong> Data is stored on secure, password-protected servers managed by Firebase/Google Cloud.</li>
+              <li><strong className="text-[var(--color-text)]">Access Controls:</strong> Only authorized personnel have access to personal information.</li>
+              <li><strong className="text-[var(--color-text)]">SSL/TLS:</strong> Our website uses HTTPS to encrypt data in transit.</li>
             </ul>
           </Subsection>
 
           <Subsection title="6.2 Limitations of Security">
-            <p><strong className="text-white/90">No system is 100% secure.</strong> While we take reasonable precautions, MyFestivo cannot guarantee absolute protection against hacking, data breaches, or unauthorized access. You use the Platform at your own risk.</p>
+            <p><strong className="text-[var(--color-text)]">No system is 100% secure.</strong> While we take reasonable precautions, MyFestivo cannot guarantee absolute protection against hacking, data breaches, or unauthorized access. You use the Platform at your own risk.</p>
           </Subsection>
 
           <Subsection title="6.3 Password Security">
@@ -260,8 +260,8 @@ export default function PrivacyPolicyPage() {
           <Subsection title="7.4 Right to Opt Out">
             <p className="mb-2">You can opt out of:</p>
             <ul className="list-disc pl-5 space-y-1">
-              <li><strong className="text-white/90">Promotional emails:</strong> Click &quot;Unsubscribe&quot; in any email or update preferences in your account.</li>
-              <li><strong className="text-white/90">Analytics tracking:</strong> Some analytics data may be unavoidable for Platform operations, but you can limit third-party cookies through your browser settings.</li>
+              <li><strong className="text-[var(--color-text)]">Promotional emails:</strong> Click &quot;Unsubscribe&quot; in any email or update preferences in your account.</li>
+              <li><strong className="text-[var(--color-text)]">Analytics tracking:</strong> Some analytics data may be unavoidable for Platform operations, but you can limit third-party cookies through your browser settings.</li>
             </ul>
           </Subsection>
 
@@ -277,29 +277,29 @@ export default function PrivacyPolicyPage() {
 
           <Subsection title="8.2 Types of Cookies We Use">
             <div className="overflow-x-auto mt-2">
-              <table className="w-full text-xs border border-white/[0.08] rounded-lg overflow-hidden">
+              <table className="w-full text-xs border border-[var(--color-border)] rounded-lg overflow-hidden">
                 <thead>
-                  <tr className="bg-white/[0.04] text-white/60">
-                    <th className="text-left p-3 font-medium border-b border-white/[0.06]">Cookie Type</th>
-                    <th className="text-left p-3 font-medium border-b border-white/[0.06]">Purpose</th>
+                  <tr className="bg-[var(--color-surface-3)] text-[var(--color-text-muted)]">
+                    <th className="text-left p-3 font-medium border-b border-[var(--color-border)]">Cookie Type</th>
+                    <th className="text-left p-3 font-medium border-b border-[var(--color-border)]">Purpose</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b border-white/[0.04]">
-                    <td className="p-3 font-medium text-white/80">Essential / Functional</td>
-                    <td className="p-3 text-white/50">Authentication, session management, security</td>
+                  <tr className="border-b border-[var(--color-border)]">
+                    <td className="p-3 font-medium text-[var(--color-text)]">Essential / Functional</td>
+                    <td className="p-3 text-[var(--color-text-muted)]">Authentication, session management, security</td>
                   </tr>
-                  <tr className="border-b border-white/[0.04]">
-                    <td className="p-3 font-medium text-white/80">Analytics</td>
-                    <td className="p-3 text-white/50">Understanding user behavior, Platform improvement</td>
+                  <tr className="border-b border-[var(--color-border)]">
+                    <td className="p-3 font-medium text-[var(--color-text)]">Analytics</td>
+                    <td className="p-3 text-[var(--color-text-muted)]">Understanding user behavior, Platform improvement</td>
                   </tr>
-                  <tr className="border-b border-white/[0.04]">
-                    <td className="p-3 font-medium text-white/80">Preference</td>
-                    <td className="p-3 text-white/50">Remembering your settings and preferences</td>
+                  <tr className="border-b border-[var(--color-border)]">
+                    <td className="p-3 font-medium text-[var(--color-text)]">Preference</td>
+                    <td className="p-3 text-[var(--color-text-muted)]">Remembering your settings and preferences</td>
                   </tr>
                   <tr>
-                    <td className="p-3 font-medium text-white/80">Marketing</td>
-                    <td className="p-3 text-white/50">Tracking ad effectiveness and content personalization</td>
+                    <td className="p-3 font-medium text-[var(--color-text)]">Marketing</td>
+                    <td className="p-3 text-[var(--color-text-muted)]">Tracking ad effectiveness and content personalization</td>
                   </tr>
                 </tbody>
               </table>
@@ -309,11 +309,11 @@ export default function PrivacyPolicyPage() {
           <Subsection title="8.3 Cookie Management">
             <p className="mb-2">You can:</p>
             <ul className="list-disc pl-5 space-y-1">
-              <li><strong className="text-white/90">Disable cookies</strong> through your browser settings.</li>
-              <li><strong className="text-white/90">Clear cookies</strong> regularly.</li>
-              <li><strong className="text-white/90">Use incognito/private browsing</strong> to avoid persistent cookies.</li>
+              <li><strong className="text-[var(--color-text)]">Disable cookies</strong> through your browser settings.</li>
+              <li><strong className="text-[var(--color-text)]">Clear cookies</strong> regularly.</li>
+              <li><strong className="text-[var(--color-text)]">Use incognito/private browsing</strong> to avoid persistent cookies.</li>
             </ul>
-            <p className="mt-2 text-white/50 text-xs"><strong className="text-white/70">Note:</strong> Disabling cookies may limit Platform functionality.</p>
+            <p className="mt-2 text-[var(--color-text-muted)] text-xs"><strong className="text-[var(--color-text-muted)]">Note:</strong> Disabling cookies may limit Platform functionality.</p>
           </Subsection>
 
           <Subsection title="8.4 Third-Party Analytics">
@@ -322,7 +322,7 @@ export default function PrivacyPolicyPage() {
         </Section>
 
         <Section title="9. Third-Party Links &amp; Services">
-          <p>MyFestivo may contain links to external websites or services (college websites, event ticketing systems, etc.). We are <strong className="text-white/90">not responsible</strong> for:</p>
+          <p>MyFestivo may contain links to external websites or services (college websites, event ticketing systems, etc.). We are <strong className="text-[var(--color-text)]">not responsible</strong> for:</p>
           <ul className="list-disc pl-5 space-y-1.5 mt-2">
             <li>The privacy practices of third-party websites.</li>
             <li>The content or security of external services.</li>
@@ -332,7 +332,7 @@ export default function PrivacyPolicyPage() {
         </Section>
 
         <Section title="10. Children's Privacy">
-          <p>MyFestivo is <strong className="text-white/90">not intended for children under 13 years of age</strong>. We do not knowingly collect information from children. If we become aware that a child under 13 has provided information, we will delete such data immediately.</p>
+          <p>MyFestivo is <strong className="text-[var(--color-text)]">not intended for children under 13 years of age</strong>. We do not knowingly collect information from children. If we become aware that a child under 13 has provided information, we will delete such data immediately.</p>
           <p className="mt-2">For users between 13–18 years, parental consent may be required under applicable law. We recommend discussing online safety and privacy with your parents or guardians.</p>
         </Section>
 
@@ -361,7 +361,7 @@ export default function PrivacyPolicyPage() {
         </Section>
 
         <Section title="13. Policy Changes">
-          <p>MyFestivo reserves the right to modify this Privacy Policy at any time. Changes become effective immediately upon posting. We will provide <strong className="text-white/90">30 days&apos; notice</strong> via email or Platform notification for material changes.</p>
+          <p>MyFestivo reserves the right to modify this Privacy Policy at any time. Changes become effective immediately upon posting. We will provide <strong className="text-[var(--color-text)]">30 days&apos; notice</strong> via email or Platform notification for material changes.</p>
           <p className="mt-2">Your continued use of the Platform constitutes acceptance of the updated Privacy Policy.</p>
         </Section>
 
@@ -369,8 +369,8 @@ export default function PrivacyPolicyPage() {
           <p>
             If you have questions, concerns, or requests regarding this Privacy Policy, please contact us:
           </p>
-          <p className="mt-3 text-white/60">
-            <strong className="text-white/90">MyFestivo Privacy Team</strong><br />
+          <p className="mt-3 text-[var(--color-text-muted)]">
+            <strong className="text-[var(--color-text)]">MyFestivo Privacy Team</strong><br />
             Email:{" "}
             <a href="mailto:myfestivo@gmail.com" className="text-[#B388FF] hover:underline">myfestivo@gmail.com</a><br />
             Website:{" "}
@@ -381,23 +381,23 @@ export default function PrivacyPolicyPage() {
         <Section title="15. Complaint Resolution">
           <p className="mb-3">If you believe MyFestivo has violated your privacy rights, you can:</p>
           <ol className="list-decimal pl-5 space-y-1.5">
-            <li><strong className="text-white/90">Contact us directly</strong> at the email above.</li>
-            <li><strong className="text-white/90">File a complaint</strong> with the Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011 (Ministry of Electronics and Information Technology).</li>
-            <li><strong className="text-white/90">Escalate to authorities</strong> such as the Data Protection Board (once established under future legislation).</li>
+            <li><strong className="text-[var(--color-text)]">Contact us directly</strong> at the email above.</li>
+            <li><strong className="text-[var(--color-text)]">File a complaint</strong> with the Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011 (Ministry of Electronics and Information Technology).</li>
+            <li><strong className="text-[var(--color-text)]">Escalate to authorities</strong> such as the Data Protection Board (once established under future legislation).</li>
           </ol>
         </Section>
 
-        <p className="text-white/40 text-xs border-t border-white/[0.06] pt-6 mt-6">
+        <p className="text-[var(--color-text-faint)] text-xs border-t border-[var(--color-border)] pt-6 mt-6">
           By using MyFestivo, you acknowledge that you have read, understood, and agree to this Privacy Policy.
         </p>
       </div>
 
       {/* Footer */}
-      <footer className="mt-16 pt-8 border-t border-white/[0.06] flex flex-wrap items-center gap-4 text-xs text-white/30 font-mono">
+      <footer className="mt-16 pt-8 border-t border-[var(--color-border)] flex flex-wrap items-center gap-4 text-xs text-[var(--color-text-faint)] font-mono">
         <p>© {new Date().getFullYear()} MyFestivo. All rights reserved.</p>
         <div className="flex gap-4">
-          <Link href="/terms" className="hover:text-white/60 transition-colors">Terms &amp; Conditions</Link>
-          <Link href="/" className="hover:text-white/60 transition-colors">Home</Link>
+          <Link href="/terms" className="hover:text-[var(--color-text-muted)] transition-colors">Terms &amp; Conditions</Link>
+          <Link href="/" className="hover:text-[var(--color-text-muted)] transition-colors">Home</Link>
         </div>
       </footer>
     </main>
@@ -407,7 +407,7 @@ export default function PrivacyPolicyPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h2 className="text-base font-medium text-white mb-3 pb-2 border-b border-white/[0.06]">{title}</h2>
+      <h2 className="text-base font-medium text-[var(--color-text)] mb-3 pb-2 border-b border-[var(--color-border)]">{title}</h2>
       <div className="space-y-3">{children}</div>
     </section>
   )
@@ -416,8 +416,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Subsection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mt-3">
-      <h3 className="text-sm font-medium text-white/80 mb-2">{title}</h3>
-      <div className="space-y-2 text-white/60">{children}</div>
+      <h3 className="text-sm font-medium text-[var(--color-text)] mb-2">{title}</h3>
+      <div className="space-y-2 text-[var(--color-text-muted)]">{children}</div>
     </div>
   )
 }
