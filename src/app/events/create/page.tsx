@@ -16,6 +16,7 @@ import { motion } from "framer-motion"
 import { PlusCircle, X, Trophy, Phone, LinkIcon, Users, Search, Clock, CheckSquare, Save, RotateCcw } from "lucide-react"
 import Link from "next/link"
 import { compressImage } from "@/lib/utils"
+import { VenueMapPickerDynamic } from "@/components/map"
 
 const DEPARTMENTS = ["BSc CS", "BSc Cyber Security", "BSc AI/ML", "BCA", "BCA Gen AI", "BCA DS"]
 const INCHARGE_ROLES = ["Host", "Coordinator", "Volunteer"]
@@ -139,8 +140,39 @@ export default function CreateEventPage() {
   const [subEvents, setSubEvents] = useState<SubEventForm[]>([emptySubEvent()])
   const [importantLinks, setImportantLinks] = useState<{ label: string; url: string }[]>([])
 
+
   // Friends autocomplete state per sub-event
   const [inchargeResults, setInchargeResults] = useState<{ [key: number]: any[] }>({})
+
+  // Event-level Staff state
+  const [staffList, setStaffList] = useState<{ name: string; email: string }[]>([])
+  const [staffSearch, setStaffSearch] = useState("")
+  const [staffResults, setStaffResults] = useState<{ name: string; email: string }[]>([])
+
+  // Venue map coordinates
+  const [venueLat, setVenueLat] = useState<number | undefined>(undefined)
+  const [venueLng, setVenueLng] = useState<number | undefined>(undefined)
+
+  const handleStaffSearch = (q: string) => {
+    setStaffSearch(q)
+    if (!user || !q.trim()) { setStaffResults([]); return }
+    const term = q.toLowerCase()
+    const filtered = user.friends
+      .filter(email => email.toLowerCase().includes(term) && !staffList.some(s => s.email === email))
+      .map(email => ({ email, name: email.split('@')[0] }))
+    setStaffResults(filtered)
+  }
+
+  const addStaff = (friend: { name: string; email: string }) => {
+    if (staffList.some(s => s.email === friend.email)) return
+    setStaffList(prev => [...prev, friend])
+    setStaffSearch("")
+    setStaffResults([])
+  }
+
+  const removeStaff = (email: string) => {
+    setStaffList(prev => prev.filter(s => s.email !== email))
+  }
 
   const addLink = () => setImportantLinks(prev => [...prev, { label: "", url: "" }])
   const updateLink = (idx: number, key: "label" | "url", val: string) =>
@@ -272,6 +304,7 @@ export default function CreateEventPage() {
       venue: form.venue,
       seats: 9999, // Unlimited seats — capacity managed per sub-event maxParticipants
       registeredCount: 0,
+      ...(venueLat !== undefined && venueLng !== undefined ? { venueLat, venueLng } : {}),
       category: form.category,
       isInter: form.isInter,
       price: form.price,
@@ -281,7 +314,7 @@ export default function CreateEventPage() {
       collegeDomain: form.isInter ? "" : form.collegeDomain,
       registrationOpen: false,  // Starts closed — opened after admin approval
       registrationDeadline: form.registrationDeadline || "",
-      eventCoordinators: [],
+      eventCoordinators: staffList.map(s => ({ name: s.name, email: s.email, phone: "", role: "Staff" })),
       status: "pending_review" as const,
       subEvents: subEvents.filter((se) => se.name).map((se, i) => {
         const sub: SubEvent = {
@@ -475,6 +508,16 @@ export default function CreateEventPage() {
                   <p className="text-[10px] text-[var(--color-text-faint)] mt-1">Between today and the event date</p>
               </div>
             </div>
+
+            {/* Venue Map Picker */}
+            <div>
+              <label className={labelCls}>Venue Location on Map <span className="text-white/20 normal-case font-sans tracking-normal">(optional)</span></label>
+              <VenueMapPickerDynamic
+                lat={venueLat}
+                lng={venueLng}
+                onSelect={(lat, lng) => { setVenueLat(lat); setVenueLng(lng) }}
+              />
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <div className="flex items-center justify-between mb-1">
@@ -634,7 +677,54 @@ export default function CreateEventPage() {
               </div>
               <p className="text-[10px] text-[var(--color-text-faint)] mt-1">Max 5MB. Will be displayed in 16:9 ratio on event cards.</p>
             </div>
+
+            {/* Event-level Staff */}
+            <div className="space-y-2">
+              <div>
+                <span className={labelCls}><Users className="w-3 h-3 inline mr-1" />Staff</span>
+                <p className="text-[10px] text-white/30 mb-2">Staff can view all event data (participants, check-in, announcements, tasks) but cannot make changes. CSV export is allowed.</p>
+              </div>
+              {staffList.map(s => (
+                <div key={s.email} className="flex items-center justify-between p-2 rounded bg-white/[0.03] border border-white/[0.05] text-xs">
+                  <div>
+                    <span className="text-white/70">{s.name || s.email}</span>
+                    <span className="ml-2 text-[9px] font-mono text-[#B388FF]/60">Staff</span>
+                  </div>
+                  <button type="button" onClick={() => removeStaff(s.email)} className="text-white/20 hover:text-red-400"><X className="w-3 h-3" /></button>
+                </div>
+              ))}
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+                <Input
+                  value={staffSearch}
+                  onChange={(e) => handleStaffSearch(e.target.value)}
+                  placeholder="Search friends to add as staff..."
+                  className={`${inputCls} h-8 text-xs pl-8`}
+                />
+                {staffResults.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 border border-white/[0.1] rounded-md z-20 overflow-hidden">
+                    {staffResults.map(f => (
+                      <button
+                        key={f.email}
+                        type="button"
+                        onClick={() => addStaff(f)}
+                        className="w-full text-left px-3 py-2 text-xs text-white/70 hover:bg-white/[0.08] transition-colors flex items-center gap-2"
+                      >
+                        <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[9px] font-bold">{f.email[0].toUpperCase()}</div>
+                        <span>{f.email}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {staffSearch && staffResults.length === 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 border border-white/[0.1] rounded-md z-20 px-3 py-2">
+                    <p className="text-[10px] text-white/30">No friends found. Add them as friends first.</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </GlassCard>
+
 
           {/* Rules */}
           <GlassCard className="p-6 space-y-4">

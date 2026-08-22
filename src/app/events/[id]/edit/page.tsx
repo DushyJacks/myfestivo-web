@@ -18,6 +18,7 @@ import {
   Trash2, ToggleLeft, ToggleRight, Settings, CalendarDays, Info, LinkIcon, Search, Users, ImageIcon, Upload
 } from "lucide-react"
 import Link from "next/link"
+import { VenueMapPickerDynamic } from "@/components/map"
 
 interface SubEventForm {
   id: string
@@ -79,6 +80,13 @@ export default function EditEventPage() {
   const [importantLinks, setImportantLinks] = useState<{ id: string; label: string; url: string }[]>([])
   // Per-sub-event autocomplete results for in-charge search
   const [inchargeResults, setInchargeResults] = useState<{ [key: number]: { email: string; name: string }[] }>({})
+  // Event-level Staff
+  const [staffList, setStaffList] = useState<{ name: string; email: string }[]>([])
+  const [staffSearch, setStaffSearch] = useState("")
+  const [staffResults, setStaffResults] = useState<{ name: string; email: string }[]>([])
+  // Venue map coordinates
+  const [venueLat, setVenueLat] = useState<number | undefined>(undefined)
+  const [venueLng, setVenueLng] = useState<number | undefined>(undefined)
 
   const addLink = () => setImportantLinks(prev => [...prev, { id: `link-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, label: "", url: "" }])
   const updateLink = (idx: number, key: "label" | "url", val: string) =>
@@ -178,6 +186,16 @@ export default function EditEventPage() {
         label: l.label,
         url: l.url,
       })))
+
+      // Load existing event-level staff
+      const existingStaff = (event.eventCoordinators || [])
+        .filter((c: any) => c.role === "Staff")
+        .map((c: any) => ({ name: c.name || c.email.split('@')[0], email: c.email }))
+      setStaffList(existingStaff)
+
+      // Load existing venue coordinates
+      if (event.venueLat !== undefined) setVenueLat(event.venueLat)
+      if (event.venueLng !== undefined) setVenueLng(event.venueLng)
     }
   }, [event])
 
@@ -282,6 +300,27 @@ export default function EditEventPage() {
     }
   }
 
+  const handleStaffSearch = (q: string) => {
+    setStaffSearch(q)
+    if (!user || !q.trim()) { setStaffResults([]); return }
+    const term = q.toLowerCase()
+    const filtered = user.friends
+      .filter(email => email.toLowerCase().includes(term) && !staffList.some(s => s.email === email))
+      .map(email => ({ email, name: email.split('@')[0] }))
+    setStaffResults(filtered)
+  }
+
+  const addStaff = (friend: { name: string; email: string }) => {
+    if (staffList.some(s => s.email === friend.email)) return
+    setStaffList(prev => [...prev, friend])
+    setStaffSearch("")
+    setStaffResults([])
+  }
+
+  const removeStaff = (email: string) => {
+    setStaffList(prev => prev.filter(s => s.email !== email))
+  }
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
@@ -331,6 +370,12 @@ export default function EditEventPage() {
         label: l.label,
         url: l.url,
       })),
+      // Persist event-level staff (non-Staff coordinators are preserved from the original)
+      eventCoordinators: [
+        ...(event.eventCoordinators || []).filter((c: any) => c.role !== "Staff"),
+        ...staffList.map(s => ({ name: s.name, email: s.email, phone: "", role: "Staff" })),
+      ],
+      ...(venueLat !== undefined && venueLng !== undefined ? { venueLat, venueLng } : {}),
     }
 
     try {
@@ -469,6 +514,16 @@ export default function EditEventPage() {
                 <div><label className={labelCls}>Venue</label><Input value={form.venue} onChange={(e) => update("venue", e.target.value)} placeholder="Main Auditorium" className={`${inputCls} h-11`} required /></div>
                 <div><label className={labelCls}>Registration Deadline</label><NativeDateInput value={form.registrationDeadline} onChange={(e) => update("registrationDeadline", e.target.value)} className="h-11" /></div>
               </div>
+              
+              {/* Venue Map Picker */}
+              <div>
+                <label className={labelCls}>Venue Location on Map <span className="text-white/20 normal-case font-sans tracking-normal">(optional)</span></label>
+                <VenueMapPickerDynamic
+                  lat={venueLat}
+                  lng={venueLng}
+                  onSelect={(lat, lng) => { setVenueLat(lat); setVenueLng(lng) }}
+                />
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div><label className={labelCls}>Price (₹)</label><Input type="number" value={form.price} onChange={(e) => update("price", parseInt(e.target.value) || 0)} className={`${inputCls} h-11`} /></div>
                 <div><label className={labelCls}>Category</label>
@@ -542,8 +597,50 @@ export default function EditEventPage() {
                   <p className="text-[10px] text-[var(--color-text-faint)] mt-1">Only users with verified @{form.collegeDomain || "domain"} email can register</p>
                 </div>
               )}
+
+              {/* Event-level Staff */}
+              <div className="space-y-2 pt-1 border-t border-white/[0.05]">
+                <div>
+                  <span className={labelCls}><Users className="w-3 h-3 inline mr-1" />Staff</span>
+                  <p className="text-[10px] text-white/30 mb-2">Staff can view all event data but cannot make changes. CSV export allowed.</p>
+                </div>
+                {staffList.map(s => (
+                  <div key={s.email} className="flex items-center justify-between p-2 rounded bg-white/[0.03] border border-white/[0.05] text-xs">
+                    <div>
+                      <span className="text-white/70">{s.name || s.email}</span>
+                      <span className="ml-2 text-[9px] font-mono text-[#B388FF]/60">Staff</span>
+                    </div>
+                    <button type="button" onClick={() => removeStaff(s.email)} className="text-white/20 hover:text-red-400"><X className="w-3 h-3" /></button>
+                  </div>
+                ))}
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30" />
+                  <Input
+                    value={staffSearch}
+                    onChange={(e) => handleStaffSearch(e.target.value)}
+                    placeholder="Search friends to add as staff..."
+                    className={`${inputCls} h-8 text-xs pl-8`}
+                  />
+                  {staffResults.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 border border-white/[0.1] rounded-md z-20 overflow-hidden">
+                      {staffResults.map(f => (
+                        <button key={f.email} type="button" onClick={() => addStaff(f)} className="w-full text-left px-3 py-2 text-xs text-white/70 hover:bg-white/[0.08] flex items-center gap-2">
+                          <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[9px] font-bold">{f.email[0].toUpperCase()}</div>
+                          <span>{f.email}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {staffSearch && staffResults.length === 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 border border-white/[0.1] rounded-md z-20 px-3 py-2">
+                      <p className="text-[10px] text-white/30">No friends found. Add them as friends first.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </GlassCard>
           )}
+
 
           {/* ═══ RULES ═══ */}
           {activeSection === "rules" && (

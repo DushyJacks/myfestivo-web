@@ -343,8 +343,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const removeFriend = async (gmail: string) => {
     if (user) {
+      // Remove from current user's friends list
       const updated = { ...user, friends: user.friends.filter((f) => f !== gmail) }
       await persistProfile(updated)
+
+      // Bidirectional sync — also remove current user from the other user's friends list
+      try {
+        const db = getDb()
+        const q = query(collection(db, "users"), where("email", "==", gmail))
+        const snap = await getDocs(q)
+        if (!snap.empty) {
+          const otherRef = snap.docs[0].ref
+          const otherData = snap.docs[0].data()
+          const otherFriends: string[] = otherData.friends ?? []
+          await updateDoc(otherRef, {
+            friends: otherFriends.filter((f) => f !== user.email),
+          })
+        }
+      } catch (err) {
+        console.error("[removeFriend] Failed to sync other user's friends list:", err)
+      }
     }
   }
 
