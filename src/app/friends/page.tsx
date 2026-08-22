@@ -262,15 +262,11 @@ export default function FriendsPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {user.friends.map(email => (
-<<<<<<< HEAD
-                    <GlassCard key={email} className="p-4 hover:border-[var(--color-border)] transition-colors group">
-=======
                     <GlassCard
                       key={email}
-                      className="p-4 hover:border-white/10 transition-colors group cursor-pointer"
+                      className="p-4 hover:border-[var(--color-border)] transition-colors group cursor-pointer"
                       onClick={() => handleOpenFriendProfile(email)}
                     >
->>>>>>> origin/v2.0
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-[var(--color-surface-2)] flex items-center justify-center text-sm font-bold border border-[var(--color-border)]">
