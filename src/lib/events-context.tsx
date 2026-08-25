@@ -749,10 +749,24 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
 
   // Module 4 — Check-In
   const checkInParticipant = async (eventId: string, regId: string) => {
+    const checkInTime = new Date().toISOString()
     await updateDoc(getRegRef(eventId, regId), {
       checkedIn: true,
-      checkInTime: new Date().toISOString(),
+      checkInTime,
     })
+    // Optimistic update: reflect the change in local state immediately so that
+    // a subsequent events-collection onSnapshot (which calls mergeRegistrations)
+    // cannot overwrite the check-in with stale data from regsByEventRef.
+    const currentRegs = regsByEventRef.current[eventId] ?? []
+    const updatedRegs = currentRegs.map(r =>
+      r.id === regId ? { ...r, checkedIn: true, checkInTime } : r
+    )
+    regsByEventRef.current = { ...regsByEventRef.current, [eventId]: updatedRegs }
+    setEvents(prev =>
+      prev.map(e =>
+        e.id === eventId ? { ...e, registrations: updatedRegs } : e
+      )
+    )
   }
 
   const undoCheckInParticipant = async (eventId: string, regId: string) => {
@@ -760,6 +774,17 @@ export function EventsProvider({ children, authReady, authUid }: EventsProviderP
       checkedIn: false,
       checkInTime: null,
     })
+    // Optimistic update: same race-condition fix as checkInParticipant.
+    const currentRegs = regsByEventRef.current[eventId] ?? []
+    const updatedRegs = currentRegs.map(r =>
+      r.id === regId ? { ...r, checkedIn: false, checkInTime: undefined } : r
+    )
+    regsByEventRef.current = { ...regsByEventRef.current, [eventId]: updatedRegs }
+    setEvents(prev =>
+      prev.map(e =>
+        e.id === eventId ? { ...e, registrations: updatedRegs } : e
+      )
+    )
   }
 
   // Module 7 — Automation
