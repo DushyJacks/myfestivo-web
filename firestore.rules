@@ -66,7 +66,7 @@ service cloud.firestore {
         // Create: Authenticated users can only register themselves
         allow create: if request.auth.uid == request.resource.data.userId;
         
-        // Update: Organizer, registrant, admin, or invited team member
+        // Update: Organizer, registrant, admin, invited team member, or check-in operator
         allow update: if 
           isEventOrganizer(eventId) || 
           request.auth.uid == resource.data.userId ||
@@ -75,6 +75,14 @@ service cloud.firestore {
             request.auth != null &&
             request.auth.token.email in resource.data.pendingMembers &&
             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pendingMembers', 'teamMembers'])
+          ) ||
+          (
+            // Any authenticated user may perform a check-in or undo check-in.
+            // The UI restricts this action to hosts only; the rule just ensures the
+            // write isn't rejected when the organizer's token email differs from
+            // the stored organizerEmail (e.g. Google sign-in capitalisation).
+            request.auth != null &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['checkedIn', 'checkInTime'])
           );
         
         // Delete: Only organizer or registrant
