@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAdminDb } from '@/lib/firebase-admin-server'
 import { sendCollegeOTP } from '@/lib/email'
 import { saveOtp, clearOtp } from '@/lib/otp-store'
+import { isRateLimited, getClientIp } from '@/lib/rate-limit'
 
 const COLLEGE_DOMAIN = 'srmist.edu.in'
 
@@ -21,18 +22,29 @@ function generateOTP(): string {
  */
 export async function POST(request: NextRequest) {
   try {
+    // 1. Rate Limiting (5 requests per minute per IP)
+    const ip = getClientIp(request)
+    if (isRateLimited(ip, 'send-college-otp', { limit: 5, windowMs: 60000 })) {
+      return NextResponse.json(
+        { success: false, message: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const body = await request.json()
     const { uid, collegeEmail } = body
 
-    if (!uid || !collegeEmail) {
+    if (!uid || typeof uid !== 'string' || !collegeEmail || typeof collegeEmail !== 'string') {
       return NextResponse.json(
-        { success: false, message: 'Missing required fields' },
+        { success: false, message: 'Missing or invalid required fields' },
         { status: 400 }
       )
     }
 
+    const sanitizedEmail = collegeEmail.trim().toLowerCase()
+
     // Enforce hardcoded domain
-    if (!collegeEmail.endsWith(`@${COLLEGE_DOMAIN}`)) {
+    if (!sanitizedEmail.endsWith(`@${COLLEGE_DOMAIN}`)) {
       return NextResponse.json(
         { success: false, message: `College email must end with @${COLLEGE_DOMAIN}` },
         { status: 400 }
@@ -56,10 +68,10 @@ export async function POST(request: NextRequest) {
 
     // Generate OTP and store in server-side memory (2-minute TTL, no Firestore)
     const otp = generateOTP()
-    saveOtp(uid, otp, collegeEmail)
+    saveOtp(uid, otp, sanitizedEmail)
 
     // Send OTP via Resend
-    const emailSent = await sendCollegeOTP(collegeEmail, otp, COLLEGE_DOMAIN)
+    const emailSent = await sendCollegeOTP(sanitizedEmail, otp, COLLEGE_DOMAIN)
 
     if (!emailSent) {
       return NextResponse.json(

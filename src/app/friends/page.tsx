@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { db as getDb } from "@/lib/firebase"
 import { collection, query, where, getDocs } from "firebase/firestore"
-import { Search, UserPlus, Check, X, Loader2, Trophy, CalendarDays, GraduationCap, Mail, UserCircle2, Building } from "lucide-react"
+import { Search, UserPlus, Check, X, Loader2, Trophy, CalendarDays, GraduationCap, Mail, UserCircle2, Building, ShieldCheck } from "lucide-react"
 
 interface FriendProfile {
   name?: string
@@ -24,6 +24,8 @@ interface FriendProfile {
   department?: string
   year?: string
   avatarUrl?: string
+  collegeEmailVerified?: boolean
+  collegeEmailVerifiedAt?: string
 }
 
 export default function FriendsPage() {
@@ -376,14 +378,33 @@ export default function FriendsPage() {
             >
               <div className="flex items-start justify-between mb-5">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-full bg-[#B388FF]/10 border border-[#B388FF]/20 flex items-center justify-center text-xl font-bold text-[#B388FF]">
-                    {(selectedFriend.profile?.name ?? selectedFriend.email).charAt(0).toUpperCase()}
-                  </div>
+                  {selectedFriend.profile?.avatarUrl ? (
+                    <img src={selectedFriend.profile.avatarUrl} alt="" className="w-14 h-14 rounded-full object-cover border border-[#B388FF]/20" />
+                  ) : (
+                    <div className="w-14 h-14 rounded-full bg-[#B388FF]/10 border border-[#B388FF]/20 flex items-center justify-center text-xl font-bold text-[#B388FF]">
+                      {(selectedFriend.profile?.name ?? selectedFriend.email).charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <div>
                     {selectedFriend.loading ? (
                       <div className="w-24 h-4 bg-white/10 rounded animate-pulse mb-2" />
                     ) : (
-                      <p className="font-medium text-base">{selectedFriend.profile?.name ?? selectedFriend.email.split("@")[0]}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-base">{selectedFriend.profile?.name ?? selectedFriend.email.split("@")[0]}</p>
+                        {(() => {
+                          const p = selectedFriend.profile
+                          if (!p?.collegeEmailVerified || !p.collegeEmailVerifiedAt) return null
+                          const SIX_MONTHS = 6 * 30 * 24 * 60 * 60 * 1000
+                          const isValid = (Date.now() - new Date(p.collegeEmailVerifiedAt).getTime()) < SIX_MONTHS
+                          if (!isValid) return null
+                          return (
+                            <span title="Verified Student" className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/25 text-[9px] font-mono text-emerald-400 tracking-wider">
+                              <ShieldCheck className="w-2.5 h-2.5" />
+                              Verified
+                            </span>
+                          )
+                        })()}
+                      </div>
                     )}
                     <p className="text-[10px] font-mono text-white/40">{selectedFriend.email}</p>
                   </div>

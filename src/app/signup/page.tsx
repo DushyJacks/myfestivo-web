@@ -86,6 +86,15 @@ export default function SignupPage() {
       return
     }
 
+    // Enforce personal email — block institutional/college domains
+    const PERSONAL_DOMAINS = ["gmail.com", "yahoo.com", "yahoo.in", "outlook.com", "hotmail.com", "protonmail.com", "proton.me", "icloud.com", "me.com", "apple.com"]
+    const emailLower = form.email.trim().toLowerCase()
+    const emailDomain = emailLower.split("@")[1] || ""
+    if (!PERSONAL_DOMAINS.includes(emailDomain)) {
+      setError("Please sign up using your personal email (e.g., @gmail.com, @outlook.com). College/institutional emails are not allowed for sign-up.")
+      return
+    }
+
     const phoneDigits = form.phone.replace(/\D/g, "")
     if (phoneDigits.length !== 10) {
       setError("Please enter a valid 10-digit phone number")
@@ -365,7 +374,7 @@ export default function SignupPage() {
             <div>
               <label htmlFor="signup-email" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">Email Address</label>
               <Input id="signup-email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="you@gmail.com" autoComplete="email" spellCheck={false} className="themed-input h-11" required aria-describedby="email-hint" />
-              <p id="email-hint" className="text-[13px] text-[var(--color-text-muted)] mt-1">You can link your college email from your Profile later for intra-college events.</p>
+              <p id="email-hint" className="text-[13px] text-[var(--color-text-muted)] mt-1">Sign up using your personal email ID (e.g., @gmail.com). You will have to verify your student status in profile.</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
+import { isRateLimited, getClientIp } from '@/lib/rate-limit'
 
 /**
  * Verify Razorpay payment signature
@@ -15,6 +16,14 @@ import crypto from 'crypto'
  */
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request)
+    if (isRateLimited(ip, 'payments-verify', { limit: 5, windowMs: 60000 })) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET
 
     if (!RAZORPAY_KEY_SECRET) {

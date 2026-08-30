@@ -126,6 +126,7 @@ export default function ProfilePage() {
   const [otpSent, setOtpSent] = useState(false)
   const [otp, setOtp] = useState("")
   const [verifyError, setVerifyError] = useState("")
+  const [verifySuccess, setVerifySuccess] = useState("")
   const [countdown, setCountdown] = useState(0)
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -240,8 +241,12 @@ export default function ProfilePage() {
         body: JSON.stringify({ uid: user.id, otp }),
       })
       const data = await response.json()
-      if (data.success) { setOtpSent(false); setOtp(""); setCollegePrefix("") }
-      else { setVerifyError(data.message || 'Verification failed.') }
+      if (data.success) {
+        setVerifySuccess("\u2713 Student status verified successfully! Your Verified Student badge is now active.")
+        setOtpSent(false)
+        setOtp("")
+        setCollegePrefix("")
+      } else { setVerifyError(data.message || 'Verification failed.') }
     } catch { setVerifyError('Network error. Please try again.') }
     finally { setVerifying(false) }
   }
@@ -475,16 +480,27 @@ export default function ProfilePage() {
           {/* College Email Verification */}
           <motion.div variants={pageItem} className="mb-8">
             <GlassCard className="p-6 sm:p-8">
-              <MicroLabel>02 — College Email Verification</MicroLabel>
-              <p className="text-sm text-[var(--color-text-muted)] mb-2">Link your college email to access intra-college events.</p>
-              <p className="text-[11px] text-[var(--color-text-muted)] mb-6 font-mono">This step is optional — you can participate in events without verification.</p>
+              <MicroLabel>02 — Student Verification</MicroLabel>
+              <p className="text-sm text-[var(--color-text-muted)] mb-2">Verify your student status using your college email. Required to host events.</p>
+              <p className="text-[11px] text-[var(--color-text-muted)] mb-6 font-mono">Verified students can host events and display a Verified Student badge on their profile.</p>
 
+              {verifySuccess && (
+                <div className="flex items-start gap-3 p-4 rounded-md bg-[var(--color-success)]/10 border border-[var(--color-success)]/20 mb-4">
+                  <CheckCircle2 className="w-5 h-5 text-[var(--color-success)] shrink-0 mt-0.5" />
+                  <p className="text-sm text-[var(--color-success)] font-medium">{verifySuccess}</p>
+                </div>
+              )}
               {user.collegeEmailVerified ? (
                 <div className="flex items-center gap-3 p-4 rounded-md bg-[var(--color-success)]/10 border border-[var(--color-success)]/20">
                   <Shield className="w-5 h-5 text-[var(--color-success)]" />
                   <div>
-                    <p className="text-sm text-[var(--color-success)] font-medium">College Email Verified</p>
+                    <p className="text-sm text-[var(--color-success)] font-medium">Verified Student</p>
                     <p className="text-xs font-mono text-[var(--color-success)]/60">{user.collegeEmail}</p>
+                    {user.collegeEmailVerifiedAt && (
+                      <p className="text-[10px] font-mono text-[var(--color-success)]/40 mt-0.5">
+                        Valid until {new Date(new Date(user.collegeEmailVerifiedAt).getTime() + 6 * 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}
+                      </p>
+                    )}
                   </div>
                 </div>
               ) : (

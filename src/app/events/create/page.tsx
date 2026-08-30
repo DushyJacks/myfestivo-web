@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useAuth } from "@/lib/auth-context"
+import { useAuth, isStudentVerified } from "@/lib/auth-context"
 import { useEvents, MainEvent, SubEvent } from "@/lib/events-context"
 import { useRouter } from "next/navigation"
 import { GlassCard } from "@/components/ui/GlassCard"
@@ -382,6 +382,48 @@ export default function CreateEventPage() {
   )
 
   if (!user) return null
+
+  // ── Verification gate: only verified students can host events ──
+  if (!isStudentVerified(user)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="max-w-md w-full text-center"
+        >
+          <div className="w-20 h-20 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-6">
+            <PlusCircle className="w-10 h-10 text-amber-400" />
+          </div>
+          <h1 className="text-2xl font-light tracking-tight mb-3">Verification Required</h1>
+          <GlassCard className="p-6 mb-6 text-left">
+            <p className="text-sm text-[var(--color-text-muted)] leading-relaxed mb-4">
+              Only verified students can host events. Please visit your profile to verify your student status.
+            </p>
+            <div className="flex items-start gap-3 p-3 rounded-md bg-amber-500/10 border border-amber-500/20">
+              <div className="w-2 h-2 rounded-full bg-amber-400 mt-1.5 shrink-0" />
+              <p className="text-xs text-amber-400/80 leading-relaxed">
+                Verification is quick — enter your college email prefix in your profile and verify via OTP. It stays valid for 6 months.
+              </p>
+            </div>
+          </GlassCard>
+          <div className="flex gap-3 justify-center">
+            <Link href="/profile">
+              <Button className="bg-white text-black hover:bg-[#B388FF] font-medium">
+                Go to Profile
+              </Button>
+            </Link>
+            <Link href="/events">
+              <Button variant="outline" className="border-[var(--color-border)] text-[var(--color-text)] hover:bg-[var(--color-surface-3)]">
+                Browse Events
+              </Button>
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    )
+}
 
   // ── Submission success screen ──
   if (submitted) {

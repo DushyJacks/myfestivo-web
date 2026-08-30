@@ -11,11 +11,11 @@ import {
   signInWithPopup,
   deleteUser,
 } from "firebase/auth"
-import { collection, query, where, getDocs } from "firebase/firestore"
+import { collection, query, where, getDocs, onSnapshot } from "firebase/firestore"
 import { doc, setDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore"
 
 const SESSION_KEY = "mf_session_start"
-const SESSION_MAX_MS = 3 * 24 * 60 * 60 * 1000 // 3 days in milliseconds
+const SESSION_MAX_MS = 14 * 24 * 60 * 60 * 1000 // 14 days in milliseconds
 
 function recordSessionStart() {
   try { localStorage.setItem(SESSION_KEY, Date.now().toString()) } catch {}
@@ -59,6 +59,8 @@ export interface User {
   avatarUrl: string
   collegeEmail: string
   collegeEmailVerified: boolean
+  /** ISO timestamp of when college email was last verified */
+  collegeEmailVerifiedAt?: string
   friends: string[]
   friendRequestsIn: FriendRequest[]
   friendRequestsOut: string[]
@@ -67,6 +69,13 @@ export interface User {
   coordinatingEvents: string[]
   /** True once the user has accepted Privacy Policy + T&C (persisted in Firestore for cross-device sync) */
   termsAccepted?: boolean
+}
+
+/** Returns true only if the user's college email was verified within the last 6 months. */
+export function isStudentVerified(user: User | null | undefined): boolean {
+  if (!user?.collegeEmailVerified || !user.collegeEmailVerifiedAt) return false
+  const SIX_MONTHS_MS = 6 * 30 * 24 * 60 * 60 * 1000
+  return (Date.now() - new Date(user.collegeEmailVerifiedAt).getTime()) < SIX_MONTHS_MS
 }
 
 interface AuthContextType {
@@ -169,15 +178,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    // Safety net: if onAuthStateChanged hasn't fired within 5 s (e.g. Firebase
-    // Auth iframe is blocked or very slow), unblock the app and treat as signed-out.
-    // This prevents the entire loading chain from hanging indefinitely.
+    const db = getDb()
+
+    // Safety net: if onAuthStateChanged hasn't fired within 5 s
     const fallbackTimer = setTimeout(() => setIsLoading(false), 5000)
+
+    let profileUnsub: (() => void) | null = null
 
     const unsub = onAuthStateChanged(authInstance, async (firebaseUser) => {
       clearTimeout(fallbackTimer) // auth resolved — cancel the fallback
-      if (firebaseUser) {
-        // ── 3-day absolute session timeout ────────────────────
+      
+      // Cleanup previous profile listener if it exists
+      if (profileUnsub) {
+        profileUnsub()
+        profileUnsub = null
+      }
+
+      if (firebaseUser && db) {
+        // ── 14-day absolute session timeout ────────────────────
         if (isSessionExpired()) {
           clearSessionStart()
           await signOut(authInstance)
@@ -185,14 +203,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setIsLoading(false)
           return
         }
-        const profile = await fetchUserProfile(firebaseUser.uid)
-        setUser(profile)
+
+        // Set up real-time listener for the user profile
+        profileUnsub = onSnapshot(doc(db, "users", firebaseUser.uid), (snap) => {
+          if (snap.exists()) {
+            const data = snap.data()
+            const isFaculty = data.year === "Faculty/Staff" || data.year === "Faculty" || data.role === "faculty"
+            const role: UserRole = data.role === "admin" ? "admin" : isFaculty ? "faculty" : "student"
+            const profile = {
+              ...data,
+              role,
+              department: data.department ? (legacyDeptMap[data.department as string] || data.department) : "",
+              college: normalizeCollege(data.college),
+              avatarUrl: data.avatarUrl || "",
+              friendRequestsIn: data.friendRequestsIn || [],
+              friendRequestsOut: data.friendRequestsOut || [],
+              friends: data.friends || [],
+            } as User
+            setUser(profile)
+          } else {
+            setUser(null)
+          }
+          setIsLoading(false)
+        }, (error) => {
+          console.error("Error listening to user profile:", error)
+          setIsLoading(false)
+        })
+
       } else {
         setUser(null)
+        setIsLoading(false)
       }
-      setIsLoading(false)
     })
-    return () => { unsub(); clearTimeout(fallbackTimer) }
+    
+    return () => { 
+      unsub()
+      if (profileUnsub) profileUnsub()
+      clearTimeout(fallbackTimer) 
+    }
   }, [])
 
 

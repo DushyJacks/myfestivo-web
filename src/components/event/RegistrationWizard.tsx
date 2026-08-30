@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Check, ChevronRight, Users, X, Plus, Trophy, UserPlus, Clock, Send, Loader2 } from "lucide-react"
 import { emailTeamInvitation } from "@/lib/emailApi"
+import { db as getDb } from "@/lib/firebase"
+import { collection, query, where, getDocs } from "firebase/firestore"
 
 interface Props {
   event: MainEvent
@@ -42,6 +44,7 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
   const [submitting, setSubmitting] = useState(false)
   const [sendingRequest, setSendingRequest] = useState(false)
   const [done, setDone] = useState(false)
+  const [isAddingMember, setIsAddingMember] = useState(false)
   const [emailError, setEmailError] = useState<string | null>(null)
   const [friendSuggestions, setFriendSuggestions] = useState<string[]>([])
   const [draftRegId, setDraftRegId] = useState<string | null>(null)
@@ -101,7 +104,7 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
   // Department restriction for intra-college events
   const isDeptRestricted = !event.isInter && (event.allowedDepartments ?? []).length > 0 && !!user?.department && !event.allowedDepartments!.includes(user.department)
 
-  const addMemberByEmail = (email: string) => {
+  const addMemberByEmail = async (email: string) => {
     const normalized = email.trim().toLowerCase()
     if (!normalized || teamMembers.includes(normalized) || normalized === user.email) return
     // Block adding if already pending (awaiting response)
@@ -114,6 +117,29 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
     if (!user?.friends?.includes(normalized)) {
       setEmailError("Only friends can be added as team members. Add them as a friend first.")
       return
+    }
+
+    // Department restriction: validate invitee's department for intra-college events
+    const allowedDepts = event.allowedDepartments ?? []
+    if (!event.isInter && allowedDepts.length > 0) {
+      setIsAddingMember(true)
+      try {
+        const q = query(collection(getDb(), "users"), where("email", "==", normalized))
+        const snap = await getDocs(q)
+        if (!snap.empty) {
+          const inviteeDept: string = snap.docs[0].data().department || ""
+          if (!allowedDepts.includes(inviteeDept)) {
+            setEmailError(
+              `${normalized} is from ${inviteeDept || "an unknown department"}, which is not allowed for this event. Only: ${allowedDepts.join(", ")}.`
+            )
+            setIsAddingMember(false)
+            return
+          }
+        }
+      } catch {
+        // Firestore fetch failed — fail open and let server-side logic handle it
+      }
+      setIsAddingMember(false)
     }
 
     setEmailError(null)
@@ -449,8 +475,8 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
                             <button
                               key={email}
                               type="button"
-                              onMouseDown={e => { e.preventDefault(); addMemberByEmail(email) }}
-                              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left hover:bg-[#B388FF]/10 transition-colors"
+                              onMouseDown={e => { e.preventDefault(); if (!isAddingMember) addMemberByEmail(email) }}
+                              className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left hover:bg-[#B388FF]/10 transition-colors ${isAddingMember ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                               <div className="w-6 h-6 rounded-full bg-[#B388FF]/20 flex items-center justify-center text-[10px] font-bold text-[#B388FF] shrink-0">
                                 {email[0].toUpperCase()}
@@ -462,8 +488,8 @@ export function RegistrationWizard({ event, initialSubEvent, localRegistrations 
                         </div>
                       )}
                     </div>
-                    <Button onClick={addMember} variant="outline" className="h-9 px-3 border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] shrink-0">
-                      <Plus className="w-3.5 h-3.5" />
+                    <Button onClick={addMember} disabled={isAddingMember} variant="outline" className="h-9 px-3 border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] shrink-0">
+                      {isAddingMember ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
                     </Button>
                   </div>
                 )}

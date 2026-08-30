@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendAnnouncementNotification } from '@/lib/email'
+import { isRateLimited, getClientIp } from '@/lib/rate-limit'
 
 /**
  * Send announcement notification emails to all registered participants
@@ -16,6 +17,14 @@ import { sendAnnouncementNotification } from '@/lib/email'
  */
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request)
+    if (isRateLimited(ip, 'email-announcement', { limit: 20, windowMs: 60000 })) {
+      return NextResponse.json(
+        { success: false, message: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const body = await request.json()
     const { recipients, eventTitle, announcementTitle, announcementMessage, eventId } = body
 

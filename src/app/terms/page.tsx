@@ -249,24 +249,24 @@ export default function TermsPage() {
           <p className="mt-2">We will provide <strong className="text-[var(--color-text)]">30 days&apos; notice</strong> via email or Platform notification of material changes.</p>
         </Section>
 
-        <Section title="13. Severability">
+        <Section title="13. Generative AI">
+          <p>MyFestivo acknowledges that this platform was and is being developed with the assistance of Generative Artificial Intelligence (AI) technologies. By using the Platform, you acknowledge and agree that certain code, features, or content may have been generated, optimized, or reviewed by AI tools.</p>
+        </Section>
+
+        <Section title="14. Severability">
           <p>If any provision of these Terms is found to be invalid, illegal, or unenforceable, that provision shall be severed, and the remaining Terms shall continue in full force and effect.</p>
         </Section>
 
-        <Section title="14. Governing Law &amp; Jurisdiction">
-          <Subsection title="14.1 Governing Law">
+        <Section title="15. Governing Law &amp; Jurisdiction">
+          <Subsection title="15.1 Governing Law">
             <p>These Terms are governed by and construed in accordance with the <strong className="text-[var(--color-text)]">laws of India</strong>, without regard to its conflict of law principles.</p>
           </Subsection>
-          <Subsection title="14.2 Jurisdiction">
-            <p className="mb-2">You irrevocably submit to the exclusive jurisdiction of:</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>The <strong className="text-[var(--color-text)]">courts of New Delhi, India</strong> for any legal disputes.</li>
-              <li>You waive any objection to venue or inconvenient forum.</li>
-            </ul>
+          <Subsection title="15.2 Jurisdiction">
+            <p>Any disputes arising under these Terms shall be subject to the exclusive jurisdiction of the courts located in the district of the Organizer&apos;s college.</p>
           </Subsection>
         </Section>
 
-        <Section title="15. Contact Information">
+        <Section title="16. Contact Information">
           <p>If you have questions about these Terms and Conditions, please contact us at:</p>
           <p className="mt-3 text-[var(--color-text-muted)]">
             <strong className="text-[var(--color-text)]">MyFestivo Support</strong><br />
