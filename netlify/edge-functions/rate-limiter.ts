@@ -15,7 +15,7 @@
  * require an external KV store (e.g. Netlify Blobs or Upstash Redis).
  */
 
-import type { Context } from "https://edge.netlify.com";
+import type { Context } from "@netlify/edge-functions";
 
 // ─── Rate limit config ────────────────────────────────────────────────────────
 
@@ -38,6 +38,7 @@ const RATE_RULES: Array<[prefix: string, rule: RateRule]> = [
   ["/api/payments/verify",          { limit: 5,   windowMs: 60_000 }],
 
   // ── Authentication — 10 / min ─────────────────────────────────────────────
+  ["/api/auth/forgot-password",     { limit: 10,  windowMs: 60_000 }],
   ["/api/auth/is-admin",            { limit: 10,  windowMs: 60_000 }],
 
   // ── Email / Standard API — 100 / min ─────────────────────────────────────
@@ -88,11 +89,15 @@ function isRateLimited(ip: string, prefix: string, rule: RateRule): boolean {
 let lastCleanup = Date.now();
 const CLEANUP_INTERVAL_MS = 5 * 60_000;
 
-function maybeCleanup(windowMs: number) {
+// Use the longest window across all rules as the cleanup cutoff so we never
+// prune buckets that still belong to an active, longer-window rule.
+const MAX_WINDOW_MS = Math.max(...RATE_RULES.map(([, r]) => r.windowMs));
+
+function maybeCleanup() {
   const now = Date.now();
   if (now - lastCleanup < CLEANUP_INTERVAL_MS) return;
   lastCleanup = now;
-  const cutoff = now - windowMs;
+  const cutoff = now - MAX_WINDOW_MS;
   for (const [key, bucket] of store.entries()) {
     bucket.timestamps = bucket.timestamps.filter((t) => t > cutoff);
     if (bucket.timestamps.length === 0) store.delete(key);
@@ -128,7 +133,7 @@ export default async function rateLimiter(
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     "unknown";
 
-  maybeCleanup(rule.windowMs);
+  maybeCleanup();
 
   if (isRateLimited(ip, prefix, rule)) {
     const retryAfterSec = Math.ceil(rule.windowMs / 1000);

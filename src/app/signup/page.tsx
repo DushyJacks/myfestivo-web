@@ -19,7 +19,7 @@ function generateOTP(): string {
 }
 
 export default function SignupPage() {
-  const { signup, signInWithGoogle } = useAuth()
+  const { signup, signInWithGoogle, checkEmailAuthProvider } = useAuth()
   const router = useRouter()
   const [form, setForm] = useState({
     name: "",
@@ -103,6 +103,13 @@ export default function SignupPage() {
 
     setLoading(true)
     try {
+      // Pre-flight: block Google-registered emails before sending OTP
+      const provider = await checkEmailAuthProvider(form.email.trim().toLowerCase())
+      if (provider === 'google') {
+        setError("This email is already registered via Google. Please use 'Continue with Google' to sign in instead.")
+        setLoading(false)
+        return
+      }
       const otp = generateOTP()
       setGeneratedOtp(otp)
       await sendOtp(otp)
@@ -157,7 +164,9 @@ export default function SignupPage() {
       }
     } catch (err: any) {
       const code = err?.code || ""
-      if (code === "auth/email-already-in-use") setOtpError("An account with this email already exists.")
+      // Surface our custom auth-provider mismatch messages verbatim (they have no Firebase code)
+      if (!code && err?.message) setOtpError(err.message)
+      else if (code === "auth/email-already-in-use") setOtpError("An account with this email already exists.")
       else if (code === "auth/invalid-email") setOtpError("Invalid email address.")
       else if (code === "auth/weak-password") setOtpError("Password is too weak. Use at least 6 characters.")
       else setOtpError(err?.message || "Signup failed. Please try again.")
@@ -322,7 +331,9 @@ export default function SignupPage() {
                 }
               } catch (err: any) {
                 const code = err?.code || ""
-                if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request")
+                // Surface our custom auth-provider mismatch messages verbatim (they have no Firebase code)
+                if (!code && err?.message) setError(err.message)
+                else if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request")
                   setError("Sign-in was cancelled.")
                 else if (code === "auth/popup-blocked")
                   setError("Pop-up was blocked by your browser. Please allow pop-ups for this site.")

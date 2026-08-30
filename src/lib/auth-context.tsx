@@ -14,6 +14,16 @@ import {
 import { collection, query, where, getDocs, onSnapshot } from "firebase/firestore"
 import { doc, setDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore"
 
+/** Look up a user document by email address. Returns the doc data or null. */
+async function fetchUserProfileByEmail(email: string): Promise<{ authProvider?: string } | null> {
+  const db = getDb()
+  if (!db) return null
+  const q = query(collection(db, "users"), where("email", "==", email.toLowerCase().trim()))
+  const snap = await getDocs(q)
+  if (snap.empty) return null
+  return snap.docs[0].data() as { authProvider?: string }
+}
+
 const SESSION_KEY = "mf_session_start"
 const SESSION_MAX_MS = 14 * 24 * 60 * 60 * 1000 // 14 days in milliseconds
 
@@ -69,6 +79,8 @@ export interface User {
   coordinatingEvents: string[]
   /** True once the user has accepted Privacy Policy + T&C (persisted in Firestore for cross-device sync) */
   termsAccepted?: boolean
+  /** The method used to originally create this account — prevents cross-method sign-in */
+  authProvider?: 'password' | 'google'
 }
 
 /** Returns true only if the user's college email was verified within the last 6 months. */
@@ -90,6 +102,8 @@ interface AuthContextType {
   updateProfile: (updates: Partial<User>) => void
   linkCollegeEmail: (prefix: string, domain: string) => Promise<boolean>
   signInWithGoogle: () => Promise<boolean>
+  /** Returns 'google', 'password', or null (email not registered) */
+  checkEmailAuthProvider: (email: string) => Promise<'google' | 'password' | null>
   sendFriendRequest: (email: string) => Promise<boolean>
   acceptFriendRequest: (email: string) => Promise<void>
   declineFriendRequest: (email: string) => Promise<void>
@@ -254,12 +268,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     const authInstance = getAuthInstance()
     if (!authInstance) throw new Error("Firebase is not configured. Ensure NEXT_PUBLIC_FIREBASE_* environment variables are added to Netlify Site Settings and trigger a new deploy.")
+    // Pre-flight: check if this email belongs to a Google account (uses Admin SDK — covers legacy users)
+    const provider = await checkEmailAuthProvider(email)
+    if (provider === 'google') {
+      throw new Error("This email was registered using Google. Please use 'Continue with Google' to sign in.")
+    }
     try {
       const cred = await signInWithEmailAndPassword(authInstance, email, password)
       const profile = await fetchUserProfile(cred.user.uid)
       if (profile) {
         recordSessionStart()
-        setUser(profile)
+        // Backfill authProvider for legacy accounts that pre-date this field
+        if (!profile.authProvider) {
+          const db = getDb()
+          if (db) await updateDoc(doc(db, "users", cred.user.uid), { authProvider: 'password' })
+        }
+        setUser({ ...profile, authProvider: profile.authProvider ?? 'password' })
         return true
       }
       return false
@@ -273,6 +297,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!authInstance) throw new Error("Firebase is not configured. Ensure NEXT_PUBLIC_FIREBASE_* environment variables are added to Netlify Site Settings and trigger a new deploy.")
     const db = getDb()
     if (!db) throw new Error("Firebase Firestore is not configured. Ensure NEXT_PUBLIC_FIREBASE_* environment variables are added to Netlify Site Settings and trigger a new deploy.")
+    // Pre-flight: check if this email is already registered via Google (uses Admin SDK — covers legacy users)
+    const provider = await checkEmailAuthProvider(data.email)
+    if (provider === 'google') {
+      throw new Error("This email is already registered via Google. Please use 'Continue with Google' to sign in instead.")
+    }
     try {
       const cred = await createUserWithEmailAndPassword(authInstance, data.email, data.password)
       const newUser: User = {
@@ -297,6 +326,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         hostedEvents: [],
         coordinatingEvents: [],
         termsAccepted: true, // inline checkboxes on signup form enforce acceptance
+        authProvider: 'password',
       }
 
       await setDoc(doc(db, "users", cred.user.uid), newUser)
@@ -336,6 +366,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {}
   }
 
+  const checkEmailAuthProvider = async (email: string): Promise<'google' | 'password' | null> => {
+    try {
+      const res = await fetch(`/api/auth/check-provider?email=${encodeURIComponent(email.trim().toLowerCase())}`)
+      if (!res.ok) return null
+      const data = await res.json()
+      return data.provider ?? null
+    } catch {
+      return null
+    }
+  }
+
   const signInWithGoogle = async (): Promise<boolean> => {
     const authInstance = getAuthInstance()
     if (!authInstance) throw new Error("Firebase is not configured. Ensure NEXT_PUBLIC_FIREBASE_* environment variables are added to Netlify Site Settings and trigger a new deploy.")
@@ -345,8 +386,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const cred = await signInWithPopup(authInstance, googleProvider)
       const existing = await fetchUserProfile(cred.user.uid)
       if (existing) {
+        // Block password-registered users from using Google sign-in
+        if (existing.authProvider === 'password') {
+          await signOut(authInstance)
+          throw new Error("This email was registered with a password. Please sign in using your email and password instead.")
+        }
+        // Backfill authProvider for legacy Google accounts that pre-date this field
+        if (!existing.authProvider) {
+          await updateDoc(doc(db, "users", cred.user.uid), { authProvider: 'google' })
+        }
         recordSessionStart()
-        setUser(existing)
+        setUser({ ...existing, authProvider: existing.authProvider ?? 'google' })
         return true
       }
       // First-time Google sign-in — create profile
@@ -372,6 +422,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         hostedEvents: [],
         coordinatingEvents: [],
         termsAccepted: false, // GlobalTermsModal will prompt them after first sign-in
+        authProvider: 'google',
       }
       await setDoc(doc(db, "users", cred.user.uid), newUser)
       recordSessionStart()
@@ -494,7 +545,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, login, signup, logout, deleteAccount, addFriend, removeFriend, updateProfile, linkCollegeEmail, signInWithGoogle, sendFriendRequest, acceptFriendRequest, declineFriendRequest, acceptTerms }}
+      value={{ user, isLoading, login, signup, logout, deleteAccount, addFriend, removeFriend, updateProfile, linkCollegeEmail, signInWithGoogle, checkEmailAuthProvider, sendFriendRequest, acceptFriendRequest, declineFriendRequest, acceptTerms }}
     >
       {children}
     </AuthContext.Provider>

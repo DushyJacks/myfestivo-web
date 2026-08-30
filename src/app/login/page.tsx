@@ -35,7 +35,9 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       const code = err?.code || ""
-      if (code === "auth/user-not-found" || code === "auth/wrong-password" || code === "auth/invalid-credential")
+      // Surface our custom auth-provider mismatch messages verbatim (they have no Firebase code)
+      if (!code && err?.message) setError(err.message)
+      else if (code === "auth/user-not-found" || code === "auth/wrong-password" || code === "auth/invalid-credential")
         setError("Invalid email or password. Please try again.")
       else if (code === "auth/too-many-requests")
         setError("Too many attempts. Please wait a moment and try again.")

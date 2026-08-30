@@ -2,6 +2,12 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@theme {
+  --color-accent: #8B5CF6;
+  --color-accent-low: rgba(139, 92, 246, 0.08);
+  --color-accent-hover: rgba(139, 92, 246, 0.14);
+}
+
 /* ────────────────────────────────────────────────────────────────────────────
    MYFESTIVO DESIGN SYSTEM — LIGHT / DARK THEME TOKENS
    ──────────────────────────────────────────────────────────────────────────── */
