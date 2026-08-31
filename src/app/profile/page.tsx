@@ -194,9 +194,10 @@ export default function ProfilePage() {
     return !eventEnded
   })
 
+  const isFaculty = user.year === "Faculty/Staff" || user.year === "Faculty"
   const phoneDigits = phone.replace(/\D/g, "")
   const isPhoneValid = phoneDigits.length === 10
-  const canSave = name.trim() && isPhoneValid && college.trim() && department.trim() && year.trim() && rollNo.trim()
+  const canSave = name.trim() && isPhoneValid && college.trim() && department.trim() && year.trim() && (isFaculty || rollNo.trim())
 
   const handleSave = () => {
     if (hasActiveRegistration) return
@@ -443,10 +444,14 @@ export default function ProfilePage() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className={labelCls}>Roll Number <span className="text-red-400">*</span></label>
-                    {isEditing
-                      ? <Input value={rollNo} onChange={e => setRollNo(e.target.value)} className={inputCls} />
-                      : <div className={readonlyCls}>{user.rollNo || <span className="text-[var(--color-text-faint)]">Not set</span>}</div>}
+                    <label className={labelCls}>Roll Number {!isFaculty && <span className="text-red-400">*</span>}</label>
+                    {isFaculty ? (
+                      <div className={`${readonlyCls} text-[var(--color-text-faint)] italic font-mono`}>Not applicable</div>
+                    ) : isEditing ? (
+                      <Input value={rollNo} onChange={e => setRollNo(e.target.value)} className={inputCls} />
+                    ) : (
+                      <div className={readonlyCls}>{user.rollNo || <span className="text-[var(--color-text-faint)]">Not set</span>}</div>
+                    )}
                   </div>
                   <div>
                     <label className={labelCls}>Year <span className="text-red-400">*</span></label>

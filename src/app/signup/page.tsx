@@ -101,6 +101,12 @@ export default function SignupPage() {
       return
     }
 
+    const isFacultySubmit = form.year === "Faculty/Staff"
+    if (!isFacultySubmit && !form.rollNo.trim()) {
+      setError("Please enter your roll number")
+      return
+    }
+
     setLoading(true)
     try {
       // Pre-flight: block Google-registered emails before sending OTP
@@ -152,7 +158,7 @@ export default function SignupPage() {
         password: form.password,
         role: form.role,
         college: form.college,
-        rollNo: form.rollNo,
+        rollNo: form.year === "Faculty/Staff" ? "" : form.rollNo,
         department: form.department,
         year: form.year,
         phone: form.phone.replace(/\D/g, ""),
@@ -416,10 +422,32 @@ export default function SignupPage() {
                     ))}
                   </select>
                 </div>
+                <div>
+                  <label htmlFor="year" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">Year of Study</label>
+                  <select
+                    id="year"
+                    value={form.year}
+                    onChange={(e) => update("year", e.target.value)}
+                    required
+                    className="w-full h-11 px-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-border-focus)] transition-colors"
+                  >
+                    {["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "Postgraduate", "PhD", "Faculty/Staff"].map((yr) => (
+                      <option key={yr} value={yr} className="bg-[var(--color-surface-2)] text-[var(--color-text)]">{yr}</option>
+                    ))}
+                  </select>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="rollNo" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">Roll Number <span className="text-red-400">*</span></label>
-                    <Input id="rollNo" value={form.rollNo} onChange={(e) => update("rollNo", e.target.value)} placeholder="RA2211003010001" className="bg-[var(--color-surface-2)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] h-11" required />
+                    <label htmlFor="rollNo" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">
+                      Roll Number {form.year !== "Faculty/Staff" && <span className="text-red-400">*</span>}
+                    </label>
+                    {form.year === "Faculty/Staff" ? (
+                      <div className="h-11 px-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text-faint)] text-sm flex items-center font-mono italic">
+                        Not applicable
+                      </div>
+                    ) : (
+                      <Input id="rollNo" value={form.rollNo} onChange={(e) => update("rollNo", e.target.value)} placeholder="RA2211003010001" className="bg-[var(--color-surface-2)] border-[var(--color-border)] text-[var(--color-text)] placeholder:text-[var(--color-text-faint)] h-11" required />
+                    )}
                   </div>
                   <div>
                     <label htmlFor="department" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">Department</label>
@@ -436,20 +464,6 @@ export default function SignupPage() {
                       ))}
                     </select>
                   </div>
-                </div>
-                <div>
-                  <label htmlFor="year" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 block">Year of Study</label>
-                  <select
-                    id="year"
-                    value={form.year}
-                    onChange={(e) => update("year", e.target.value)}
-                    required
-                    className="w-full h-11 px-3 rounded-md bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[var(--color-text)] text-sm focus:outline-none focus:border-[var(--color-border-focus)] transition-colors"
-                  >
-                    {["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "Postgraduate", "PhD", "Faculty/Staff"].map((yr) => (
-                      <option key={yr} value={yr} className="bg-[var(--color-surface-2)] text-[var(--color-text)]">{yr}</option>
-                    ))}
-                  </select>
                 </div>
                 <div>
                   <label htmlFor="phone" className="text-[11px] font-mono tracking-widest uppercase text-[var(--color-text-muted)] mb-2 flex items-center gap-1.5">

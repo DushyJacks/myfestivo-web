@@ -40,9 +40,10 @@ export function ProfileCompleteModal() {
 
   if (!open || !user) return null
 
+  const isFaculty = year === "Faculty"
   const phoneDigits = phone.replace(/\D/g, "")
   const isPhoneValid = phoneDigits.length === 10
-  const canSave = college.trim() && department.trim() && year.trim() && rollNo.trim() && isPhoneValid && termsChecked && privacyChecked
+  const canSave = college.trim() && department.trim() && year.trim() && (isFaculty || rollNo.trim()) && isPhoneValid && termsChecked && privacyChecked
 
   const handleSave = async () => {
     if (!canSave) return
@@ -53,7 +54,7 @@ export function ProfileCompleteModal() {
         college: college.trim(),
         department: department.trim(),
         year: year.trim(),
-        rollNo: rollNo.trim(),
+        rollNo: isFaculty ? "" : rollNo.trim(),
         phone: phone.trim(),
         termsAccepted: true,
       })
@@ -176,15 +177,21 @@ export function ProfileCompleteModal() {
                 {/* Roll No */}
                 <div>
                   <label className="text-[10px] font-mono tracking-widest uppercase text-white/60 mb-1.5 flex items-center gap-1.5 block">
-                    <BookOpen className="w-3 h-3" /> Roll Number <span className="text-red-400">*</span>
+                    <BookOpen className="w-3 h-3" /> Roll Number {!isFaculty && <span className="text-red-400">*</span>}
                   </label>
-                  <Input
-                    value={rollNo}
-                    onChange={e => setRollNo(e.target.value)}
-                    placeholder="e.g. RA2211003010001"
-                    className="w-full h-10 bg-white/[0.03] border border-white/[0.08] text-white text-sm rounded-md px-3 outline-none focus:border-[rgba(179,136,255,0.4)] transition-colors"
-                    required
-                  />
+                  {isFaculty ? (
+                    <div className="w-full h-10 bg-white/[0.03] border border-white/[0.05] text-white/30 text-sm rounded-md px-3 flex items-center font-mono italic">
+                      Not applicable
+                    </div>
+                  ) : (
+                    <Input
+                      value={rollNo}
+                      onChange={e => setRollNo(e.target.value)}
+                      placeholder="e.g. RA2211003010001"
+                      className="w-full h-10 bg-white/[0.03] border border-white/[0.08] text-white text-sm rounded-md px-3 outline-none focus:border-[rgba(179,136,255,0.4)] transition-colors"
+                      required
+                    />
+                  )}
                 </div>
 
                 {/* Phone (required) */}

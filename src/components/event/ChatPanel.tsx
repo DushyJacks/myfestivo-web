@@ -14,6 +14,8 @@ interface ChatPanelProps {
   channelId: string // "general" or sub-event ID
   channelLabel: string
   messages: ChatMessage[]
+  /** When true the input box is hidden — the user can read but not post */
+  readOnly?: boolean
 }
 
 /** Returns "YYYY-MM-DD" from the local calendar (not UTC) for a given Date */
@@ -59,7 +61,7 @@ function formatTime(timestamp: string): string {
   return timestamp
 }
 
-export function ChatPanel({ event, eventId, channelId, channelLabel, messages }: ChatPanelProps) {
+export function ChatPanel({ event, eventId, channelId, channelLabel, messages, readOnly = false }: ChatPanelProps) {
   const { user } = useAuth()
   const { addChatMessage } = useEvents()
   const [msg, setMsg] = useState("")
@@ -201,8 +203,8 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      {user && (
+      {/* Input — hidden for read-only viewers (e.g. Staff) */}
+      {user && !readOnly && (
         <div className="px-4 py-4 border-t border-[var(--color-border)] bg-[var(--color-surface-2)] flex gap-2">
           <Input
             value={msg}
@@ -218,6 +220,12 @@ export function ChatPanel({ event, eventId, channelId, channelLabel, messages }:
           >
             <Send className="w-4 h-4" />
           </Button>
+        </div>
+      )}
+      {/* Read-only notice */}
+      {readOnly && (
+        <div className="px-4 py-3 border-t border-[var(--color-border)] bg-[var(--color-surface-2)]">
+          <p className="text-[10px] font-mono text-[var(--color-text-faint)] tracking-widest uppercase text-center">Read-only — Staff cannot post messages</p>
         </div>
       )}
     </div>

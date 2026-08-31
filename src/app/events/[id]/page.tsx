@@ -236,6 +236,7 @@ export default function EventDetailPage() {
   // Loosened: college email verification no longer required — any user can participate
   const canAccessIntra = !event.collegeDomain || !!user
   const isRestricted = !!(event.collegeDomain && !canAccessIntra)
+  const isFaculty = user?.role === "faculty"
 
   // ── Check-In CSV export (checked-in participants only) ──
   const downloadCheckedInCSV = () => {
@@ -267,7 +268,7 @@ export default function EventDetailPage() {
 
   const handleRegister = (seId: string) => {
     if (!user) { router.push("/login"); return }
-    if (isRestricted) return
+    if (isRestricted || isFaculty) return
 
     registerForSubEvent(event.id, seId, {
       id: `reg-${Date.now()}`,
@@ -573,9 +574,9 @@ export default function EventDetailPage() {
                                 if (!user) { router.push("/login"); return }
                                 setSelectedSubEventForReg(se)
                               }}
-                              disabled={isRestricted || isStaffRestricted}
+                              disabled={isRestricted || isStaffRestricted || isFaculty}
                               variant="outline" className="h-8 px-4 text-[10px] font-mono border-[var(--color-border)] hover:bg-[#B388FF] hover:text-black hover:border-[#B388FF] text-[var(--color-text)] bg-[var(--color-surface-2)] transition-all">
-                              {!user ? "Login to Register" : isStaffRestricted ? "Restricted" : "Register"}
+                              {!user ? "Login to Register" : isFaculty ? "Not available for Faculty" : isStaffRestricted ? "Restricted" : "Register"}
                             </Button>
                           )}
                         </div>
@@ -1090,17 +1091,21 @@ export default function EventDetailPage() {
                                 <span className="text-[10px] font-mono text-[var(--color-text-muted)] uppercase tracking-widest">
                                   Arrived @ {reg.checkInTime ? new Date(reg.checkInTime.includes('T') ? reg.checkInTime : reg.checkInTime.replace(' ', 'T') + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'UNKNOWN'}
                                 </span>
-                                <button
-                                  onClick={() => {
-                                    if (window.confirm(`Undo check-in for ${reg.userName}?`)) {
-                                      undoCheckInParticipant(event.id, reg.id)
-                                    }
-                                  }}
-                                  className="text-[9px] font-mono text-[var(--color-text-faint)] hover:text-red-400 border border-[var(--color-border)] hover:border-red-400/40 rounded px-2 py-0.5 transition-colors uppercase tracking-wider"
-                                >
-                                  Undo
-                                </button>
+                                {!isStaff && (
+                                  <button
+                                    onClick={() => {
+                                      if (window.confirm(`Undo check-in for ${reg.userName}?`)) {
+                                        undoCheckInParticipant(event.id, reg.id)
+                                      }
+                                    }}
+                                    className="text-[9px] font-mono text-[var(--color-text-faint)] hover:text-red-400 border border-[var(--color-border)] hover:border-red-400/40 rounded px-2 py-0.5 transition-colors uppercase tracking-wider"
+                                  >
+                                    Undo
+                                  </button>
+                                )}
                               </>
+                            ) : isStaff ? (
+                              <span className="text-[10px] font-mono text-[var(--color-text-faint)] uppercase tracking-widest">Pending</span>
                             ) : (
                               <Button onClick={() => checkInParticipant(event.id, reg.id)} className="h-8 bg-white text-black text-[10px] font-mono tracking-widest uppercase hover:bg-[var(--color-surface-3)]">Check In</Button>
                             )}
@@ -1253,7 +1258,7 @@ export default function EventDetailPage() {
         )}
 
         {/* ═══ CHAT TAB ═══ */}
-        {activeTab === "chat" && (user && (isHost || isCoordinator || isRegistered || isVolunteer)) && (
+        {activeTab === "chat" && (user && (isHost || isCoordinator || isRegistered || isVolunteer || isStaff)) && (
           <motion.div variants={pageItem} className="max-w-3xl">
             <MicroLabel>Event Chat</MicroLabel>
             <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
@@ -1281,13 +1286,14 @@ export default function EventDetailPage() {
                 channelId={chatChannel}
                 channelLabel={chatChannel === "general" ? "General" : event.subEvents.find(s => s.id === chatChannel)?.name || "Chat"}
                 messages={event.chatMessages}
+                readOnly={isStaff && !isHost}
               />
             </GlassCard>
           </motion.div>
         )}
 
         {/* ═══ PARTICIPANTS TAB ═══ */}
-        {activeTab === "participants" && isHost && (
+        {activeTab === "participants" && (isHost || isStaff) && (
           <motion.div variants={pageItem}>
             <ParticipantsList event={event} />
           </motion.div>
